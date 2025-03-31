@@ -4,12 +4,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
-import { History, Search, SlidersHorizontal, Eye } from "lucide-react";
+import { History, Search, SlidersHorizontal, Eye, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
 import { Badge } from "@/Components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
-import { usePage } from "@inertiajs/react";
+import { usePage, router } from "@inertiajs/react";
+import { toast } from "sonner";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/Components/ui/alert-dialog";
 
-// Define the Banner type based on your backend data
 export interface Banner {
   id: number;
   titulo: string | null;
@@ -23,21 +24,15 @@ export interface Banner {
 }
 
 const HistorialBanners = () => {
-  // Get banners data from Inertia page props
-  const { banners } = (usePage().props as unknown) as { banners: Banner[] };
-  
-  // State for search and filters
+  const { banners } = usePage().props as unknown as { banners: Banner[] };
   const [searchTerm, setSearchTerm] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
 
-  // Filter banners based on search term and status
   const filteredBanners = banners.filter((banner) => {
-    // Search by title or subtitle
     const matchesSearch = 
       (banner.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
       (banner.subtitulo?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
     
-    // Filter by status
     const matchesStatus = statusFilter === "all" || 
       (statusFilter === "active" && banner.activo) || 
       (statusFilter === "inactive" && !banner.activo);
@@ -45,7 +40,6 @@ const HistorialBanners = () => {
     return matchesSearch && matchesStatus;
   });
 
-  // Format date for display
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
       day: '2-digit',
@@ -56,9 +50,22 @@ const HistorialBanners = () => {
     });
   };
 
-  // Get badge variant based on status
   const getStatusBadgeVariant = (active: boolean) => {
-    return active ? "default" : "destructive";
+    return active ? "default" : "destructive"; // Map "success" to "default"
+  };
+
+  const handleDelete = (id: number) => {
+    router.delete(route('banners.destroy', id), {
+      onSuccess: () => toast.success('Banner eliminado correctamente'),
+      onError: () => toast.error('Error al eliminar el banner')
+    });
+  };
+
+  const toggleStatus = (id: number, currentStatus: boolean) => {
+    router.put(route('banners.toggle-status', id), {}, {
+      onSuccess: () => toast.success(`Banner ${!currentStatus ? 'activado' : 'desactivado'} correctamente`),
+      onError: () => toast.error('Error al cambiar el estado del banner')
+    });
   };
 
   return (
@@ -71,7 +78,7 @@ const HistorialBanners = () => {
               <div>
                 <CardTitle>Historial de Banners</CardTitle>
                 <CardDescription className="mt-1">
-                  Registro histórico de todos los banners, incluyendo los inactivos
+                  Registro histórico de todos los banners
                 </CardDescription>
               </div>
             </div>
@@ -87,7 +94,6 @@ const HistorialBanners = () => {
             </TabsList>
 
             <TabsContent value="list" className="space-y-6">
-              {/* Search and filters */}
               <div className="flex flex-wrap gap-4 mb-4 items-center">
                 <div className="relative w-full md:w-80">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
@@ -110,14 +116,9 @@ const HistorialBanners = () => {
                       <SelectItem value="inactive">Inactivos</SelectItem>
                     </SelectContent>
                   </Select>
-
-                  <Button variant="outline" size="icon" title="Más filtros">
-                    <SlidersHorizontal className="h-4 w-4" />
-                  </Button>
                 </div>
               </div>
 
-              {/* Banners table */}
               {filteredBanners.length > 0 ? (
                 <div className="overflow-x-auto rounded-lg border">
                   <Table>
@@ -129,7 +130,7 @@ const HistorialBanners = () => {
                         <TableHead>Subtítulo</TableHead>
                         <TableHead>Fecha de creación</TableHead>
                         <TableHead>Estado</TableHead>
-                        <TableHead className="w-16 text-center">Acciones</TableHead>
+                        <TableHead className="w-32 text-center">Acciones</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -160,14 +161,49 @@ const HistorialBanners = () => {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <div className="flex justify-center">
+                            <div className="flex justify-center gap-2">
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                title="Ver detalles"
+                                title={banner.activo ? "Desactivar" : "Activar"}
+                                onClick={() => toggleStatus(banner.id, banner.activo)}
                               >
-                                <Eye className="h-4 w-4" />
+                                {banner.activo ? (
+                                  <ToggleRight className="h-4 w-4 text-green-500" />
+                                ) : (
+                                  <ToggleLeft className="h-4 w-4 text-gray-500" />
+                                )}
                               </Button>
+                              
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    title="Eliminar"
+                                    className="text-red-500 hover:text-red-700"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Esta acción eliminará permanentemente el banner y no se puede deshacer.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                      onClick={() => handleDelete(banner.id)}
+                                      className="bg-red-600 hover:bg-red-700"
+                                    >
+                                      Eliminar
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -216,6 +252,42 @@ const HistorialBanners = () => {
                         <p className="text-xs text-muted-foreground mt-2">
                           {formatDate(banner.created_at)}
                         </p>
+                        <div className="flex justify-end gap-2 mt-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => toggleStatus(banner.id, banner.activo)}
+                          >
+                            {banner.activo ? "Desactivar" : "Activar"}
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                              >
+                                Eliminar
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Esta acción eliminará permanentemente el banner.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction 
+                                  onClick={() => handleDelete(banner.id)}
+                                  className="bg-red-600 hover:bg-red-700"
+                                >
+                                  Eliminar
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
                       </CardContent>
                     </Card>
                   ))
