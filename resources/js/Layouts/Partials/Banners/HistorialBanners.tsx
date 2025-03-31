@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/Components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table";
 import { Button } from "@/Components/ui/button";
@@ -7,79 +7,58 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { History, Search, SlidersHorizontal, Eye } from "lucide-react";
 import { Badge } from "@/Components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
+import { usePage } from "@inertiajs/react";
 
-// Tipo para los datos del banner
-export interface BannerRecord {
+// Define the Banner type based on your backend data
+export interface Banner {
   id: number;
-  name: string;
-  url: string;
-  date: string;
-  status: "active" | "deleted";
-  uploadedBy: string;
+  titulo: string | null;
+  subtitulo: string | null;
+  imagen_principal: string;
+  activo: boolean;
+  fecha_inicio: string | null;
+  fecha_fin: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
-// Función para obtener banners del localStorage
-const getBannersFromStorage = (): BannerRecord[] => {
-  const storedBanners = localStorage.getItem('banners');
-  if (storedBanners) {
-    return JSON.parse(storedBanners);
-  }
-  return [];
-};
-
 const HistorialBanners = () => {
-  // Estado para los banners
-  const [banners, setBanners] = useState<BannerRecord[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [isLoading, setIsLoading] = useState(true);
+  // Get banners data from Inertia page props
+  const { banners } = (usePage().props as unknown) as { banners: Banner[] };
+  
+  // State for search and filters
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [statusFilter, setStatusFilter] = React.useState<string>("all");
 
-  // Cargar banners del localStorage
-  useEffect(() => {
-    const loadBanners = () => {
-      const storedBanners = getBannersFromStorage();
-      setBanners(storedBanners);
-      setIsLoading(false);
-    };
-
-    loadBanners();
-
-    // Configurar un listener para detectar cambios en localStorage
-    const handleStorageChange = () => {
-      loadBanners();
-    };
-
-    // Escuchar eventos de almacenamiento para actualizaciones en tiempo real
-    window.addEventListener('storage', handleStorageChange);
-
-    // También podemos simular un evento de cambio para otros componentes en la misma página
-    const intervalId = setInterval(loadBanners, 2000);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      clearInterval(intervalId);
-    };
-  }, []);
-
-  // Filtrar banners
+  // Filter banners based on search term and status
   const filteredBanners = banners.filter((banner) => {
-    // Filtro por término de búsqueda
-    const matchesSearch = banner.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (banner.uploadedBy && banner.uploadedBy.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    // Filtro por estado
-    const matchesStatus = statusFilter === "all" || banner.status === statusFilter;
-
+    // Search by title or subtitle
+    const matchesSearch = 
+      (banner.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+      (banner.subtitulo?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
+    
+    // Filter by status
+    const matchesStatus = statusFilter === "all" || 
+      (statusFilter === "active" && banner.activo) || 
+      (statusFilter === "inactive" && !banner.activo);
+    
     return matchesSearch && matchesStatus;
   });
 
-  // Obtener el color del badge según el estado
-  const getStatusBadgeVariant = (status: string) => {
-    switch (status) {
-      case "active": return "success";
-      case "deleted": return "destructive";
-      default: return "default";
-    }
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  // Get badge variant based on status
+  const getStatusBadgeVariant = (active: boolean) => {
+    return active ? "default" : "destructive";
   };
 
   return (
@@ -92,7 +71,7 @@ const HistorialBanners = () => {
               <div>
                 <CardTitle>Historial de Banners</CardTitle>
                 <CardDescription className="mt-1">
-                  Registro histórico de todos los banners, incluyendo los eliminados
+                  Registro histórico de todos los banners, incluyendo los inactivos
                 </CardDescription>
               </div>
             </div>
@@ -108,12 +87,12 @@ const HistorialBanners = () => {
             </TabsList>
 
             <TabsContent value="list" className="space-y-6">
-              {/* Filtros y búsqueda */}
+              {/* Search and filters */}
               <div className="flex flex-wrap gap-4 mb-4 items-center">
                 <div className="relative w-full md:w-80">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
                   <Input
-                    placeholder="Buscar por nombre..."
+                    placeholder="Buscar por título o subtítulo..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-9"
@@ -128,7 +107,7 @@ const HistorialBanners = () => {
                     <SelectContent>
                       <SelectItem value="all">Todos</SelectItem>
                       <SelectItem value="active">Activos</SelectItem>
-                      <SelectItem value="deleted">Eliminados</SelectItem>
+                      <SelectItem value="inactive">Inactivos</SelectItem>
                     </SelectContent>
                   </Select>
 
@@ -138,22 +117,18 @@ const HistorialBanners = () => {
                 </div>
               </div>
 
-              {/* Tabla de banners */}
-              {isLoading ? (
-                <div className="text-center py-12">
-                  <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-                  <p className="mt-4 text-slate-500">Cargando historial de banners...</p>
-                </div>
-              ) : filteredBanners.length > 0 ? (
-                <div className="overflow-x-auto rounded-lg border md:block hidden">
+              {/* Banners table */}
+              {filteredBanners.length > 0 ? (
+                <div className="overflow-x-auto rounded-lg border">
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead className="w-16">ID</TableHead>
-                        <TableHead className="w-1/4">Nombre</TableHead>
-                        <TableHead>Fecha</TableHead>
+                        <TableHead>Imagen</TableHead>
+                        <TableHead>Título</TableHead>
+                        <TableHead>Subtítulo</TableHead>
+                        <TableHead>Fecha de creación</TableHead>
                         <TableHead>Estado</TableHead>
-                        <TableHead>Subido por</TableHead>
                         <TableHead className="w-16 text-center">Acciones</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -161,23 +136,29 @@ const HistorialBanners = () => {
                       {filteredBanners.map((banner) => (
                         <TableRow key={banner.id}>
                           <TableCell className="font-mono text-xs">{banner.id}</TableCell>
-                          <TableCell className="truncate max-w-xs">
-                            <div className="flex items-center gap-2">
+                          <TableCell>
+                            <div className="h-12 w-20">
                               <img
-                                src={banner.url}
-                                alt={banner.name}
-                                className="h-8 w-12 object-cover rounded border"
+                                src={banner.imagen_principal}
+                                alt={banner.titulo || "Banner sin título"}
+                                className="h-full w-full object-cover rounded border"
                               />
-                              <span className="truncate">{banner.name}</span>
                             </div>
                           </TableCell>
-                          <TableCell>{banner.date}</TableCell>
+                          <TableCell className="max-w-xs truncate">
+                            {banner.titulo || "Sin título"}
+                          </TableCell>
+                          <TableCell className="max-w-xs truncate">
+                            {banner.subtitulo || "Sin subtítulo"}
+                          </TableCell>
                           <TableCell>
-                            <Badge variant={getStatusBadgeVariant(banner.status) as any}>
-                              {banner.status === "active" ? "Activo" : "Eliminado"}
+                            {formatDate(banner.created_at)}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={getStatusBadgeVariant(banner.activo)}>
+                              {banner.activo ? "Activo" : "Inactivo"}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-sm">{banner.uploadedBy || "Usuario actual"}</TableCell>
                           <TableCell>
                             <div className="flex justify-center">
                               <Button
@@ -205,67 +186,36 @@ const HistorialBanners = () => {
                   </p>
                 </div>
               )}
-
-              {/* Vista móvil */}
-              <div className="md:hidden">
-                {filteredBanners.map((banner) => (
-                  <div key={banner.id} className="bg-white p-4 rounded-lg shadow-md mb-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div>
-                        <p className="font-mono text-xs">ID: {banner.id}</p>
-                        <p className="truncate max-w-xs">{banner.name}</p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        title="Ver detalles"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <img
-                      src={banner.url}
-                      alt={banner.name}
-                      className="w-full rounded border object-cover mb-2"
-                    />
-                    <p className="text-sm text-gray-500">{banner.date}</p>
-                    <Badge variant={getStatusBadgeVariant(banner.status) as any}>
-                      {banner.status === "active" ? "Activo" : "Eliminado"}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
             </TabsContent>
 
             <TabsContent value="grid">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {isLoading ? (
-                  Array(3).fill(0).map((_, index) => (
-                    <div key={index} className="border rounded-lg p-4 flex flex-col gap-2 animate-pulse">
-                      <div className="h-36 bg-slate-200 rounded w-full"></div>
-                      <div className="h-4 bg-slate-200 rounded w-3/4"></div>
-                      <div className="h-4 bg-slate-200 rounded w-1/2"></div>
-                    </div>
-                  ))
-                ) : filteredBanners.length > 0 ? (
+                {filteredBanners.length > 0 ? (
                   filteredBanners.map((banner) => (
                     <Card key={banner.id} className="overflow-hidden">
-                      <div className="relative">
+                      <div className="relative aspect-video">
                         <img
-                          src={banner.url}
-                          alt={banner.name}
-                          className="w-full h-36 object-cover"
+                          src={banner.imagen_principal}
+                          alt={banner.titulo || "Banner sin título"}
+                          className="w-full h-full object-cover"
                         />
                         <Badge
                           className="absolute top-2 right-2"
-                          variant={getStatusBadgeVariant(banner.status) as any}
+                          variant={getStatusBadgeVariant(banner.activo)}
                         >
-                          {banner.status === "active" ? "Activo" : "Eliminado"}
+                          {banner.activo ? "Activo" : "Inactivo"}
                         </Badge>
                       </div>
                       <CardContent className="p-4">
-                        <p className="font-medium truncate">{banner.name}</p>
-                        <p className="text-sm text-muted-foreground mt-1">{banner.date}</p>
+                        <p className="font-medium truncate">
+                          {banner.titulo || "Sin título"}
+                        </p>
+                        <p className="text-sm text-muted-foreground mt-1 truncate">
+                          {banner.subtitulo || "Sin subtítulo"}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          {formatDate(banner.created_at)}
+                        </p>
                       </CardContent>
                     </Card>
                   ))
