@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "@inertiajs/react";
-import { ChevronDown, ChevronRight, Home, LogOut, Car, Users, BarChart as ChartBar, Cog, Menu, FileText, CreditCard, Bell, HelpCircle, UserPlus, Truck, Calendar, BarChart2, PieChart, TrendingUp, Layers, MessageCircle, Tag, Megaphone, Package, Wrench , Briefcase } from "lucide-react";
+import { ChevronDown, ChevronRight, Home, LogOut, Car, Users, BarChart as ChartBar, Cog, Menu, FileText, CreditCard, Bell, HelpCircle, UserPlus, Truck, Calendar, BarChart2, PieChart, TrendingUp, Layers, MessageCircle, Tag, Megaphone, Package, Wrench , Briefcase, Bike } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -131,7 +131,7 @@ const Sidebar = ({ isOpen, toggleSidebar, activeHref = window.location.pathname 
       ],
     },
     {
-      icon: <Truck size={20} />,
+      icon: <Bike size={20} />,
       label: "Gestión de Motos",
       subItems: [
         { label: "Registro de Motos", href: "/motos/registro" },
