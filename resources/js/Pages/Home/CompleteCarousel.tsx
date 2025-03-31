@@ -1,110 +1,94 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Circle, CircleDot } from 'lucide-react';
+import { usePage } from '@inertiajs/react';
 
-// Advertisement type definition
-interface Advertisement {
+interface Banner {
   id: number;
-  title: string;
-  subtitle: string;
-  imageUrl: string;
-  ctaText: string;
-  ctaLink: string;
+  titulo: string | null;
+  subtitulo: string | null;
+  imagen_principal: string;
+  fecha_inicio: string | null;
+  fecha_fin: string | null;
+  activo: boolean;
+  orden: number;
+  created_at: string;
+  updated_at: string;
 }
 
-// Sample advertisement data
-const advertisements: Advertisement[] = [
-  {
-    id: 1,
-    title: "Summer Collection",
-    subtitle: "Discover our new arrivals with up to 40% off",
-    imageUrl: "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80",
-    ctaText: "Shop Now",
-    ctaLink: "/summer-collection"
-  },
-  {
-    id: 2,
-    title: "Premium Headphones",
-    subtitle: "Experience crystal clear sound with noise cancellation",
-    imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80",
-    ctaText: "Learn More",
-    ctaLink: "/headphones"
-  },
-  {
-    id: 3,
-    title: "Luxury Watches",
-    subtitle: "Timeless elegance for every occasion",
-    imageUrl: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80",
-    ctaText: "View Collection",
-    ctaLink: "/watches"
-  },
-  {
-    id: 4,
-    title: "Smart Home Devices",
-    subtitle: "Transform your living space with cutting-edge technology",
-    imageUrl: "https://images.unsplash.com/photo-1558002038-1055e2e28ed1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80",
-    ctaText: "Discover",
-    ctaLink: "/smart-home"
-  },
-  {
-    id: 5,
-    title: "Wireless Earbuds",
-    subtitle: "Crystal clear sound with long battery life",
-    imageUrl: "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-    ctaText: "Buy Now",
-    ctaLink: "/earbuds"
-  }
-];
-
-export default function ResponsiveCarousel() {
+export default function InfiniteCarousel() {
+  const { props } = usePage();
+  const banners = props.banners as Banner[] || [];
+  
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [autoplay, setAutoplay] = useState(true);
+  const [transitionEnabled, setTransitionEnabled] = useState(true);
 
-  // Handle next slide
-  const nextSlide = () => {
-    if (isTransitioning) return;
+  // Filtrar solo banners activos y vigentes
+  const activeBanners = banners.filter(banner => {
+    if (!banner.activo) return false;
+    
+    const now = new Date();
+    const startDate = banner.fecha_inicio ? new Date(banner.fecha_inicio) : null;
+    const endDate = banner.fecha_fin ? new Date(banner.fecha_fin) : null;
+    
+    const startValid = !startDate || startDate <= now;
+    const endValid = !endDate || endDate >= now;
+    
+    return startValid && endValid;
+  });
 
+  // Clonamos los primeros y últimos banners para el efecto infinito
+  const extendedBanners = [
+    activeBanners[activeBanners.length - 1], // último banner al inicio
+    ...activeBanners,
+    activeBanners[0] // primer banner al final
+  ];
+
+  const totalSlides = extendedBanners.length;
+  const realCurrentIndex = currentIndex + 1; // Ajustamos por el slide clonado al inicio
+
+  // Navegación con efecto infinito
+  const goToSlide = useCallback((newIndex: number, transition = true) => {
+    if (isTransitioning || activeBanners.length === 0) return;
+    
+    setTransitionEnabled(transition);
     setIsTransitioning(true);
-    setCurrentIndex((prevIndex) =>
-      prevIndex === advertisements.length - 1 ? 0 : prevIndex + 1
-    );
-
-    // Reset transition state after animation completes
+    setCurrentIndex(newIndex);
+    
     setTimeout(() => setIsTransitioning(false), 500);
-  };
+  }, [isTransitioning, activeBanners.length]);
 
-  // Handle previous slide
-  const prevSlide = () => {
-    if (isTransitioning) return;
+  const nextSlide = useCallback(() => {
+    if (realCurrentIndex === totalSlides - 1) {
+      // Si estamos en el último slide clonado, saltamos sin animación al real
+      goToSlide(0, false);
+      // Luego movemos al slide 1 con animación
+      setTimeout(() => goToSlide(1), 50);
+    } else {
+      goToSlide(currentIndex + 1);
+    }
+  }, [currentIndex, realCurrentIndex, totalSlides, goToSlide]);
 
-    setIsTransitioning(true);
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? advertisements.length - 1 : prevIndex - 1
-    );
-
-    // Reset transition state after animation completes
-    setTimeout(() => setIsTransitioning(false), 500);
-  };
-
-  // Go to specific slide
-  const goToSlide = (index: number) => {
-    if (isTransitioning || index === currentIndex) return;
-
-    setIsTransitioning(true);
-    setCurrentIndex(index);
-
-    // Reset transition state after animation completes
-    setTimeout(() => setIsTransitioning(false), 500);
-  };
+  const prevSlide = useCallback(() => {
+    if (realCurrentIndex === 0) {
+      // Si estamos en el primer slide clonado, saltamos sin animación al final real
+      goToSlide(totalSlides - 3, false);
+      // Luego movemos al penúltimo slide con animación
+      setTimeout(() => goToSlide(totalSlides - 2), 50);
+    } else {
+      goToSlide(currentIndex - 1);
+    }
+  }, [currentIndex, realCurrentIndex, totalSlides, goToSlide]);
 
   // Autoplay functionality
   useEffect(() => {
     let interval: number | undefined;
 
-    if (autoplay) {
+    if (autoplay && activeBanners.length > 1) {
       interval = window.setInterval(() => {
         nextSlide();
-      }, 5000); // Change slide every 5 seconds
+      }, 5000); // Cambia cada 5 segundos
     }
 
     return () => {
@@ -112,11 +96,24 @@ export default function ResponsiveCarousel() {
         clearInterval(interval);
       }
     };
-  }, [currentIndex, autoplay, isTransitioning]);
+  }, [autoplay, nextSlide, activeBanners.length]);
 
-  // Pause autoplay on hover
+  // Pausar autoplay al interactuar
   const handleMouseEnter = () => setAutoplay(false);
   const handleMouseLeave = () => setAutoplay(true);
+
+  // Ir a slide específico (para los indicadores)
+  const goToRealSlide = (index: number) => {
+    goToSlide(index + 1); // +1 por el slide clonado al inicio
+  };
+
+  if (activeBanners.length === 0) {
+    return (
+      <div className="w-full max-w-6xl mx-auto h-[50vh] md:h-[60vh] lg:h-[70vh] flex items-center justify-center bg-gray-100 rounded-lg">
+        <p className="text-gray-500">No hay banners activos para mostrar</p>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -124,76 +121,93 @@ export default function ResponsiveCarousel() {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Carousel container */}
+      {/* Contenedor del carrusel */}
       <div
         className="flex h-full transition-transform duration-500 ease-in-out"
-        style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+        style={{ 
+          transform: `translateX(-${realCurrentIndex * 100}%)`,
+          transition: transitionEnabled ? 'transform 500ms ease-in-out' : 'none'
+        }}
       >
-        {advertisements.map((ad) => (
+        {extendedBanners.map((banner, index) => (
           <div
-            key={ad.id}
+            key={`${banner.id}-${index}`}
             className="relative flex-shrink-0 w-full h-full"
             style={{ minWidth: '100%' }}
           >
-            {/* Background image with overlay */}
+            {/* Imagen de fondo con overlay */}
             <div className="absolute inset-0 w-full h-full">
               <img
-                src={ad.imageUrl}
-                alt={ad.title}
+                src={banner.imagen_principal}
+                alt={banner.titulo || "Banner sin título"}
                 className="object-cover w-full h-full"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 
+                    "https://placehold.co/800x400/f3f4f6/a3a3a3?text=Imagen+no+disponible";
+                }}
               />
               <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent"></div>
             </div>
 
-            {/* Content */}
-            <div className="absolute inset-0 flex flex-col justify-center px-4 md:px-8 lg:px-16 text-white">
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight mb-3">{ad.title}</h2>
-              <p className="text-lg md:text-xl lg:text-2xl mb-8 max-w-md">{ad.subtitle}</p>
-              <a
-                href={ad.ctaLink}
-                className="inline-block px-6 py-3 text-sm font-medium text-white transition-colors bg-indigo-600 rounded-md hover:bg-indigo-700 w-fit"
-              >
-                {ad.ctaText}
-              </a>
-            </div>
+            {/* Contenido (solo si hay título o subtítulo) */}
+            {(banner.titulo || banner.subtitulo) && (
+              <div className="absolute inset-0 flex flex-col justify-center px-4 md:px-8 lg:px-16 text-white">
+                {banner.titulo && (
+                  <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight mb-3">
+                    {banner.titulo}
+                  </h2>
+                )}
+                {banner.subtitulo && (
+                  <p className="text-lg md:text-xl lg:text-2xl mb-8 max-w-md">
+                    {banner.subtitulo}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         ))}
       </div>
 
-      {/* Navigation arrows */}
-      <button
-        onClick={prevSlide}
-        className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
-        aria-label="Previous slide"
-      >
-        <ChevronLeft size={24} />
-      </button>
-
-      <button
-        onClick={nextSlide}
-        className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
-        aria-label="Next slide"
-      >
-        <ChevronRight size={24} />
-      </button>
-
-      {/* Indicators */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
-        {advertisements.map((_, index) => (
+      {/* Flechas de navegación (solo si hay más de un banner) */}
+      {activeBanners.length > 1 && (
+        <>
           <button
-            key={index}
-            onClick={() => goToSlide(index)}
-            className="p-1 focus:outline-none"
-            aria-label={`Go to slide ${index + 1}`}
+            onClick={prevSlide}
+            className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
+            aria-label="Previous slide"
           >
-            {index === currentIndex ? (
-              <CircleDot size={16} className="text-white" />
-            ) : (
-              <Circle size={16} className="text-white/70" />
-            )}
+            <ChevronLeft size={24} />
           </button>
-        ))}
-      </div>
+
+          <button
+            onClick={nextSlide}
+            className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
+            aria-label="Next slide"
+          >
+            <ChevronRight size={24} />
+          </button>
+        </>
+      )}
+
+      {/* Indicadores (solo si hay más de un banner) */}
+      {activeBanners.length > 1 && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+          {activeBanners.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => goToRealSlide(index)}
+              className="p-1 focus:outline-none"
+              aria-label={`Go to slide ${index + 1}`}
+            >
+              {index === (realCurrentIndex - 1) % activeBanners.length ? (
+                <CircleDot size={16} className="text-white" />
+              ) : (
+                <Circle size={16} className="text-white/70" />
+              )}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -97,9 +97,22 @@ Route::middleware('auth')->group(function () {
     
 // Banners
 Route::prefix('banners')->group(function () {
+    // Create
     Route::get('/subir', [SubirBannersController::class, 'index'])->name('banners.subir');
     Route::post('/subir', [SubirBannersController::class, 'store'])->name('banners.store');
+    
+    // Read
     Route::get('/historial', [HistorialBannersController::class, 'index'])->name('banners.historial');
+    
+    // Update
+    Route::put('/{banner}', [SubirBannersController::class, 'update'])->name('banners.update');
+    
+    // Delete
+    Route::delete('/{banner}', [SubirBannersController::class, 'destroy'])->name('banners.destroy');
+    
+    // Additional actions
+    Route::put('/{banner}/toggle-status', [SubirBannersController::class, 'toggleStatus'])->name('banners.toggle-status');
+    Route::post('/reordenar', [SubirBannersController::class, 'reorder'])->name('banners.reorder');
 });
     
     // Facturación

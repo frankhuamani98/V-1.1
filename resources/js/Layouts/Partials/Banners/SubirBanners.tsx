@@ -10,8 +10,12 @@ import { Switch } from "@/Components/ui/switch"
 const SubirBanners: React.FC = () => {
   const [useUrl, setUseUrl] = React.useState(true)
   const { data, setData, post, processing, errors, reset } = useForm({
+    titulo: "",
+    subtitulo: "",
     imagen_principal: "",
-    imagen_archivo: null as File | null
+    imagen_archivo: null as File | null,
+    fecha_inicio: "",
+    fecha_fin: ""
   })
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,6 +34,8 @@ const SubirBanners: React.FC = () => {
     e.preventDefault()
 
     const formData = new FormData()
+    formData.append('titulo', data.titulo)
+    formData.append('subtitulo', data.subtitulo)
     if (useUrl) {
       formData.append('imagen_principal', data.imagen_principal)
     } else {
@@ -37,6 +43,8 @@ const SubirBanners: React.FC = () => {
         formData.append('imagen_archivo', data.imagen_archivo)
       }
     }
+    formData.append('fecha_inicio', data.fecha_inicio)
+    formData.append('fecha_fin', data.fecha_fin)
     formData.append('activo', 'true')
 
     router.post(route("banners.store"), formData, {
@@ -46,13 +54,9 @@ const SubirBanners: React.FC = () => {
         reset()
       },
       onError: (errors) => {
-        if (errors.imagen_principal) {
-          toast.error(errors.imagen_principal)
-        } else if (errors.imagen_archivo) {
-          toast.error(errors.imagen_archivo)
-        } else {
-          toast.error("Error al crear el banner")
-        }
+        Object.entries(errors).forEach(([key, message]) => {
+          toast.error(message)
+        })
       },
     })
   }
@@ -64,52 +68,93 @@ const SubirBanners: React.FC = () => {
           <CardTitle className="text-2xl font-bold">Subir Banner</CardTitle>
         </CardHeader>
         <CardContent className="p-6 space-y-6">
-          <div className="flex items-center space-x-2">
-            <Switch 
-              id="upload-mode" 
-              checked={useUrl}
-              onCheckedChange={setUseUrl}
-            />
-            <Label htmlFor="upload-mode">
-              {useUrl ? "Usar URL" : "Subir archivo"}
-            </Label>
-          </div>
+          <div className="grid grid-cols-1 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="titulo">Título (opcional)</Label>
+              <Input
+                id="titulo"
+                value={data.titulo}
+                onChange={(e) => setData("titulo", e.target.value)}
+                placeholder="Título del banner"
+                maxLength={100}
+              />
+              {errors.titulo && <p className="text-red-500 text-xs mt-1">{errors.titulo}</p>}
+            </div>
 
-          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="subtitulo">Subtítulo (opcional)</Label>
+              <Input
+                id="subtitulo"
+                value={data.subtitulo}
+                onChange={(e) => setData("subtitulo", e.target.value)}
+                placeholder="Subtítulo del banner"
+                maxLength={200}
+              />
+              {errors.subtitulo && <p className="text-red-500 text-xs mt-1">{errors.subtitulo}</p>}
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="upload-mode" 
+                checked={useUrl}
+                onCheckedChange={setUseUrl}
+              />
+              <Label htmlFor="upload-mode">
+                {useUrl ? "Usar URL" : "Subir archivo"}
+              </Label>
+            </div>
+
             {useUrl ? (
               <div className="space-y-2">
-                <Label htmlFor="imagen_principal" className="text-sm font-medium">
-                  URL de la Imagen
-                </Label>
+                <Label htmlFor="imagen_principal">URL de la Imagen</Label>
                 <Input
                   id="imagen_principal"
-                  name="imagen_principal"
                   value={data.imagen_principal}
                   onChange={(e) => setData("imagen_principal", e.target.value)}
                   placeholder="https://ejemplo.com/imagen-banner.jpg"
                   type="url"
-                  className="h-10"
                   required={useUrl}
                 />
                 {errors.imagen_principal && <p className="text-red-500 text-xs mt-1">{errors.imagen_principal}</p>}
               </div>
             ) : (
               <div className="space-y-2">
-                <Label htmlFor="imagen_archivo" className="text-sm font-medium">
-                  Seleccionar archivo
-                </Label>
+                <Label htmlFor="imagen_archivo">Seleccionar archivo</Label>
                 <Input
                   id="imagen_archivo"
-                  name="imagen_archivo"
                   type="file"
                   onChange={handleFileChange}
                   accept="image/*"
-                  className="h-10"
                   required={!useUrl}
                 />
                 {errors.imagen_archivo && <p className="text-red-500 text-xs mt-1">{errors.imagen_archivo}</p>}
               </div>
             )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="fecha_inicio">Fecha de inicio (opcional)</Label>
+                <Input
+                  id="fecha_inicio"
+                  type="datetime-local"
+                  value={data.fecha_inicio}
+                  onChange={(e) => setData("fecha_inicio", e.target.value)}
+                />
+                {errors.fecha_inicio && <p className="text-red-500 text-xs mt-1">{errors.fecha_inicio}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="fecha_fin">Fecha de fin (opcional)</Label>
+                <Input
+                  id="fecha_fin"
+                  type="datetime-local"
+                  value={data.fecha_fin}
+                  onChange={(e) => setData("fecha_fin", e.target.value)}
+                  min={data.fecha_inicio}
+                />
+                {errors.fecha_fin && <p className="text-red-500 text-xs mt-1">{errors.fecha_fin}</p>}
+              </div>
+            </div>
 
             {(data.imagen_principal) && (
               <div className="bg-gray-50 p-4 rounded-lg">
@@ -125,6 +170,12 @@ const SubirBanners: React.FC = () => {
                     }}
                   />
                 </div>
+                {data.titulo && (
+                  <div className="mt-2 text-center">
+                    <h3 className="text-lg font-semibold">{data.titulo}</h3>
+                    {data.subtitulo && <p className="text-sm text-gray-600">{data.subtitulo}</p>}
+                  </div>
+                )}
               </div>
             )}
           </div>
