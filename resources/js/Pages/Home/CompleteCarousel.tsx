@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Circle, CircleDot } from 'lucide-react';
 import { usePage } from '@inertiajs/react';
 
@@ -15,13 +15,14 @@ interface Banner {
   updated_at: string;
 }
 
-export default function ResponsiveCarousel() {
+export default function InfiniteCarousel() {
   const { props } = usePage();
   const banners = props.banners as Banner[] || [];
   
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [autoplay, setAutoplay] = useState(true);
+  const [transitionEnabled, setTransitionEnabled] = useState(true);
 
   // Filtrar solo banners activos y vigentes
   const activeBanners = banners.filter(banner => {
@@ -37,48 +38,57 @@ export default function ResponsiveCarousel() {
     return startValid && endValid;
   });
 
-  // Handle next slide
-  const nextSlide = () => {
+  // Clonamos los primeros y últimos banners para el efecto infinito
+  const extendedBanners = [
+    activeBanners[activeBanners.length - 1], // último banner al inicio
+    ...activeBanners,
+    activeBanners[0] // primer banner al final
+  ];
+
+  const totalSlides = extendedBanners.length;
+  const realCurrentIndex = currentIndex + 1; // Ajustamos por el slide clonado al inicio
+
+  // Navegación con efecto infinito
+  const goToSlide = useCallback((newIndex: number, transition = true) => {
     if (isTransitioning || activeBanners.length === 0) return;
-
+    
+    setTransitionEnabled(transition);
     setIsTransitioning(true);
-    setCurrentIndex((prevIndex) =>
-      prevIndex === activeBanners.length - 1 ? 0 : prevIndex + 1
-    );
-
+    setCurrentIndex(newIndex);
+    
     setTimeout(() => setIsTransitioning(false), 500);
-  };
+  }, [isTransitioning, activeBanners.length]);
 
-  // Handle previous slide
-  const prevSlide = () => {
-    if (isTransitioning || activeBanners.length === 0) return;
+  const nextSlide = useCallback(() => {
+    if (realCurrentIndex === totalSlides - 1) {
+      // Si estamos en el último slide clonado, saltamos sin animación al real
+      goToSlide(0, false);
+      // Luego movemos al slide 1 con animación
+      setTimeout(() => goToSlide(1), 50);
+    } else {
+      goToSlide(currentIndex + 1);
+    }
+  }, [currentIndex, realCurrentIndex, totalSlides, goToSlide]);
 
-    setIsTransitioning(true);
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? activeBanners.length - 1 : prevIndex - 1
-    );
-
-    setTimeout(() => setIsTransitioning(false), 500);
-  };
-
-  // Go to specific slide
-  const goToSlide = (index: number) => {
-    if (isTransitioning || index === currentIndex || activeBanners.length === 0) return;
-
-    setIsTransitioning(true);
-    setCurrentIndex(index);
-
-    setTimeout(() => setIsTransitioning(false), 500);
-  };
+  const prevSlide = useCallback(() => {
+    if (realCurrentIndex === 0) {
+      // Si estamos en el primer slide clonado, saltamos sin animación al final real
+      goToSlide(totalSlides - 3, false);
+      // Luego movemos al penúltimo slide con animación
+      setTimeout(() => goToSlide(totalSlides - 2), 50);
+    } else {
+      goToSlide(currentIndex - 1);
+    }
+  }, [currentIndex, realCurrentIndex, totalSlides, goToSlide]);
 
   // Autoplay functionality
   useEffect(() => {
     let interval: number | undefined;
 
-    if (autoplay && activeBanners.length > 0) {
+    if (autoplay && activeBanners.length > 1) {
       interval = window.setInterval(() => {
         nextSlide();
-      }, 5000); // Change slide every 5 seconds
+      }, 5000); // Cambia cada 5 segundos
     }
 
     return () => {
@@ -86,11 +96,16 @@ export default function ResponsiveCarousel() {
         clearInterval(interval);
       }
     };
-  }, [currentIndex, autoplay, isTransitioning, activeBanners]);
+  }, [autoplay, nextSlide, activeBanners.length]);
 
-  // Pause autoplay on hover
+  // Pausar autoplay al interactuar
   const handleMouseEnter = () => setAutoplay(false);
   const handleMouseLeave = () => setAutoplay(true);
+
+  // Ir a slide específico (para los indicadores)
+  const goToRealSlide = (index: number) => {
+    goToSlide(index + 1); // +1 por el slide clonado al inicio
+  };
 
   if (activeBanners.length === 0) {
     return (
@@ -106,18 +121,21 @@ export default function ResponsiveCarousel() {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Carousel container */}
+      {/* Contenedor del carrusel */}
       <div
         className="flex h-full transition-transform duration-500 ease-in-out"
-        style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+        style={{ 
+          transform: `translateX(-${realCurrentIndex * 100}%)`,
+          transition: transitionEnabled ? 'transform 500ms ease-in-out' : 'none'
+        }}
       >
-        {activeBanners.map((banner) => (
+        {extendedBanners.map((banner, index) => (
           <div
-            key={banner.id}
+            key={`${banner.id}-${index}`}
             className="relative flex-shrink-0 w-full h-full"
             style={{ minWidth: '100%' }}
           >
-            {/* Background image with overlay */}
+            {/* Imagen de fondo con overlay */}
             <div className="absolute inset-0 w-full h-full">
               <img
                 src={banner.imagen_principal}
@@ -131,7 +149,7 @@ export default function ResponsiveCarousel() {
               <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent"></div>
             </div>
 
-            {/* Content - Only shown if title or subtitle exists */}
+            {/* Contenido (solo si hay título o subtítulo) */}
             {(banner.titulo || banner.subtitulo) && (
               <div className="absolute inset-0 flex flex-col justify-center px-4 md:px-8 lg:px-16 text-white">
                 {banner.titulo && (
@@ -150,7 +168,7 @@ export default function ResponsiveCarousel() {
         ))}
       </div>
 
-      {/* Navigation arrows (only show if more than one banner) */}
+      {/* Flechas de navegación (solo si hay más de un banner) */}
       {activeBanners.length > 1 && (
         <>
           <button
@@ -171,17 +189,17 @@ export default function ResponsiveCarousel() {
         </>
       )}
 
-      {/* Indicators (only show if more than one banner) */}
+      {/* Indicadores (solo si hay más de un banner) */}
       {activeBanners.length > 1 && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
           {activeBanners.map((_, index) => (
             <button
               key={index}
-              onClick={() => goToSlide(index)}
+              onClick={() => goToRealSlide(index)}
               className="p-1 focus:outline-none"
               aria-label={`Go to slide ${index + 1}`}
             >
-              {index === currentIndex ? (
+              {index === (realCurrentIndex - 1) % activeBanners.length ? (
                 <CircleDot size={16} className="text-white" />
               ) : (
                 <Circle size={16} className="text-white/70" />
