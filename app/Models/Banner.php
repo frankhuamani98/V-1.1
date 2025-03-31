@@ -11,14 +11,20 @@ class Banner extends Model
     use HasFactory;
 
     protected $fillable = [
+        'titulo',
+        'subtitulo',
         'imagen_principal',
         'activo',
-        'orden'
+        'orden',
+        'fecha_inicio',
+        'fecha_fin'
     ];
 
     protected $casts = [
         'activo' => 'boolean',
-        'orden' => 'integer'
+        'orden' => 'integer',
+        'fecha_inicio' => 'datetime',
+        'fecha_fin' => 'datetime'
     ];
 
     /**
@@ -27,6 +33,20 @@ class Banner extends Model
     public function scopeActivos($query)
     {
         return $query->where('activo', true);
+    }
+
+    /**
+     * Scope para banners vigentes (entre fechas si están definidas)
+     */
+    public function scopeVigentes($query)
+    {
+        return $query->where(function($q) {
+            $q->whereNull('fecha_inicio')
+              ->orWhere('fecha_inicio', '<=', now());
+        })->where(function($q) {
+            $q->whereNull('fecha_fin')
+              ->orWhere('fecha_fin', '>=', now());
+        });
     }
 
     /**
@@ -86,5 +106,21 @@ class Banner extends Model
         }
         
         return str_replace(Storage::url(''), '', $this->imagen_principal);
+    }
+
+    /**
+     * Verifica si el banner está actualmente activo según sus fechas
+     */
+    public function estaActivo()
+    {
+        if (!$this->activo) {
+            return false;
+        }
+
+        $now = now();
+        $inicioValido = is_null($this->fecha_inicio) || $this->fecha_inicio <= $now;
+        $finValido = is_null($this->fecha_fin) || $this->fecha_fin >= $now;
+
+        return $inicioValido && $finValido;
     }
 }
