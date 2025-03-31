@@ -136,8 +136,8 @@ class SubirBannersController extends Controller
 
     protected function deleteExistingImage(Banner $banner): void
     {
-        if ($banner->imagen_principal && strpos($banner->imagen_principal, asset('storage/')) === 0) {
-            $path = str_replace(asset('storage/'), '', $banner->imagen_principal);
+        if ($banner->imagen_principal && strpos($banner->imagen_principal, url('storage/')) === 0) {
+            $path = str_replace(url('storage'), '', $banner->imagen_principal);
             Storage::disk('public')->delete($path);
         }
     }

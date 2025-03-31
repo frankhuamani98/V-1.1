@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Moto;
 use App\Models\Producto;
+use App\Models\Banner;
 use Inertia\Inertia;
 
 class WelcomeController extends Controller
@@ -95,10 +96,31 @@ class WelcomeController extends Controller
                 ];
             });
 
+        // Obtener banners activos y vigentes
+        $banners = Banner::activos()
+            ->vigentes()
+            ->ordenados()
+            ->get()
+            ->map(function ($banner) {
+                return [
+                    'id' => $banner->id,
+                    'titulo' => $banner->titulo,
+                    'subtitulo' => $banner->subtitulo,
+                    'imagen_principal' => $banner->imagen_principal,
+                    'fecha_inicio' => $banner->fecha_inicio,
+                    'fecha_fin' => $banner->fecha_fin,
+                    'activo' => (bool)$banner->activo,
+                    'orden' => $banner->orden,
+                    'created_at' => $banner->created_at,
+                    'updated_at' => $banner->updated_at,
+                ];
+            });
+
         return Inertia::render('Welcome', [
             'featuredProducts' => $featuredProducts,
             'bestSellingProducts' => $bestSellingProducts,
             'allProducts' => $allProducts,
+            'banners' => $banners, // Añadido los banners aquí
             'motoData' => [
                 'years' => $years,
                 'brands' => $marcas,
