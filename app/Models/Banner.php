@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\URL;
+use Illuminate\Database\Eloquent\Builder;
 
 class Banner extends Model
 {
@@ -28,157 +28,45 @@ class Banner extends Model
         'fecha_fin' => 'datetime'
     ];
 
-    protected $appends = ['imagen_url'];
-
-    /**
-     * Scope para banners activos
-     */
-    public function scopeActivos($query)
+    // Scope para banners activos
+    public function scopeActivos(Builder $query)
     {
         return $query->where('activo', true);
     }
 
-    /**
-     * Scope para banners vigentes (entre fechas si están definidas)
-     */
-    public function scopeVigentes($query)
+    // Scope para banners vigentes
+    public function scopeVigentes(Builder $query)
     {
-        return $query->where(function($q) {
+        $now = now();
+        return $query->where(function($q) use ($now) {
             $q->whereNull('fecha_inicio')
-              ->orWhere('fecha_inicio', '<=', now());
-        })->where(function($q) {
+              ->orWhere('fecha_inicio', '<=', $now);
+        })->where(function($q) use ($now) {
             $q->whereNull('fecha_fin')
-              ->orWhere('fecha_fin', '>=', now());
+              ->orWhere('fecha_fin', '>=', $now);
         });
     }
 
-    /**
-     * Scope ordenado por el campo 'orden'
-     */
-    public function scopeOrdenados($query)
+    // Scope para ordenar banners
+    public function scopeOrdenados(Builder $query)
     {
-        return $query->orderBy('orden');
+        return $query->orderBy('orden', 'asc');
     }
 
-    /**
-     * Obtiene la URL completa de la imagen
-     */
-    public function getImagenUrlAttribute()
+    // Accessor para obtener la URL completa de la imagen
+    public function getImagenCompletaAttribute()
     {
-        if ($this->esImagenExterna()) {
+        // Si ya es una URL completa (http/https), devolverla tal cual
+        if (filter_var($this->imagen_principal, FILTER_VALIDATE_URL)) {
             return $this->imagen_principal;
         }
         
-        return $this->imagen_principal 
-            ? Storage::url($this->imagen_principal)
-            : $this->getDefaultImageUrl();
-    }
-
-    /**
-     * URL de imagen por defecto
-     */
-    protected function getDefaultImageUrl()
-    {
-        return asset('images/default-banner.jpg');
-    }
-
-    /**
-     * Elimina la imagen física al eliminar el registro
-     */
-    protected static function booted()
-    {
-        static::deleting(function ($banner) {
-            $banner->eliminarImagenLocal();
-        });
-
-        static::updating(function ($banner) {
-            if ($banner->isDirty('imagen_principal') && !$banner->esImagenExterna()) {
-                $banner->eliminarImagenLocal($banner->getOriginal('imagen_principal'));
-            }
-        });
-    }
-
-    /**
-     * Elimina la imagen local del almacenamiento
-     */
-    public function eliminarImagenLocal($path = null)
-    {
-        $path = $path ?: $this->imagen_principal;
-        
-        if (!$this->esImagenExterna($path) && Storage::exists($path)) {
-            Storage::delete($path);
+        // Si es una ruta local (/storage/...), convertirla a URL completa
+        if (str_starts_with($this->imagen_principal, '/storage/')) {
+            return asset($this->imagen_principal);
         }
-    }
-
-    /**
-     * Verifica si la imagen es una URL externa
-     */
-    public function esImagenExterna($url = null)
-    {
-        $url = $url ?: $this->imagen_principal;
         
-        if (empty($url)) {
-            return false;
-        }
-
-        return filter_var($url, FILTER_VALIDATE_URL) && 
-               !str_starts_with($url, Storage::url(''));
-    }
-
-    /**
-     * Verifica si el banner está actualmente activo según sus fechas
-     */
-    public function estaActivo()
-    {
-        if (!$this->activo) {
-            return false;
-        }
-
-        $now = now();
-        $inicioValido = is_null($this->fecha_inicio) || $this->fecha_inicio <= $now;
-        $finValido = is_null($this->fecha_fin) || $this->fecha_fin >= $now;
-
-        return $inicioValido && $finValido;
-    }
-
-    /**
-     * Guarda una nueva imagen y devuelve el path
-     */
-    public function guardarImagen($file, $directory = 'banners')
-    {
-        // Eliminar imagen anterior si existe
-        $this->eliminarImagenLocal();
-
-        // Guardar nueva imagen
-        $path = $file->store($directory, 'public');
-        
-        // Actualizar el modelo
-        $this->imagen_principal = $path;
-        
-        return $path;
-    }
-
-    /**
-     * Actualiza la imagen desde una URL
-     */
-    public function actualizarImagenDesdeUrl($url)
-    {
-        // Eliminar imagen anterior si es local
-        $this->eliminarImagenLocal();
-
-        // Actualizar con nueva URL
-        $this->imagen_principal = $url;
-    }
-
-    /**
-     * Obtiene los banners para el carrusel
-     */
-    public static function obtenerParaCarrusel($limit = 5)
-    {
-        return static::activos()
-            ->vigentes()
-            ->ordenados()
-            ->limit($limit)
-            ->get();
+        // Para cualquier otro caso (por seguridad), devolver la imagen original
+        return $this->imagen_principal;
     }
 }

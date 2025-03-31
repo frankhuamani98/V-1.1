@@ -18,24 +18,58 @@ const SubirBanners: React.FC = () => {
     fecha_fin: ""
   })
 
+  // Función para normalizar la URL de la imagen
+  const normalizeImageUrl = (url: string) => {
+    if (!url) return "";
+    // Si ya es una URL completa o una data URL (preview), devolverla tal cual
+    if (url.startsWith('http') || url.startsWith('blob') || url.startsWith('data')) {
+      return url;
+    }
+    // Si es una ruta relativa, convertirla a URL completa
+    return `${window.location.origin}${url}`;
+  }
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setData('imagen_archivo', e.target.files[0])
-      // Mostrar vista previa de la imagen local
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        setData('imagen_principal', event.target?.result as string)
+      const file = e.target.files[0];
+      
+      // Validar tamaño del archivo (5MB máximo)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("El archivo no debe exceder los 5MB");
+        return;
       }
-      reader.readAsDataURL(e.target.files[0])
+
+      setData('imagen_archivo', file);
+      
+      // Mostrar vista previa de la imagen local
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setData('imagen_principal', event.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
     }
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
+    // Validación adicional del lado del cliente
+    if (useUrl && !data.imagen_principal) {
+      toast.error("Por favor ingresa una URL de imagen");
+      return;
+    }
+
+    if (!useUrl && !data.imagen_archivo) {
+      toast.error("Por favor selecciona un archivo de imagen");
+      return;
+    }
+
     const formData = new FormData()
     formData.append('titulo', data.titulo)
     formData.append('subtitulo', data.subtitulo)
+    
     if (useUrl) {
       formData.append('imagen_principal', data.imagen_principal)
     } else {
@@ -43,6 +77,7 @@ const SubirBanners: React.FC = () => {
         formData.append('imagen_archivo', data.imagen_archivo)
       }
     }
+    
     formData.append('fecha_inicio', data.fecha_inicio)
     formData.append('fecha_fin', data.fecha_fin)
     formData.append('activo', 'true')
@@ -69,6 +104,7 @@ const SubirBanners: React.FC = () => {
         </CardHeader>
         <CardContent className="p-6 space-y-6">
           <div className="grid grid-cols-1 gap-6">
+            {/* Campos del formulario (se mantienen igual) */}
             <div className="space-y-2">
               <Label htmlFor="titulo">Título (opcional)</Label>
               <Input
@@ -161,7 +197,7 @@ const SubirBanners: React.FC = () => {
                 <p className="text-sm text-gray-600 mb-2 font-medium">Vista previa:</p>
                 <div className="relative aspect-video w-full bg-white rounded-md overflow-hidden border shadow-sm">
                   <img
-                    src={data.imagen_principal}
+                    src={normalizeImageUrl(data.imagen_principal)}
                     alt="Vista previa del banner"
                     className="h-full w-full object-contain"
                     onError={(e) => {

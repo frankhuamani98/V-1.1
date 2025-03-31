@@ -36,19 +36,21 @@ export default function InfiniteCarousel() {
     const endValid = !endDate || endDate >= now;
     
     return startValid && endValid;
-  });
+  }).sort((a, b) => a.orden - b.orden); // Ordenar por el campo 'orden'
 
-  // Clonamos los primeros y últimos banners para el efecto infinito
-  const extendedBanners = [
-    activeBanners[activeBanners.length - 1], // último banner al inicio
-    ...activeBanners,
-    activeBanners[0] // primer banner al final
-  ];
+  // Solo crear efecto infinito si hay suficientes banners
+  const shouldUseInfinite = activeBanners.length > 1;
+  const extendedBanners = shouldUseInfinite 
+    ? [
+        activeBanners[activeBanners.length - 1],
+        ...activeBanners,
+        activeBanners[0]
+      ]
+    : activeBanners;
 
   const totalSlides = extendedBanners.length;
-  const realCurrentIndex = currentIndex + 1; // Ajustamos por el slide clonado al inicio
+  const realCurrentIndex = shouldUseInfinite ? currentIndex + 1 : currentIndex;
 
-  // Navegación con efecto infinito
   const goToSlide = useCallback((newIndex: number, transition = true) => {
     if (isTransitioning || activeBanners.length === 0) return;
     
@@ -60,35 +62,35 @@ export default function InfiniteCarousel() {
   }, [isTransitioning, activeBanners.length]);
 
   const nextSlide = useCallback(() => {
+    if (!shouldUseInfinite) return;
+    
     if (realCurrentIndex === totalSlides - 1) {
-      // Si estamos en el último slide clonado, saltamos sin animación al real
       goToSlide(0, false);
-      // Luego movemos al slide 1 con animación
       setTimeout(() => goToSlide(1), 50);
     } else {
       goToSlide(currentIndex + 1);
     }
-  }, [currentIndex, realCurrentIndex, totalSlides, goToSlide]);
+  }, [currentIndex, realCurrentIndex, totalSlides, goToSlide, shouldUseInfinite]);
 
   const prevSlide = useCallback(() => {
+    if (!shouldUseInfinite) return;
+    
     if (realCurrentIndex === 0) {
-      // Si estamos en el primer slide clonado, saltamos sin animación al final real
       goToSlide(totalSlides - 3, false);
-      // Luego movemos al penúltimo slide con animación
       setTimeout(() => goToSlide(totalSlides - 2), 50);
     } else {
       goToSlide(currentIndex - 1);
     }
-  }, [currentIndex, realCurrentIndex, totalSlides, goToSlide]);
+  }, [currentIndex, realCurrentIndex, totalSlides, goToSlide, shouldUseInfinite]);
 
   // Autoplay functionality
   useEffect(() => {
     let interval: number | undefined;
 
-    if (autoplay && activeBanners.length > 1) {
+    if (autoplay && shouldUseInfinite) {
       interval = window.setInterval(() => {
         nextSlide();
-      }, 5000); // Cambia cada 5 segundos
+      }, 5000);
     }
 
     return () => {
@@ -96,15 +98,13 @@ export default function InfiniteCarousel() {
         clearInterval(interval);
       }
     };
-  }, [autoplay, nextSlide, activeBanners.length]);
+  }, [autoplay, nextSlide, shouldUseInfinite]);
 
-  // Pausar autoplay al interactuar
   const handleMouseEnter = () => setAutoplay(false);
   const handleMouseLeave = () => setAutoplay(true);
 
-  // Ir a slide específico (para los indicadores)
   const goToRealSlide = (index: number) => {
-    goToSlide(index + 1); // +1 por el slide clonado al inicio
+    goToSlide(shouldUseInfinite ? index + 1 : index);
   };
 
   if (activeBanners.length === 0) {
@@ -121,7 +121,6 @@ export default function InfiniteCarousel() {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Contenedor del carrusel */}
       <div
         className="flex h-full transition-transform duration-500 ease-in-out"
         style={{ 
@@ -135,7 +134,6 @@ export default function InfiniteCarousel() {
             className="relative flex-shrink-0 w-full h-full"
             style={{ minWidth: '100%' }}
           >
-            {/* Imagen de fondo con overlay */}
             <div className="absolute inset-0 w-full h-full">
               <img
                 src={banner.imagen_principal}
@@ -146,10 +144,9 @@ export default function InfiniteCarousel() {
                     "https://placehold.co/800x400/f3f4f6/a3a3a3?text=Imagen+no+disponible";
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent"></div>
+              <div className="absolute inset-0 bg-black/30"></div>
             </div>
 
-            {/* Contenido (solo si hay título o subtítulo) */}
             {(banner.titulo || banner.subtitulo) && (
               <div className="absolute inset-0 flex flex-col justify-center px-4 md:px-8 lg:px-16 text-white">
                 {banner.titulo && (
@@ -158,7 +155,7 @@ export default function InfiniteCarousel() {
                   </h2>
                 )}
                 {banner.subtitulo && (
-                  <p className="text-lg md:text-xl lg:text-2xl mb-8 max-w-md">
+                  <p className="text-lg md:text-xl lg:text-2xl mb-8 max-w-2xl">
                     {banner.subtitulo}
                   </p>
                 )}
@@ -168,7 +165,6 @@ export default function InfiniteCarousel() {
         ))}
       </div>
 
-      {/* Flechas de navegación (solo si hay más de un banner) */}
       {activeBanners.length > 1 && (
         <>
           <button
@@ -189,7 +185,6 @@ export default function InfiniteCarousel() {
         </>
       )}
 
-      {/* Indicadores (solo si hay más de un banner) */}
       {activeBanners.length > 1 && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
           {activeBanners.map((_, index) => (
@@ -199,7 +194,7 @@ export default function InfiniteCarousel() {
               className="p-1 focus:outline-none"
               aria-label={`Go to slide ${index + 1}`}
             >
-              {index === (realCurrentIndex - 1) % activeBanners.length ? (
+              {index === (realCurrentIndex - (shouldUseInfinite ? 1 : 0)) % activeBanners.length ? (
                 <CircleDot size={16} className="text-white" />
               ) : (
                 <Circle size={16} className="text-white/70" />
