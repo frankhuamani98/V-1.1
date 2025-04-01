@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
-import { History, Search, SlidersHorizontal, Eye, Trash2, Edit } from "lucide-react";
+import { History, Search, SlidersHorizontal, Eye, Trash2, Edit, Link as LinkIcon } from "lucide-react";
 import { Badge } from "@/Components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
 import { Link } from "@inertiajs/react";
@@ -20,6 +20,7 @@ interface Banner {
   created_at: string;
   deleted_at: string | null;
   status: "active" | "deleted";
+  tipo_imagen: "local" | "url";
 }
 
 interface HistorialBannersProps {
@@ -138,11 +139,20 @@ const HistorialBanners: React.FC<HistorialBannersProps> = ({ banners }) => {
                             )}
                           </TableCell>
                           <TableCell>
-                            <img
-                              src={banner.imagen_principal}
-                              alt={banner.titulo}
-                              className="h-12 w-20 object-cover rounded border"
-                            />
+                            <div className="relative">
+                              <img
+                                src={banner.imagen_principal}
+                                alt={banner.titulo}
+                                className="h-12 w-20 object-cover rounded border"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = '/placeholder-image.jpg';
+                                }}
+                              />
+                              {banner.tipo_imagen === 'url' && (
+                                <LinkIcon className="absolute -top-2 -right-2 h-4 w-4 text-blue-500 bg-white rounded-full p-0.5" />
+                              )}
+                            </div>
                           </TableCell>
                           <TableCell>
                             <Badge variant={getStatusBadgeVariant(banner.status)}>
@@ -204,6 +214,10 @@ const HistorialBanners: React.FC<HistorialBannersProps> = ({ banners }) => {
                         src={banner.imagen_principal}
                         alt={banner.titulo}
                         className="w-full h-48 object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/placeholder-image.jpg';
+                        }}
                       />
                       <Badge
                         className="absolute top-2 right-2"
@@ -211,6 +225,9 @@ const HistorialBanners: React.FC<HistorialBannersProps> = ({ banners }) => {
                       >
                         {banner.status === "active" ? "Activo" : "Eliminado"}
                       </Badge>
+                      {banner.tipo_imagen === 'url' && (
+                        <LinkIcon className="absolute top-2 left-2 h-4 w-4 text-blue-500 bg-white rounded-full p-0.5" />
+                      )}
                     </div>
                     <CardContent className="p-4">
                       <h3 className="font-medium">{banner.titulo}</h3>

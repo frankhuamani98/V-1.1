@@ -9,10 +9,11 @@ import { Switch } from "@/Components/ui/switch"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card"
 import { Calendar } from "@/Components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/Components/ui/popover"
-import { CalendarIcon, X, Check, ImagePlus } from "lucide-react"
+import { CalendarIcon, X, Check, ImagePlus, Link } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs"
 
 interface SubirBannersProps {
   banners?: Array<{
@@ -31,23 +32,37 @@ const SubirBanners: React.FC<SubirBannersProps> = ({ banners = [] }) => {
     titulo: "",
     subtitulo: "",
     imagen_principal: null as File | null,
+    imagen_url: "",
     activo: true as boolean,
     fecha_inicio: null as Date | null,
     fecha_fin: null as Date | null,
   })
 
   const [previewImage, setPreviewImage] = useState("")
+  const [uploadMethod, setUploadMethod] = useState<'file' | 'url'>('file')
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
+    // Validación manual para asegurar que hay una imagen
+    if (!data.imagen_principal && !data.imagen_url) {
+      toast.error("Debes subir una imagen o proporcionar una URL")
+      return
+    }
+
     const formData = new FormData()
     formData.append('titulo', data.titulo)
     formData.append('subtitulo', data.subtitulo || '')
-    formData.append('activo', data.activo ? '1' : '0') // Enviar como '1' o '0'
+    formData.append('activo', data.activo ? '1' : '0')
     if (data.fecha_inicio) formData.append('fecha_inicio', format(data.fecha_inicio, "yyyy-MM-dd HH:mm:ss"))
     if (data.fecha_fin) formData.append('fecha_fin', format(data.fecha_fin, "yyyy-MM-dd HH:mm:ss"))
-    if (data.imagen_principal) formData.append('imagen_principal', data.imagen_principal)
+    
+    // Solo adjuntar el método de imagen seleccionado
+    if (uploadMethod === 'file' && data.imagen_principal) {
+      formData.append('imagen_principal', data.imagen_principal)
+    } else if (uploadMethod === 'url' && data.imagen_url) {
+      formData.append('imagen_url', data.imagen_url)
+    }
 
     router.post(route("banners.store"), formData, {
       forceFormData: true,
@@ -76,6 +91,12 @@ const SubirBanners: React.FC<SubirBannersProps> = ({ banners = [] }) => {
       }
       reader.readAsDataURL(file)
     }
+  }
+
+  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const url = e.target.value
+    setData("imagen_url", url)
+    setPreviewImage(url)
   }
 
   return (
@@ -120,41 +141,75 @@ const SubirBanners: React.FC<SubirBannersProps> = ({ banners = [] }) => {
             </div>
 
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Imagen del Banner</Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="imagen_principal"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
-                  <Label
-                    htmlFor="imagen_principal"
-                    className="flex items-center justify-center gap-2 px-4 py-2 border rounded-md cursor-pointer hover:bg-gray-50"
-                  >
-                    <ImagePlus className="h-4 w-4" />
-                    Seleccionar Imagen
-                  </Label>
-                  {previewImage && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setPreviewImage("")
-                        setData("imagen_principal", null)
-                      }}
+              <Tabs defaultValue="file" onValueChange={(value) => setUploadMethod(value as 'file' | 'url')}>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="file">Subir archivo</TabsTrigger>
+                  <TabsTrigger value="url">Usar URL</TabsTrigger>
+                </TabsList>
+                <TabsContent value="file" className="space-y-2">
+                  <Label>Imagen del Banner</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="imagen_principal"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                    <Label
+                      htmlFor="imagen_principal"
+                      className="flex items-center justify-center gap-2 px-4 py-2 border rounded-md cursor-pointer hover:bg-gray-50"
                     >
-                      <X className="h-4 w-4 mr-1" />
-                      Eliminar
-                    </Button>
+                      <ImagePlus className="h-4 w-4" />
+                      Seleccionar Imagen
+                    </Label>
+                    {previewImage && uploadMethod === 'file' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setPreviewImage("")
+                          setData("imagen_principal", null)
+                        }}
+                      >
+                        <X className="h-4 w-4 mr-1" />
+                        Eliminar
+                      </Button>
+                    )}
+                  </div>
+                  {errors.imagen_principal && (
+                    <p className="text-red-500 text-xs mt-1">{errors.imagen_principal}</p>
                   )}
-                </div>
-                {errors.imagen_principal && (
-                  <p className="text-red-500 text-xs mt-1">{errors.imagen_principal}</p>
-                )}
-              </div>
+                </TabsContent>
+                <TabsContent value="url" className="space-y-2">
+                  <Label htmlFor="imagen_url">URL de la Imagen</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="imagen_url"
+                      type="url"
+                      value={data.imagen_url}
+                      onChange={handleUrlChange}
+                      placeholder="https://ejemplo.com/imagen.jpg"
+                    />
+                    {previewImage && uploadMethod === 'url' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setPreviewImage("")
+                          setData("imagen_url", "")
+                        }}
+                      >
+                        <X className="h-4 w-4 mr-1" />
+                        Limpiar
+                      </Button>
+                    )}
+                  </div>
+                  {errors.imagen_url && (
+                    <p className="text-red-500 text-xs mt-1">{errors.imagen_url}</p>
+                  )}
+                </TabsContent>
+              </Tabs>
 
               {previewImage && (
                 <div className="border rounded-md overflow-hidden">
@@ -162,6 +217,10 @@ const SubirBanners: React.FC<SubirBannersProps> = ({ banners = [] }) => {
                     src={previewImage}
                     alt="Vista previa del banner"
                     className="w-full h-auto max-h-64 object-contain"
+                    onError={() => {
+                      setPreviewImage("")
+                      toast.error("No se pudo cargar la imagen. Verifica la URL o selecciona otra imagen.")
+                    }}
                   />
                 </div>
               )}
