@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ReactNode } from "react";
 import { Link, usePage } from "@inertiajs/react"; // Importa usePage para acceder a las props
 import {
   ShoppingCartIcon,
@@ -238,7 +238,18 @@ const FavoriteItem = ({
 };
 
 export default function Header() {
-  const { user } = usePage().props.auth; // Obtener el usuario autenticado
+const { user }: { user?: {
+  firstName: ReactNode;
+  lastName: ReactNode; last_name?: string; first_name?: string; email?: string 
+} } = {
+  user: usePage().props.auth?.user
+    ? {
+        firstName: usePage().props.auth.user.first_name || "",
+        lastName: usePage().props.auth.user.last_name || "",
+        email: usePage().props.auth.user.email || "",
+      }
+    : undefined,
+}; // Obtener el usuario autenticado
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -653,7 +664,10 @@ export default function Header() {
                           "bg-[#cbd8fd] text-black dark:bg-[#2d3748] dark:text-white"
                         )}
                       >
-                        {getInitials(user.first_name, user.last_name)}
+                        {getInitials(
+                          typeof user.firstName === "string" ? user.firstName : "",
+                          typeof user.lastName === "string" ? user.lastName : ""
+                        )}
                       </AvatarFallback>
                     </Avatar>
                   ) : (
@@ -667,7 +681,7 @@ export default function Header() {
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium leading-none">
-                          {user.first_name} {user.last_name}
+                          {user.firstName} {user.lastName}
                         </p>
                         <p className="text-xs leading-none text-muted-foreground">
                           {user.email}
