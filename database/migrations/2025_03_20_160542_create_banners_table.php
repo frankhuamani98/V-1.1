@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('titulo')->nullable();
             $table->string('subtitulo')->nullable();
-            $table->string('imagen_principal');
+            $table->text('imagen_principal'); // Almacena tanto URLs como rutas locales
             $table->boolean('activo')->default(true);
             $table->integer('orden')->default(0);
             $table->dateTime('fecha_inicio')->nullable();
