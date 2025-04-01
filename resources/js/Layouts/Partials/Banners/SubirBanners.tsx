@@ -1,284 +1,470 @@
-import React from "react"
-import { useForm, router } from "@inertiajs/react"
-import { toast } from "sonner"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/Components/ui/card"
-import { Input } from "@/Components/ui/input"
-import { Label } from "@/Components/ui/label"
-import { Button } from "@/Components/ui/button"
-import { Switch } from "@/Components/ui/switch"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs"
-import { CalendarIcon, ImageIcon, UploadIcon, LinkIcon } from "lucide-react"
+import React, { useState, useRef, useEffect } from "react";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/Components/ui/card";
+import { Input } from "@/Components/ui/input";
+import { Button } from "@/Components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table";
+import { ImagePlus, Trash2, Upload, X } from "lucide-react";
+import { Alert, AlertDescription } from "@/Components/ui/alert";
+import { Label } from "@/Components/ui/label";
+import { Switch } from "@/Components/ui/switch";
+import { DateTimePicker } from "@/Components/ui/date-time-picker";
 
-const SubirBanners: React.FC = () => {
-  const [useUrl, setUseUrl] = React.useState(true)
-  const { data, setData, post, processing, errors, reset } = useForm({
-    titulo: "",
-    subtitulo: "",
-    imagen_principal: "",
-    imagen_archivo: null as File | null,
-    fecha_inicio: "",
-    fecha_fin: ""
-  })
+interface Banner {
+  id: number;
+  titulo: string;
+  subtitulo: string;
+  imagen_principal: string;
+  activo: boolean;
+  orden: number;
+  fecha_inicio: string | null;
+  fecha_fin: string | null;
+  created_at: string;
+  updated_at: string;
+}
 
+const SubirBanners = () => {
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Form fields
+  const [titulo, setTitulo] = useState("");
+  const [subtitulo, setSubtitulo] = useState("");
+  const [activo, setActivo] = useState(true);
+  const [orden, setOrden] = useState(0);
+  const [fechaInicio, setFechaInicio] = useState<Date | null>(null);
+  const [fechaFin, setFechaFin] = useState<Date | null>(null);
+
+  // Fetch banners from API
+  const fetchBanners = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/banners');
+      if (!response.ok) throw new Error('Error al cargar banners');
+      const data = await response.json();
+      setBanners(data);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Error desconocido');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBanners();
+  }, []);
+
+  // Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setData('imagen_archivo', e.target.files[0])
-      // Mostrar vista previa de la imagen local
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        setData('imagen_principal', event.target?.result as string)
+    const file = e.target.files?.[0];
+    setError(null);
+
+    if (file) {
+      // Validate image
+      if (!file.type.startsWith('image/')) {
+        setError('El archivo seleccionado no es una imagen válida');
+        return;
       }
-      reader.readAsDataURL(e.target.files[0])
-    }
-  }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    const formData = new FormData()
-    formData.append('titulo', data.titulo)
-    formData.append('subtitulo', data.subtitulo)
-    if (useUrl) {
-      formData.append('imagen_principal', data.imagen_principal)
-    } else {
-      if (data.imagen_archivo) {
-        formData.append('imagen_archivo', data.imagen_archivo)
+      // Validate size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('La imagen no debe exceder 5MB');
+        return;
       }
-    }
-    formData.append('fecha_inicio', data.fecha_inicio)
-    formData.append('fecha_fin', data.fecha_fin)
-    formData.append('activo', 'true')
 
-    router.post(route("banners.store"), formData, {
-      forceFormData: true,
-      onSuccess: () => {
-        toast.success("Banner creado exitosamente")
-        reset()
-      },
-      onError: (errors) => {
-        Object.entries(errors).forEach(([key, message]) => {
-          toast.error(message)
-        })
-      },
-    })
-  }
+      setSelectedFile(file);
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+
+  // Clear selection
+  const handleClearSelection = () => {
+    setSelectedFile(null);
+    setPreview(null);
+    setTitulo("");
+    setSubtitulo("");
+    setOrden(0);
+    setFechaInicio(null);
+    setFechaFin(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  // Upload banner to server
+  const handleUpload = async () => {
+    if (!selectedFile) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const formData = new FormData();
+      formData.append('imagen_principal', selectedFile);
+      formData.append('titulo', titulo);
+      formData.append('subtitulo', subtitulo);
+      formData.append('activo', activo ? '1' : '0');
+      formData.append('orden', orden.toString());
+      if (fechaInicio) formData.append('fecha_inicio', fechaInicio.toISOString());
+      if (fechaFin) formData.append('fecha_fin', fechaFin.toISOString());
+
+      const response = await fetch('/api/banners', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al subir el banner');
+      }
+
+      const newBanner = await response.json();
+      setBanners([...banners, newBanner]);
+      handleClearSelection();
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Error al subir el banner');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Delete banner
+  const handleDelete = async (id: number) => {
+    if (!confirm('¿Estás seguro de que deseas eliminar este banner?')) return;
+
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/banners/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Error al eliminar el banner');
+
+      setBanners(banners.filter(banner => banner.id !== id));
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Error al eliminar el banner');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Toggle banner status
+  const toggleStatus = async (banner: Banner) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/banners/${banner.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          activo: !banner.activo
+        }),
+      });
+
+      if (!response.ok) throw new Error('Error al actualizar el banner');
+
+      const updatedBanner = await response.json();
+      setBanners(banners.map(b => b.id === updatedBanner.id ? updatedBanner : b));
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Error al actualizar el banner');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 min-h-screen">
-      <form onSubmit={handleSubmit}>
-        <Card className="border shadow-md rounded-xl overflow-hidden bg-white">
-          <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-700 text-white py-8 px-6">
+    <div className="w-full max-w-6xl mx-auto p-2 md:p-6">
+      <Card className="shadow-lg">
+        <CardHeader className="bg-slate-50 border-b">
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <ImageIcon className="h-6 w-6" />
-              <CardTitle className="text-2xl font-bold">Subir Nuevo Banner</CardTitle>
+              <ImagePlus className="text-primary h-6 w-6" />
+              <div>
+                <CardTitle>Gestión de Banners</CardTitle>
+                <CardDescription>
+                  Sube, visualiza y administra los banners de tu sitio
+                </CardDescription>
+              </div>
             </div>
-            <CardDescription className="text-indigo-100 mt-2">
-              Complete el formulario para crear un nuevo banner promocional
-            </CardDescription>
-          </CardHeader>
-          
-          <CardContent className="p-6">
-            <div className="space-y-8">
-              {/* Sección de Información Básica */}
-              <div className="border-b pb-6">
-                <h3 className="text-lg font-medium text-gray-800 mb-4">Información del Banner</h3>
-                <div className="grid grid-cols-1 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="titulo" className="text-gray-700">
-                      Título <span className="text-gray-400 text-sm">(opcional)</span>
-                    </Label>
-                    <Input
-                      id="titulo"
-                      value={data.titulo}
-                      onChange={(e) => setData("titulo", e.target.value)}
-                      placeholder="Ej: Oferta Especial de Verano"
-                      maxLength={100}
-                      className="border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
-                    {errors.titulo && <p className="text-red-500 text-xs mt-1">{errors.titulo}</p>}
-                  </div>
+            <span className="text-sm text-gray-500 hidden md:inline-block">
+              {banners.length} banner{banners.length !== 1 ? 's' : ''} activos
+            </span>
+          </div>
+        </CardHeader>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="subtitulo" className="text-gray-700">
-                      Subtítulo <span className="text-gray-400 text-sm">(opcional)</span>
-                    </Label>
-                    <Input
-                      id="subtitulo"
-                      value={data.subtitulo}
-                      onChange={(e) => setData("subtitulo", e.target.value)}
-                      placeholder="Ej: Descuentos hasta el 50% en todos los productos"
-                      maxLength={200}
-                      className="border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
-                    {errors.subtitulo && <p className="text-red-500 text-xs mt-1">{errors.subtitulo}</p>}
+        <CardContent className="pt-6">
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          <div className="space-y-6">
+            {/* Upload area */}
+            <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-lg p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="titulo">Título</Label>
+                      <Input
+                        id="titulo"
+                        value={titulo}
+                        onChange={(e) => setTitulo(e.target.value)}
+                        placeholder="Título del banner"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="subtitulo">Subtítulo</Label>
+                      <Input
+                        id="subtitulo"
+                        value={subtitulo}
+                        onChange={(e) => setSubtitulo(e.target.value)}
+                        placeholder="Subtítulo del banner"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <div>
+                        <Label htmlFor="orden">Orden</Label>
+                        <Input
+                          id="orden"
+                          type="number"
+                          value={orden}
+                          onChange={(e) => setOrden(parseInt(e.target.value) || 0)}
+                          min="0"
+                        />
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id="activo"
+                          checked={activo}
+                          onCheckedChange={setActivo}
+                        />
+                        <Label htmlFor="activo">Activo</Label>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label>Fecha Inicio</Label>
+                        <DateTimePicker
+                          date={fechaInicio}
+                          setDate={setFechaInicio}
+                          placeholder="Seleccionar fecha inicio"
+                        />
+                      </div>
+                      <div>
+                        <Label>Fecha Fin</Label>
+                        <DateTimePicker
+                          date={fechaFin}
+                          setDate={setFechaFin}
+                          placeholder="Seleccionar fecha fin"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Sección de Imagen */}
-              <div className="border-b pb-6">
-                <h3 className="text-lg font-medium text-gray-800 mb-4">Imagen del Banner</h3>
-                
-                <Tabs defaultValue={useUrl ? "url" : "file"} onValueChange={(v) => setUseUrl(v === "url")}>
-                  <TabsList className="grid grid-cols-2 mb-6">
-                    <TabsTrigger value="url" className="flex items-center gap-2">
-                      <LinkIcon className="h-4 w-4" />
-                      Usar URL
-                    </TabsTrigger>
-                    <TabsTrigger value="file" className="flex items-center gap-2">
-                      <UploadIcon className="h-4 w-4" />
-                      Subir archivo
-                    </TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="url" className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="imagen_principal" className="text-gray-700">URL de la Imagen</Label>
+                <div>
+                  <div className="space-y-4">
+                    <div>
+                      <Label>Imagen del Banner</Label>
                       <Input
-                        id="imagen_principal"
-                        value={data.imagen_principal}
-                        onChange={(e) => setData("imagen_principal", e.target.value)}
-                        placeholder="https://ejemplo.com/imagen-banner.jpg"
-                        type="url"
-                        required={useUrl}
-                        className="border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
-                      />
-                      {errors.imagen_principal && <p className="text-red-500 text-xs mt-1">{errors.imagen_principal}</p>}
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="file" className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="imagen_archivo" className="text-gray-700">Seleccionar archivo</Label>
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition-colors cursor-pointer">
-                        <input
-                          id="imagen_archivo"
-                          type="file"
-                          onChange={handleFileChange}
-                          accept="image/*"
-                          required={!useUrl}
-                          className="hidden"
-                        />
-                        <label htmlFor="imagen_archivo" className="cursor-pointer">
-                          <UploadIcon className="mx-auto h-12 w-12 text-gray-400 mb-2" />
-                          <span className="block text-sm font-medium text-gray-700 mb-1">
-                            Haga clic para seleccionar un archivo
-                          </span>
-                          <span className="block text-xs text-gray-500">
-                            PNG, JPG, GIF hasta 10MB
-                          </span>
-                        </label>
-                      </div>
-                      {errors.imagen_archivo && <p className="text-red-500 text-xs mt-1">{errors.imagen_archivo}</p>}
-                    </div>
-                  </TabsContent>
-                </Tabs>
-
-                {/* Vista previa */}
-                {data.imagen_principal && (
-                  <div className="mt-6 bg-gray-50 p-6 rounded-lg border border-gray-200">
-                    <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
-                      <ImageIcon className="h-4 w-4" />
-                      Vista previa
-                    </h4>
-                    <div className="relative aspect-[21/9] w-full bg-white rounded-md overflow-hidden border shadow-sm">
-                      <img
-                        src={data.imagen_principal}
-                        alt="Vista previa del banner"
-                        className="h-full w-full object-contain"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src =
-                            "https://placehold.co/800x400/f3f4f6/a3a3a3?text=Imagen+no+disponible"
-                        }}
+                        type="file"
+                        ref={fileInputRef}
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="w-full"
                       />
                     </div>
-                    {(data.titulo || data.subtitulo) && (
-                      <div className="mt-3 p-3 bg-white rounded border border-gray-100">
-                        {data.titulo && (
-                          <h3 className="font-semibold text-gray-800">{data.titulo}</h3>
-                        )}
-                        {data.subtitulo && (
-                          <p className="text-sm text-gray-600 mt-1">{data.subtitulo}</p>
-                        )}
+                    
+                    {/* Preview */}
+                    {preview && (
+                      <div className="mt-2">
+                        <div className="bg-white p-2 rounded-lg shadow-md">
+                          <p className="text-sm text-gray-500 mb-2">Vista previa:</p>
+                          <img
+                            src={preview}
+                            alt="Vista previa"
+                            className="max-h-48 rounded border object-contain mx-auto"
+                          />
+                          <p className="text-xs text-gray-400 mt-1 truncate max-w-xs">
+                            {selectedFile?.name} ({selectedFile ? Math.round(selectedFile.size / 1024) : 0} KB)
+                          </p>
+                        </div>
                       </div>
                     )}
                   </div>
-                )}
-              </div>
-
-              {/* Sección de Fechas */}
-              <div>
-                <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
-                  <CalendarIcon className="h-5 w-5 text-gray-600" />
-                  Configuración de Fechas
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="fecha_inicio" className="text-gray-700">
-                      Fecha de inicio <span className="text-gray-400 text-sm">(opcional)</span>
-                    </Label>
-                    <Input
-                      id="fecha_inicio"
-                      type="datetime-local"
-                      value={data.fecha_inicio}
-                      onChange={(e) => setData("fecha_inicio", e.target.value)}
-                      className="border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
-                    {errors.fecha_inicio && <p className="text-red-500 text-xs mt-1">{errors.fecha_inicio}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="fecha_fin" className="text-gray-700">
-                      Fecha de fin <span className="text-gray-400 text-sm">(opcional)</span>
-                    </Label>
-                    <Input
-                      id="fecha_fin"
-                      type="datetime-local"
-                      value={data.fecha_fin}
-                      onChange={(e) => setData("fecha_fin", e.target.value)}
-                      min={data.fecha_inicio}
-                      className="border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
-                    {errors.fecha_fin && <p className="text-red-500 text-xs mt-1">{errors.fecha_fin}</p>}
-                  </div>
                 </div>
               </div>
 
-              {/* Botones de acción */}
-              <div className="flex justify-end gap-4 pt-4">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => reset()}
-                  disabled={processing}
-                  className="border-gray-300 text-gray-700 hover:bg-gray-50"
-                >
-                  Cancelar
-                </Button>
+              <div className="flex justify-end gap-2 mt-4">
                 <Button
-                  type="submit"
-                  disabled={processing}
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium py-2 px-8 rounded-md shadow-sm"
+                  onClick={handleUpload}
+                  disabled={!selectedFile || loading}
                 >
-                  {processing ? (
-                    <span className="flex items-center gap-2">
-                      <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  {loading ? (
+                    <span className="flex items-center">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      Guardando...
+                      Subiendo...
                     </span>
                   ) : (
-                    "Guardar Banner"
+                    <>
+                      <Upload className="mr-2 h-4 w-4" />
+                      Subir Banner
+                    </>
                   )}
                 </Button>
+                {selectedFile && (
+                  <Button
+                    variant="outline"
+                    onClick={handleClearSelection}
+                    disabled={loading}
+                  >
+                    <X className="mr-2 h-4 w-4" />
+                    Cancelar
+                  </Button>
+                )}
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </form>
-    </div>
-  )
-}
 
-export default SubirBanners
+            {/* Banners table */}
+            <div className="mt-6">
+              <h3 className="text-lg font-medium mb-3">Banners</h3>
+
+              {loading && banners.length === 0 ? (
+                <div className="text-center py-8">
+                  <p>Cargando banners...</p>
+                </div>
+              ) : banners.length === 0 ? (
+                <div className="text-center py-8 bg-slate-50 rounded-lg border">
+                  <ImagePlus className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                  <p className="text-slate-500">No hay banners subidos todavía</p>
+                  <p className="text-slate-400 text-sm">Los banners que subas aparecerán aquí</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto rounded-lg border md:block hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-16">ID</TableHead>
+                        <TableHead>Título</TableHead>
+                        <TableHead>Imagen</TableHead>
+                        <TableHead className="w-24">Orden</TableHead>
+                        <TableHead className="w-24">Estado</TableHead>
+                        <TableHead className="w-32">Fechas</TableHead>
+                        <TableHead className="w-24">Acciones</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {banners.map((banner) => (
+                        <TableRow key={banner.id}>
+                          <TableCell className="font-mono text-xs">{banner.id}</TableCell>
+                          <TableCell>
+                            <div className="font-medium">{banner.titulo}</div>
+                            <div className="text-xs text-gray-500">{banner.subtitulo}</div>
+                          </TableCell>
+                          <TableCell>
+                            <img
+                              src={banner.imagen_principal}
+                              alt={banner.titulo}
+                              className="h-12 w-auto max-w-full rounded border object-cover"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            {banner.orden}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center">
+                              <Switch
+                                checked={banner.activo}
+                                onCheckedChange={() => toggleStatus(banner)}
+                                disabled={loading}
+                              />
+                              <span className="ml-2 text-sm">
+                                {banner.activo ? 'Activo' : 'Inactivo'}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-xs">
+                              <div>{banner.fecha_inicio ? new Date(banner.fecha_inicio).toLocaleDateString() : '-'}</div>
+                              <div>{banner.fecha_fin ? new Date(banner.fecha_fin).toLocaleDateString() : '-'}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="destructive"
+                              onClick={() => handleDelete(banner.id)}
+                              disabled={loading}
+                              title="Eliminar banner"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+
+              {/* Mobile view */}
+              <div className="md:hidden">
+                {banners.map((banner) => (
+                  <div key={banner.id} className="bg-white p-4 rounded-lg shadow-md mb-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <div className="font-medium">{banner.titulo}</div>
+                        <div className="text-sm text-gray-500">{banner.subtitulo}</div>
+                        <div className="text-xs text-gray-400">ID: {banner.id} • Orden: {banner.orden}</div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          checked={banner.activo}
+                          onCheckedChange={() => toggleStatus(banner)}
+                          disabled={loading}
+                        />
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDelete(banner.id)}
+                          disabled={loading}
+                          title="Eliminar banner"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <img
+                      src={banner.imagen_principal}
+                      alt={banner.titulo}
+                      className="w-full rounded border object-cover mb-2"
+                    />
+                    <div className="text-xs text-gray-500 grid grid-cols-2 gap-2">
+                      <div>
+                        <div className="font-semibold">Inicio:</div>
+                        <div>{banner.fecha_inicio ? new Date(banner.fecha_inicio).toLocaleString() : '-'}</div>
+                      </div>
+                      <div>
+                        <div className="font-semibold">Fin:</div>
+                        <div>{banner.fecha_fin ? new Date(banner.fecha_fin).toLocaleString() : '-'}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default SubirBanners;
