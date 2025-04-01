@@ -13,6 +13,7 @@ interface Banner {
   created_at: string;
   deleted_at: string | null;
   status: "active" | "deleted";
+  tipo_imagen: "local" | "url";
 }
 
 interface HistorialBannersPageProps {
