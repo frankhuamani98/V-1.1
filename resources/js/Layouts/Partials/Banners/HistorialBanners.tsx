@@ -1,85 +1,60 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/Components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
-import { History, Search, SlidersHorizontal, Eye } from "lucide-react";
+import { History, Search, SlidersHorizontal, Eye, Trash2, Edit } from "lucide-react";
 import { Badge } from "@/Components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
+import { Link } from "@inertiajs/react";
 
-// Tipo para los datos del banner
-export interface BannerRecord {
+interface Banner {
   id: number;
-  name: string;
-  url: string;
-  date: string;
+  titulo: string;
+  subtitulo: string;
+  imagen_principal: string;
+  activo: boolean;
+  fecha_inicio: string | null;
+  fecha_fin: string | null;
+  created_at: string;
+  deleted_at: string | null;
   status: "active" | "deleted";
-  uploadedBy: string;
 }
 
-// Función para obtener banners del localStorage
-const getBannersFromStorage = (): BannerRecord[] => {
-  const storedBanners = localStorage.getItem('banners');
-  if (storedBanners) {
-    return JSON.parse(storedBanners);
-  }
-  return [];
-};
+interface HistorialBannersProps {
+  banners: Banner[];
+}
 
-const HistorialBanners = () => {
-  // Estado para los banners
-  const [banners, setBanners] = useState<BannerRecord[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [isLoading, setIsLoading] = useState(true);
+const HistorialBanners: React.FC<HistorialBannersProps> = ({ banners }) => {
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [statusFilter, setStatusFilter] = React.useState<string>("all");
 
-  // Cargar banners del localStorage
-  useEffect(() => {
-    const loadBanners = () => {
-      const storedBanners = getBannersFromStorage();
-      setBanners(storedBanners);
-      setIsLoading(false);
-    };
-
-    loadBanners();
-
-    // Configurar un listener para detectar cambios en localStorage
-    const handleStorageChange = () => {
-      loadBanners();
-    };
-
-    // Escuchar eventos de almacenamiento para actualizaciones en tiempo real
-    window.addEventListener('storage', handleStorageChange);
-
-    // También podemos simular un evento de cambio para otros componentes en la misma página
-    const intervalId = setInterval(loadBanners, 2000);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      clearInterval(intervalId);
-    };
-  }, []);
-
-  // Filtrar banners
   const filteredBanners = banners.filter((banner) => {
-    // Filtro por término de búsqueda
-    const matchesSearch = banner.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (banner.uploadedBy && banner.uploadedBy.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesSearch = banner.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (banner.subtitulo && banner.subtitulo.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    // Filtro por estado
     const matchesStatus = statusFilter === "all" || banner.status === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
 
-  // Obtener el color del badge según el estado
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
-      case "active": return "success";
+      case "active": return "default";
       case "deleted": return "destructive";
-      default: return "default";
+      default: return "outline";
     }
+  };
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
   };
 
   return (
@@ -92,11 +67,11 @@ const HistorialBanners = () => {
               <div>
                 <CardTitle>Historial de Banners</CardTitle>
                 <CardDescription className="mt-1">
-                  Registro histórico de todos los banners, incluyendo los eliminados
+                  Registro completo de todos los banners subidos
                 </CardDescription>
               </div>
             </div>
-            <Badge className="bg-primary">{banners.length} banners en total</Badge>
+            <Badge className="bg-primary">{filteredBanners.length} banners encontrados</Badge>
           </div>
         </CardHeader>
 
@@ -113,7 +88,7 @@ const HistorialBanners = () => {
                 <div className="relative w-full md:w-80">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
                   <Input
-                    placeholder="Buscar por nombre..."
+                    placeholder="Buscar por título o subtítulo..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-9"
@@ -139,53 +114,61 @@ const HistorialBanners = () => {
               </div>
 
               {/* Tabla de banners */}
-              {isLoading ? (
-                <div className="text-center py-12">
-                  <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-                  <p className="mt-4 text-slate-500">Cargando historial de banners...</p>
-                </div>
-              ) : filteredBanners.length > 0 ? (
-                <div className="overflow-x-auto rounded-lg border md:block hidden">
+              {filteredBanners.length > 0 ? (
+                <div className="overflow-x-auto rounded-lg border">
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead className="w-16">ID</TableHead>
-                        <TableHead className="w-1/4">Nombre</TableHead>
-                        <TableHead>Fecha</TableHead>
+                        <TableHead>Título</TableHead>
+                        <TableHead>Imagen</TableHead>
                         <TableHead>Estado</TableHead>
-                        <TableHead>Subido por</TableHead>
-                        <TableHead className="w-16 text-center">Acciones</TableHead>
+                        <TableHead>Fechas</TableHead>
+                        <TableHead className="text-right">Acciones</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {filteredBanners.map((banner) => (
                         <TableRow key={banner.id}>
-                          <TableCell className="font-mono text-xs">{banner.id}</TableCell>
-                          <TableCell className="truncate max-w-xs">
-                            <div className="flex items-center gap-2">
-                              <img
-                                src={banner.url}
-                                alt={banner.name}
-                                className="h-8 w-12 object-cover rounded border"
-                              />
-                              <span className="truncate">{banner.name}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>{banner.date}</TableCell>
+                          <TableCell className="font-medium">{banner.id}</TableCell>
                           <TableCell>
-                            <Badge variant={getStatusBadgeVariant(banner.status) as any}>
+                            <div className="font-medium">{banner.titulo}</div>
+                            {banner.subtitulo && (
+                              <div className="text-sm text-gray-500">{banner.subtitulo}</div>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <img
+                              src={banner.imagen_principal}
+                              alt={banner.titulo}
+                              className="h-12 w-20 object-cover rounded border"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={getStatusBadgeVariant(banner.status)}>
                               {banner.status === "active" ? "Activo" : "Eliminado"}
                             </Badge>
+                            <div className="text-xs text-gray-500 mt-1">
+                              {formatDate(banner.created_at)}
+                            </div>
                           </TableCell>
-                          <TableCell className="text-sm">{banner.uploadedBy || "Usuario actual"}</TableCell>
                           <TableCell>
-                            <div className="flex justify-center">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                title="Ver detalles"
-                              >
-                                <Eye className="h-4 w-4" />
+                            <div className="text-sm">
+                              {banner.fecha_inicio && (
+                                <div>Inicio: {formatDate(banner.fecha_inicio)}</div>
+                              )}
+                              {banner.fecha_fin && (
+                                <div>Fin: {formatDate(banner.fecha_fin)}</div>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex gap-2 justify-end">
+                              <Button variant="ghost" size="sm" title="Editar">
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="sm" title="Eliminar">
+                                <Trash2 className="h-4 w-4 text-red-500" />
                               </Button>
                             </div>
                           </TableCell>
@@ -198,88 +181,61 @@ const HistorialBanners = () => {
                 <div className="text-center py-12 bg-slate-50 rounded-lg border">
                   <Search className="h-12 w-12 text-slate-300 mx-auto mb-3" />
                   <p className="text-slate-500">No se encontraron banners</p>
-                  <p className="text-slate-400 text-sm">
+                  <p className="text-slate-400 text-sm mt-2">
                     {searchTerm || statusFilter !== "all"
                       ? "Prueba con otros términos de búsqueda o filtros"
-                      : "Sube banners desde la sección 'Subir Banners' para verlos aquí"}
+                      : "Sube tu primer banner para comenzar"}
                   </p>
+                  <Link href={route('banners.subir')} className="mt-4 inline-block">
+                    <Button>
+                      Subir Nuevo Banner
+                    </Button>
+                  </Link>
                 </div>
               )}
-
-              {/* Vista móvil */}
-              <div className="md:hidden">
-                {filteredBanners.map((banner) => (
-                  <div key={banner.id} className="bg-white p-4 rounded-lg shadow-md mb-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div>
-                        <p className="font-mono text-xs">ID: {banner.id}</p>
-                        <p className="truncate max-w-xs">{banner.name}</p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        title="Ver detalles"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <img
-                      src={banner.url}
-                      alt={banner.name}
-                      className="w-full rounded border object-cover mb-2"
-                    />
-                    <p className="text-sm text-gray-500">{banner.date}</p>
-                    <Badge variant={getStatusBadgeVariant(banner.status) as any}>
-                      {banner.status === "active" ? "Activo" : "Eliminado"}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
             </TabsContent>
 
             <TabsContent value="grid">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {isLoading ? (
-                  Array(3).fill(0).map((_, index) => (
-                    <div key={index} className="border rounded-lg p-4 flex flex-col gap-2 animate-pulse">
-                      <div className="h-36 bg-slate-200 rounded w-full"></div>
-                      <div className="h-4 bg-slate-200 rounded w-3/4"></div>
-                      <div className="h-4 bg-slate-200 rounded w-1/2"></div>
+                {filteredBanners.map((banner) => (
+                  <Card key={banner.id} className="overflow-hidden">
+                    <div className="relative">
+                      <img
+                        src={banner.imagen_principal}
+                        alt={banner.titulo}
+                        className="w-full h-48 object-cover"
+                      />
+                      <Badge
+                        className="absolute top-2 right-2"
+                        variant={getStatusBadgeVariant(banner.status)}
+                      >
+                        {banner.status === "active" ? "Activo" : "Eliminado"}
+                      </Badge>
                     </div>
-                  ))
-                ) : filteredBanners.length > 0 ? (
-                  filteredBanners.map((banner) => (
-                    <Card key={banner.id} className="overflow-hidden">
-                      <div className="relative">
-                        <img
-                          src={banner.url}
-                          alt={banner.name}
-                          className="w-full h-36 object-cover"
-                        />
-                        <Badge
-                          className="absolute top-2 right-2"
-                          variant={getStatusBadgeVariant(banner.status) as any}
-                        >
-                          {banner.status === "active" ? "Activo" : "Eliminado"}
-                        </Badge>
+                    <CardContent className="p-4">
+                      <h3 className="font-medium">{banner.titulo}</h3>
+                      {banner.subtitulo && (
+                        <p className="text-sm text-muted-foreground mt-1">{banner.subtitulo}</p>
+                      )}
+                      <div className="mt-3 text-sm text-gray-500">
+                        {banner.fecha_inicio && (
+                          <div>Inicio: {formatDate(banner.fecha_inicio)}</div>
+                        )}
+                        {banner.fecha_fin && (
+                          <div>Fin: {formatDate(banner.fecha_fin)}</div>
+                        )}
                       </div>
-                      <CardContent className="p-4">
-                        <p className="font-medium truncate">{banner.name}</p>
-                        <p className="text-sm text-muted-foreground mt-1">{banner.date}</p>
-                      </CardContent>
-                    </Card>
-                  ))
-                ) : (
-                  <div className="col-span-full text-center py-12 bg-slate-50 rounded-lg border">
-                    <Search className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                    <p className="text-slate-500">No se encontraron banners</p>
-                    <p className="text-slate-400 text-sm">
-                      {searchTerm || statusFilter !== "all"
-                        ? "Prueba con otros términos de búsqueda o filtros"
-                        : "Sube banners desde la sección 'Subir Banners' para verlos aquí"}
-                    </p>
-                  </div>
-                )}
+                      <div className="flex justify-end gap-2 mt-4">
+                        <Button variant="ghost" size="sm" title="Editar">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" title="Eliminar">
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             </TabsContent>
           </Tabs>

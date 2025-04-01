@@ -1,287 +1,265 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/Components/ui/card";
-import { Input } from "@/Components/ui/input";
-import { Button } from "@/Components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table";
-import { ImagePlus, Trash2, Upload, X } from "lucide-react";
-import { Alert, AlertDescription } from "@/Components/ui/alert";
-import { BannerRecord } from "./HistorialBanners";
+import type React from "react"
+import { useState } from "react"
+import { useForm, router } from "@inertiajs/react"
+import { toast } from "sonner"
+import { Input } from "@/Components/ui/input"
+import { Button } from "@/Components/ui/button"
+import { Label } from "@/Components/ui/label"
+import { Switch } from "@/Components/ui/switch"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card"
+import { Calendar } from "@/Components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/Components/ui/popover"
+import { CalendarIcon, X, Check, ImagePlus } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { format } from "date-fns"
+import { es } from "date-fns/locale"
 
-const SubirBanners = () => {
-  const [banners, setBanners] = useState<BannerRecord[]>([]);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+interface SubirBannersProps {
+  banners?: Array<{
+    id: number
+    titulo: string
+    subtitulo: string
+    imagen_principal: string
+    activo: boolean
+    fecha_inicio: string | null
+    fecha_fin: string | null
+  }>
+}
 
-  // Cargar banners activos al iniciar
-  useEffect(() => {
-    const savedBanners = localStorage.getItem('banners');
-    if (savedBanners) {
-      const allBanners = JSON.parse(savedBanners);
-      // Solo mostrar los activos en este componente
-      setBanners(allBanners.filter((banner: BannerRecord) => banner.status === 'active'));
-    }
-  }, []);
+const SubirBanners: React.FC<SubirBannersProps> = ({ banners = [] }) => {
+  const { data, setData, post, processing, errors, reset } = useForm({
+    titulo: "",
+    subtitulo: "",
+    imagen_principal: null as File | null,
+    activo: true as boolean,
+    fecha_inicio: null as Date | null,
+    fecha_fin: null as Date | null,
+  })
 
-  // Función para actualizar el localStorage
-  const updateStoredBanners = (updatedBanners: BannerRecord[]) => {
-    // Obtener todos los banners almacenados (incluyendo eliminados)
-    const savedBanners = localStorage.getItem('banners');
-    let allBanners: BannerRecord[] = [];
+  const [previewImage, setPreviewImage] = useState("")
 
-    if (savedBanners) {
-      const parsedBanners = JSON.parse(savedBanners);
-      // Filtrar para eliminar los activos (ya que los reemplazaremos)
-      allBanners = parsedBanners.filter((banner: BannerRecord) => banner.status !== 'active');
-    }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
 
-    // Combinar los banners eliminados con los actuales
-    const combinedBanners = [...allBanners, ...updatedBanners];
-    localStorage.setItem('banners', JSON.stringify(combinedBanners));
+    const formData = new FormData()
+    formData.append('titulo', data.titulo)
+    formData.append('subtitulo', data.subtitulo || '')
+    formData.append('activo', data.activo ? '1' : '0') // Enviar como '1' o '0'
+    if (data.fecha_inicio) formData.append('fecha_inicio', format(data.fecha_inicio, "yyyy-MM-dd HH:mm:ss"))
+    if (data.fecha_fin) formData.append('fecha_fin', format(data.fecha_fin, "yyyy-MM-dd HH:mm:ss"))
+    if (data.imagen_principal) formData.append('imagen_principal', data.imagen_principal)
 
-    // Disparar evento para notificar cambios
-    window.dispatchEvent(new Event('storage'));
-  };
+    router.post(route("banners.store"), formData, {
+      forceFormData: true,
+      onSuccess: () => {
+        toast.success("Banner creado exitosamente")
+        reset()
+        setPreviewImage("")
+      },
+      onError: (errors) => {
+        toast.error("Error al crear el banner")
+        console.error("Errores del formulario:", errors)
+      },
+    })
+  }
 
-  // Manejar selección de archivo
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    setError(null);
-
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
     if (file) {
-      // Validar que sea una imagen
-      if (!file.type.startsWith('image/')) {
-        setError('El archivo seleccionado no es una imagen válida');
-        return;
+      setData("imagen_principal", file)
+      
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setPreviewImage(event.target.result as string)
+        }
       }
-
-      // Validar tamaño (máximo 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        setError('La imagen no debe exceder 5MB');
-        return;
-      }
-
-      setSelectedFile(file);
-      setPreview(URL.createObjectURL(file));
+      reader.readAsDataURL(file)
     }
-  };
-
-  // Limpiar selección
-  const handleClearSelection = () => {
-    setSelectedFile(null);
-    setPreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  // Subir banner
-  const handleUpload = () => {
-    if (!selectedFile) return;
-
-    const newBanner: BannerRecord = {
-      id: Date.now(), // Usa timestamp para IDs únicos
-      name: selectedFile.name,
-      url: preview || "",
-      date: new Date().toLocaleDateString(),
-      status: "active",
-      uploadedBy: "Usuario actual"
-    };
-
-    const updatedBanners = [...banners, newBanner];
-    setBanners(updatedBanners);
-    updateStoredBanners(updatedBanners);
-    handleClearSelection();
-  };
-
-  // Eliminar banner
-  const handleDelete = (id: number) => {
-    // Marcar como eliminado pero mantener en el historial
-    const updatedBanners = banners.filter(banner => banner.id !== id);
-
-    // Obtener el banner eliminado y cambiar su estado
-    const deletedBanner = banners.find(banner => banner.id === id);
-    if (deletedBanner) {
-      deletedBanner.status = "deleted";
-
-      // Actualizar en localStorage
-      setBanners(updatedBanners);
-
-      // Combinar los activos y el recién eliminado
-      updateStoredBanners([...updatedBanners, deletedBanner]);
-    }
-  };
+  }
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-2 md:p-6">
+    <form onSubmit={handleSubmit} className="max-w-4xl mx-auto p-4">
       <Card className="shadow-lg">
-        <CardHeader className="bg-slate-50 border-b">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <ImagePlus className="text-primary h-6 w-6" />
-              <div>
-                <CardTitle>Gestión de Banners</CardTitle>
-                <CardDescription>
-                  Sube, visualiza y administra los banners de tu sitio
-                </CardDescription>
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold">Subir Nuevo Banner</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="titulo">Título del Banner</Label>
+                <Input
+                  id="titulo"
+                  value={data.titulo}
+                  onChange={(e) => setData("titulo", e.target.value)}
+                  placeholder="Ej: Promoción de Verano"
+                />
+                {errors.titulo && <p className="text-red-500 text-xs mt-1">{errors.titulo}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="subtitulo">Subtítulo</Label>
+                <Input
+                  id="subtitulo"
+                  value={data.subtitulo}
+                  onChange={(e) => setData("subtitulo", e.target.value)}
+                  placeholder="Ej: Descuentos hasta 50%"
+                />
+                {errors.subtitulo && <p className="text-red-500 text-xs mt-1">{errors.subtitulo}</p>}
+              </div>
+
+              <div className="flex items-center justify-between space-y-2">
+                <Label htmlFor="activo">Banner Activo</Label>
+                <Switch
+                  id="activo"
+                  checked={data.activo}
+                  onCheckedChange={(checked) => setData("activo", checked)}
+                />
               </div>
             </div>
-            <span className="text-sm text-gray-500 hidden md:inline-block">
-              {banners.length} banner{banners.length !== 1 ? 's' : ''} activos
-            </span>
-          </div>
-        </CardHeader>
 
-        <CardContent className="pt-6">
-          {error && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          <div className="space-y-6">
-            {/* Área de carga */}
-            <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-lg p-4">
-              <div className="flex flex-col md:flex-row gap-4 items-center">
-                <div className="flex-1 w-full">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Imagen del Banner</Label>
+                <div className="flex items-center gap-2">
                   <Input
+                    id="imagen_principal"
                     type="file"
-                    ref={fileInputRef}
                     accept="image/*"
-                    onChange={handleFileChange}
-                    className="w-full"
+                    onChange={handleImageChange}
+                    className="hidden"
                   />
-                </div>
-                <div className="flex gap-2 w-full md:w-auto">
-                  <Button
-                    onClick={handleUpload}
-                    disabled={!selectedFile}
-                    className="flex-1 md:flex-none"
+                  <Label
+                    htmlFor="imagen_principal"
+                    className="flex items-center justify-center gap-2 px-4 py-2 border rounded-md cursor-pointer hover:bg-gray-50"
                   >
-                    <Upload className="mr-2 h-4 w-4" />
-                    Subir Banner
-                  </Button>
-                  {selectedFile && (
+                    <ImagePlus className="h-4 w-4" />
+                    Seleccionar Imagen
+                  </Label>
+                  {previewImage && (
                     <Button
                       variant="outline"
-                      onClick={handleClearSelection}
-                      className="flex-1 md:flex-none"
+                      size="sm"
+                      onClick={() => {
+                        setPreviewImage("")
+                        setData("imagen_principal", null)
+                      }}
                     >
-                      <X className="mr-2 h-4 w-4" />
-                      Cancelar
+                      <X className="h-4 w-4 mr-1" />
+                      Eliminar
                     </Button>
                   )}
                 </div>
+                {errors.imagen_principal && (
+                  <p className="text-red-500 text-xs mt-1">{errors.imagen_principal}</p>
+                )}
               </div>
 
-              {/* Vista previa */}
-              {preview && (
-                <div className="mt-4 flex justify-center">
-                  <div className="relative">
-                    <div className="bg-white p-2 rounded-lg shadow-md">
-                      <p className="text-sm text-gray-500 mb-2">Vista previa:</p>
-                      <img
-                        src={preview}
-                        alt="Vista previa"
-                        className="max-h-48 rounded border object-contain mx-auto"
-                      />
-                      <p className="text-xs text-gray-400 mt-1 truncate max-w-xs">
-                        {selectedFile?.name} ({selectedFile ? Math.round(selectedFile.size / 1024) : 0} KB)
-                      </p>
-                    </div>
-                  </div>
+              {previewImage && (
+                <div className="border rounded-md overflow-hidden">
+                  <img
+                    src={previewImage}
+                    alt="Vista previa del banner"
+                    className="w-full h-auto max-h-64 object-contain"
+                  />
                 </div>
               )}
             </div>
+          </div>
 
-            {/* Tabla de banners */}
-            <div className="mt-6">
-              <h3 className="text-lg font-medium mb-3">Banners Activos</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label>Fecha de Inicio</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !data.fecha_inicio && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {data.fecha_inicio ? (
+                      format(data.fecha_inicio, "PPP", { locale: es })
+                    ) : (
+                      <span>Seleccionar fecha</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={data.fecha_inicio || undefined}
+                    onSelect={(date) => setData("fecha_inicio", date || null)}
+                    initialFocus
+                    locale={es}
+                  />
+                </PopoverContent>
+              </Popover>
+              {errors.fecha_inicio && <p className="text-red-500 text-xs mt-1">{errors.fecha_inicio}</p>}
+            </div>
 
-              {banners.length === 0 ? (
-                <div className="text-center py-8 bg-slate-50 rounded-lg border">
-                  <ImagePlus className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                  <p className="text-slate-500">No hay banners subidos todavía</p>
-                  <p className="text-slate-400 text-sm">Los banners que subas aparecerán aquí</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto rounded-lg border md:block hidden">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-16">ID</TableHead>
-                        <TableHead className="w-1/3">Nombre</TableHead>
-                        <TableHead className="w-1/5">Fecha</TableHead>
-                        <TableHead className="w-1/4">Imagen</TableHead>
-                        <TableHead className="w-16">Acción</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {banners.map((banner) => (
-                        <TableRow key={banner.id}>
-                          <TableCell className="font-mono text-xs">{banner.id}</TableCell>
-                          <TableCell className="truncate max-w-xs">
-                            {banner.name}
-                          </TableCell>
-                          <TableCell>{banner.date}</TableCell>
-                          <TableCell>
-                            <img
-                              src={banner.url}
-                              alt={banner.name}
-                              className="h-12 w-auto max-w-full rounded border object-cover"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => handleDelete(banner.id)}
-                              title="Eliminar banner"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-
-              {/* Vista móvil */}
-              <div className="md:hidden">
-                {banners.map((banner) => (
-                  <div key={banner.id} className="bg-white p-4 rounded-lg shadow-md mb-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div>
-                        <p className="font-mono text-xs">ID: {banner.id}</p>
-                        <p className="truncate max-w-xs">{banner.name}</p>
-                      </div>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDelete(banner.id)}
-                        title="Eliminar banner"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <img
-                      src={banner.url}
-                      alt={banner.name}
-                      className="w-full rounded border object-cover mb-2"
-                    />
-                    <p className="text-sm text-gray-500">{banner.date}</p>
-                  </div>
-                ))}
-              </div>
+            <div className="space-y-2">
+              <Label>Fecha de Fin</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !data.fecha_fin && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {data.fecha_fin ? (
+                      format(data.fecha_fin, "PPP", { locale: es })
+                    ) : (
+                      <span>Seleccionar fecha</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={data.fecha_fin || undefined}
+                    onSelect={(date) => setData("fecha_fin", date || null)}
+                    initialFocus
+                    locale={es}
+                  />
+                </PopoverContent>
+              </Popover>
+              {errors.fecha_fin && <p className="text-red-500 text-xs mt-1">{errors.fecha_fin}</p>}
             </div>
           </div>
         </CardContent>
+        <CardFooter className="flex justify-between border-t p-6">
+          <Button
+            variant="outline"
+            type="button"
+            onClick={() => {
+              reset()
+              setPreviewImage("")
+            }}
+          >
+            <X className="h-4 w-4 mr-2" />
+            Cancelar
+          </Button>
+          <Button type="submit" disabled={processing}>
+            {processing ? (
+              "Guardando..."
+            ) : (
+              <>
+                <Check className="h-4 w-4 mr-2" />
+                Guardar Banner
+              </>
+            )}
+          </Button>
+        </CardFooter>
       </Card>
-    </div>
-  );
-};
+    </form>
+  )
+}
 
-export default SubirBanners;
+export default SubirBanners

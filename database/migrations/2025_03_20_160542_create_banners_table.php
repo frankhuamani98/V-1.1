@@ -10,14 +10,14 @@ return new class extends Migration
     {
         Schema::create('banners', function (Blueprint $table) {
             $table->id();
-            $table->string('titulo')->nullable();
+            $table->string('titulo');
             $table->string('subtitulo')->nullable();
-            $table->text('imagen_principal'); // Almacena tanto URLs como rutas locales
+            $table->string('imagen_principal');
             $table->boolean('activo')->default(true);
-            $table->integer('orden')->default(0);
             $table->dateTime('fecha_inicio')->nullable();
             $table->dateTime('fecha_fin')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
