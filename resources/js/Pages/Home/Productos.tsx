@@ -14,43 +14,123 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/Comp
 import { Separator } from "@/Components/ui/separator";
 import { Progress } from "@/Components/ui/progress";
 import {
+  PauseIcon,
+  PlayIcon,
   ShoppingCartIcon,
   HeartIcon,
   StarIcon,
   InfoIcon,
+  TagIcon,
   ExternalLinkIcon,
-  ZapIcon,
-  TrendingUpIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from '@inertiajs/react';
 
-interface Producto {
-    id: number;
-    nombre: string;
-    descripcion_corta: string;
-    precio: number | string;
-    descuento: number | string;
-    imagen_principal: string;
-    calificacion: number;
-    destacado: boolean;
-    mas_vendido: boolean;
-    stock?: number;
-}
+const products = [
+  {
+    id: 1,
+    name: "Auriculares Premium",
+    price: "S/473.23",
+    originalPrice: "S/583.43",
+    rating: 4.8,
+    reviews: 124,
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D",
+    tag: "Más Vendido, Nuevo",
+    stock: 15,
+    description: "Auriculares inalámbricos de alta calidad con cancelación de ruido y sonido premium.",
+  },
+  {
+    id: 2,
+    name: "Smart Watch",
+    price: "S/729.37",
+    originalPrice: "S/729.37",
+    rating: 4.6,
+    reviews: 89,
+    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHByb2R1Y3R8ZW58MHx8MHx8fDA%3D",
+    tag: "Más Vendido, Oferta",
+    stock: 8,
+    description: "Smartwatch de última generación con seguimiento de salud e integración con smartphone.",
+  },
+  {
+    id: 3,
+    name: "Audífonos Inalámbricos",
+    price: "S/328.44",
+    originalPrice: "S/400.32",
+    rating: 4.5,
+    reviews: 76,
+    image: "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8ZWFyYnVkc3xlbnwwfHwwfHx8MA%3D%3D",
+    tag: "Más Vendido, Nuevo",
+    stock: 22,
+    description: "Audífonos inalámbricos compactos con sonido cristalino y larga duración de batería.",
+  },
+  {
+    id: 4,
+    name: "Cámara Digital",
+    price: "S/1276.84",
+    originalPrice: "S/1567.23",
+    rating: 4.7,
+    reviews: 52,
+    image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D",
+    tag: "Más Vendido, Oferta",
+    stock: 5,
+    description: "Cámara digital de grado profesional con características avanzadas para entusiastas de la fotografía.",
+  },
+  {
+    id: 5,
+    name: "Altavoz Portátil",
+    price: "S/291.67",
+    originalPrice: "S/291.67",
+    rating: 4.4,
+    reviews: 118,
+    image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cG9ydGFibGUlMjBzcGVha2VyfGVufDB8fDB8fHww",
+    tag: "Más Vendido, Nuevo",
+    stock: 18,
+    description: "Altavoz portátil resistente al agua con sonido 360° y 20 horas de duración de batería.",
+  },
+  {
+    id: 6,
+    name: "Rastreador de Fitness",
+    price: "S/218.84",
+    originalPrice: "S/255.25",
+    rating: 4.3,
+    reviews: 203,
+    image: "https://images.unsplash.com/photo-1576243345690-4e4b79b63288?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Zml0bmVzcyUyMHRyYWNrZXJ8ZW58MHx8MHx8fDA%3D",
+    tag: "Más Vendido, Oferta",
+    stock: 25,
+    description: "Rastrea tus metas de fitness con este dispositivo cómodo y elegante.",
+  },
+  {
+    id: 7,
+    name: "Teclado Mecánico",
+    price: "S/547.37",
+    originalPrice: "S/660.25",
+    rating: 4.9,
+    reviews: 67,
+    image: "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bWVjaGFuaWNhbCUyMGtleWJvYXJkfGVufDB8fDB8fHww",
+    tag: "Más Vendido, Limitado",
+    stock: 3,
+    description: "Teclado mecánico premium con iluminación RGB personalizable y switches táctiles.",
+  },
+  {
+    id: 8,
+    name: "Ratón Gaming",
+    price: "S/255.75",
+    originalPrice: "S/328.44",
+    rating: 4.6,
+    reviews: 94,
+    image: "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Z2FtaW5nJTIwbW91c2V8ZW58MHx8MHx8fDA%3D",
+    tag: "Más Vendido, Oferta",
+    stock: 12,
+    description: "Ratón de alta precisión para gaming con DPI ajustable y botones programables.",
+  },
+];
 
 interface CarouselSectionProps {
   title: string;
-  productList: any[];
-  showOnlyBestSellers?: boolean;
-  showOnlyFeatured?: boolean;
+  productList: typeof products;
 }
 
-const CarouselSection: React.FC<CarouselSectionProps> = ({ 
-  title, 
-  productList,
-  showOnlyBestSellers = false,
-  showOnlyFeatured = false
-}) => {
+const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList }) => {
   const [api, setApi] = useState<CarouselApi | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -59,6 +139,7 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({
   const [progress, setProgress] = useState(0);
   const [autoplayInterval, setAutoplayInterval] = useState<NodeJS.Timeout | null>(null);
 
+  // Manejar la selección del carrusel
   useEffect(() => {
     if (!api) return;
 
@@ -73,6 +154,7 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({
     };
   }, [api]);
 
+  // Manejar la reproducción automática
   useEffect(() => {
     if (!api || !isPlaying) {
       if (autoplayInterval) {
@@ -82,10 +164,12 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({
       return;
     }
 
+    // Reiniciar el progreso
     setProgress(0);
 
+    // Crear nuevo intervalo
     const intervalTime = 3000;
-    const progressInterval = 30;
+    const progressInterval = 30; // Actualizar el progreso cada 30ms
     const progressStep = (progressInterval / intervalTime) * 100;
 
     let currentProgress = 0;
@@ -113,20 +197,25 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({
     };
   }, [api, isPlaying]);
 
+  const togglePlayPause = () => {
+    setIsPlaying(!isPlaying);
+  };
+
   const toggleFavorite = (productId: number) => {
     setFavorites(prev => {
       const newFavorites = prev.includes(productId)
         ? prev.filter(id => id !== productId)
         : [...prev, productId];
 
+      // Mostrar notificación toast
       if (newFavorites.includes(productId)) {
         toast.success("Añadido a favoritos", {
-          description: `${productList.find(p => p.id === productId)?.name} ha sido añadido a tus favoritos.`,
+          description: `${products.find(p => p.id === productId)?.name} ha sido añadido a tus favoritos.`,
           duration: 3000,
         });
       } else {
         toast("Eliminado de favoritos", {
-          description: `${productList.find(p => p.id === productId)?.name} ha sido eliminado de tus favoritos.`,
+          description: `${products.find(p => p.id === productId)?.name} ha sido eliminado de tus favoritos.`,
           duration: 3000,
         });
       }
@@ -138,14 +227,25 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({
   const addToCart = (productId: number) => {
     setCart(prev => {
       const newCart = [...prev, productId];
+
+      // Mostrar notificación toast
       toast.success("Añadido al carrito", {
-        description: `${productList.find(p => p.id === productId)?.name} ha sido añadido a tu carrito.`,
+        description: `${products.find(p => p.id === productId)?.name} ha sido añadido a tu carrito.`,
         duration: 3000,
       });
+
       return newCart;
     });
   };
 
+  const viewDetails = (productId: number) => {
+    toast.info("Ver detalles", {
+      description: `Viendo detalles de ${products.find(p => p.id === productId)?.name}`,
+      duration: 3000,
+    });
+  };
+
+  // Generar la visualización de la calificación
   const renderRating = (rating: number, reviews: number) => {
     return (
       <div className="flex items-center mt-1">
@@ -159,17 +259,18 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({
           ))}
         </div>
         <span className="text-xs text-muted-foreground">
-          {rating.toFixed(1)} ({reviews})
+          {rating} ({reviews})
         </span>
       </div>
     );
   };
 
+  // Calcular el porcentaje de descuento
   const calculateDiscount = (price: string, originalPrice: string) => {
-    const currentPrice = parseFloat(price.replace(/[^0-9.]/g, ''));
-    const origPrice = parseFloat(originalPrice.replace(/[^0-9.]/g, ''));
+    const currentPrice = parseFloat(price.replace('S/', ''));
+    const origPrice = parseFloat(originalPrice.replace('S/', ''));
 
-    if (origPrice > currentPrice && origPrice > 0) {
+    if (origPrice > currentPrice) {
       const discount = Math.round(((origPrice - currentPrice) / origPrice) * 100);
       return discount;
     }
@@ -177,6 +278,7 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({
     return 0;
   };
 
+  // Indicador de stock
   const renderStockIndicator = (stock: number) => {
     let stockClass = "bg-green-500";
     let stockText = "En Stock";
@@ -237,42 +339,24 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({
                         {/* Etiquetas del producto */}
                         <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
                           {product.tag &&
-                            product.tag.split(", ").map((tag: string, index: number) => (
+                            product.tag.split(", ").map((tag, index) => (
                               <Badge
                                 key={index}
-                                className={`flex items-center ${
-                                  tag === "Descuento" ? "bg-red-500 hover:bg-red-600" :
+                                className={`${
+                                  tag === "Oferta" ? "bg-red-500 hover:bg-red-600" :
                                   tag === "Nuevo" ? "bg-blue-500 hover:bg-blue-600" :
                                   tag === "Más Vendido" ? "bg-amber-500 hover:bg-amber-600" :
-                                  tag === "Destacado" ? "bg-purple-500 hover:bg-purple-600" :
+                                  tag === "Limitado" ? "bg-purple-500 hover:bg-purple-600" :
                                   "bg-green-500 hover:bg-green-600"
                                 }`}
                               >
-                                {tag === "Destacado" ? (
-                                  <>
-                                    <StarIcon className="h-3 w-3 mr-1" />
-                                    {tag}
-                                  </>
-                                ) : tag === "Más Vendido" ? (
-                                  <>
-                                    <TrendingUpIcon className="h-3 w-3 mr-1" />
-                                    {tag}
-                                  </>
-                                ) : tag === "Descuento" ? (
-                                  <>
-                                    <ZapIcon className="h-3 w-3 mr-1" />
-                                    {tag} {discountPercentage > 0 && `${discountPercentage}%`}
-                                  </>
-                                ) : (
-                                  tag
-                                )}
+                                {tag}
                               </Badge>
                             ))}
 
-                          {discountPercentage > 0 && (!product.tag || !product.tag.includes("Descuento")) && (
-                            <Badge className="flex items-center bg-red-500 hover:bg-red-600">
-                              <ZapIcon className="h-3 w-3 mr-1" />
-                              Descuento {discountPercentage}%
+                          {discountPercentage > 0 && (
+                            <Badge variant="destructive">
+                              {discountPercentage}% OFF
                             </Badge>
                           )}
                         </div>
@@ -304,10 +388,6 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({
                             src={product.image}
                             alt={product.name}
                             className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = '/images/placeholder-product.png';
-                            }}
                           />
                         </div>
                       </div>
@@ -355,7 +435,7 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({
                         className="w-full gap-1.5"
                         asChild
                       >
-                        <Link href={`/productos/${product.id}`}>
+                        <Link href={`/details/${product.id}`}>
                           <ExternalLinkIcon className="h-4 w-4" />
                           Ver Detalles
                         </Link>
@@ -392,96 +472,18 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({
   );
 };
 
-interface ProductsProps {
-    featuredProducts: Producto[];
-    bestSellingProducts: Producto[];
-    allProducts: Producto[];
+export default function App() {
+  // Filtrar productos destacados
+  const featuredProducts = products.filter(product => product.tag.includes("Nuevo") || product.tag.includes("Oferta"));
+
+  // Filtrar productos más vendidos
+  const bestSellingProducts = products.filter(product => product.tag.includes("Más Vendido"));
+
+  return (
+    <div className="container mx-auto px-4">
+      <CarouselSection title="Productos Destacados" productList={featuredProducts} />
+      <CarouselSection title="Lo Más Vendido" productList={bestSellingProducts} />
+      <CarouselSection title="Todos los Productos" productList={products} />
+    </div>
+  );
 }
-
-const Products: React.FC<ProductsProps> = ({ 
-    featuredProducts, 
-    bestSellingProducts, 
-    allProducts 
-}) => {
-    const formatPrice = (price: any): string => {
-        if (typeof price === 'string' && price.startsWith('S/')) return price;
-        const num = typeof price === 'number' ? price : parseFloat(price) || 0;
-        return new Intl.NumberFormat('es-PE', {
-            style: 'currency',
-            currency: 'PEN',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).format(num);
-    };
-
-    const adaptProducts = (products: Producto[], options: {
-      isFeatured?: boolean;
-      isBestSeller?: boolean;
-    } = {}) => {
-        return products.map(product => {
-            const precio = formatPrice(product.precio);
-            const descuento = typeof product.descuento === 'string' ? parseFloat(product.descuento) : product.descuento;
-            
-            // Calcular precio original con descuento
-            let precioOriginal = precio;
-            if (descuento > 0) {
-                const precioNumerico = parseFloat(precio.replace(/[^0-9.]/g, ''));
-                precioOriginal = formatPrice(precioNumerico / (1 - descuento/100));
-            }
-
-            // Genera tags según el tipo de lista
-            const tags = [];
-            
-            if (options.isBestSeller) {
-              tags.push("Más Vendido");
-              if (descuento > 0) tags.push("Descuento");
-            } 
-            else if (options.isFeatured) {
-              tags.push("Destacado");
-              if (descuento > 0) tags.push("Descuento");
-            } 
-            else {
-              if (product.destacado) tags.push("Destacado");
-              if (product.mas_vendido) tags.push("Más Vendido");
-              if (descuento > 0) tags.push("Descuento");
-              if (tags.length === 0) tags.push("Nuevo");
-            }
-
-            return {
-                id: product.id,
-                name: product.nombre,
-                price: precio,
-                originalPrice: precioOriginal,
-                rating: product.calificacion || 4.5,
-                reviews: Math.floor(Math.random() * 100) + 20,
-                image: product.imagen_principal,
-                tag: tags.join(", "),
-                stock: product.stock || Math.floor(Math.random() * 50) + 5,
-                description: product.descripcion_corta || "Descripción del producto",
-            };
-        });
-    };
-
-    return (
-        <div className="container mx-auto px-4">
-            <CarouselSection 
-                title="Productos Destacados" 
-                productList={adaptProducts(featuredProducts, { isFeatured: true })}
-                showOnlyFeatured
-            />
-            
-            <CarouselSection 
-                title="Lo Más Vendido" 
-                productList={adaptProducts(bestSellingProducts, { isBestSeller: true })}
-                showOnlyBestSellers
-            />
-            
-            <CarouselSection 
-                title="Todos los Productos" 
-                productList={adaptProducts(allProducts)}
-            />
-        </div>
-    );
-};
-
-export default Products;
