@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ReactNode } from "react";
-import { Link, usePage } from "@inertiajs/react"; // Importa usePage para acceder a las props
+import { Link, usePage } from "@inertiajs/react";
 import {
   ShoppingCartIcon,
   HeartIcon,
@@ -52,7 +52,7 @@ import {
 import { Input } from "@/Components/ui/input";
 import { Button } from "@/Components/ui/button";
 import { Badge } from "@/Components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar"; // Importa Avatar y AvatarFallback
+import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { Separator } from "@/Components/ui/separator";
 import { cn } from "@/lib/utils";
 import { MapPin, Phone, Mail, Clock, Sun, Moon, Menu, X } from "lucide-react";
@@ -91,65 +91,6 @@ const favoriteProducts = [
     id: 5,
     name: "Botas Alpinestars SMX-6 V2",
     price: 229.99,
-  },
-];
-
-const categories = [
-  {
-    title: "Productos",
-    href: "#",
-    description: "Estos son nuestros productos más relevantes",
-    icon: <PackageIcon className="mr-2 h-4 w-4" />,
-    subcategories: [
-      { name: "Motor y transmisión", href: "#" },
-      { name: "Frenos y suspensión", href: "#" },
-      { name: "Neumáticos y ruedas", href: "#" },
-      { name: "Sistema eléctrico", href: "#" },
-      { name: "Accesorios y carrocería", href: "#" },
-      { name: "Lubricantes y filtros", href: "#" },
-      { name: "Ver más", href: "/home/partials/Products/TodoProductos" },
-    ],
-  },
-  {
-    title: "Servicios",
-    href: "#",
-    description: "Ofrecemos una amplia gama de servicios para tu motocicleta",
-    icon: <WrenchIcon className="mr-2 h-4 w-4" />,
-    subcategories: [
-      { name: "Mantenimiento general", href: "#" },
-      { name: "Reparación de motor y transmisión", href: "#" },
-      { name: "Servicio de frenos y suspensión ", href: "#" },
-      { name: "Sistema eléctrico y diagnóstico", href: "#" },
-      { name: "Cambio y balanceo de neumáticos", href: "#" },
-      { name: "Personalización y accesorios", href: "#" },
-      { name: "Ver más", href: "#" }, // Opción "Ver más"
-    ],
-  },
-  {
-    title: "Reservas",
-    href: "#",
-    description: "Reserva tu cita para servicios",
-    icon: <CalendarIcon className="mr-2 h-4 w-4" />,
-    subcategories: [
-      { name: "Reservar Citas", href: "/home/partials/Reservas/recervas" },
-      { name: "Horarios Disponibles", href: "#" },
-      { name: "Promociones", href: "#" },
-      { name: "Agregar Reserva", href: "#" },
-      { name: "Ver más", href: "#" },
-    ],
-  },
-  {
-    title: "Contactos",
-    href: "#",
-    description: "Ponte en contacto con nosotros para cualquier consulta",
-    icon: <PhoneIcon className="mr-2 h-4 w-4" />,
-    subcategories: [
-      { name: "Ubicanos", href: "#" },
-      { name: "Soporte", href: "#" },
-      { name: "Correo Electrónico", href: "#" },
-      { name: "Redes Sociales", href: "#" },
-      { name: "Preguntas Frecuentes", href: "#" },
-    ],
   },
 ];
 
@@ -238,18 +179,7 @@ const FavoriteItem = ({
 };
 
 export default function Header() {
-const { user }: { user?: {
-  firstName: ReactNode;
-  lastName: ReactNode; last_name?: string; first_name?: string; email?: string 
-} } = {
-  user: usePage().props.auth?.user
-    ? {
-        firstName: usePage().props.auth.user.first_name || "",
-        lastName: usePage().props.auth.user.last_name || "",
-        email: usePage().props.auth.user.email || "",
-      }
-    : undefined,
-}; // Obtener el usuario autenticado
+  const { auth: { user }, categoriasMenu = [] } = usePage<{ auth: { user: { id: number; name: string; first_name: string; last_name: string; email: string } } }>().props;
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -286,6 +216,87 @@ const { user }: { user?: {
   const getInitials = (firstName: string, lastName: string) => {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
+
+  // Definimos las categorías fijas para Servicios, Reservas y Contactos
+  const fixedCategories = [
+    {
+      title: "Servicios",
+      href: "#",
+      description: "Ofrecemos una amplia gama de servicios para tu motocicleta",
+      icon: <WrenchIcon className="mr-2 h-4 w-4" />,
+      subcategories: [
+        { name: "Mantenimiento general", href: "#" },
+        { name: "Reparación de motor y transmisión", href: "#" },
+        { name: "Servicio de frenos y suspensión", href: "#" },
+        { name: "Sistema eléctrico y diagnóstico", href: "#" },
+        { name: "Cambio y balanceo de neumáticos", href: "#" },
+        { name: "Personalización y accesorios", href: "#" },
+        { name: "Ver más", href: "#" },
+      ],
+    },
+    {
+      title: "Reservas",
+      href: "#",
+      description: "Reserva tu cita para servicios",
+      icon: <CalendarIcon className="mr-2 h-4 w-4" />,
+      subcategories: [
+        { name: "Reservar Citas", href: "/home/partials/Reservas/recervas" },
+        { name: "Horarios Disponibles", href: "#" },
+        { name: "Promociones", href: "#" },
+        { name: "Agregar Reserva", href: "#" },
+        { name: "Ver más", href: "#" },
+      ],
+    },
+    {
+      title: "Contactos",
+      href: "#",
+      description: "Ponte en contacto con nosotros para cualquier consulta",
+      icon: <PhoneIcon className="mr-2 h-4 w-4" />,
+      subcategories: [
+        { name: "Ubicanos", href: "#" },
+        { name: "Soporte", href: "#" },
+        { name: "Correo Electrónico", href: "#" },
+        { name: "Redes Sociales", href: "#" },
+        { name: "Preguntas Frecuentes", href: "#" },
+      ],
+    },
+  ];
+
+  // Creamos la categoría de Productos dinámica
+  interface Subcategory {
+    name: string;
+    href: string;
+  }
+
+  interface Category {
+    title: string;
+    href: string;
+    description: string;
+    icon: ReactNode;
+    subcategories: Subcategory[];
+  }
+
+  const productosCategory: Category = {
+    title: "Productos",
+    href: "#",
+    description: "Estos son nuestros productos más relevantes",
+    icon: <PackageIcon className="mr-2 h-4 w-4" />,
+    subcategories: [
+      ...(Array.isArray(categoriasMenu)
+        ? categoriasMenu
+            .slice(0, 6) // Mostrar solo las primeras 6 categorías
+            .map((categoria: { nombre: string; id: number }) => ({
+              name: categoria.nombre,
+              href: `/productos/categoria/${categoria.id}`,
+            }))
+        : []),
+      // Agregar la opción "Ver más" al final
+      { name: "Ver más", href: "/productos" }
+    ]
+  };
+
+  // Combinamos todas las categorías
+  const allCategories = [productosCategory, ...fixedCategories];
 
   // Manejar el efecto de desplazamiento con debounce
   useEffect(() => {
@@ -368,7 +379,7 @@ const { user }: { user?: {
               </SheetHeader>
               <div className="py-4">
                 <div className="space-y-4">
-                  {categories.map((category) => (
+                  {allCategories.map((category) => (
                     <div key={category.title} className="space-y-2">
                       <div className="flex items-center font-medium text-lg">
                         {category.icon}
@@ -448,7 +459,7 @@ const { user }: { user?: {
           <div className="hidden md:flex items-center space-x-1">
             <NavigationMenu>
               <NavigationMenuList>
-                {categories.map((category) => (
+                {allCategories.map((category) => (
                   <NavigationMenuItem key={category.title}>
                     <NavigationMenuTrigger className="flex items-center">
                       {category.icon}
@@ -665,8 +676,8 @@ const { user }: { user?: {
                         )}
                       >
                         {getInitials(
-                          typeof user.firstName === "string" ? user.firstName : "",
-                          typeof user.lastName === "string" ? user.lastName : ""
+                          user.first_name || "",
+                          user.last_name || ""
                         )}
                       </AvatarFallback>
                     </Avatar>
@@ -681,7 +692,7 @@ const { user }: { user?: {
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium leading-none">
-                          {user.firstName} {user.lastName}
+                          {user.first_name} {user.last_name}
                         </p>
                         <p className="text-xs leading-none text-muted-foreground">
                           {user.email}

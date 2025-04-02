@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Moto;
 use App\Models\Producto;
 use App\Models\Banner;
+use App\Models\Categoria;
 use Inertia\Inertia;
 
 class WelcomeController extends Controller
@@ -114,11 +115,34 @@ class WelcomeController extends Controller
                 ];
             });
 
+        // Obtener categorías principales activas con sus subcategorías para el menú
+        $categoriasMenu = Categoria::with(['subcategorias' => function($query) {
+            $query->where('estado', 'Activo');
+        }])
+        ->where('estado', 'Activo')
+        ->get()
+        ->map(function ($categoria) {
+            return [
+                'id' => $categoria->id,
+                'nombre' => $categoria->nombre,
+                'estado' => $categoria->estado,
+                'subcategorias' => $categoria->subcategorias->map(function ($subcategoria) {
+                    return [
+                        'id' => $subcategoria->id,
+                        'nombre' => $subcategoria->nombre,
+                        'estado' => $subcategoria->estado,
+                        'href' => "/productos/subcategoria/{$subcategoria->id}"
+                    ];
+                })
+            ];
+        });
+
         return Inertia::render('Welcome', [
             'featuredProducts' => $featuredProducts,
             'bestSellingProducts' => $bestSellingProducts,
             'allProducts' => $allProducts,
-            'banners' => $banners, // Añadimos los banners aquí
+            'banners' => $banners,
+            'categoriasMenu' => $categoriasMenu, // Añadimos las categorías para el menú
             'motoData' => [
                 'years' => $years,
                 'brands' => $marcas,
