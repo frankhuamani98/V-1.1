@@ -864,4 +864,3 @@ const Subcategorias = ({ subcategorias: initialSubcategorias, categorias }: Subc
 }
 
 export default Subcategorias
-

@@ -70,7 +70,7 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
   const [sortDirection, setSortDirection] = useState("asc")
   const [showSuccess, setShowSuccess] = useState(false)
   const [successMessage, setSuccessMessage] = useState("")
-  const [viewMode, setViewMode] = useState("table")
+  const [viewMode, setViewMode] = useState<"table" | "grid">("table")
 
   // Gestión de notificaciones de éxito
   const showSuccessNotification = (message: string) => {
@@ -178,19 +178,6 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
     }
   }
 
-  const getEstadoBigIcon = (estado: string) => {
-    switch (estado) {
-      case "Activo":
-        return <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-      case "Inactivo":
-        return <EyeOff className="h-5 w-5 text-rose-500" />
-      case "Pendiente":
-        return <Clock className="h-5 w-5 text-amber-500" />
-      default:
-        return <AlertCircle className="h-5 w-5 text-gray-500" />
-    }
-  }
-
   const getEstadoColor = (estado: string) => {
     switch (estado) {
       case "Activo":
@@ -268,29 +255,8 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
     pendientes: categorias.filter((cat) => cat.estado === "Pendiente").length,
   }
 
-  // Generar color aleatorio pero consistente para cada categoría
-  const getCategoryColor = (name: string) => {
-    const colors = [
-      "bg-violet-100 text-violet-600",
-      "bg-blue-100 text-blue-600",
-      "bg-cyan-100 text-cyan-600",
-      "bg-teal-100 text-teal-600",
-      "bg-emerald-100 text-emerald-600",
-      "bg-green-100 text-green-600",
-      "bg-lime-100 text-lime-600",
-      "bg-amber-100 text-amber-600",
-      "bg-orange-100 text-orange-600",
-      "bg-rose-100 text-rose-600",
-      "bg-fuchsia-100 text-fuchsia-600",
-    ]
-
-    // Usar la suma de los códigos de caracteres para determinar el índice
-    const charSum = name.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0)
-    return colors[charSum % colors.length]
-  }
-
   return (
-    <div className="p-4 md:p-6 space-y-6 min-h-screen">
+    <div className="p-4 md:p-6 space-y-6 min-h-screen max-w-screen-2xl mx-auto">
       {/* Notificación de éxito */}
       <AnimatePresence>
         {showSuccess && (
@@ -299,35 +265,35 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, type: "spring", stiffness: 500, damping: 30 }}
-            className="fixed top-4 right-4 z-50 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl shadow-lg flex items-center"
+            className="fixed top-4 right-4 z-50 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl shadow-lg flex items-center max-w-[calc(100vw-2rem)]"
           >
             <div className="bg-emerald-100 p-1.5 rounded-full mr-3">
               <CheckCircle2 className="h-5 w-5 text-emerald-500" />
             </div>
-            <div>
-              <p className="font-medium">{successMessage}</p>
-              <p className="text-xs text-emerald-600 mt-0.5">La acción se completó correctamente</p>
+            <div className="truncate">
+              <p className="font-medium truncate">{successMessage}</p>
+              <p className="text-xs text-emerald-600 mt-0.5 truncate">La acción se completó correctamente</p>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Cabecera */}
-      <div className="bg-white rounded-2xl shadow-sm p-6 border border-slate-100">
+      <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6 border border-slate-100">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <div className="flex items-center">
-              <div className="bg-gradient-to-br from-violet-500 to-indigo-600 p-3 rounded-xl mr-4 shadow-md">
-                <Folder className="h-7 w-7 text-white" />
+            <div className="flex items-center flex-wrap gap-2 md:gap-4">
+              <div className="bg-gradient-to-br from-violet-500 to-indigo-600 p-2 md:p-3 rounded-xl shadow-md">
+                <Folder className="h-5 w-5 md:h-7 md:w-7 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-slate-800 flex items-center">
+                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-slate-800 flex items-center flex-wrap gap-2">
                   Categorías Principales
-                  <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                     {stats.total}
                   </span>
                 </h1>
-                <p className="text-slate-500 mt-1">
+                <p className="text-sm md:text-base text-slate-500 mt-1">
                   Gestiona las categorías principales para organizar tus productos y servicios
                 </p>
               </div>
@@ -340,9 +306,10 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
                   <Button
                     variant="outline"
                     onClick={() => setIsFormVisible(!isFormVisible)}
-                    className="border-slate-200 hover:bg-slate-50 hover:text-indigo-600 transition-all"
+                    className="border-slate-200 hover:bg-slate-50 hover:text-indigo-600 transition-all text-sm md:text-base"
+                    size="sm"
                   >
-                    {isFormVisible ? <X className="mr-2 h-4 w-4" /> : <Edit className="mr-2 h-4 w-4" />}
+                    {isFormVisible ? <X className="mr-1 md:mr-2 h-4 w-4" /> : <Edit className="mr-1 md:mr-2 h-4 w-4" />}
                     {isFormVisible ? "Cerrar" : "Formulario"}
                   </Button>
                 </TooltipTrigger>
@@ -351,61 +318,62 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
             </TooltipProvider>
 
             <Button
-              className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-md hover:shadow-lg transition-all"
+              className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-md hover:shadow-lg transition-all text-sm md:text-base"
+              size="sm"
               onClick={() => {
                 cancelarEdicion()
                 setIsFormVisible(true)
               }}
             >
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Nueva Categoría
+              <PlusCircle className="mr-1 md:mr-2 h-4 w-4" />
+              <span className="whitespace-nowrap">Nueva Categoría</span>
             </Button>
           </div>
         </div>
 
         {/* Estadísticas */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-4 mt-4 md:mt-6">
           <Card className="bg-white border border-slate-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-            <CardContent className="p-4 flex items-center">
-              <div className="bg-indigo-50 p-3 rounded-xl mr-3">
-                <FolderPlus className="h-5 w-5 text-indigo-500" />
+            <CardContent className="p-3 md:p-4 flex items-center">
+              <div className="bg-indigo-50 p-2 md:p-3 rounded-xl mr-2 md:mr-3">
+                <FolderPlus className="h-4 w-4 md:h-5 md:w-5 text-indigo-500" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-slate-800">{stats.total}</div>
-                <div className="text-sm text-slate-500">Total categorías</div>
+                <div className="text-lg md:text-xl lg:text-2xl font-bold text-slate-800">{stats.total}</div>
+                <div className="text-xs md:text-sm text-slate-500">Total categorías</div>
               </div>
             </CardContent>
           </Card>
           <Card className="bg-white border border-slate-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-            <CardContent className="p-4 flex items-center">
-              <div className="bg-emerald-50 p-3 rounded-xl mr-3">
-                <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+            <CardContent className="p-3 md:p-4 flex items-center">
+              <div className="bg-emerald-50 p-2 md:p-3 rounded-xl mr-2 md:mr-3">
+                <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5 text-emerald-500" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-emerald-600">{stats.activas}</div>
-                <div className="text-sm text-slate-500">Categorías activas</div>
+                <div className="text-lg md:text-xl lg:text-2xl font-bold text-emerald-600">{stats.activas}</div>
+                <div className="text-xs md:text-sm text-slate-500">Categorías activas</div>
               </div>
             </CardContent>
           </Card>
           <Card className="bg-white border border-slate-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-            <CardContent className="p-4 flex items-center">
-              <div className="bg-rose-50 p-3 rounded-xl mr-3">
-                <FolderX className="h-5 w-5 text-rose-500" />
+            <CardContent className="p-3 md:p-4 flex items-center">
+              <div className="bg-rose-50 p-2 md:p-3 rounded-xl mr-2 md:mr-3">
+                <FolderX className="h-4 w-4 md:h-5 md:w-5 text-rose-500" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-rose-600">{stats.inactivas}</div>
-                <div className="text-sm text-slate-500">Categorías inactivas</div>
+                <div className="text-lg md:text-xl lg:text-2xl font-bold text-rose-600">{stats.inactivas}</div>
+                <div className="text-xs md:text-sm text-slate-500">Categorías inactivas</div>
               </div>
             </CardContent>
           </Card>
           <Card className="bg-white border border-slate-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-            <CardContent className="p-4 flex items-center">
-              <div className="bg-amber-50 p-3 rounded-xl mr-3">
-                <FolderClock className="h-5 w-5 text-amber-500" />
+            <CardContent className="p-3 md:p-4 flex items-center">
+              <div className="bg-amber-50 p-2 md:p-3 rounded-xl mr-2 md:mr-3">
+                <FolderClock className="h-4 w-4 md:h-5 md:w-5 text-amber-500" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-amber-600">{stats.pendientes}</div>
-                <div className="text-sm text-slate-500">Categorías pendientes</div>
+                <div className="text-lg md:text-xl lg:text-2xl font-bold text-amber-600">{stats.pendientes}</div>
+                <div className="text-xs md:text-sm text-slate-500">Categorías pendientes</div>
               </div>
             </CardContent>
           </Card>
@@ -423,21 +391,21 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
           >
             <Card id="categoria-form" className="shadow-md border border-slate-100 overflow-hidden rounded-2xl">
               <CardHeader className="pb-3 bg-gradient-to-r from-indigo-50 to-violet-50 border-b border-slate-100">
-                <CardTitle className="text-xl flex items-center text-indigo-700">
-                  {editandoCategoria ? <Edit className="mr-2 h-5 w-5" /> : <PlusCircle className="mr-2 h-5 w-5" />}
+                <CardTitle className="text-lg md:text-xl flex items-center text-indigo-700">
+                  {editandoCategoria ? <Edit className="mr-2 h-4 w-4" /> : <PlusCircle className="mr-2 h-4 w-4" />}
                   {editandoCategoria ? "Editar Categoría" : "Agregar Nueva Categoría"}
                 </CardTitle>
                 {editandoCategoria && (
-                  <CardDescription>
+                  <CardDescription className="text-sm">
                     Editando: <span className="font-medium text-indigo-600">{editandoCategoria.nombre}</span>
                   </CardDescription>
                 )}
               </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="p-4 md:p-6">
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     <div className="space-y-2">
-                      <Label htmlFor="nombre" className="font-medium text-slate-700">
+                      <Label htmlFor="nombre" className="font-medium text-slate-700 text-sm md:text-base">
                         Nombre de la Categoría
                       </Label>
                       <Input
@@ -445,13 +413,13 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
                         value={nombre}
                         onChange={(e) => setNombre(e.target.value)}
                         placeholder="Ingrese el nombre de la categoría"
-                        className="w-full border-slate-200 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-lg"
+                        className="w-full border-slate-200 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-lg text-sm md:text-base"
                       />
                       {error && (
                         <motion.div
                           initial={{ opacity: 0, y: -5 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="flex items-center text-sm text-rose-500 font-medium mt-1"
+                          className="flex items-center text-xs md:text-sm text-rose-500 font-medium mt-1"
                         >
                           <AlertCircle className="h-4 w-4 mr-1" />
                           {error}
@@ -459,27 +427,27 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
                       )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="estado" className="font-medium text-slate-700">
+                      <Label htmlFor="estado" className="font-medium text-slate-700 text-sm md:text-base">
                         Estado de la Categoría
                       </Label>
                       <Select value={estado} onValueChange={setEstado}>
-                        <SelectTrigger className="w-full border-slate-200 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-lg">
+                        <SelectTrigger className="w-full border-slate-200 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-lg text-sm md:text-base">
                           <SelectValue placeholder="Seleccione un estado" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Activo" className="flex items-center">
+                          <SelectItem value="Activo" className="flex items-center text-sm md:text-base">
                             <div className="flex items-center">
                               <CheckCircle2 className="h-4 w-4 text-emerald-500 mr-2" />
                               Activo
                             </div>
                           </SelectItem>
-                          <SelectItem value="Inactivo">
+                          <SelectItem value="Inactivo" className="text-sm md:text-base">
                             <div className="flex items-center">
                               <X className="h-4 w-4 text-rose-500 mr-2" />
                               Inactivo
                             </div>
                           </SelectItem>
-                          <SelectItem value="Pendiente">
+                          <SelectItem value="Pendiente" className="text-sm md:text-base">
                             <div className="flex items-center">
                               <Clock className="h-4 w-4 text-amber-500 mr-2" />
                               Pendiente
@@ -489,35 +457,37 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
                       </Select>
                     </div>
                   </div>
-                  <div className="flex justify-end space-x-3 mt-6">
+                  <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 mt-4 md:mt-6">
                     <Button
                       type="button"
                       variant="outline"
                       onClick={cancelarEdicion}
-                      className="border-slate-200 hover:bg-slate-50 rounded-lg"
+                      className="border-slate-200 hover:bg-slate-50 rounded-lg text-sm md:text-base"
+                      size="sm"
                     >
-                      <X className="mr-2 h-4 w-4" />
+                      <X className="mr-1 md:mr-2 h-4 w-4" />
                       Cancelar
                     </Button>
                     <Button
                       type="submit"
-                      className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-md hover:shadow-lg transition-all rounded-lg"
+                      className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-md hover:shadow-lg transition-all rounded-lg text-sm md:text-base"
                       disabled={isSubmitting}
+                      size="sm"
                     >
                       {isSubmitting ? (
                         <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          <Loader2 className="mr-1 md:mr-2 h-4 w-4 animate-spin" />
                           Procesando...
                         </>
                       ) : editandoCategoria ? (
                         <>
-                          <Check className="mr-2 h-4 w-4" />
-                          Actualizar Categoría
+                          <Check className="mr-1 md:mr-2 h-4 w-4" />
+                          Actualizar
                         </>
                       ) : (
                         <>
-                          <PlusCircle className="mr-2 h-4 w-4" />
-                          Agregar Categoría
+                          <PlusCircle className="mr-1 md:mr-2 h-4 w-4" />
+                          Agregar
                         </>
                       )}
                     </Button>
@@ -532,52 +502,52 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
       {/* Listado de categorías existentes */}
       <Card className="shadow-md border border-slate-100 overflow-hidden rounded-2xl">
         <CardHeader className="pb-3 bg-white border-b border-slate-100">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <CardTitle className="text-xl text-slate-800 flex items-center">
-              <Sparkles className="h-5 w-5 mr-2 text-indigo-500" />
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
+            <CardTitle className="text-lg md:text-xl text-slate-800 flex items-center">
+              <Sparkles className="h-4 w-4 md:h-5 md:w-5 mr-2 text-indigo-500" />
               Listado de Categorías
             </CardTitle>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <div className="relative">
+            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+              <div className="relative flex-grow">
                 <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
                 <Input
                   placeholder="Buscar categorías..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9 w-full border-slate-200 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-lg"
+                  className="pl-9 w-full border-slate-200 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-lg text-sm md:text-base"
                 />
               </div>
               <Select value={filter} onValueChange={setFilter}>
-                <SelectTrigger className="w-full sm:w-40 border-slate-200 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-lg">
+                <SelectTrigger className="w-full sm:w-40 border-slate-200 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-lg text-sm md:text-base">
                   <div className="flex items-center">
                     <Filter className="h-4 w-4 mr-2 text-slate-500" />
                     <SelectValue placeholder="Filtrar por" />
                   </div>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todos los estados</SelectItem>
-                  <SelectItem value="activo">Activo</SelectItem>
-                  <SelectItem value="inactivo">Inactivo</SelectItem>
-                  <SelectItem value="pendiente">Pendiente</SelectItem>
+                  <SelectItem value="all" className="text-sm md:text-base">Todos los estados</SelectItem>
+                  <SelectItem value="activo" className="text-sm md:text-base">Activo</SelectItem>
+                  <SelectItem value="inactivo" className="text-sm md:text-base">Inactivo</SelectItem>
+                  <SelectItem value="pendiente" className="text-sm md:text-base">Pendiente</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="flex justify-between items-center border-b border-slate-100 px-4 py-2 bg-slate-50">
-            <div className="flex space-x-2">
+          <div className="flex justify-between items-center border-b border-slate-100 px-3 py-2 bg-slate-50">
+            <div className="flex gap-1 md:gap-2">
               <Button
                 variant={viewMode === "table" ? "secondary" : "ghost"}
                 size="sm"
                 onClick={() => setViewMode("table")}
                 className={
                   viewMode === "table"
-                    ? "bg-indigo-100 text-indigo-700 hover:bg-indigo-200"
-                    : "text-slate-600 hover:bg-slate-100"
+                    ? "bg-indigo-100 text-indigo-700 hover:bg-indigo-200 text-xs md:text-sm"
+                    : "text-slate-600 hover:bg-slate-100 text-xs md:text-sm"
                 }
               >
-                <LayoutList className="h-4 w-4 mr-1" />
+                <LayoutList className="h-3 w-3 md:h-4 md:w-4 mr-1" />
                 Tabla
               </Button>
               <Button
@@ -586,11 +556,11 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
                 onClick={() => setViewMode("grid")}
                 className={
                   viewMode === "grid"
-                    ? "bg-indigo-100 text-indigo-700 hover:bg-indigo-200"
-                    : "text-slate-600 hover:bg-slate-100"
+                    ? "bg-indigo-100 text-indigo-700 hover:bg-indigo-200 text-xs md:text-sm"
+                    : "text-slate-600 hover:bg-slate-100 text-xs md:text-sm"
                 }
               >
-                <LayoutGrid className="h-4 w-4 mr-1" />
+                <LayoutGrid className="h-3 w-3 md:h-4 md:w-4 mr-1" />
                 Tarjetas
               </Button>
             </div>
@@ -607,19 +577,20 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
               {viewMode === "table" ? (
                 <div className="overflow-x-auto">
                   {filteredAndSortedCategorias.length === 0 ? (
-                    <div className="text-center py-12 text-slate-500">
+                    <div className="text-center py-8 md:py-12 text-slate-500 text-sm md:text-base">
                       {searchTerm || filter !== "all"
                         ? "No se encontraron categorías con ese filtro"
                         : "No hay categorías disponibles"}
                       <Button
                         variant="outline"
-                        className="mt-2 mx-auto block border-slate-200 hover:bg-slate-50 hover:text-indigo-600 rounded-lg"
+                        className="mt-2 mx-auto block border-slate-200 hover:bg-slate-50 hover:text-indigo-600 rounded-lg text-xs md:text-sm"
+                        size="sm"
                         onClick={() => {
                           setSearchTerm("")
                           setFilter("all")
                         }}
                       >
-                        <RefreshCw className="h-4 w-4 mr-2" />
+                        <RefreshCw className="h-3 w-3 md:h-4 md:w-4 mr-1" />
                         Limpiar filtros
                       </Button>
                     </div>
@@ -628,24 +599,24 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
                       <thead className="bg-slate-50 text-slate-700">
                         <tr>
                           <th
-                            className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
+                            className="px-3 py-2 md:px-4 md:py-3 text-left text-xs md:text-sm font-medium uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
                             onClick={() => toggleSort("nombre")}
                           >
                             <div className="flex items-center">Nombre {getSortIcon("nombre")}</div>
                           </th>
                           <th
-                            className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
+                            className="px-3 py-2 md:px-4 md:py-3 text-left text-xs md:text-sm font-medium uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
                             onClick={() => toggleSort("estado")}
                           >
                             <div className="flex items-center justify-center">Estado {getSortIcon("estado")}</div>
                           </th>
                           <th
-                            className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors hidden md:table-cell"
+                            className="px-3 py-2 md:px-4 md:py-3 text-left text-xs md:text-sm font-medium uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors hidden sm:table-cell"
                             onClick={() => toggleSort("fecha")}
                           >
                             <div className="flex items-center">Fecha Creación {getSortIcon("fecha")}</div>
                           </th>
-                          <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                          <th className="px-3 py-2 md:px-4 md:py-3 text-right text-xs md:text-sm font-medium uppercase tracking-wider">
                             Acciones
                           </th>
                         </tr>
@@ -653,29 +624,33 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
                       <tbody className="bg-white divide-y divide-slate-100">
                         {filteredAndSortedCategorias.map((categoria) => (
                           <tr key={categoria.id} className="hover:bg-indigo-50 transition-colors">
-                            <td className="px-4 py-4 whitespace-nowrap">
+                            <td className="px-3 py-3 md:px-4 md:py-4 whitespace-nowrap">
                               <div className="flex items-center">
-                                <Avatar className="h-9 w-9 mr-3 bg-violet-100 text-violet-600">
+                                <Avatar className="h-8 w-8 md:h-9 md:w-9 mr-2 md:mr-3 bg-violet-100 text-violet-600">
                                   <AvatarFallback>{categoria.nombre.charAt(0).toUpperCase()}</AvatarFallback>
                                 </Avatar>
-                                <div className="font-medium text-slate-900">{categoria.nombre}</div>
+                                <div className="font-medium text-slate-900 text-sm md:text-base">
+                                  {categoria.nombre}
+                                </div>
                               </div>
                             </td>
-                            <td className="px-4 py-4 whitespace-nowrap">
+                            <td className="px-3 py-3 md:px-4 md:py-4 whitespace-nowrap">
                               <div className="flex justify-center">
                                 <Badge
-                                  className={`${getEstadoColor(categoria.estado)} flex items-center justify-center gap-1 px-2.5 py-1`}
+                                  className={`${getEstadoColor(
+                                    categoria.estado,
+                                  )} flex items-center justify-center gap-1 px-2 py-0.5 md:px-2.5 md:py-1 text-xs md:text-sm`}
                                 >
                                   {getEstadoIcon(categoria.estado)}
                                   {categoria.estado}
                                 </Badge>
                               </div>
                             </td>
-                            <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-500 hidden md:table-cell">
+                            <td className="px-3 py-3 md:px-4 md:py-4 whitespace-nowrap text-xs md:text-sm text-slate-500 hidden sm:table-cell">
                               {formatDate(categoria.created_at)}
                             </td>
-                            <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
-                              <div className="flex justify-end space-x-1">
+                            <td className="px-3 py-3 md:px-4 md:py-4 whitespace-nowrap text-right text-xs md:text-sm font-medium">
+                              <div className="flex justify-end gap-1 md:gap-2">
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
@@ -683,9 +658,9 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => handleEditar(categoria)}
-                                        className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                                        className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 h-8 w-8 p-0"
                                       >
-                                        <Edit className="h-4 w-4" />
+                                        <Edit className="h-3 w-3 md:h-4 md:w-4" />
                                       </Button>
                                     </TooltipTrigger>
                                     <TooltipContent>Editar categoría</TooltipContent>
@@ -699,9 +674,9 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => handleEliminar(categoria.id)}
-                                        className="text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+                                        className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-8 w-8 p-0"
                                       >
-                                        <Trash className="h-4 w-4" />
+                                        <Trash className="h-3 w-3 md:h-4 md:w-4" />
                                       </Button>
                                     </TooltipTrigger>
                                     <TooltipContent>Eliminar categoría</TooltipContent>
@@ -716,21 +691,22 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
                   )}
                 </div>
               ) : (
-                <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="p-2 md:p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
                   {filteredAndSortedCategorias.length === 0 ? (
-                    <div className="text-center py-12 text-slate-500 col-span-full">
+                    <div className="text-center py-8 md:py-12 text-slate-500 text-sm md:text-base col-span-full">
                       {searchTerm || filter !== "all"
                         ? "No se encontraron categorías con ese filtro"
                         : "No hay categorías disponibles"}
                       <Button
                         variant="outline"
-                        className="mt-2 mx-auto block border-slate-200 hover:bg-slate-50 hover:text-indigo-600 rounded-lg"
+                        className="mt-2 mx-auto block border-slate-200 hover:bg-slate-50 hover:text-indigo-600 rounded-lg text-xs md:text-sm"
+                        size="sm"
                         onClick={() => {
                           setSearchTerm("")
                           setFilter("all")
                         }}
                       >
-                        <RefreshCw className="h-4 w-4 mr-2" />
+                        <RefreshCw className="h-3 w-3 md:h-4 md:w-4 mr-1" />
                         Limpiar filtros
                       </Button>
                     </div>
@@ -744,16 +720,20 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
                       >
                         <Card className="overflow-hidden transition-all hover:shadow-md border border-slate-100 h-full">
                           <CardContent className="p-0">
-                            <div className="p-4">
+                            <div className="p-3 md:p-4">
                               <div className="flex justify-between items-start">
-                                <div className="flex items-center space-x-3">
-                                  <Avatar className="h-10 w-10 bg-violet-100 text-violet-600">
+                                <div className="flex items-center gap-2 md:gap-3">
+                                  <Avatar className="h-9 w-9 md:h-10 md:w-10 bg-violet-100 text-violet-600">
                                     <AvatarFallback>{categoria.nombre.charAt(0).toUpperCase()}</AvatarFallback>
                                   </Avatar>
                                   <div>
-                                    <h3 className="font-semibold text-slate-900">{categoria.nombre}</h3>
+                                    <h3 className="font-semibold text-slate-900 text-sm md:text-base">
+                                      {categoria.nombre}
+                                    </h3>
                                     <Badge
-                                      className={`${getEstadoColor(categoria.estado)} flex items-center justify-center gap-1 mt-1 px-2 py-0.5`}
+                                      className={`${getEstadoColor(
+                                        categoria.estado,
+                                      )} flex items-center justify-center gap-1 mt-1 px-2 py-0.5 text-xs md:text-sm`}
                                     >
                                       {getEstadoIcon(categoria.estado)}
                                       {categoria.estado}
@@ -765,25 +745,25 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
                                     <Button
                                       variant="ghost"
                                       size="sm"
-                                      className="text-slate-500 hover:bg-slate-100 h-8 w-8 p-0"
+                                      className="text-slate-500 hover:bg-slate-100 h-7 w-7 p-0"
                                     >
-                                      <MoreVertical className="h-4 w-4" />
+                                      <MoreVertical className="h-3.5 w-3.5 md:h-4 md:w-4" />
                                     </Button>
                                   </DropdownMenuTrigger>
                                   <DropdownMenuContent align="end" className="w-40">
                                     <DropdownMenuItem
                                       onClick={() => handleEditar(categoria)}
-                                      className="cursor-pointer"
+                                      className="cursor-pointer text-xs md:text-sm"
                                     >
-                                      <Edit className="mr-2 h-4 w-4 text-indigo-500" />
+                                      <Edit className="mr-2 h-3.5 w-3.5 md:h-4 md:w-4 text-indigo-500" />
                                       Editar
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem
                                       onClick={() => handleEliminar(categoria.id)}
-                                      className="text-rose-600 cursor-pointer"
+                                      className="text-rose-600 cursor-pointer text-xs md:text-sm"
                                     >
-                                      <Trash className="mr-2 h-4 w-4" />
+                                      <Trash className="mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
                                       Eliminar
                                     </DropdownMenuItem>
                                   </DropdownMenuContent>
@@ -791,24 +771,24 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
                               </div>
                             </div>
                             <Separator />
-                            <div className="bg-slate-50 px-4 py-2 text-xs text-slate-500 flex justify-between items-center">
+                            <div className="bg-slate-50 px-3 py-1.5 md:px-4 md:py-2 text-xs text-slate-500 flex justify-between items-center">
                               <span>Creado: {formatDate(categoria.created_at)}</span>
-                              <div className="flex space-x-1">
+                              <div className="flex gap-1">
                                 <Button
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleEditar(categoria)}
-                                  className="h-7 w-7 p-0 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-full"
+                                  className="h-6 w-6 md:h-7 md:w-7 p-0 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-full"
                                 >
-                                  <Edit className="h-3.5 w-3.5" />
+                                  <Edit className="h-3 w-3 md:h-3.5 md:w-3.5" />
                                 </Button>
                                 <Button
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleEliminar(categoria.id)}
-                                  className="h-7 w-7 p-0 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-full"
+                                  className="h-6 w-6 md:h-7 md:w-7 p-0 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-full"
                                 >
-                                  <Trash className="h-3.5 w-3.5" />
+                                  <Trash className="h-3 w-3 md:h-3.5 md:w-3.5" />
                                 </Button>
                               </div>
                             </div>
@@ -822,12 +802,12 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
             </motion.div>
           </AnimatePresence>
         </CardContent>
-        <CardFooter className="bg-slate-50 border-t border-slate-100 p-4 flex justify-between items-center text-sm text-slate-500">
-          <div>
+        <CardFooter className="bg-slate-50 border-t border-slate-100 p-3 md:p-4 flex flex-col sm:flex-row justify-between items-center text-xs md:text-sm text-slate-500">
+          <div className="mb-2 sm:mb-0">
             Mostrando {filteredAndSortedCategorias.length} de {categorias.length} categorías
           </div>
           <div className="flex items-center">
-            <Clock className="h-4 w-4 mr-1" />
+            <Clock className="h-3 w-3 md:h-4 md:w-4 mr-1" />
             Última actualización: {new Date().toLocaleDateString()}
           </div>
         </CardFooter>
@@ -837,4 +817,3 @@ const CategoriasPrincipales = ({ categorias }: CategoriasPrincipalesProps) => {
 }
 
 export default CategoriasPrincipales
-
