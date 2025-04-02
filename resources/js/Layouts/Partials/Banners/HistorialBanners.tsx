@@ -4,10 +4,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
-import { History, Search, SlidersHorizontal, Eye, Trash2, Edit, Link as LinkIcon } from "lucide-react";
+import { History, Search, SlidersHorizontal, Eye, Trash2, Power, RotateCw, Link as LinkIcon } from "lucide-react";
 import { Badge } from "@/Components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
-import { Link } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface Banner {
   id: number;
@@ -19,13 +21,15 @@ interface Banner {
   fecha_fin: string | null;
   created_at: string;
   deleted_at: string | null;
-  status: "active" | "deleted";
+  status: "active" | "inactive" | "deleted";
   tipo_imagen: "local" | "url";
 }
 
 interface HistorialBannersProps {
   banners: Banner[];
 }
+
+  // Removed unnecessary React.useEffect block for toast configuration
 
 const HistorialBanners: React.FC<HistorialBannersProps> = ({ banners }) => {
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -35,7 +39,10 @@ const HistorialBanners: React.FC<HistorialBannersProps> = ({ banners }) => {
     const matchesSearch = banner.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (banner.subtitulo && banner.subtitulo.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const matchesStatus = statusFilter === "all" || banner.status === statusFilter;
+    const matchesStatus = statusFilter === "all" || 
+                        (statusFilter === "active" && banner.status === "active") ||
+                        (statusFilter === "inactive" && banner.status === "inactive") ||
+                        (statusFilter === "deleted" && banner.status === "deleted");
 
     return matchesSearch && matchesStatus;
   });
@@ -43,8 +50,18 @@ const HistorialBanners: React.FC<HistorialBannersProps> = ({ banners }) => {
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
       case "active": return "default";
+      case "inactive": return "secondary";
       case "deleted": return "destructive";
       default: return "outline";
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "active": return "Activo";
+      case "inactive": return "Inactivo";
+      case "deleted": return "Eliminado";
+      default: return status;
     }
   };
 
@@ -55,6 +72,27 @@ const HistorialBanners: React.FC<HistorialBannersProps> = ({ banners }) => {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
+    });
+  };
+
+  const handleToggleStatus = (banner: Banner) => {
+    if (banner.status === 'deleted') {
+      router.post(route('banners.restore', banner.id), {}, {
+        onSuccess: () => toast.success('Banner restaurado'),
+        onError: () => toast.error('Error al restaurar el banner')
+      });
+    } else {
+      router.put(route('banners.toggle-status', banner.id), {}, {
+        onSuccess: () => toast.success('Estado del banner actualizado'),
+        onError: () => toast.error('Error al actualizar el estado')
+      });
+    }
+  };
+
+  const handleDelete = (bannerId: number) => {
+    router.delete(route('banners.destroy', bannerId), {
+      onSuccess: () => toast.success('Banner eliminado'),
+      onError: () => toast.error('Error al eliminar el banner')
     });
   };
 
@@ -104,13 +142,10 @@ const HistorialBanners: React.FC<HistorialBannersProps> = ({ banners }) => {
                     <SelectContent>
                       <SelectItem value="all">Todos</SelectItem>
                       <SelectItem value="active">Activos</SelectItem>
+                      <SelectItem value="inactive">Inactivos</SelectItem>
                       <SelectItem value="deleted">Eliminados</SelectItem>
                     </SelectContent>
                   </Select>
-
-                  <Button variant="outline" size="icon" title="Más filtros">
-                    <SlidersHorizontal className="h-4 w-4" />
-                  </Button>
                 </div>
               </div>
 
@@ -156,7 +191,7 @@ const HistorialBanners: React.FC<HistorialBannersProps> = ({ banners }) => {
                           </TableCell>
                           <TableCell>
                             <Badge variant={getStatusBadgeVariant(banner.status)}>
-                              {banner.status === "active" ? "Activo" : "Eliminado"}
+                              {getStatusText(banner.status)}
                             </Badge>
                             <div className="text-xs text-gray-500 mt-1">
                               {formatDate(banner.created_at)}
@@ -174,12 +209,28 @@ const HistorialBanners: React.FC<HistorialBannersProps> = ({ banners }) => {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex gap-2 justify-end">
-                              <Button variant="ghost" size="sm" title="Editar">
-                                <Edit className="h-4 w-4" />
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                title={banner.status === 'deleted' ? 'Restaurar' : banner.activo ? 'Desactivar' : 'Activar'}
+                                onClick={() => handleToggleStatus(banner)}
+                              >
+                                {banner.status === 'deleted' ? (
+                                  <RotateCw className="h-4 w-4 text-yellow-500" />
+                                ) : (
+                                  <Power className={`h-4 w-4 ${banner.activo ? 'text-green-500' : 'text-gray-500'}`} />
+                                )}
                               </Button>
-                              <Button variant="ghost" size="sm" title="Eliminar">
-                                <Trash2 className="h-4 w-4 text-red-500" />
-                              </Button>
+                              {banner.status !== 'deleted' && (
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  title="Eliminar"
+                                  onClick={() => handleDelete(banner.id)}
+                                >
+                                  <Trash2 className="h-4 w-4 text-red-500" />
+                                </Button>
+                              )}
                             </div>
                           </TableCell>
                         </TableRow>
@@ -223,7 +274,7 @@ const HistorialBanners: React.FC<HistorialBannersProps> = ({ banners }) => {
                         className="absolute top-2 right-2"
                         variant={getStatusBadgeVariant(banner.status)}
                       >
-                        {banner.status === "active" ? "Activo" : "Eliminado"}
+                        {getStatusText(banner.status)}
                       </Badge>
                       {banner.tipo_imagen === 'url' && (
                         <LinkIcon className="absolute top-2 left-2 h-4 w-4 text-blue-500 bg-white rounded-full p-0.5" />
@@ -243,12 +294,28 @@ const HistorialBanners: React.FC<HistorialBannersProps> = ({ banners }) => {
                         )}
                       </div>
                       <div className="flex justify-end gap-2 mt-4">
-                        <Button variant="ghost" size="sm" title="Editar">
-                          <Edit className="h-4 w-4" />
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          title={banner.status === 'deleted' ? 'Restaurar' : banner.activo ? 'Desactivar' : 'Activar'}
+                          onClick={() => handleToggleStatus(banner)}
+                        >
+                          {banner.status === 'deleted' ? (
+                            <RotateCw className="h-4 w-4 text-yellow-500" />
+                          ) : (
+                            <Power className={`h-4 w-4 ${banner.activo ? 'text-green-500' : 'text-gray-500'}`} />
+                          )}
                         </Button>
-                        <Button variant="ghost" size="sm" title="Eliminar">
-                          <Trash2 className="h-4 w-4 text-red-500" />
-                        </Button>
+                        {banner.status !== 'deleted' && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            title="Eliminar"
+                            onClick={() => handleDelete(banner.id)}
+                          >
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </Button>
+                        )}
                       </div>
                     </CardContent>
                   </Card>

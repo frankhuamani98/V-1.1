@@ -1,199 +1,201 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Circle, CircleDot } from 'lucide-react';
+import { usePage } from '@inertiajs/react';
+import { PageProps } from '@/types';
 
-// Advertisement type definition
-interface Advertisement {
+interface Banner {
   id: number;
-  title: string;
-  subtitle: string;
-  imageUrl: string;
-  ctaText: string;
-  ctaLink: string;
+  titulo: string;
+  subtitulo: string | null;
+  imagen_principal: string;
+  activo: boolean;
+  fecha_inicio: string | null;
+  fecha_fin: string | null;
 }
 
-// Sample advertisement data
-const advertisements: Advertisement[] = [
-  {
-    id: 1,
-    title: "Summer Collection",
-    subtitle: "Discover our new arrivals with up to 40% off",
-    imageUrl: "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80",
-    ctaText: "Shop Now",
-    ctaLink: "/summer-collection"
-  },
-  {
-    id: 2,
-    title: "Premium Headphones",
-    subtitle: "Experience crystal clear sound with noise cancellation",
-    imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80",
-    ctaText: "Learn More",
-    ctaLink: "/headphones"
-  },
-  {
-    id: 3,
-    title: "Luxury Watches",
-    subtitle: "Timeless elegance for every occasion",
-    imageUrl: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80",
-    ctaText: "View Collection",
-    ctaLink: "/watches"
-  },
-  {
-    id: 4,
-    title: "Smart Home Devices",
-    subtitle: "Transform your living space with cutting-edge technology",
-    imageUrl: "https://images.unsplash.com/photo-1558002038-1055e2e28ed1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80",
-    ctaText: "Discover",
-    ctaLink: "/smart-home"
-  },
-  {
-    id: 5,
-    title: "Wireless Earbuds",
-    subtitle: "Crystal clear sound with long battery life",
-    imageUrl: "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-    ctaText: "Buy Now",
-    ctaLink: "/earbuds"
-  }
-];
+export default function CarruselResponsivo() {
+  // Obtener los banners de las props de Inertia
+  const { banners } = usePage<PageProps>().props;
+  const [indiceActual, setIndiceActual] = useState(0);
+  const [estaTransicionando, setEstaTransicionando] = useState(false);
+  const [autoPlay, setAutoPlay] = useState(true);
 
-export default function ResponsiveCarousel() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [autoplay, setAutoplay] = useState(true);
+  // Filtrar banners activos y que estén dentro del rango de fechas
+  const bannersActivos = (banners as Banner[]).filter(banner => {
+    if (!banner.activo) return false;
+    
+    const ahora = new Date();
+    const fechaInicio = banner.fecha_inicio ? new Date(banner.fecha_inicio) : null;
+    const fechaFin = banner.fecha_fin ? new Date(banner.fecha_fin) : null;
+    
+    // Si no hay fechas definidas, mostrar el banner
+    if (!fechaInicio && !fechaFin) return true;
+    
+    // Si solo hay fecha de inicio, mostrar si la fecha actual es posterior
+    if (fechaInicio && !fechaFin) return ahora >= fechaInicio;
+    
+    // Si solo hay fecha de fin, mostrar si la fecha actual es anterior
+    if (!fechaInicio && fechaFin) return ahora <= fechaFin;
+    
+    // Si ambas fechas están definidas, mostrar si está dentro del rango
+    return ahora >= fechaInicio! && ahora <= fechaFin!;
+  });
 
-  // Handle next slide
-  const nextSlide = () => {
-    if (isTransitioning) return;
+  // Ir al siguiente banner
+  const siguienteBanner = () => {
+    if (estaTransicionando || bannersActivos.length <= 1) return;
 
-    setIsTransitioning(true);
-    setCurrentIndex((prevIndex) =>
-      prevIndex === advertisements.length - 1 ? 0 : prevIndex + 1
+    setEstaTransicionando(true);
+    setIndiceActual(indiceAnterior =>
+      indiceAnterior === bannersActivos.length - 1 ? 0 : indiceAnterior + 1
     );
 
-    // Reset transition state after animation completes
-    setTimeout(() => setIsTransitioning(false), 500);
+    setTimeout(() => setEstaTransicionando(false), 500);
   };
 
-  // Handle previous slide
-  const prevSlide = () => {
-    if (isTransitioning) return;
+  // Ir al banner anterior
+  const bannerAnterior = () => {
+    if (estaTransicionando || bannersActivos.length <= 1) return;
 
-    setIsTransitioning(true);
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? advertisements.length - 1 : prevIndex - 1
+    setEstaTransicionando(true);
+    setIndiceActual(indiceAnterior =>
+      indiceAnterior === 0 ? bannersActivos.length - 1 : indiceAnterior - 1
     );
 
-    // Reset transition state after animation completes
-    setTimeout(() => setIsTransitioning(false), 500);
+    setTimeout(() => setEstaTransicionando(false), 500);
   };
 
-  // Go to specific slide
-  const goToSlide = (index: number) => {
-    if (isTransitioning || index === currentIndex) return;
+  // Ir a un banner específico
+  const irABanner = (indice: number) => {
+    if (estaTransicionando || indice === indiceActual || bannersActivos.length <= 1) return;
 
-    setIsTransitioning(true);
-    setCurrentIndex(index);
+    setEstaTransicionando(true);
+    setIndiceActual(indice);
 
-    // Reset transition state after animation completes
-    setTimeout(() => setIsTransitioning(false), 500);
+    setTimeout(() => setEstaTransicionando(false), 500);
   };
 
-  // Autoplay functionality
+  // Configurar el auto-play
   useEffect(() => {
-    let interval: number | undefined;
+    let intervalo: number | undefined;
 
-    if (autoplay) {
-      interval = window.setInterval(() => {
-        nextSlide();
-      }, 5000); // Change slide every 5 seconds
+    if (autoPlay && bannersActivos.length > 1) {
+      intervalo = window.setInterval(() => {
+        siguienteBanner();
+      }, 5000); // Cambiar cada 5 segundos
     }
 
     return () => {
-      if (interval) {
-        clearInterval(interval);
+      if (intervalo) {
+        clearInterval(intervalo);
       }
     };
-  }, [currentIndex, autoplay, isTransitioning]);
+  }, [indiceActual, autoPlay, estaTransicionando, bannersActivos.length]);
 
-  // Pause autoplay on hover
-  const handleMouseEnter = () => setAutoplay(false);
-  const handleMouseLeave = () => setAutoplay(true);
+  // Pausar el auto-play al pasar el mouse
+  const manejarMouseEntra = () => setAutoPlay(false);
+  const manejarMouseSale = () => setAutoPlay(true);
+
+  // No mostrar nada si no hay banners activos
+  if (bannersActivos.length === 0) {
+    return null;
+  }
 
   return (
     <div
       className="relative w-full max-w-6xl mx-auto overflow-hidden rounded-lg shadow-xl h-[50vh] md:h-[60vh] lg:h-[70vh]"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseEnter={manejarMouseEntra}
+      onMouseLeave={manejarMouseSale}
     >
-      {/* Carousel container */}
+      {/* Contenedor del carrusel */}
       <div
         className="flex h-full transition-transform duration-500 ease-in-out"
-        style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+        style={{ transform: `translateX(-${indiceActual * 100}%)` }}
       >
-        {advertisements.map((ad) => (
+        {bannersActivos.map((banner) => (
           <div
-            key={ad.id}
+            key={banner.id}
             className="relative flex-shrink-0 w-full h-full"
             style={{ minWidth: '100%' }}
           >
-            {/* Background image with overlay */}
+            {/* Imagen de fondo con superposición - maneja tanto URLs como rutas locales */}
             <div className="absolute inset-0 w-full h-full">
-              <img
-                src={ad.imageUrl}
-                alt={ad.title}
-                className="object-cover w-full h-full"
-              />
+              {banner.imagen_principal.startsWith('http') ? (
+                <img
+                  src={banner.imagen_principal}
+                  alt={banner.titulo}
+                  className="object-cover w-full h-full"
+                  onError={(e) => {
+                    // Manejar errores de carga de imagen
+                    const target = e.target as HTMLImageElement;
+                    target.src = 'https://via.placeholder.com/1600x900?text=Imagen+no+disponible';
+                  }}
+                />
+              ) : (
+                <img
+                  src={`/storage/${banner.imagen_principal}`}
+                  alt={banner.titulo}
+                  className="object-cover w-full h-full"
+                  onError={(e) => {
+                    // Manejar errores de carga de imagen
+                    const target = e.target as HTMLImageElement;
+                    target.src = 'https://via.placeholder.com/1600x900?text=Imagen+no+disponible';
+                  }}
+                />
+              )}
               <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent"></div>
             </div>
 
-            {/* Content */}
+            {/* Contenido del banner */}
             <div className="absolute inset-0 flex flex-col justify-center px-4 md:px-8 lg:px-16 text-white">
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight mb-3">{ad.title}</h2>
-              <p className="text-lg md:text-xl lg:text-2xl mb-8 max-w-md">{ad.subtitle}</p>
-              <a
-                href={ad.ctaLink}
-                className="inline-block px-6 py-3 text-sm font-medium text-white transition-colors bg-indigo-600 rounded-md hover:bg-indigo-700 w-fit"
-              >
-                {ad.ctaText}
-              </a>
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight mb-3">{banner.titulo}</h2>
+              {banner.subtitulo && (
+                <p className="text-lg md:text-xl lg:text-2xl mb-8 max-w-md">{banner.subtitulo}</p>
+              )}
             </div>
           </div>
         ))}
       </div>
 
-      {/* Navigation arrows */}
-      <button
-        onClick={prevSlide}
-        className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
-        aria-label="Previous slide"
-      >
-        <ChevronLeft size={24} />
-      </button>
-
-      <button
-        onClick={nextSlide}
-        className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
-        aria-label="Next slide"
-      >
-        <ChevronRight size={24} />
-      </button>
-
-      {/* Indicators */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
-        {advertisements.map((_, index) => (
+      {/* Mostrar controles solo si hay más de un banner */}
+      {bannersActivos.length > 1 && (
+        <>
+          {/* Flechas de navegación */}
           <button
-            key={index}
-            onClick={() => goToSlide(index)}
-            className="p-1 focus:outline-none"
-            aria-label={`Go to slide ${index + 1}`}
+            onClick={bannerAnterior}
+            className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
+            aria-label="Banner anterior"
           >
-            {index === currentIndex ? (
-              <CircleDot size={16} className="text-white" />
-            ) : (
-              <Circle size={16} className="text-white/70" />
-            )}
+            <ChevronLeft size={24} />
           </button>
-        ))}
-      </div>
+
+          <button
+            onClick={siguienteBanner}
+            className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
+            aria-label="Siguiente banner"
+          >
+            <ChevronRight size={24} />
+          </button>
+
+          {/* Indicadores */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+            {bannersActivos.map((_, indice) => (
+              <button
+                key={indice}
+                onClick={() => irABanner(indice)}
+                className="p-1 focus:outline-none"
+                aria-label={`Ir al banner ${indice + 1}`}
+              >
+                {indice === indiceActual ? (
+                  <CircleDot size={16} className="text-white" />
+                ) : (
+                  <Circle size={16} className="text-white/70" />
+                )}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

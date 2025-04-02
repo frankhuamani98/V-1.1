@@ -103,6 +103,13 @@ Route::prefix('banners')->group(function () {
     
     // Read
     Route::get('/historial', [HistorialBannersController::class, 'index'])->name('banners.historial');
+    
+    // Update (toggle status)
+    Route::put('/{banner}/toggle-status', [HistorialBannersController::class, 'toggleStatus'])->name('banners.toggle-status');
+    
+    // Delete/Restore
+    Route::delete('/{banner}', [HistorialBannersController::class, 'destroy'])->name('banners.destroy');
+    Route::post('/{id}/restore', [HistorialBannersController::class, 'restore'])->name('banners.restore');
 });
     
     // Facturación

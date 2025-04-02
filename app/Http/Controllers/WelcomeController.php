@@ -96,11 +96,29 @@ class WelcomeController extends Controller
                 ];
             });
 
+        // Obtener todos los banners activos
+        $banners = Banner::where('activo', true)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($banner) {
+                return [
+                    'id' => $banner->id,
+                    'titulo' => $banner->titulo,
+                    'subtitulo' => $banner->subtitulo,
+                    'imagen_principal' => $banner->imagen_principal,
+                    'activo' => (bool)$banner->activo,
+                    'fecha_inicio' => $banner->fecha_inicio,
+                    'fecha_fin' => $banner->fecha_fin,
+                    'created_at' => $banner->created_at,
+                    'updated_at' => $banner->updated_at
+                ];
+            });
 
         return Inertia::render('Welcome', [
             'featuredProducts' => $featuredProducts,
             'bestSellingProducts' => $bestSellingProducts,
             'allProducts' => $allProducts,
+            'banners' => $banners, // Añadimos los banners aquí
             'motoData' => [
                 'years' => $years,
                 'brands' => $marcas,
