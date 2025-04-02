@@ -60,11 +60,12 @@ interface FormData {
   stock: number;
   destacado: boolean;
   mas_vendido: boolean;
+  [key: string]: any;
 }
 
 // Constantes
 const IGV_PERCENT = 18;
-const MAX_IMAGENES_ADICIONALES = 10; // Cambiado a 10
+const MAX_IMAGENES_ADICIONALES = 10;
 
 // Funciones de ayuda para formato de moneda
 const formatCurrencyInput = (value: string): string => {
@@ -166,7 +167,7 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
     const { name, value, type } = e.target;
     const checked = type === "checkbox" ? (e.target as HTMLInputElement).checked : undefined;
 
-    setData(name as keyof FormData, type === "checkbox" ? checked as any : value);
+    setData(name, type === "checkbox" ? checked : value);
   };
 
   const handlePrecioChange = (e: React.ChangeEvent<HTMLInputElement>) => {

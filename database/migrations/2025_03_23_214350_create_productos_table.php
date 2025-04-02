@@ -20,21 +20,32 @@ return new class extends Migration
             $table->foreignId('subcategoria_id')->constrained('subcategorias')->onDelete('cascade');
             $table->foreignId('moto_id')->nullable()->constrained('motos')->onDelete('set null');
 
+            // Precios y descuentos
             $table->decimal('precio', 10, 2);
             $table->decimal('descuento', 5, 2)->default(0);
+            $table->boolean('incluye_igv')->default(false);
+            
+            // Imágenes
             $table->string('imagen_principal');
             $table->json('imagenes_adicionales')->nullable();
-
+            
+            // Valoración y stock
             $table->tinyInteger('calificacion')->unsigned()->default(0);
-            $table->boolean('incluye_igv')->default(false);
             $table->integer('stock')->default(0);
-
+            
+            // Flags especiales
             $table->boolean('destacado')->default(false);
             $table->boolean('mas_vendido')->default(false);
-
+            
+            // Estado y timestamps
             $table->enum('estado', ['Activo', 'Inactivo', 'Agotado'])->default('Activo');
-
             $table->timestamps();
+            $table->softDeletes(); // Considera añadir eliminación suave
+            
+            // Índices para mejorar rendimiento
+            $table->index('destacado');
+            $table->index('mas_vendido');
+            $table->index('estado');
         });
     }
 
