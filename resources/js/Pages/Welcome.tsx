@@ -36,9 +36,7 @@ export default function Welcome({
             <CompleteCarousel />
             
             <Products 
-                featuredProducts={featuredProducts}
-                bestSellingProducts={bestSellingProducts}
-                allProducts={allProducts}
+
             />
             
             <Message />

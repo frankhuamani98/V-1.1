@@ -17,6 +17,7 @@ use App\Http\Controllers\Pedidos\{EstadoPedidosController, NuevosPedidosControll
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
 Route::get('/resultados', [ResultadosController::class, 'index'])->name('resultados');
 
+
 // Autenticación
 require __DIR__.'/auth.php';
 
