@@ -1,79 +1,87 @@
-import type React from "react"
-import { useState, useEffect, useMemo } from "react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
-import { Label } from "@/Components/ui/label"
-import { Input } from "@/Components/ui/input"
-import { Textarea } from "@/Components/ui/textarea"
-import { Button } from "@/Components/ui/button"
-import {
-  X,
-  Star,
-  Check,
-  Plus,
-  Minus,
-  Truck,
-  Percent,
-  Layers,
-  ShoppingCart,
-  Award,
-  TrendingUp,
-  ChevronRight,
-  ChevronLeft,
-} from "lucide-react"
-import { Badge } from "@/Components/ui/badge"
-import { Switch } from "@/Components/ui/switch"
-import { useForm, router } from "@inertiajs/react"
-import { toast } from "sonner"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs"
-import { Separator } from "@/Components/ui/separator"
-import { route } from "ziggy-js"
+import React, { useState, useEffect, useMemo } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
+import { Label } from "@/Components/ui/label";
+import { Input } from "@/Components/ui/input";
+import { Textarea } from "@/Components/ui/textarea";
+import { Button } from "@/Components/ui/button";
+import { X, Star, Check, Plus, Minus, Truck, Percent, Layers, ShoppingCart, Award, TrendingUp, ChevronRight, ChevronLeft } from "lucide-react";
+import { Badge } from "@/Components/ui/badge";
+import { Switch } from "@/Components/ui/switch";
+import { useForm, router } from "@inertiajs/react";
+import { toast } from "sonner";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
+import { Separator } from "@/Components/ui/separator";
+import { route } from "ziggy-js";
 
 interface Categoria {
-  id: number
-  nombre: string
-  subcategorias: Subcategoria[]
+  id: number;
+  nombre: string;
+  subcategorias: Subcategoria[];
 }
 
 interface Subcategoria {
-  id: number
-  nombre: string
+  id: number;
+  nombre: string;
 }
 
 interface Moto {
-  id: number
-  año: number
-  modelo: string
-  marca: string
-  estado: string
+  id: number;
+  año: number;
+  modelo: string;
+  marca: string;
+  estado: string;
 }
 
 interface ImagenAdicional {
-  url: string
-  estilo: string
+  url: string;
+  estilo: string;
 }
 
 interface AgregarProductoProps {
-  categorias: Categoria[]
-  motos: Moto[]
+  categorias: Categoria[];
+  motos: Moto[];
 }
+
+interface FormData {
+  codigo: string;
+  nombre: string;
+  descripcion_corta: string;
+  detalles: string;
+  categoria_id: string;
+  subcategoria_id: string;
+  moto_id: string;
+  precio: string;
+  descuento: string;
+  imagen_principal: string;
+  imagenes_adicionales: ImagenAdicional[];
+  calificacion: number;
+  incluye_igv: boolean;
+  stock: number;
+  destacado: boolean;
+  mas_vendido: boolean;
+}
+
+// Constantes
+const IGV_PERCENT = 18;
+const MAX_IMAGENES_ADICIONALES = 10; // Cambiado a 10
 
 // Funciones de ayuda para formato de moneda
 const formatCurrencyInput = (value: string): string => {
-  if (!value) return ""
+  if (!value) return "";
 
-  const numericValue = value.replace(/[^0-9.]/g, "")
-  const parts = numericValue.split(".")
-  let integerPart = parts[0] || "0"
-  const decimalPart = parts.length > 1 ? `.${parts[1].substring(0, 2)}` : ""
+  const numericValue = value.replace(/[^0-9.]/g, "");
+  const parts = numericValue.split(".");
+  let integerPart = parts[0] || "0";
+  const decimalPart = parts.length > 1 ? `.${parts[1].substring(0, 2)}` : "";
 
-  integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-  return `${integerPart}${decimalPart}`
-}
+  integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return `${integerPart}${decimalPart}`;
+};
 
 const parseCurrencyInput = (value: string): string => {
-  return value.replace(/,/g, "")
-}
+  return value.replace(/,/g, "");
+};
 
 const formatCurrencyDisplay = (value: number): string => {
   return new Intl.NumberFormat("es-PE", {
@@ -81,11 +89,12 @@ const formatCurrencyDisplay = (value: number): string => {
     currency: "PEN",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(value)
-}
+  }).format(value);
+};
 
 const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) => {
-  const { data, setData, post, processing, errors, reset } = useForm({
+  // Estado inicial del formulario
+  const initialFormData: FormData = {
     codigo: "",
     nombre: "",
     descripcion_corta: "",
@@ -96,161 +105,269 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
     precio: "",
     descuento: "0",
     imagen_principal: "",
-    imagenes_adicionales: JSON.stringify([] as ImagenAdicional[]),
+    imagenes_adicionales: [],
     calificacion: 0,
     incluye_igv: false,
     stock: 0,
     destacado: false,
     mas_vendido: false,
-  })
+  };
 
-  const [nuevaImagen, setNuevaImagen] = useState({
-    url: "",
-    estilo: ""
-  })
-  const [hoverRating, setHoverRating] = useState(0)
-  const [subcategorias, setSubcategorias] = useState<Subcategoria[]>([])
-  const [showStockInput, setShowStockInput] = useState(false)
-  const [tempStock, setTempStock] = useState("0")
-  const [activeTab, setActiveTab] = useState("informacion")
-  const [progress, setProgress] = useState(1)
-  const totalSteps = 4
+  const { data, setData, post, processing, errors, reset } = useForm<FormData>(initialFormData);
+  const [nuevaImagen, setNuevaImagen] = useState<ImagenAdicional>({ url: "", estilo: "" });
+  const [hoverRating, setHoverRating] = useState(0);
+  const [subcategorias, setSubcategorias] = useState<Subcategoria[]>([]);
+  const [showStockInput, setShowStockInput] = useState(false);
+  const [tempStock, setTempStock] = useState("0");
+  const [activeTab, setActiveTab] = useState("informacion");
+  const [progress, setProgress] = useState(1);
+  const totalSteps = 4;
 
-  // Calcular precios
+  // Efecto para cargar subcategorias cuando cambia la categoría seleccionada
+  useEffect(() => {
+    if (data.categoria_id) {
+      const categoriaSeleccionada = categorias.find((cat) => cat.id.toString() === data.categoria_id);
+      setSubcategorias(categoriaSeleccionada?.subcategorias || []);
+      setData("subcategoria_id", "");
+    }
+  }, [data.categoria_id, categorias]);
+
+  // Calculo de precios
   const { precioSinIGV, precioConIGV, precioTotal } = useMemo(() => {
-    const precioBase = Number.parseFloat(parseCurrencyInput(data.precio)) || 0
-    const descuento = Number.parseFloat(data.descuento) || 0
-    const IGV_PERCENT = 18
+    const precioBase = Number.parseFloat(parseCurrencyInput(data.precio)) || 0;
+    const descuento = Number.parseFloat(data.descuento) || 0;
 
-    let precioConDescuento = precioBase
+    let precioConDescuento = precioBase;
     if (descuento > 0 && descuento < 100) {
-      precioConDescuento = precioBase - (precioBase * descuento) / 100
+      precioConDescuento = precioBase - (precioBase * descuento) / 100;
     } else if (descuento >= 100) {
-      precioConDescuento = 0
+      precioConDescuento = 0;
     }
 
     if (data.incluye_igv) {
-      const precioSinIGV = precioConDescuento / (1 + IGV_PERCENT / 100)
+      const precioSinIGV = precioConDescuento / (1 + IGV_PERCENT / 100);
       return {
-        precioSinIGV: precioSinIGV,
+        precioSinIGV,
         precioConIGV: precioConDescuento,
         precioTotal: precioConDescuento,
-      }
+      };
     } else {
-      const igv = precioConDescuento * (IGV_PERCENT / 100)
+      const igv = precioConDescuento * (IGV_PERCENT / 100);
       return {
         precioSinIGV: precioConDescuento,
         precioConIGV: precioConDescuento + igv,
         precioTotal: precioConDescuento + igv,
-      }
+      };
     }
-  }, [data.precio, data.descuento, data.incluye_igv])
+  }, [data.precio, data.descuento, data.incluye_igv]);
 
-  useEffect(() => {
-    if (data.categoria_id) {
-      const categoriaSeleccionada = categorias.find((cat) => cat.id.toString() === data.categoria_id)
-      setSubcategorias(categoriaSeleccionada?.subcategorias || [])
-      setData("subcategoria_id", "")
-    }
-  }, [data.categoria_id, categorias])
-
+  // Manejadores de eventos
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target as HTMLInputElement
-    const checked = type === "checkbox" ? (e.target as HTMLInputElement).checked : undefined
+    const { name, value, type } = e.target;
+    const checked = type === "checkbox" ? (e.target as HTMLInputElement).checked : undefined;
 
-    setData(name as keyof typeof data, type === "checkbox" ? ((checked ?? false) as false) : (value as string | number))
-  }
+    setData(name as keyof FormData, type === "checkbox" ? checked as any : value);
+  };
 
   const handlePrecioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1")
-    setData("precio", rawValue)
-  }
+    const rawValue = e.target.value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1");
+    setData("precio", rawValue);
+  };
 
   const agregarImagenAdicional = () => {
-    if (nuevaImagen.url && data.imagenes_adicionales.length < 6) {
-      setData("imagenes_adicionales", JSON.stringify([
-        ...JSON.parse(data.imagenes_adicionales),
-        { url: nuevaImagen.url, estilo: nuevaImagen.estilo }
-      ]))
-      setNuevaImagen({ url: "", estilo: "" })
+    if (nuevaImagen.url && data.imagenes_adicionales.length < MAX_IMAGENES_ADICIONALES) {
+      setData("imagenes_adicionales", [...data.imagenes_adicionales, nuevaImagen]);
+      setNuevaImagen({ url: "", estilo: "" });
     }
-  }
+  };
 
   const eliminarImagenAdicional = (index: number) => {
     setData(
       "imagenes_adicionales",
-      JSON.stringify(
-      JSON.parse(data.imagenes_adicionales).filter((_: ImagenAdicional, i: number) => i !== index)
-      ),
-    )
-  }
+      data.imagenes_adicionales.filter((_, i) => i !== index)
+    );
+  };
 
   const handleRatingClick = (rating: number) => {
-    setData("calificacion", rating)
-  }
+    setData("calificacion", rating);
+  };
 
   const handleStockChange = () => {
-    const stockValue = Number.parseInt(tempStock) || 0
-    setData("stock", stockValue)
-    setShowStockInput(false)
-  }
+    const stockValue = Number.parseInt(tempStock) || 0;
+    setData("stock", stockValue);
+    setShowStockInput(false);
+  };
 
   const incrementStock = () => {
-    setData("stock", data.stock + 1)
-  }
+    setData("stock", data.stock + 1);
+  };
 
   const decrementStock = () => {
-    setData("stock", Math.max(0, data.stock - 1))
-  }
+    setData("stock", Math.max(0, data.stock - 1));
+  };
 
   const nextStep = () => {
     if (activeTab === "informacion") {
-      setActiveTab("precios")
-      setProgress(2)
+      setActiveTab("precios");
+      setProgress(2);
     } else if (activeTab === "precios") {
-      setActiveTab("imagenes")
-      setProgress(3)
+      setActiveTab("imagenes");
+      setProgress(3);
     } else if (activeTab === "imagenes") {
-      setActiveTab("categorias")
-      setProgress(4)
+      setActiveTab("categorias");
+      setProgress(4);
     }
-  }
+  };
 
   const prevStep = () => {
     if (activeTab === "precios") {
-      setActiveTab("informacion")
-      setProgress(1)
+      setActiveTab("informacion");
+      setProgress(1);
     } else if (activeTab === "imagenes") {
-      setActiveTab("precios")
-      setProgress(2)
+      setActiveTab("precios");
+      setProgress(2);
     } else if (activeTab === "categorias") {
-      setActiveTab("imagenes")
-      setProgress(3)
+      setActiveTab("imagenes");
+      setProgress(3);
     }
-  }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     const formData = {
       ...data,
       precio: parseCurrencyInput(data.precio),
       imagenes_adicionales: JSON.stringify(data.imagenes_adicionales),
-    }
+    };
 
     router.post(route("productos.store"), formData, {
       onSuccess: () => {
-        toast.success("Producto creado exitosamente")
-        reset()
-        setActiveTab("informacion")
-        setProgress(1)
+        toast.success("Producto creado exitosamente");
+        reset();
+        setActiveTab("informacion");
+        setProgress(1);
       },
       onError: (errors) => {
-        toast.error("Error al crear el producto")
-        console.error(errors)
+        toast.error("Error al crear el producto");
+        console.error(errors);
       },
-    })
-  }
+    });
+  };
+
+  // Componentes reutilizables
+  const RatingStars = () => (
+    <div className="flex items-center bg-gray-50 p-3 rounded-md">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          type="button"
+          onClick={() => handleRatingClick(star)}
+          onMouseEnter={() => setHoverRating(star)}
+          onMouseLeave={() => setHoverRating(0)}
+          className="focus:outline-none transition-transform hover:scale-110"
+        >
+          <Star
+            className={`h-8 w-8 ${
+              (hoverRating || data.calificacion) >= star
+                ? "text-yellow-400 fill-yellow-400"
+                : "text-gray-300"
+            }`}
+          />
+        </button>
+      ))}
+      <span className="ml-3 text-sm text-gray-600 font-medium">
+        {data.calificacion > 0 ? `${data.calificacion} estrellas` : "Sin calificar"}
+      </span>
+    </div>
+  );
+
+  const StockControls = () => (
+    <div className="bg-gray-50 p-4 rounded-lg">
+      {showStockInput ? (
+        <div className="flex gap-2">
+          <Input
+            type="number"
+            value={tempStock}
+            onChange={(e) => setTempStock(e.target.value)}
+            min="0"
+            className="flex-1 h-10"
+          />
+          <Button size="sm" onClick={handleStockChange} type="button" className="h-10">
+            <Check className="h-4 w-4 mr-1" />
+            Aplicar
+          </Button>
+        </div>
+      ) : (
+        <div className="flex items-center justify-center gap-4">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={decrementStock}
+            disabled={data.stock <= 0}
+            type="button"
+            className="h-10 w-10 rounded-full"
+          >
+            <Minus className="h-4 w-4" />
+          </Button>
+          <div
+            className="px-6 py-2 border rounded-md cursor-pointer hover:bg-white text-center min-w-[100px] font-medium text-lg"
+            onClick={() => {
+              setTempStock(data.stock.toString());
+              setShowStockInput(true);
+            }}
+          >
+            {data.stock}
+          </div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={incrementStock}
+            type="button"
+            className="h-10 w-10 rounded-full"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+      <div className="text-center mt-2 text-sm text-gray-500">
+        <Truck className="h-4 w-4 inline mr-1" />
+        {data.stock > 0 ? `${data.stock} unidades disponibles` : "Sin stock"}
+      </div>
+    </div>
+  );
+
+  const NavigationButtons = ({ isLastStep = false }: { isLastStep?: boolean }) => (
+    <div className="flex justify-between mt-8">
+      <Button type="button" variant="outline" onClick={prevStep}>
+        <ChevronLeft className="h-5 w-5 mr-2" />
+        Anterior
+      </Button>
+      {isLastStep ? (
+        <Button
+          type="submit"
+          disabled={processing}
+          className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium py-2 px-8 rounded-md min-w-[180px] flex items-center"
+        >
+          {processing ? "Guardando..." : (
+            <>
+              Guardar Producto
+              <Check className="h-5 w-5 ml-2" />
+            </>
+          )}
+        </Button>
+      ) : (
+        <Button
+          type="button"
+          onClick={nextStep}
+          className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium py-2 px-8 rounded-md min-w-[180px]"
+        >
+          Siguiente
+          <ChevronRight className="h-5 w-5 ml-2" />
+        </Button>
+      )}
+    </div>
+  );
 
   return (
     <form onSubmit={handleSubmit} className="max-w-7xl mx-auto p-4 space-y-6">
@@ -294,55 +411,37 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
             </div>
           </div>
         </CardHeader>
+
         <CardContent className="p-6">
           <Tabs
             value={activeTab}
             onValueChange={(value) => {
-              setActiveTab(value)
-              if (value === "informacion") setProgress(1)
-              else if (value === "precios") setProgress(2)
-              else if (value === "imagenes") setProgress(3)
-              else if (value === "categorias") setProgress(4)
+              setActiveTab(value);
+              if (value === "informacion") setProgress(1);
+              else if (value === "precios") setProgress(2);
+              else if (value === "imagenes") setProgress(3);
+              else if (value === "categorias") setProgress(4);
             }}
             className="w-full"
           >
             <TabsList className="grid grid-cols-4 mb-8 bg-gray-100 p-1 rounded-lg">
-              <TabsTrigger
-                value="informacion"
-                className={`flex items-center gap-2 ${activeTab === "informacion" ? "bg-white shadow-sm" : ""}`}
-              >
-                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-medium">
-                  1
-                </div>
-                <span className="hidden md:inline">Información</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="precios"
-                className={`flex items-center gap-2 ${activeTab === "precios" ? "bg-white shadow-sm" : ""}`}
-              >
-                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-medium">
-                  2
-                </div>
-                <span className="hidden md:inline">Precios</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="imagenes"
-                className={`flex items-center gap-2 ${activeTab === "imagenes" ? "bg-white shadow-sm" : ""}`}
-              >
-                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-medium">
-                  3
-                </div>
-                <span className="hidden md:inline">Imágenes</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="categorias"
-                className={`flex items-center gap-2 ${activeTab === "categorias" ? "bg-white shadow-sm" : ""}`}
-              >
-                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-medium">
-                  4
-                </div>
-                <span className="hidden md:inline">Categorías</span>
-              </TabsTrigger>
+              {["informacion", "precios", "imagenes", "categorias"].map((tab, index) => (
+                <TabsTrigger
+                  key={tab}
+                  value={tab}
+                  className={`flex items-center gap-2 ${activeTab === tab ? "bg-white shadow-sm" : ""}`}
+                >
+                  <div className="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-medium">
+                    {index + 1}
+                  </div>
+                  <span className="hidden md:inline">
+                    {tab === "informacion" && "Información"}
+                    {tab === "precios" && "Precios"}
+                    {tab === "imagenes" && "Imágenes"}
+                    {tab === "categorias" && "Categorías"}
+                  </span>
+                </TabsTrigger>
+              ))}
             </TabsList>
 
             <TabsContent value="informacion" className="space-y-6">
@@ -420,29 +519,7 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Calificación del Producto</Label>
-                    <div className="flex items-center bg-gray-50 p-3 rounded-md">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          type="button"
-                          onClick={() => handleRatingClick(star)}
-                          onMouseEnter={() => setHoverRating(star)}
-                          onMouseLeave={() => setHoverRating(0)}
-                          className="focus:outline-none transition-transform hover:scale-110"
-                        >
-                          <Star
-                            className={`h-8 w-8 ${
-                              (hoverRating || data.calificacion) >= star
-                                ? "text-yellow-400 fill-yellow-400"
-                                : "text-gray-300"
-                            }`}
-                          />
-                        </button>
-                      ))}
-                      <span className="ml-3 text-sm text-gray-600 font-medium">
-                        {data.calificacion > 0 ? `${data.calificacion} estrellas` : "Sin calificar"}
-                      </span>
-                    </div>
+                    <RatingStars />
                   </div>
 
                   <div className="grid grid-cols-1 gap-4">
@@ -456,7 +533,7 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
                           <Switch
                             id="destacado"
                             checked={data.destacado}
-                            onCheckedChange={(checked: boolean) => setData("destacado", checked as false)}
+                            onCheckedChange={(checked) => setData("destacado", checked)}
                           />
                           <Label htmlFor="destacado" className="cursor-pointer flex-1">
                             Producto Destacado
@@ -466,7 +543,7 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
                           <Switch
                             id="mas_vendido"
                             checked={data.mas_vendido}
-                            onCheckedChange={(checked: boolean) => setData("mas_vendido", checked as false)}
+                            onCheckedChange={(checked) => setData("mas_vendido", checked)}
                           />
                           <Label htmlFor="mas_vendido" className="cursor-pointer flex-1">
                             Más Vendido
@@ -477,17 +554,7 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
                   </div>
                 </div>
               </div>
-
-              <div className="flex justify-end mt-8">
-                <Button
-                  type="button"
-                  onClick={nextStep}
-                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium py-2 px-8 rounded-md min-w-[180px]"
-                >
-                  Siguiente
-                  <ChevronRight className="h-5 w-5 ml-2" />
-                </Button>
-              </div>
+              <NavigationButtons />
             </TabsContent>
 
             <TabsContent value="precios" className="space-y-6">
@@ -506,8 +573,8 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
                           value={formatCurrencyInput(data.precio)}
                           onChange={handlePrecioChange}
                           onBlur={(e) => {
-                            const value = Number.parseFloat(parseCurrencyInput(e.target.value)) || 0
-                            setData("precio", value.toString())
+                            const value = Number.parseFloat(parseCurrencyInput(e.target.value)) || 0;
+                            setData("precio", value.toString());
                           }}
                           placeholder="0.00"
                           className="pl-10 h-10"
@@ -545,7 +612,7 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
                       <Switch
                         id="incluye_igv"
                         checked={data.incluye_igv}
-                        onCheckedChange={(checked: boolean) => setData("incluye_igv", checked as false)}
+                        onCheckedChange={(checked) => setData("incluye_igv", checked)}
                       />
                     </div>
                     <div className="bg-gray-50 p-4 rounded-lg space-y-2">
@@ -575,77 +642,12 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Stock Disponible</Label>
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      {showStockInput ? (
-                        <div className="flex gap-2">
-                          <Input
-                            type="number"
-                            value={tempStock}
-                            onChange={(e) => setTempStock(e.target.value)}
-                            min="0"
-                            className="flex-1 h-10"
-                          />
-                          <Button size="sm" onClick={handleStockChange} type="button" className="h-10">
-                            <Check className="h-4 w-4 mr-1" />
-                            Aplicar
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center gap-4">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={decrementStock}
-                            disabled={data.stock <= 0}
-                            type="button"
-                            className="h-10 w-10 rounded-full"
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                          <div
-                            className="px-6 py-2 border rounded-md cursor-pointer hover:bg-white text-center min-w-[100px] font-medium text-lg"
-                            onClick={() => {
-                              setTempStock(data.stock.toString())
-                              setShowStockInput(true)
-                            }}
-                          >
-                            {data.stock}
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={incrementStock}
-                            type="button"
-                            className="h-10 w-10 rounded-full"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      )}
-                      <div className="text-center mt-2 text-sm text-gray-500">
-                        <Truck className="h-4 w-4 inline mr-1" />
-                        {data.stock > 0 ? `${data.stock} unidades disponibles` : "Sin stock"}
-                      </div>
-                    </div>
+                    <StockControls />
                     {errors.stock && <p className="text-red-500 text-xs mt-1">{errors.stock}</p>}
                   </div>
                 </div>
               </div>
-
-              <div className="flex justify-between mt-8">
-                <Button type="button" variant="outline" onClick={prevStep}>
-                  <ChevronLeft className="h-5 w-5 mr-2" />
-                  Anterior
-                </Button>
-                <Button
-                  type="button"
-                  onClick={nextStep}
-                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium py-2 px-8 rounded-md min-w-[180px]"
-                >
-                  Siguiente
-                  <ChevronRight className="h-5 w-5 ml-2" />
-                </Button>
-              </div>
+              <NavigationButtons />
             </TabsContent>
 
             <TabsContent value="imagenes" className="space-y-6">
@@ -678,7 +680,7 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
                           className="h-full w-full object-contain"
                           onError={(e) => {
                             (e.target as HTMLImageElement).src =
-                              "https://placehold.co/400x400/f3f4f6/a3a3a3?text=Imagen+no+disponible"
+                              "https://placehold.co/400x400/f3f4f6/a3a3a3?text=Imagen+no+disponible";
                           }}
                         />
                       </div>
@@ -688,32 +690,30 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
 
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Imágenes Adicionales (Máx. 6)</Label>
-                    
-                    {/* Input para URL */}
+                    <Label className="text-sm font-medium">Imágenes Adicionales (Máx. {MAX_IMAGENES_ADICIONALES})</Label>
+
                     <div className="flex gap-2 mb-2">
                       <Input
                         value={nuevaImagen.url}
-                        onChange={(e) => setNuevaImagen({...nuevaImagen, url: e.target.value})}
+                        onChange={(e) => setNuevaImagen({ ...nuevaImagen, url: e.target.value })}
                         placeholder="https://ejemplo.com/imagen-extra.jpg"
                         type="url"
                         className="h-10 flex-1"
                       />
                     </div>
-                    
-                    {/* Input para Estilo */}
+
                     {nuevaImagen.url && (
                       <div className="flex gap-2">
                         <Input
                           value={nuevaImagen.estilo}
-                          onChange={(e) => setNuevaImagen({...nuevaImagen, estilo: e.target.value})}
+                          onChange={(e) => setNuevaImagen({ ...nuevaImagen, estilo: e.target.value })}
                           placeholder="Ej: Color Rojo, Variante A, etc."
                           className="h-10 flex-1"
                         />
                         <Button
                           type="button"
                           onClick={agregarImagenAdicional}
-                          disabled={!nuevaImagen.url || data.imagenes_adicionales.length >= 6}
+                          disabled={!nuevaImagen.url || data.imagenes_adicionales.length >= MAX_IMAGENES_ADICIONALES}
                           className="whitespace-nowrap"
                         >
                           <Plus className="h-4 w-4 mr-1" />
@@ -722,59 +722,44 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
                       </div>
                     )}
 
-                    {/* Lista de imágenes */}
                     <div className="grid grid-cols-2 gap-3 mt-3">
-                        {JSON.parse(data.imagenes_adicionales).map((imagen: ImagenAdicional, index: number) => (
+                      {data.imagenes_adicionales.map((imagen, index) => (
                         <div key={index} className="relative group bg-white border rounded-md p-2 shadow-sm">
                           <div className="aspect-square w-full overflow-hidden rounded-md bg-gray-50 mb-2">
-                          <img
-                            src={imagen.url}
-                            alt={`Imagen ${index + 1}`}
-                            className="h-full w-full object-cover"
-                            onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => 
-                            (e.currentTarget.src = "https://placehold.co/400x400?text=Error+Imagen")
-                            }
-                          />
+                            <img
+                              src={imagen.url}
+                              alt={`Imagen ${index + 1}`}
+                              className="h-full w-full object-cover"
+                              onError={(e) => {
+                                (e.currentTarget as HTMLImageElement).src = "https://placehold.co/400x400?text=Error+Imagen";
+                              }}
+                            />
                           </div>
                           {imagen.estilo && (
-                          <Badge variant="outline" className="w-full text-center truncate">
-                            {imagen.estilo}
-                          </Badge>
+                            <Badge variant="outline" className="w-full text-center truncate">
+                              {imagen.estilo}
+                            </Badge>
                           )}
                           <button
-                          type="button"
-                          onClick={() => eliminarImagenAdicional(index)}
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md"
+                            type="button"
+                            onClick={() => eliminarImagenAdicional(index)}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md"
                           >
-                          <X className="h-3 w-3" />
+                            <X className="h-3 w-3" />
                           </button>
                         </div>
-                        ))}
+                      ))}
                     </div>
                     {errors.imagenes_adicionales && (
                       <p className="text-red-500 text-xs mt-1">{errors.imagenes_adicionales}</p>
                     )}
                     <p className="text-xs text-muted-foreground">
-                      {data.imagenes_adicionales.length}/6 imágenes adicionales
+                      {data.imagenes_adicionales.length}/{MAX_IMAGENES_ADICIONALES} imágenes adicionales
                     </p>
                   </div>
                 </div>
               </div>
-
-              <div className="flex justify-between mt-8">
-                <Button type="button" variant="outline" onClick={prevStep}>
-                  <ChevronLeft className="h-5 w-5 mr-2" />
-                  Anterior
-                </Button>
-                <Button
-                  type="button"
-                  onClick={nextStep}
-                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium py-2 px-8 rounded-md min-w-[180px]"
-                >
-                  Siguiente
-                  <ChevronRight className="h-5 w-5 ml-2" />
-                </Button>
-              </div>
+              <NavigationButtons />
             </TabsContent>
 
             <TabsContent value="categorias" className="space-y-6">
@@ -863,30 +848,11 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
                   </CardContent>
                 </Card>
               </div>
-
-              <div className="flex justify-between mt-8">
-                <Button type="button" variant="outline" onClick={prevStep}>
-                  <ChevronLeft className="h-5 w-5 mr-2" />
-                  Anterior
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={processing}
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium py-2 px-8 rounded-md min-w-[180px] flex items-center"
-                >
-                  {processing ? (
-                    "Guardando..."
-                  ) : (
-                    <>
-                      Guardar Producto
-                      <Check className="h-5 w-5 ml-2" />
-                    </>
-                  )}
-                </Button>
-              </div>
+              <NavigationButtons isLastStep />
             </TabsContent>
           </Tabs>
         </CardContent>
+
         <CardFooter className="flex justify-between border-t p-6 bg-gray-50">
           <div className="text-sm text-gray-500">
             <span className="font-medium">Nota:</span> Todos los campos marcados como requeridos deben ser completados.
@@ -897,7 +863,7 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
         </CardFooter>
       </Card>
     </form>
-  )
-}
+  );
+};
 
-export default AgregarProducto
+export default AgregarProducto;
