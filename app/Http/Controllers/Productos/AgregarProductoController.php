@@ -98,11 +98,13 @@ class AgregarProductoController extends Controller
             'detalles' => 'nullable|string',
             'categoria_id' => 'required|exists:categorias,id',
             'subcategoria_id' => 'required|exists:subcategorias,id',
-            'moto_id' => 'nullable|exists:motos,id',
+            'motos_compatibles' => 'nullable|array',
+            'motos_compatibles.*' => 'exists:motos,id',
+            'todas_las_motos' => 'required|boolean',
             'precio' => 'required|numeric|min:0|max:9999999.99',
             'descuento' => 'required|numeric|min:0|max:100',
             'imagen_principal' => 'required|url|max:500',
-            'imagenes_adicionales' => 'nullable|array|max:10', // Cambiado de 6 a 10
+            'imagenes_adicionales' => 'nullable|array|max:10',
             'imagenes_adicionales.*.url' => 'required|url|max:500',
             'imagenes_adicionales.*.estilo' => 'nullable|string|max:100',
             'calificacion' => 'required|integer|min:0|max:5',
@@ -111,12 +113,13 @@ class AgregarProductoController extends Controller
             'destacado' => 'required|boolean',
             'mas_vendido' => 'required|boolean',
         ], [
-            'imagenes_adicionales.max' => 'No se pueden agregar más de 10 imágenes adicionales', // Mensaje actualizado
+            'imagenes_adicionales.max' => 'No se pueden agregar más de 10 imágenes adicionales',
             'subcategoria_id.required' => 'Debe seleccionar una subcategoría',
             'imagenes_adicionales.*.url.required' => 'La URL de la imagen es requerida',
             'imagenes_adicionales.*.url.url' => 'La URL de la imagen no es válida',
             'precio.max' => 'El precio no puede ser mayor a 9,999,999.99',
-            'descuento.max' => 'El descuento no puede ser mayor a 100%'
+            'descuento.max' => 'El descuento no puede ser mayor a 100%',
+            'motos_compatibles.*.exists' => 'Una o más motos seleccionadas no existen'
         ]);
 
         if ($validator->fails()) {
@@ -135,7 +138,6 @@ class AgregarProductoController extends Controller
                 'detalles' => $request->detalles,
                 'categoria_id' => $request->categoria_id,
                 'subcategoria_id' => $request->subcategoria_id,
-                'moto_id' => $request->moto_id,
                 'precio' => $request->precio,
                 'descuento' => $request->descuento,
                 'imagen_principal' => $request->imagen_principal,
@@ -143,10 +145,16 @@ class AgregarProductoController extends Controller
                 'calificacion' => $request->calificacion,
                 'incluye_igv' => $request->incluye_igv,
                 'stock' => $request->stock,
+                'todas_las_motos' => $request->todas_las_motos,
                 'destacado' => $request->destacado,
                 'mas_vendido' => $request->mas_vendido,
                 'estado' => 'Activo'
             ]);
+
+            // Asignar motos compatibles si no es para todas las motos
+            if (!$request->todas_las_motos && !empty($request->motos_compatibles)) {
+                $producto->motos()->sync($request->motos_compatibles);
+            }
 
             DB::commit();
 

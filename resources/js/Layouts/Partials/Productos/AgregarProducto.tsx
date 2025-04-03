@@ -20,6 +20,8 @@ import {
   ChevronRight,
   ChevronLeft,
   AlertCircle,
+  CheckCircle,
+  CheckCheck,
 } from "lucide-react"
 import { Badge } from "@/Components/ui/badge"
 import { Switch } from "@/Components/ui/switch"
@@ -30,6 +32,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs"
 import { Separator } from "@/Components/ui/separator"
 import { route } from "ziggy-js"
 import { Alert, AlertDescription, AlertTitle } from "@/Components/ui/alert"
+import { ScrollArea } from "@/Components/ui/scroll-area"
+import { Popover, PopoverContent, PopoverTrigger } from "@/Components/ui/popover"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/Components/ui/command"
 
 interface Categoria {
   id: number
@@ -63,7 +68,7 @@ interface AgregarProductoProps {
 // Constantes
 const PRECIO_MAXIMO = 90000;
 const IGV_PERCENT = 18;
-const MAX_IMAGENES_ADICIONALES = 10; // Cambiado de 6 a 10
+const MAX_IMAGENES_ADICIONALES = 10;
 const MAX_DESCRIPCION_CORTA = 150;
 
 // Funciones de ayuda para formato de moneda
@@ -100,7 +105,8 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
     detalles: "",
     categoria_id: "",
     subcategoria_id: "",
-    moto_id: "",
+    motos_compatibles: [] as number[],
+    todas_las_motos: false as boolean,
     precio: "",
     descuento: "0",
     imagen_principal: "",
@@ -123,6 +129,7 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
   const [activeTab, setActiveTab] = useState("informacion");
   const [progress, setProgress] = useState(1);
   const totalSteps = 4;
+  const [openMotosPopover, setOpenMotosPopover] = useState(false);
 
   // Validación de precio máximo
   const precioExcedido = useMemo(() => {
@@ -135,7 +142,6 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
     const precioBase = parseCurrencyInput(data.precio);
     const descuento = Number.parseFloat(data.descuento) || 0;
     
-    // Aplicar validación de precio máximo
     if (precioBase > PRECIO_MAXIMO) {
       return {
         precioSinIGV: 0,
@@ -175,6 +181,25 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
       setData("subcategoria_id", "");
     }
   }, [data.categoria_id, categorias]);
+
+  // Manejar selección de motos compatibles
+  const toggleMotoCompatible = (motoId: number) => {
+    if (data.todas_las_motos) return;
+    
+    const nuevasMotos = data.motos_compatibles.includes(motoId)
+      ? data.motos_compatibles.filter(id => id !== motoId)
+      : [...data.motos_compatibles, motoId];
+    
+    setData("motos_compatibles", nuevasMotos);
+  };
+
+  const toggleTodasLasMotos = () => {
+    const nuevoEstado = !data.todas_las_motos;
+    setData("todas_las_motos", nuevoEstado);
+    if (nuevoEstado) {
+      setData("motos_compatibles", []);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target as HTMLInputElement;
@@ -250,7 +275,6 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validar precio máximo antes de enviar
     const precio = parseCurrencyInput(data.precio);
     if (precio > PRECIO_MAXIMO) {
       toast.error(`El precio no puede ser mayor a ${formatCurrencyDisplay(PRECIO_MAXIMO)}`);
@@ -259,7 +283,6 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
       return;
     }
 
-    // Validar número de imágenes adicionales
     if (imagenesAdicionales.length > MAX_IMAGENES_ADICIONALES) {
       toast.error(`No se pueden agregar más de ${MAX_IMAGENES_ADICIONALES} imágenes adicionales`);
       setActiveTab("imagenes");
@@ -271,6 +294,8 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
       ...data,
       precio: parseCurrencyInput(data.precio).toString(),
       imagenes_adicionales: data.imagenes_adicionales,
+      motos_compatibles: data.todas_las_motos ? [] : data.motos_compatibles,
+      todas_las_motos: data.todas_las_motos
     };
 
     router.post(route("productos.store"), formData, {
@@ -288,6 +313,17 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
   };
 
   const imagenesAdicionales: ImagenAdicional[] = JSON.parse(data.imagenes_adicionales);
+
+  // Agrupar motos por marca
+  const motosPorMarca = useMemo(() => {
+    return motos.reduce((acc, moto) => {
+      if (!acc[moto.marca]) {
+        acc[moto.marca] = [];
+      }
+      acc[moto.marca].push(moto);
+      return acc;
+    }, {} as Record<string, Moto[]>);
+  }, [motos]);
 
   return (
     <form onSubmit={handleSubmit} className="max-w-7xl mx-auto p-4 space-y-6">
@@ -903,23 +939,101 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias, motos }) 
                   <CardHeader className="pb-3">
                     <CardTitle className="text-lg flex items-center gap-2">
                       <ShoppingCart className="h-5 w-5 text-indigo-600" />
-                      Moto Compatible
+                      Motos Compatibles
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <Select value={data.moto_id} onValueChange={(value) => setData("moto_id", value)}>
-                      <SelectTrigger className="h-10">
-                        <SelectValue placeholder="Seleccione una moto" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {motos.map((moto) => (
-                          <SelectItem key={moto.id} value={moto.id.toString()}>
-                            {`${moto.marca} ${moto.modelo} (${moto.año})`}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {errors.moto_id && <p className="text-red-500 text-xs mt-2">{errors.moto_id}</p>}
+                  <CardContent className="space-y-4">
+                    {/* Opción para "Todas las motos" */}
+                    <div className="flex items-center space-x-2 p-3 border rounded-md bg-gray-50">
+                      <Switch
+                        id="todas_las_motos"
+                        checked={data.todas_las_motos}
+                        onCheckedChange={toggleTodasLasMotos}
+                      />
+                      <Label htmlFor="todas_las_motos" className="cursor-pointer flex-1">
+                        Todas las motos son compatibles
+                      </Label>
+                    </div>
+
+                    {/* Selector de motos */}
+                    {!data.todas_las_motos && (
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Seleccionar motos específicas</Label>
+                        <Popover open={openMotosPopover} onOpenChange={setOpenMotosPopover}>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={openMotosPopover}
+                              className="w-full justify-between h-10"
+                            >
+                              {data.motos_compatibles.length > 0
+                                ? `${data.motos_compatibles.length} motos seleccionadas`
+                                : "Seleccione motos compatibles"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[400px] p-0">
+                            <Command>
+                              <CommandInput placeholder="Buscar motos..." />
+                              <CommandEmpty>No se encontraron motos</CommandEmpty>
+                              <ScrollArea className="h-64">
+                                {Object.entries(motosPorMarca).map(([marca, motosDeMarca]) => (
+                                  <CommandGroup key={marca} heading={marca}>
+                                    {motosDeMarca.map((moto) => (
+                                      <CommandItem
+                                        key={moto.id}
+                                        value={`${moto.marca} ${moto.modelo} ${moto.año}`}
+                                        onSelect={() => toggleMotoCompatible(moto.id)}
+                                      >
+                                        <div className="flex items-center">
+                                          {data.motos_compatibles.includes(moto.id) ? (
+                                            <CheckCheck className="h-4 w-4 mr-2 text-green-600" />
+                                          ) : (
+                                            <CheckCircle className="h-4 w-4 mr-2 text-gray-300" />
+                                          )}
+                                          {`${moto.modelo} (${moto.año})`}
+                                        </div>
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                ))}
+                              </ScrollArea>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+
+                        {/* Mostrar motos seleccionadas */}
+                        {data.motos_compatibles.length > 0 && (
+                          <div className="mt-2">
+                            <p className="text-xs text-muted-foreground mb-1">
+                              Motos seleccionadas ({data.motos_compatibles.length}):
+                            </p>
+                            <div className="flex flex-wrap gap-1">
+                              {data.motos_compatibles.map((motoId) => {
+                                const moto = motos.find(m => m.id === motoId);
+                                return moto ? (
+                                  <Badge
+                                    key={motoId}
+                                    variant="outline"
+                                    className="flex items-center gap-1 pr-1"
+                                  >
+                                    {`${moto.marca} ${moto.modelo}`}
+                                    <button
+                                      type="button"
+                                      onClick={() => toggleMotoCompatible(motoId)}
+                                      className="text-gray-400 hover:text-red-500"
+                                    >
+                                      <X className="h-3 w-3" />
+                                    </button>
+                                  </Badge>
+                                ) : null;
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    {errors.motos_compatibles && <p className="text-red-500 text-xs mt-2">{errors.motos_compatibles}</p>}
                   </CardContent>
                 </Card>
               </div>

@@ -16,7 +16,6 @@ class Producto extends Model
         'detalles',
         'categoria_id',
         'subcategoria_id',
-        'moto_id',
         'precio',
         'descuento',
         'imagen_principal',
@@ -24,6 +23,7 @@ class Producto extends Model
         'calificacion',
         'incluye_igv',
         'stock',
+        'todas_las_motos',
         'destacado',
         'mas_vendido',
         'estado'
@@ -31,9 +31,10 @@ class Producto extends Model
 
     protected $casts = [
         'imagenes_adicionales' => 'array',
+        'incluye_igv' => 'boolean',
+        'todas_las_motos' => 'boolean',
         'destacado' => 'boolean',
         'mas_vendido' => 'boolean',
-        'incluye_igv' => 'boolean',
         'precio' => 'decimal:2',
         'descuento' => 'decimal:2',
         'created_at' => 'datetime:d/m/Y H:i',
@@ -79,17 +80,6 @@ class Producto extends Model
     {
         $precioConDescuento = $this->precio - ($this->precio * $this->descuento / 100);
         return 'S/ ' . number_format($precioConDescuento, 2);
-    }
-
-    /**
-     * Accesor para la descripción de la moto
-     */
-    public function getMotoDescripcionAttribute()
-    {
-        if (!$this->moto) {
-            return 'No aplica';
-        }
-        return $this->moto->marca . ' ' . $this->moto->modelo . ' (' . $this->moto->año . ')';
     }
 
     /**
@@ -145,11 +135,11 @@ class Producto extends Model
     }
 
     /**
-     * Relación con la moto
+     * Relación muchos a muchos con motos
      */
-    public function moto()
+    public function motos()
     {
-        return $this->belongsTo(Moto::class);
+        return $this->belongsToMany(Moto::class, 'moto_producto');
     }
 
     /**
@@ -167,5 +157,17 @@ class Producto extends Model
                 'estilo' => $img['estilo'] ?? ''
             ];
         }, (array)$value));
+    }
+
+    /**
+     * Verifica si el producto es compatible con una moto específica
+     */
+    public function esCompatibleCon($motoId)
+    {
+        if ($this->todas_las_motos) {
+            return true;
+        }
+        
+        return $this->motos()->where('moto_id', $motoId)->exists();
     }
 }
