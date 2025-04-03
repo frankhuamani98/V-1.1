@@ -102,7 +102,7 @@ class AgregarProductoController extends Controller
             'precio' => 'required|numeric|min:0|max:9999999.99',
             'descuento' => 'required|numeric|min:0|max:100',
             'imagen_principal' => 'required|url|max:500',
-            'imagenes_adicionales' => 'nullable|array|max:6',
+            'imagenes_adicionales' => 'nullable|array|max:10', // Cambiado de 6 a 10
             'imagenes_adicionales.*.url' => 'required|url|max:500',
             'imagenes_adicionales.*.estilo' => 'nullable|string|max:100',
             'calificacion' => 'required|integer|min:0|max:5',
@@ -111,7 +111,7 @@ class AgregarProductoController extends Controller
             'destacado' => 'required|boolean',
             'mas_vendido' => 'required|boolean',
         ], [
-            'imagenes_adicionales.max' => 'No se pueden agregar más de 6 imágenes adicionales',
+            'imagenes_adicionales.max' => 'No se pueden agregar más de 10 imágenes adicionales', // Mensaje actualizado
             'subcategoria_id.required' => 'Debe seleccionar una subcategoría',
             'imagenes_adicionales.*.url.required' => 'La URL de la imagen es requerida',
             'imagenes_adicionales.*.url.url' => 'La URL de la imagen no es válida',

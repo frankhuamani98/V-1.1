@@ -17,6 +17,7 @@ use App\Http\Controllers\Pedidos\{EstadoPedidosController, NuevosPedidosControll
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
 Route::get('/resultados', [ResultadosController::class, 'index'])->name('resultados');
 
+
 // Autenticación
 require __DIR__.'/auth.php';
 
@@ -67,13 +68,13 @@ Route::middleware('auth')->group(function () {
         Route::delete('/registro/{moto}', [RegistroMotosController::class, 'destroy'])->name('motos.destroy');
     });
     
-    // Productos
-    Route::prefix('productos')->group(function () {
-        Route::get('/agregar', [AgregarProductoController::class, 'index'])->name('productos.agregar');
-        Route::post('/agregar', [AgregarProductoController::class, 'store'])->name('productos.store');
-        Route::get('/inventario', [InventarioProductosController::class, 'index'])->name('productos.inventario');
-    });
-    
+// Productos
+Route::prefix('productos')->group(function () {
+    Route::get('/agregar', [AgregarProductoController::class, 'index'])->name('productos.agregar');
+    Route::post('/agregar', [AgregarProductoController::class, 'store'])->name('productos.store');
+    Route::get('/inventario', [InventarioProductosController::class, 'index'])->name('productos.inventario');
+    Route::delete('/{producto}', [InventarioProductosController::class, 'destroy'])->name('productos.destroy');
+});
     // Reservas
     Route::prefix('reservas')->group(function () {
         Route::get('/nuevas', [NuevasReservasController::class, 'index'])->name('reservas.nuevas');

@@ -35,7 +35,9 @@ class Producto extends Model
         'mas_vendido' => 'boolean',
         'incluye_igv' => 'boolean',
         'precio' => 'decimal:2',
-        'descuento' => 'decimal:2'
+        'descuento' => 'decimal:2',
+        'created_at' => 'datetime:d/m/Y H:i',
+        'updated_at' => 'datetime:d/m/Y H:i'
     ];
 
     // Estados disponibles
@@ -43,19 +45,51 @@ class Producto extends Model
     const ESTADO_INACTIVO = 'Inactivo';
     const ESTADO_AGOTADO = 'Agotado';
 
-    public function categoria()
+    /**
+     * Accesor para limpiar las URLs de las imágenes adicionales
+     */
+    public function getImagenesAdicionalesAttribute($value)
     {
-        return $this->belongsTo(Categoria::class);
+        if (empty($value)) {
+            return [];
+        }
+
+        $imagenes = json_decode($value, true) ?? [];
+        
+        return array_map(function ($img) {
+            return [
+                'url' => str_replace('\/', '/', $img['url'] ?? ''),
+                'estilo' => $img['estilo'] ?? ''
+            ];
+        }, $imagenes);
     }
 
-    public function subcategoria()
+    /**
+     * Accesor para el precio formateado
+     */
+    public function getPrecioFormateadoAttribute()
     {
-        return $this->belongsTo(Subcategoria::class);
+        return 'S/ ' . number_format($this->precio, 2);
     }
 
-    public function moto()
+    /**
+     * Accesor para el precio con descuento formateado
+     */
+    public function getPrecioTotalAttribute()
     {
-        return $this->belongsTo(Moto::class);
+        $precioConDescuento = $this->precio - ($this->precio * $this->descuento / 100);
+        return 'S/ ' . number_format($precioConDescuento, 2);
+    }
+
+    /**
+     * Accesor para la descripción de la moto
+     */
+    public function getMotoDescripcionAttribute()
+    {
+        if (!$this->moto) {
+            return 'No aplica';
+        }
+        return $this->moto->marca . ' ' . $this->moto->modelo . ' (' . $this->moto->año . ')';
     }
 
     /**
@@ -92,5 +126,46 @@ class Producto extends Model
     public function scopeActivos($query)
     {
         return $query->where('estado', self::ESTADO_ACTIVO);
+    }
+
+    /**
+     * Relación con la categoría
+     */
+    public function categoria()
+    {
+        return $this->belongsTo(Categoria::class);
+    }
+
+    /**
+     * Relación con la subcategoría
+     */
+    public function subcategoria()
+    {
+        return $this->belongsTo(Subcategoria::class);
+    }
+
+    /**
+     * Relación con la moto
+     */
+    public function moto()
+    {
+        return $this->belongsTo(Moto::class);
+    }
+
+    /**
+     * Mutador para asegurar que las imágenes adicionales sean un array válido
+     */
+    public function setImagenesAdicionalesAttribute($value)
+    {
+        if (is_string($value)) {
+            $value = json_decode($value, true) ?? [];
+        }
+
+        $this->attributes['imagenes_adicionales'] = json_encode(array_map(function ($img) {
+            return [
+                'url' => $img['url'] ?? '',
+                'estilo' => $img['estilo'] ?? ''
+            ];
+        }, (array)$value));
     }
 }

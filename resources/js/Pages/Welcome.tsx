@@ -34,11 +34,17 @@ export default function Welcome({
             <Header />
             <MotorcycleSearch motoData={motoData} />
             <CompleteCarousel />
+<<<<<<< HEAD
 
             <Products
                 featuredProducts={featuredProducts}
                 bestSellingProducts={bestSellingProducts}
                 allProducts={allProducts}
+=======
+            
+            <Products 
+
+>>>>>>> cda956d1442c7d3e76a55b35fc0f1593ce30be88
             />
 
             <Message />
