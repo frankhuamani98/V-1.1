@@ -68,13 +68,13 @@ Route::middleware('auth')->group(function () {
         Route::delete('/registro/{moto}', [RegistroMotosController::class, 'destroy'])->name('motos.destroy');
     });
     
-    // Productos
-    Route::prefix('productos')->group(function () {
-        Route::get('/agregar', [AgregarProductoController::class, 'index'])->name('productos.agregar');
-        Route::post('/agregar', [AgregarProductoController::class, 'store'])->name('productos.store');
-        Route::get('/inventario', [InventarioProductosController::class, 'index'])->name('productos.inventario');
-    });
-    
+// Productos
+Route::prefix('productos')->group(function () {
+    Route::get('/agregar', [AgregarProductoController::class, 'index'])->name('productos.agregar');
+    Route::post('/agregar', [AgregarProductoController::class, 'store'])->name('productos.store');
+    Route::get('/inventario', [InventarioProductosController::class, 'index'])->name('productos.inventario');
+    Route::delete('/{producto}', [InventarioProductosController::class, 'destroy'])->name('productos.destroy');
+});
     // Reservas
     Route::prefix('reservas')->group(function () {
         Route::get('/nuevas', [NuevasReservasController::class, 'index'])->name('reservas.nuevas');

@@ -2,8 +2,8 @@ import React from 'react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import InventarioProductos from '@/Layouts/Partials/Productos/InventarioProductos';
 
-// Definir las props que recibe el componente
 interface InventarioProductosPageProps {
+    productos: any[]; // O define una interfaz más específica
     auth: {
         user: {
             username: string;
@@ -12,10 +12,10 @@ interface InventarioProductosPageProps {
     };
 }
 
-const InventarioProductosPage = ({ auth }: InventarioProductosPageProps) => {
+const InventarioProductosPage = ({ productos, auth }: InventarioProductosPageProps) => {
     return (
         <DashboardLayout auth={auth}>
-            <InventarioProductos />
+            <InventarioProductos productos={productos} />
         </DashboardLayout>
     );
 };
