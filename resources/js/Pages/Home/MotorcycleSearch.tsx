@@ -1,451 +1,359 @@
-import React, { useState, useEffect } from "react";
-import { Card, CardContent } from "@/Components/ui/card";
-import { Button } from "@/Components/ui/button";
-import { Label } from "@/Components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
-import { Separator } from "@/Components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
-import { Badge } from "@/Components/ui/badge";
-import { toast } from "sonner";
-import {
-  SearchIcon,
-  BikeIcon,
-  FilterIcon,
-  StarIcon,
-  ChevronRightIcon,
-  SparklesIcon,
-  ZapIcon,
-  ShieldCheckIcon,
-  ClockIcon,
-  ThumbsUpIcon,
-  ShoppingCartIcon,
-  WrenchIcon,
-  PhoneIcon
-} from "lucide-react";
+import type React from "react"
+import { useState, useEffect } from "react"
+import { Card, CardContent } from "@/Components/ui/card"
+import { Button } from "@/Components/ui/button"
+import { Label } from "@/Components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
+import { toast } from "sonner"
+import { SearchIcon, BikeIcon, SettingsIcon, ArrowRightIcon, ClockIcon, ChevronDownIcon,ChevronRightIcon } from "lucide-react"
+import "../../../css/Icons.css"
 
 // Tipos para los datos de motos
 interface MotoData {
-    years: number[];
-    brands: string[];
-    models: Array<{
-        modelo: string;
-        marca: string;
-    }>;
+  years: number[]
+  brands: string[]
+  models: Array<{
+    modelo: string
+    marca: string
+  }>
 }
 
 interface Props {
-    motoData: MotoData;
+  motoData: MotoData
 }
 
-const categories = [
-  { name: "Frenos", icon: <ZapIcon className="h-4 w-4" />, count: 428 },
-  { name: "Neumáticos", icon: <ShieldCheckIcon className="h-4 w-4" />, count: 356 },
-  { name: "Aceite", icon: <SparklesIcon className="h-4 w-4" />, count: 231 },
-  { name: "....", icon: <ThumbsUpIcon className="h-4 w-4" />, count: 198 }
-];
-
 export default function MotorcycleSearch({ motoData }: Props) {
-  const [year, setYear] = useState<string>("");
-  const [brand, setBrand] = useState<string>("");
-  const [model, setModel] = useState<string>("");
-  const [filteredModels, setFilteredModels] = useState<Array<{modelo: string, marca: string}>>([]);
-  const [searchMode, setSearchMode] = useState<"standard" | "advanced">("standard");
-  const [recentSearches, setRecentSearches] = useState<Array<{year: string, brand: string, model: string}>>([]);
-  const [loading, setLoading] = useState(false);
-  const [showPromo, setShowPromo] = useState(true);
-  const [promoTime, setPromoTime] = useState({ hours: 12, minutes: 43, seconds: 21 });
+  const [year, setYear] = useState<string>("")
+  const [brand, setBrand] = useState<string>("")
+  const [model, setModel] = useState<string>("")
+  const [filteredModels, setFilteredModels] = useState<Array<{ modelo: string; marca: string }>>([])
+  const [recentSearches, setRecentSearches] = useState<Array<{ year: string; brand: string; model: string }>>([])
+  const [loading, setLoading] = useState(false)
 
   // Recuperar búsquedas recientes del localStorage al cargar el componente
   useEffect(() => {
-    const savedSearches = localStorage.getItem("recentMotorcycleSearches");
+    const savedSearches = localStorage.getItem("recentMotorcycleSearches")
     if (savedSearches) {
-      setRecentSearches(JSON.parse(savedSearches).slice(0, 3));
+      setRecentSearches(JSON.parse(savedSearches).slice(0, 3))
     }
 
     // Mostrar toast de bienvenida después de 1.5 segundos
     const timeout = setTimeout(() => {
-      toast.success("¡Bienvenido motociclista!", {
-        description: "Tu taller de confianza para reparaciones y repuestos de motos. ¡Más de 10 años de experiencia! 🏍️",
-        duration: 5000
-      });
-    }, 1500);
+      toast.success("¡Bienvenido a MotoPartes Pro!", {
+        description: "Piezas originales y compatibles con garantía asegurada.",
+        duration: 5000,
+      })
+    }, 1500)
 
-    return () => clearTimeout(timeout);
-  }, []);
-
-  // Contador en tiempo real para la promoción
-  useEffect(() => {
-    const savedTime = localStorage.getItem("promoTime");
-    if (savedTime) {
-      const { hours, minutes, seconds } = JSON.parse(savedTime);
-      setPromoTime({ hours, minutes, seconds });
-    }
-
-    const interval = setInterval(() => {
-      setPromoTime((prevTime) => {
-        const totalSeconds = prevTime.hours * 3600 + prevTime.minutes * 60 + prevTime.seconds - 1;
-        if (totalSeconds <= 0) {
-          clearInterval(interval);
-          localStorage.removeItem("promoTime");
-          return { hours: 0, minutes: 0, seconds: 0 };
-        }
-        const newHours = Math.floor(totalSeconds / 3600);
-        const newMinutes = Math.floor((totalSeconds % 3600) / 60);
-        const newSeconds = totalSeconds % 60;
-        localStorage.setItem("promoTime", JSON.stringify({ hours: newHours, minutes: newMinutes, seconds: newSeconds }));
-        return { hours: newHours, minutes: newMinutes, seconds: newSeconds };
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
+    return () => clearTimeout(timeout)
+  }, [])
 
   const handleBrandChange = (value: string) => {
-    setBrand(value);
-    setModel("");
-    setFilteredModels(motoData.models.filter(m => m.marca === value));
-  };
+    setBrand(value)
+    setModel("")
+    setFilteredModels(motoData.models.filter((m) => m.marca === value))
+  }
 
   const saveSearch = () => {
     // Solo guardar búsquedas completas
     if (year && brand && model) {
-      const modelName = motoData.models.find(m => m.modelo === model)?.modelo || "";
+      const modelName = motoData.models.find((m) => m.modelo === model)?.modelo || ""
 
-      const newSearch = { year, brand, model: modelName };
-      const updatedSearches = [newSearch, ...recentSearches.filter(
-        s => !(s.year === year && s.brand === brand && s.model === modelName)
-      )].slice(0, 3);
+      const newSearch = { year, brand, model: modelName }
+      const updatedSearches = [
+        newSearch,
+        ...recentSearches.filter((s) => !(s.year === year && s.brand === brand && s.model === modelName)),
+      ].slice(0, 3)
 
-      setRecentSearches(updatedSearches);
-      localStorage.setItem("recentMotorcycleSearches", JSON.stringify(updatedSearches));
+      setRecentSearches(updatedSearches)
+      localStorage.setItem("recentMotorcycleSearches", JSON.stringify(updatedSearches))
     }
-  };
+  }
 
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!year || !brand || !model) {
-      toast.error("¡Espera un momento!", {
-        description: "Necesitamos saber qué moto tienes para mostrarte las partes perfectas."
-      });
-      return;
+      toast.error("Información incompleta", {
+        description: "Por favor selecciona año, marca y modelo para continuar.",
+      })
+      return
     }
 
-    setLoading(true);
-    saveSearch();
+    setLoading(true)
+    saveSearch()
 
-    toast.success("¡En camino a toda velocidad!", {
-      description: `Buscando las mejores partes para tu ${brand} ${model} ${year}`
-    });
+    toast.success("Buscando piezas", {
+      description: `Localizando componentes para tu ${brand} ${model} ${year}`,
+    })
 
-    // Redirección mejorada con parámetros codificados
+    // Redirección con parámetros
     setTimeout(() => {
-      const params = new URLSearchParams();
-      params.append('year', year);
-      params.append('brand', brand);
-      params.append('model', model);
-      window.location.href = `/resultados?${params.toString()}`;
-    }, 800);
-  };
+      const params = new URLSearchParams()
+      params.append("year", year)
+      params.append("brand", brand)
+      params.append("model", model)
+      window.location.href = `/resultados?${params.toString()}`
+    }, 800)
+  }
 
-  const handleQuickSearch = (search: {year: string, brand: string, model: string}) => {
-    setLoading(true);
-    toast.success("¡Búsqueda instantánea!", {
-      description: `Localizando piezas premium para tu ${search.brand} ${search.model} ${search.year}`
-    });
+  const handleQuickSearch = (search: { year: string; brand: string; model: string }) => {
+    setLoading(true)
+    toast.success("Búsqueda rápida", {
+      description: `Localizando componentes para tu ${search.brand} ${search.model} ${search.year}`,
+    })
 
     setTimeout(() => {
-      const params = new URLSearchParams();
-      params.append('year', search.year);
-      params.append('brand', search.brand);
-      params.append('model', search.model);
-      window.location.href = `/resultados?${params.toString()}`;
-    }, 800);
-  };
+      const params = new URLSearchParams()
+      params.append("year", search.year)
+      params.append("brand", search.brand)
+      params.append("model", search.model)
+      window.location.href = `/resultados?${params.toString()}`
+    }, 800)
+  }
 
   return (
-    <div className="w-full">
+    <div className="w-full bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 min-h-screen">
+      {/* Hero Section */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-800 via-blue-600 to-indigo-900 opacity-90"></div>
-        
-        <div className="absolute inset-0 opacity-10" style={{
-            backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")"
-          }}></div>
+        {/* Fondo con gradiente mejorado */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900"></div>
 
-        <div className="absolute top-0 left-0 w-64 h-64 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-        <div className="absolute bottom-0 right-0 w-80 h-80 bg-indigo-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-        
-        <div className="relative z-10 container mx-auto px-4 py-16 md:py-15">
+        {/* Patrón decorativo */}
+        <div className="absolute inset-0 opacity-5">
+          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <defs>
+              <pattern id="grid" width="8" height="8" patternUnits="userSpaceOnUse">
+                <path d="M 8 0 L 0 0 0 8" fill="none" stroke="white" strokeWidth="0.5" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+          </svg>
+        </div>
+
+        {/* Formas decorativas */}
+        <div className="absolute -top-20 -left-20 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse"></div>
+        <div
+          className="absolute -bottom-20 -right-20 w-96 h-96 bg-cyan-600 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse"
+          style={{ animationDelay: "2s" }}
+        ></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-6xl max-h-96 bg-gradient-to-tr from-cyan-400 to-slate-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10"></div>
+
+        <div className="relative z-10 container mx-auto px-4 py-20 md:py-28">
           <div className="flex flex-col items-center">
-            <div className="mb-6 bg-white/10 backdrop-blur-md px-4 py-1 rounded-full border border-white/20 text-white/90 text-sm font-medium tracking-wider animate-pulse">
-              ESPECIALISTAS EN MOTOS
+            <div
+              className="flex items-center justify-center space-x-2 mb-5 animate-fade-in-up"
+              style={{ animationDelay: "0.2s" }}
+            >
+              <div className="h-[1px] w-12 bg-cyan-300/50"></div>
+              <span className="text-cyan-300 text-sm font-medium uppercase tracking-widest">
+                Precisión en Repuestos
+              </span>
+              <div className="h-[1px] w-12 bg-cyan-300/50"></div>
             </div>
-            
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white text-center mb-4 tracking-tight">
-              <span className="inline-block animate-fade-in-up">¡TU TALLER DE</span> 
-              <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-yellow-500 animate-fade-in-up animation-delay-300"> CONFIANZA!</span>
+
+            <h1
+              className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white text-center mb-8 tracking-tight leading-tight max-w-4xl animate-fade-in-up"
+              style={{ animationDelay: "0.4s" }}
+            >
+              Servicio{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-cyan-500">premium</span>{" "}
+              para tu motocicleta{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-cyan-500">favorita</span>
             </h1>
-            
-            <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto font-medium text-center mb-3 animate-fade-in-up animation-delay-500">
-              Reparaciones y repuestos de calidad para tu moto.
+
+            <p
+              className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto font-normal text-center mb-12 animate-fade-in-up"
+              style={{ animationDelay: "0.6s" }}
+            >
+              Atención personalizada y mantenimiento especializado para cada modelo. Nuestros expertos están listos para
+              brindarte la mejor experiencia.
             </p>
-            <p className="text-base md:text-lg text-white/80 max-w-2xl mx-auto font-normal text-center mb-8 animate-fade-in-up animation-delay-700">
-              Más de 10 años brindando servicios de reparación y mantenimiento profesional.
-            </p>
-            
-            <div className="flex flex-wrap justify-center gap-4 mb-8 animate-fade-in-up animation-delay-900">
-              <Badge className="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white px-4 py-2 text-sm border border-white/20 transition-all duration-300 flex items-center">
-                <SparklesIcon className="h-4 w-4 mr-2 text-yellow-300" />
-                <span>+5,000 Productos</span>
-              </Badge>
-              <Badge className="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white px-4 py-2 text-sm border border-white/20 transition-all duration-300 flex items-center">
-                <ThumbsUpIcon className="h-4 w-4 mr-2 text-yellow-300" />
-                <span>98% Satisfacción</span>
-              </Badge>
-              <Badge className="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white px-4 py-2 text-sm border border-white/20 transition-all duration-300 flex items-center">
-                <WrenchIcon className="h-4 w-4 mr-2 text-yellow-300" />
-                <span>Garantía Asegurada</span>
-              </Badge>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-4 mb-8 animate-fade-in-up animation-delay-1000">
-              <Button className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-6 py-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
-                AGENDAR SERVICIO
-              </Button>
-              <Button className="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border border-white/20 font-medium px-6 py-6 rounded-lg flex items-center transition-all duration-300">
-                <PhoneIcon className="h-5 w-5 mr-2" />
-                CONTACTAR AHORA
-              </Button>
-            </div>
-            
-            <div className="bg-black/30 backdrop-blur-md max-w-md w-full mx-auto rounded-xl p-4 border border-white/10 shadow-xl animate-fade-in-up animation-delay-1200">
-              <p className="text-yellow-300 font-bold text-base mb-2 flex justify-center items-center">
-                <SparklesIcon className="h-4 w-4 mr-2" />
-                ¡OFERTA FLASH HOY!
-                <SparklesIcon className="h-4 w-4 ml-2" />
-              </p>
-              <div className="flex justify-center gap-4">
-                <div className="bg-white/10 rounded-lg px-4 py-2 w-20 text-center">
-                  <span className="font-mono text-2xl font-bold text-white">{String(promoTime.hours).padStart(2, '0')}</span>
-                  <span className="text-xs text-white/70 block">HORAS</span>
-                </div>
-                <div className="bg-white/10 rounded-lg px-4 py-2 w-20 text-center">
-                  <span className="font-mono text-2xl font-bold text-white">{String(promoTime.minutes).padStart(2, '0')}</span>
-                  <span className="text-xs text-white/70 block">MINUTOS</span>
-                </div>
-                <div className="bg-white/10 rounded-lg px-4 py-2 w-20 text-center">
-                  <span className="font-mono text-2xl font-bold text-white">{String(promoTime.seconds).padStart(2, '0')}</span>
-                  <span className="text-xs text-white/70 block">SEGUNDOS</span>
-                </div>
+
+            <div className="flex justify-center animate-fade-in-up" style={{ animationDelay: "0.8s" }}>
+              <div className="flex gap-4">
+                <Button
+                  className="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-semibold px-8 py-6 rounded-xl shadow-lg hover:shadow-cyan-500/25 transition-all duration-300 flex items-center gap-2 group"
+                  onClick={() => {
+                    window.location.href = "/agendar-servicio"
+                  }}
+                >
+                  <span>Agendar servicio</span>
+                  <ChevronRightIcon className="h-5 w-5 group-hover:translate-x-1" />
+                </Button>
+                <Button
+                  className="bg-white/10 hover:bg-white/20 text-white font-semibold px-8 py-6 rounded-xl shadow-lg backdrop-blur-sm border border-white/20 transition-all duration-300 flex items-center gap-2"
+                  onClick={() => {
+                    window.location.href = "/contacto"
+                  }}
+                >
+                  <span>Contactar ahora</span>
+                  <ChevronRightIcon className="h-5 w-5 group-hover:translate-x-1" />
+                </Button>
               </div>
-              <p className="text-center text-white/80 text-sm mt-3 font-medium">
-                Hasta <span className="text-yellow-300 font-bold">30% DESCUENTO</span> en partes seleccionadas
-              </p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        {showPromo && (
-          <Card className="border-2 border-yellow-400 mb-6 overflow-hidden bg-gradient-to-r from-yellow-50 to-yellow-100 dark:from-yellow-900/30 dark:to-yellow-800/30">
-            <CardContent className="p-4 flex items-center justify-between">
-              <div className="flex items-center">
-                <div className="bg-yellow-400 rounded-full p-2 mr-3">
-                  <ZapIcon className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg">¡CÓDIGO DE DESCUENTO: MOTO25!</h3>
-                  <p className="text-sm">25% de descuento en tu primera compra. ¡Solo por tiempo limitado!</p>
-                </div>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-shrink-0"
-                onClick={() => setShowPromo(false)}
-              >
-                Cerrar
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
-        <Card className="border-none rounded-xl shadow-xl overflow-hidden relative -mt-10 z-10 bg-white dark:bg-gray-900">
+      {/* Componente de búsqueda */}
+      <div className="container mx-auto px-4 py-12" id="motorcycle-finder">
+        <Card className="border-none rounded-2xl shadow-2xl overflow-hidden backdrop-blur-sm bg-white/90 dark:bg-slate-900/90 -mt-16 z-10 transform transition-all duration-500 hover:shadow-cyan-500/5">
           <CardContent className="p-0">
-            <Tabs defaultValue="standard" className="w-full">
-              <div className="bg-gray-50 dark:bg-gray-800 p-4 border-b">
-                <TabsList className="grid grid-cols-2 w-full max-w-md mx-auto">
-                  <TabsTrigger value="standard" onClick={() => setSearchMode("standard")}>
-                    <SearchIcon className="h-4 w-4 mr-2" />
-                    Búsqueda Rápida
-                  </TabsTrigger>
-                  <TabsTrigger value="advanced" onClick={() => setSearchMode("advanced")}>
-                    <FilterIcon className="h-4 w-4 mr-2" />
-                    Búsqueda Avanzada
-                  </TabsTrigger>
-                </TabsList>
+            <div className="p-8">
+              <div className="text-center mb-10">
+                <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg transform transition-transform duration-500 hover:scale-105">
+                  <img
+                    src="https://media.tenor.com/0RxAveI4iJEAAAAm/motorcycle-riding.webp"
+                    alt="Motorcycle Riding"
+                    className="h-10 w-10 object-contain"
+                  />
+                </div>
+                <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-3">Personaliza tu experiencia</h2>
+                <p className="text-slate-600 dark:text-slate-300 mt-2 max-w-lg mx-auto">
+                  Selecciona tu modelo para recibir atención especializada y servicios a medida para tu motocicleta
+                </p>
               </div>
 
-              <TabsContent value="standard" className="p-6">
-                <div className="text-center mb-6">
-                  <div className="w-20 h-20 mx-auto mb-3 bg-blue-100 rounded-full flex items-center justify-center">
-                    <BikeIcon className="h-10 w-10 text-blue-600" />
-                  </div>
-                  <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-red-800">
-                    ¡ENCUENTRA TUS PARTES EN SEGUNDOS!
-                  </h2>
-                  <p className="text-gray-600 dark:text-gray-300 mt-2 max-w-lg mx-auto">
-                    Dinos qué moto tienes y te mostraremos <span className="font-semibold">exactamente</span> lo que necesitas
-                  </p>
-                </div>
-
-                <form onSubmit={handleSearch} className="w-full max-w-3xl mx-auto">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="year" className="font-medium text-sm flex items-center">
-                        <ClockIcon className="h-4 w-4 mr-1 text-blue-500" />
-                        Año de tu Moto
-                      </Label>
-                      <Select value={year} onValueChange={setYear}>
-                        <SelectTrigger id="year" className="w-full">
-                          <SelectValue placeholder="Selecciona Año" />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-60">
-                          {motoData.years.map((y, index) => (
-                            <SelectItem key={index} value={y.toString()}>{y}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="brand" className="font-medium text-sm flex items-center">
-                        <StarIcon className="h-4 w-4 mr-1 text-blue-500" />
-                        Marca Preferida
-                      </Label>
-                      <Select value={brand} onValueChange={handleBrandChange}>
-                        <SelectTrigger id="brand" className="w-full">
-                          <SelectValue placeholder="Selecciona Marca" />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-60">
-                          {motoData.brands.map((b, index) => (
-                            <SelectItem key={index} value={b}>{b}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="model" className="font-medium text-sm flex items-center">
-                        <BikeIcon className="h-4 w-4 mr-1 text-blue-500" />
-                        Modelo Exacto
-                      </Label>
-                      <Select value={model} onValueChange={setModel} disabled={!brand}>
-                        <SelectTrigger id="model" className="w-full">
-                          <SelectValue placeholder={brand ? "Selecciona Modelo" : "Primero selecciona una marca"} />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-60">
-                          {filteredModels.map((m, index) => (
-                            <SelectItem key={index} value={m.modelo}>{m.modelo}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="text-center mt-8">
-                    <Button
-                      type="submit"
-                      disabled={loading}
-                      className="bg-gradient-to-r from-blue-600 to-red-800 hover:from-blue-700 hover:to-red-900 text-white px-10 py-3 rounded-full font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
+              <form onSubmit={handleSearch} className="w-full max-w-3xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-3 group">
+                    <Label
+                      htmlFor="year"
+                      className="font-medium text-sm flex items-center text-slate-700 dark:text-slate-200 ml-1 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors"
                     >
-                      {loading ? (
-                        <div className="flex items-center gap-2">
-                          <div className="h-5 w-5 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>Buscando...</span>
-                        </div>
-                      ) : (
-                        <>
-                          <ShoppingCartIcon className="h-5 w-5 mr-2" />
-                          ¡ENCONTRAR MIS PARTES AHORA!
-                        </>
-                      )}
-                    </Button>
+                      <ClockIcon className="h-4 w-4 mr-2 text-cyan-500 group-hover:scale-110 transition-transform" />
+                      Año del modelo
+                    </Label>
+                    <Select value={year} onValueChange={setYear}>
+                      <SelectTrigger
+                        id="year"
+                        className="w-full bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-xl h-12 transition-all hover:border-cyan-400 focus:border-cyan-500 group-hover:shadow-sm"
+                      >
+                        <SelectValue placeholder="Selecciona año" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60 rounded-xl">
+                        {motoData.years.map((y, index) => (
+                          <SelectItem
+                            key={index}
+                            value={y.toString()}
+                            className="focus:bg-cyan-50 dark:focus:bg-cyan-900/20"
+                          >
+                            {y}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                </form>
 
-                {recentSearches.length > 0 && (
-                  <div className="mt-10">
-                    <div className="flex items-center justify-center mb-4">
-                      <div className="h-px bg-gray-200 dark:bg-gray-700 flex-grow max-w-xs"></div>
-                      <span className="px-4 py-1 rounded-full bg-blue-100 text-blue-700 text-sm font-medium mx-3 dark:bg-blue-900 dark:text-blue-100">Tus búsquedas recientes</span>
-                      <div className="h-px bg-gray-200 dark:bg-gray-700 flex-grow max-w-xs"></div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 max-w-3xl mx-auto">
-                      {recentSearches.map((search, index) => (
-                        <Button
-                          key={index}
-                          variant="outline"
-                          onClick={() => handleQuickSearch(search)}
-                          className="flex justify-between items-center hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                        >
-                          <span className="truncate mr-2 flex items-center">
-                            <ClockIcon className="h-3 w-3 mr-2 text-gray-400" />
-                            {search.brand} {search.model} {search.year}
-                          </span>
-                          <ChevronRightIcon className="h-4 w-4 flex-shrink-0 text-blue-500" />
-                        </Button>
-                      ))}
-                    </div>
+                  <div className="space-y-3 group">
+                    <Label
+                      htmlFor="brand"
+                      className="font-medium text-sm flex items-center text-slate-700 dark:text-slate-200 ml-1 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors"
+                    >
+                      <SettingsIcon className="h-4 w-4 mr-2 text-cyan-500 group-hover:scale-110 transition-transform" />
+                      Marca
+                    </Label>
+                    <Select value={brand} onValueChange={handleBrandChange}>
+                      <SelectTrigger
+                        id="brand"
+                        className="w-full bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-xl h-12 transition-all hover:border-cyan-400 focus:border-cyan-500 group-hover:shadow-sm"
+                      >
+                        <SelectValue placeholder="Selecciona marca" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60 rounded-xl">
+                        {motoData.brands.map((b, index) => (
+                          <SelectItem key={index} value={b} className="focus:bg-cyan-50 dark:focus:bg-cyan-900/20">
+                            {b}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                )}
-              </TabsContent>
 
-              <TabsContent value="advanced" className="p-6">
-                <div className="text-center mb-6">
-                  <div className="w-20 h-20 mx-auto mb-3 bg-blue-100 rounded-full flex items-center justify-center">
-                    <FilterIcon className="h-10 w-10 text-blue-600" />
+                  <div className="space-y-3 group">
+                    <Label
+                      htmlFor="model"
+                      className="font-medium text-sm flex items-center text-slate-700 dark:text-slate-200 ml-1 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors"
+                    >
+                      <BikeIcon className="h-4 w-4 mr-2 text-cyan-500 group-hover:scale-110 transition-transform" />
+                      Modelo específico
+                    </Label>
+                    <Select value={model} onValueChange={setModel} disabled={!brand}>
+                      <SelectTrigger
+                        id="model"
+                        className="w-full bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-xl h-12 transition-all hover:border-cyan-400 focus:border-cyan-500 group-hover:shadow-sm"
+                      >
+                        <SelectValue placeholder={brand ? "Selecciona modelo" : "Primero selecciona una marca"} />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60 rounded-xl">
+                        {filteredModels.map((m, index) => (
+                          <SelectItem
+                            key={index}
+                            value={m.modelo}
+                            className="focus:bg-cyan-50 dark:focus:bg-cyan-900/20"
+                          >
+                            {m.modelo}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-red-800">
-                    PERSONALIZA TU BÚSQUEDA AL DETALLE
-                  </h2>
-                  <p className="text-gray-600 dark:text-gray-300 mt-2 max-w-lg mx-auto">
-                    Refina tu búsqueda para encontrar exactamente lo que necesitas
-                  </p>
                 </div>
 
-                <div className="mb-8">
-                  <h3 className="text-lg font-semibold mb-4">Categorías populares</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {categories.map((category, idx) => (
+                <div className="text-center mt-10">
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                    className="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white px-8 py-3 rounded-xl font-semibold text-base shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30 transition-all duration-300 min-w-[220px] transform hover:translate-y-[-2px]"
+                  >
+                    {loading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Procesando...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <SearchIcon className="h-5 w-5 mr-2" />
+                        Buscar
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </form>
+
+              {recentSearches.length > 0 && (
+                <div className="mt-16">
+                  <div className="flex items-center justify-center mb-6">
+                    <div className="h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-700 to-transparent flex-grow"></div>
+                    <span className="px-4 text-slate-500 dark:text-slate-400 text-sm font-medium mx-3">
+                      Servicios recientes
+                    </span>
+                    <div className="h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-700 to-transparent flex-grow"></div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 max-w-3xl mx-auto">
+                    {recentSearches.map((search, index) => (
                       <Button
-                        key={idx}
+                        key={index}
                         variant="outline"
-                        className="h-auto py-3 justify-between hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                        onClick={() => handleQuickSearch(search)}
+                        className="flex justify-between items-center border border-slate-200 hover:border-cyan-300 hover:bg-cyan-50 dark:border-slate-700 dark:hover:bg-cyan-900/10 dark:hover:border-cyan-700 rounded-xl h-12 transition-all duration-200 group"
                       >
-                        <div className="flex items-center">
-                          <div className="bg-blue-100 p-2 rounded-full mr-3 dark:bg-blue-900/30">
-                            {category.icon}
-                          </div>
-                          <span>{category.name}</span>
-                        </div>
-                        <Badge variant="secondary" className="ml-2">{category.count}</Badge>
+                        <span className="truncate mr-2 flex items-center text-slate-700 dark:text-slate-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                          <ClockIcon className="h-3.5 w-3.5 mr-2 text-slate-400 group-hover:text-cyan-500 transition-colors" />
+                          {search.brand} {search.model} {search.year}
+                        </span>
+                        <ArrowRightIcon className="h-4 w-4 flex-shrink-0 text-cyan-500 opacity-70 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                       </Button>
                     ))}
                   </div>
                 </div>
-
-                <div className="mt-4 text-center">
-                  <p className="text-sm text-muted-foreground mb-2">
-                    ¡Próximamente más filtros avanzados!
-                  </p>
-                </div>
-              </TabsContent>
-            </Tabs>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
     </div>
-  );
+  )
 }
+
