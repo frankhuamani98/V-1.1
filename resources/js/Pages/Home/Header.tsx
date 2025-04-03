@@ -375,7 +375,12 @@ export default function Header() {
             </SheetTrigger>
             <SheetContent side="left" className="w-[300px] sm:w-[350px] overflow-y-auto max-h-screen">
               <SheetHeader>
-                <SheetTitle>Menú</SheetTitle>
+                {/* Logo inside the menu */}
+                <div className="flex justify-center mb-4">
+                  <Link href="/" className="h-12">
+                    <img src="/logo.png" alt="Rudolf Motors Logo" className="h-14" />
+                  </Link>
+                </div>
               </SheetHeader>
               <div className="py-4">
                 <div className="space-y-4">
@@ -448,8 +453,8 @@ export default function Header() {
             </SheetContent>
           </Sheet>
 
-          {/* Logo */}
-          <div className="flex items-center justify-center">
+          {/* Logo for desktop */}
+          <div className="hidden md:flex items-center justify-center">
             <Link href="/" className="h-12">
               <img src="/logo.png" alt="Rudolf Motors Logo" className="h-14" />
             </Link>
@@ -495,8 +500,8 @@ export default function Header() {
             {/* Barra de búsqueda */}
             <div
               className={cn(
-                "transition-all duration-300 overflow-hidden",
-                isSearchOpen ? "w-full md:w-64 opacity-100" : "w-0 opacity-0"
+                "hidden md:block transition-all duration-300 overflow-hidden",
+                isSearchOpen ? "w-64 opacity-100" : "w-0 opacity-0"
               )}
             >
               <div className="relative">
@@ -508,7 +513,6 @@ export default function Header() {
                 />
               </div>
             </div>
-
             <Button
               variant="ghost"
               size="icon"
@@ -752,7 +756,19 @@ export default function Header() {
           </div>
         </div>
       </div>
-
+      {/* Search bar for responsive mode */}
+      {isSearchOpen && (
+        <div className="w-full px-4 py-2 bg-background md:hidden">
+          <div className="relative">
+            <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Buscar productos..."
+              className="pl-9 h-9 w-full"
+            />
+          </div>
+        </div>
+      )}
       {/* Cart Sheet for Mobile */}
       <Sheet open={isCartSheetOpen} onOpenChange={setIsCartSheetOpen}>
         <SheetContent side="right" className="w-full sm:max-w-md">
