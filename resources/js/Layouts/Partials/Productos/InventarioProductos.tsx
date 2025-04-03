@@ -43,7 +43,8 @@ interface Producto {
   estado: string;
   imagen_principal: string;
   imagenes_adicionales: ImagenAdicional[];
-  moto: string;
+  moto_compatible: string;
+  todas_las_motos: boolean;
   destacado: boolean;
   mas_vendido: boolean;
   created_at: string;
@@ -114,7 +115,8 @@ const InventarioProductos: React.FC<InventarioProductosProps> = ({ productos = [
       Stock: p.stock,
       Estado: p.estado,
       'Imagen Principal': p.imagen_principal,
-      'Moto Compatible': p.moto,
+      'Moto Compatible': p.moto_compatible,
+      'Todas las motos': p.todas_las_motos ? 'Sí' : 'No',
       Destacado: p.destacado ? 'Sí' : 'No',
       'Más Vendido': p.mas_vendido ? 'Sí' : 'No',
       'Fecha Creación': p.created_at
@@ -436,7 +438,7 @@ const InventarioProductos: React.FC<InventarioProductosProps> = ({ productos = [
                               )}
                             </div>
                             <div className="text-sm text-gray-500">
-                              {producto.moto}
+                              {producto.moto_compatible}
                             </div>
                           </div>
                         </div>
@@ -652,7 +654,7 @@ const InventarioProductos: React.FC<InventarioProductosProps> = ({ productos = [
 
                 <div>
                   <Label>Moto compatible</Label>
-                  <Input value={currentProduct.moto} readOnly />
+                  <Input value={currentProduct.moto_compatible} readOnly />
                 </div>
 
                 <div>
@@ -669,7 +671,56 @@ const InventarioProductos: React.FC<InventarioProductosProps> = ({ productos = [
           </DialogContent>
         </Dialog>
 
-        {/* ... (mantener el resto del código igual) */}
+        {/* Modal de Eliminación */}
+        <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>¿Estás seguro de eliminar este producto?</DialogTitle>
+              <DialogDescription>
+                Esta acción no se puede deshacer. El producto será eliminado permanentemente.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>
+                Cancelar
+              </Button>
+              <Button variant="destructive" onClick={confirmDelete}>
+                Eliminar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Modal de Importación */}
+        <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Importar productos desde Excel</DialogTitle>
+              <DialogDescription>
+                Sube un archivo Excel (.xlsx) con los datos de los productos.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Input type="file" accept=".xlsx" onChange={handleFileChange} />
+              {importProgress > 0 && (
+                <div className="space-y-2">
+                  <Progress value={importProgress} />
+                  <p className="text-sm text-gray-500">
+                    Progreso: {importProgress}%
+                  </p>
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsImportOpen(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={importFromExcel} disabled={!file || importProgress > 0}>
+                Importar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </TooltipProvider>
   );

@@ -13,7 +13,7 @@ class InventarioProductosController extends Controller
 {
     public function index()
     {
-        $productos = Producto::with(['categoria', 'subcategoria', 'moto'])
+        $productos = Producto::with(['categoria', 'subcategoria', 'motos'])
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($producto) {
@@ -29,8 +29,13 @@ class InventarioProductosController extends Controller
                     'stock' => $producto->stock,
                     'estado' => $producto->estado,
                     'imagen_principal' => $producto->imagen_principal,
-                    'imagenes_adicionales' => $producto->imagenes_adicionales ?? [], // Asegurarse de incluir esto
-                    'moto' => $producto->moto ? $producto->moto->marca . ' ' . $producto->moto->modelo . ' (' . $producto->moto->año . ')' : 'No aplica',
+                    'imagenes_adicionales' => $producto->imagenes_adicionales ?? [],
+                    'moto_compatible' => $producto->todas_las_motos 
+                        ? 'Todas las motos'
+                        : ($producto->motos->first() 
+                            ? $producto->motos->first()->marca . ' ' . $producto->motos->first()->modelo . ' (' . $producto->motos->first()->año . ')' 
+                            : 'No especificado'),
+                    'todas_las_motos' => $producto->todas_las_motos,
                     'destacado' => $producto->destacado,
                     'mas_vendido' => $producto->mas_vendido,
                     'created_at' => $producto->created_at->format('d/m/Y H:i'),
