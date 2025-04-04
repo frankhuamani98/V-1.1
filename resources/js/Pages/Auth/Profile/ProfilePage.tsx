@@ -11,8 +11,7 @@ import {
   HistoryOutlined, PlusOutlined, DeleteOutlined, 
   IdcardOutlined, VerifiedOutlined, KeyOutlined, 
   LoadingOutlined, CheckCircleOutlined, ManOutlined, 
-  WomanOutlined, StarFilled, TrophyFilled, 
-  SafetyCertificateFilled, SettingFilled, ShoppingOutlined
+  WomanOutlined, StarFilled, ShoppingOutlined, SafetyCertificateFilled
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 
@@ -20,25 +19,22 @@ const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 const { Step } = Steps;
 
-// Paleta de colores
+// Paleta de colores mejorada
 const colors = {
   primary: '#4361ee',
   primaryLight: '#5a75f1',
   secondary: '#3a0ca3',
   accent: '#4cc9f0',
-  accentDark: '#3a86c8', // Add a darker shade for accent
   success: '#2ecc71',
   successLight: '#58d68d', // Add a lighter shade for success
   warning: '#f39c12',
   error: '#e74c3c',
   dark: '#2c3e50',
   light: '#f8f9fa',
-  whatsapp: '#25D366',
-  instagram: '#E1306C',
   text: '#34495e'
 };
 
-// Estilos reutilizables
+// Estilos reutilizables mejorados
 const cardStyle = {
   borderRadius: 16,
   boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
@@ -46,13 +42,20 @@ const cardStyle = {
   overflow: 'hidden'
 };
 
-const iconStyle = {
-  background: 'white',
-  padding: 12,
+const iconContainerStyle = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: 40,
+  height: 40,
   borderRadius: '50%',
-  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-  color: colors.primary,
-  fontSize: 20
+  marginRight: 12,
+  background: 'rgba(67, 97, 238, 0.1)'
+};
+
+const iconStyle = {
+  fontSize: 18,
+  color: colors.primary
 };
 
 interface Bike {
@@ -73,16 +76,9 @@ interface UserData {
   phone: string;
   location: string;
   joinDate: string;
-  specialities: string[];
   stats: {
     orders: number;
-    rides: number;
     rating: number;
-  };
-  social: {
-    whatsapp: string;
-    instagram: string;
-    facebook: string;
   };
   personalInfo: {
     firstName: string;
@@ -95,11 +91,6 @@ interface UserData {
     license: string;
     bloodType: string;
   };
-  achievements: {
-    name: string;
-    icon: React.ReactNode;
-    earned: boolean;
-  }[];
 }
 
 const MotoUserProfile = () => {
@@ -142,18 +133,11 @@ const MotoUserProfile = () => {
     bio: 'Apasionado por las motos y los viajes en carretera. Miembro activo de la comunidad motera desde 2015.',
     email: 'carlos@motero.com',
     phone: '+51 916 184 836',
-    location: 'Lima, Perú',
-    joinDate: 'Miembro desde Enero 2015',
-    specialities: ['Viajes largos', 'Motocross', 'Custom bikes', 'Mecánica básica'],
+    location: 'Lima, España',
+    joinDate: 'Miembro desde Enero 2026',
     stats: {
       orders: 142,
-      rides: 56,
       rating: 4.8
-    },
-    social: {
-      whatsapp: '51987654321',
-      instagram: 'carlosmoto_aventuras',
-      facebook: 'carlos.motero.aventuras'
     },
     personalInfo: {
       firstName: 'Carlos',
@@ -165,12 +149,7 @@ const MotoUserProfile = () => {
       gender: 'male',
       license: 'A-12345678',
       bloodType: 'O+'
-    },
-    achievements: [
-      { name: 'Viajero experimentado', icon: <TrophyFilled />, earned: true },
-      { name: 'Primeros auxilios', icon: <SafetyCertificateFilled />, earned: true },
-      { name: 'Mecánica básica', icon: <SettingFilled />, earned: true }
-    ]
+    }
   });
 
   const handleSave = () => {
@@ -268,35 +247,6 @@ const MotoUserProfile = () => {
     setTimeout(() => setPasswordSteps(0), 2000);
   };
 
-  const SocialIcon = ({ type }: { type: 'whatsapp' | 'instagram' | 'facebook' }) => {
-    const iconStyle = {
-      width: 20,
-      height: 20,
-      marginRight: 8,
-      verticalAlign: 'text-bottom'
-    };
-    
-    if (type === 'whatsapp') {
-      return (
-        <svg viewBox="0 0 32 32" style={iconStyle}>
-          <path fill={colors.whatsapp} d="M17.472 14.382v-.002c-.607-.302-1.224-.617-1.85-.775-.52-.133-.902-.07-1.242.49-.213.283-.816.99-.998 1.186-.213.236-.426.267-.792.09-.366-.178-1.545-.567-2.945-1.804-1.088-1.002-1.822-2.24-2.037-2.618-.213-.38-.024-.586.16-.774.16-.16.366-.426.55-.64.18-.213.24-.366.366-.61.122-.236.06-.446-.03-.624-.09-.178-.792-1.896-1.085-2.6-.285-.71-.576-.614-.792-.624-.213-.008-.457-.01-.7-.01-.244 0-.64.09-.975.426-.335.337-1.28 1.246-1.28 3.042 0 1.796 1.312 3.53 1.495 3.774.183.244 2.575 3.97 6.245 5.528 3.67 1.558 3.67 1.04 4.33.978.66-.062 2.13-.867 2.43-1.71.3-.843.3-1.566.21-1.71-.09-.144-.334-.232-.7-.426zm-5.73 10.403c-.405.115-.82.195-1.24.24-1.25.13-2.8-.012-4.493-.78-3.063-1.367-5.533-4.43-6.21-7.893C-.5 11.75 2.462 6.12 7.534 3.8c1.33-.61 2.76-.96 4.24-1.03.21-.01.415-.016.62-.016.9 0 1.8.13 2.67.39.24.07.46.22.61.43.16.21.22.47.18.72l-.39 2.47c-.04.25-.18.48-.38.62-.21.15-.46.2-.71.15-1.13-.32-2.3-.5-3.49-.5-3.05 0-5.91 1.6-7.49 4.27-1.58 2.67-1.58 5.85 0 8.52 1.58 2.67 4.44 4.27 7.49 4.27.81 0 1.62-.12 2.4-.35.25-.07.52-.03.74.12.22.15.36.4.39.66l.28 1.84c.03.25-.03.5-.17.7-.14.2-.36.33-.6.36z"/>
-        </svg>
-      );
-    } else if (type === 'instagram') {
-      return (
-        <svg viewBox="0 0 24 24" style={iconStyle}>
-          <path fill={colors.instagram} d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-        </svg>
-      );
-    } else {
-      return (
-        <svg viewBox="0 0 24 24" style={iconStyle}>
-          <path fill="#3b5998" d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z"/>
-        </svg>
-      );
-    }
-  };
-
   return (
     <div style={{ 
       maxWidth: 1200, 
@@ -384,9 +334,6 @@ const MotoUserProfile = () => {
                 <Tag icon={<StarFilled style={{ color: colors.warning }} />} color="#fff">
                   {userData.stats.rating}/5
                 </Tag>
-                <Tag icon={<TrophyFilled style={{ color: colors.primary }} />} color="#fff">
-                  Nivel 3
-                </Tag>
               </div>
               
               <div style={{ marginTop: 16 }}>
@@ -433,27 +380,6 @@ const MotoUserProfile = () => {
                         title={<Text style={{ color: colors.text }}>Pedidos realizados</Text>}
                         value={userData.stats.orders}
                         prefix={<ShoppingOutlined style={{ color: colors.primary }} />}
-                        valueStyle={{ 
-                          color: colors.dark, 
-                          fontSize: 28,
-                          fontWeight: 600
-                        }}
-                      />
-                    </Card>
-                  </Col>
-                  <Col xs={24} sm={12} md={8}>
-                    <Card 
-                      bordered={false} 
-                      style={{ 
-                        background: `linear-gradient(135deg, ${colors.light} 0%, #ffffff 100%)`,
-                        borderRadius: 12,
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
-                      }}
-                    >
-                      <Statistic
-                        title={<Text style={{ color: colors.text }}>Viajes realizados</Text>}
-                        value={userData.stats.rides}
-                        prefix={<CarOutlined style={{ color: colors.primary }} />}
                         valueStyle={{ 
                           color: colors.dark, 
                           fontSize: 28,
@@ -545,11 +471,13 @@ const MotoUserProfile = () => {
                 fontWeight: 500
               }}>
                 <div style={{
-                  ...iconStyle,
-                  background: activeTab === 'info' ? colors.primary : 'white',
-                  color: activeTab === 'info' ? 'white' : colors.primary
+                  ...iconContainerStyle,
+                  background: activeTab === 'info' ? colors.primary : 'rgba(67, 97, 238, 0.1)',
                 }}>
-                  <UserOutlined />
+                  <UserOutlined style={{
+                    ...iconStyle,
+                    color: activeTab === 'info' ? 'white' : colors.primary
+                  }} />
                 </div>
                 <span style={{ 
                   marginLeft: 8,
@@ -567,11 +495,9 @@ const MotoUserProfile = () => {
                   <Card 
                     title={
                       <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <IdcardOutlined style={{ 
-                          color: colors.secondary,
-                          fontSize: 20,
-                          marginRight: 12
-                        }} />
+                        <div style={iconContainerStyle}>
+                          <IdcardOutlined style={iconStyle} />
+                        </div>
                         <Text strong style={{ color: colors.dark, fontSize: 18 }}>
                           Datos Personales
                         </Text>
@@ -611,22 +537,16 @@ const MotoUserProfile = () => {
                           {userData.personalInfo.gender === 'male' ? (
                             <span>
                               <ManOutlined style={{ 
-                                color: colors.primary, 
                                 marginRight: 8,
-                                background: `${colors.primary}20`,
-                                padding: 4,
-                                borderRadius: '50%'
+                                color: colors.primary
                               }} /> 
                               Masculino
                             </span>
                           ) : (
                             <span>
                               <WomanOutlined style={{ 
-                                color: colors.instagram, 
                                 marginRight: 8,
-                                background: `${colors.instagram}20`,
-                                padding: 4,
-                                borderRadius: '50%'
+                                color: '#ff4d6d'
                               }} /> 
                               Femenino
                             </span>
@@ -640,68 +560,15 @@ const MotoUserProfile = () => {
                       </Descriptions.Item>
                     </Descriptions>
                   </Card>
-                  
-                  <Card 
-                    title={
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <TrophyFilled style={{ 
-                          color: colors.warning,
-                          fontSize: 20,
-                          marginRight: 12
-                        }} />
-                        <Text strong style={{ color: colors.dark, fontSize: 18 }}>
-                          Mis Logros
-                        </Text>
-                      </div>
-                    }
-                    bordered={false}
-                    style={{ 
-                      ...cardStyle,
-                      borderLeft: `3px solid ${colors.warning}`
-                    }}
-                  >
-                    <List
-                      dataSource={userData.achievements}
-                      renderItem={item => (
-                        <List.Item>
-                          <List.Item.Meta
-                            avatar={
-                              <div style={{
-                                ...iconStyle,
-                                background: item.earned ? `${colors.success}20` : '#f0f0f0',
-                                color: item.earned ? colors.success : colors.text
-                              }}>
-                                {item.icon}
-                              </div>
-                            }
-                            title={<Text strong style={{ color: colors.dark }}>{item.name}</Text>}
-                            description={
-                              item.earned ? (
-                                <Tag icon={<CheckOutlined />} color={colors.success} style={{ borderRadius: 10 }}>
-                                  Completado
-                                </Tag>
-                              ) : (
-                                <Tag color="default" style={{ borderRadius: 10 }}>
-                                  Pendiente
-                                </Tag>
-                              )
-                            }
-                          />
-                        </List.Item>
-                      )}
-                    />
-                  </Card>
                 </Col>
                 
                 <Col xs={24} md={12}>
                   <Card 
                     title={
                       <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <SettingFilled style={{ 
-                          color: colors.primary,
-                          fontSize: 20,
-                          marginRight: 12
-                        }} />
+                        <div style={iconContainerStyle}>
+                          <MailOutlined style={iconStyle} />
+                        </div>
                         <Text strong style={{ color: colors.dark, fontSize: 18 }}>
                           Datos de Usuario
                         </Text>
@@ -736,10 +603,7 @@ const MotoUserProfile = () => {
                           <Text style={{ color: colors.text }}>
                             <UserOutlined style={{ 
                               marginRight: 8, 
-                              color: colors.primary,
-                              background: `${colors.primary}20`,
-                              padding: 4,
-                              borderRadius: '50%'
+                              color: colors.primary
                             }} />
                             {userData.username}
                           </Text>
@@ -763,10 +627,7 @@ const MotoUserProfile = () => {
                           <Text style={{ color: colors.text }}>
                             <MailOutlined style={{ 
                               marginRight: 8, 
-                              color: colors.primary,
-                              background: `${colors.primary}20`,
-                              padding: 4,
-                              borderRadius: '50%'
+                              color: colors.primary
                             }} />
                             {userData.email}
                           </Text>
@@ -774,7 +635,7 @@ const MotoUserProfile = () => {
                       </Form.Item>
                       
                       <Form.Item 
-                        label={<Text strong style={{ color: colors.dark }}>Teléfono/WhatsApp</Text>} 
+                        label={<Text strong style={{ color: colors.dark }}>Teléfono</Text>} 
                         name="phone"
                         rules={[
                           { required: true, message: 'Ingrese su teléfono' }
@@ -789,93 +650,21 @@ const MotoUserProfile = () => {
                           <Text style={{ color: colors.text }}>
                             <PhoneOutlined style={{ 
                               marginRight: 8, 
-                              color: colors.primary,
-                              background: `${colors.primary}20`,
-                              padding: 4,
-                              borderRadius: '50%'
+                              color: colors.primary
                             }} />
-                            {userData.phone} 
-                            <Button 
-                              type="text" 
-                              size="small" 
-                              style={{ 
-                                color: colors.whatsapp, 
-                                marginLeft: 8,
-                                fontWeight: 500,
-                                background: `${colors.whatsapp}10`,
-                                borderRadius: 6
-                              }}
-                            >
-                              <SocialIcon type="whatsapp" />
-                              Chat
-                            </Button>
+                            {userData.phone}
                           </Text>
                         )}
                       </Form.Item>
                     </Form>
-                    
-                    <Divider style={{ borderColor: '#e8e8e8' }} />
-                    
-                    <Title level={5} style={{ color: colors.dark, marginBottom: 16 }}>
-                      Redes Sociales
-                    </Title>
-                    
-                    <Space direction="vertical" style={{ width: '100%' }}>
-                      <Button 
-                        type="text" 
-                        block 
-                        style={{ 
-                          textAlign: 'left',
-                          color: colors.whatsapp,
-                          background: `${colors.whatsapp}10`,
-                          borderRadius: 8,
-                          height: 40
-                        }}
-                      >
-                        <SocialIcon type="whatsapp" />
-                        {userData.social.whatsapp}
-                      </Button>
-                      
-                      <Button 
-                        type="text" 
-                        block 
-                        style={{ 
-                          textAlign: 'left',
-                          color: colors.instagram,
-                          background: `${colors.instagram}10`,
-                          borderRadius: 8,
-                          height: 40
-                        }}
-                      >
-                        <SocialIcon type="instagram" />
-                        @{userData.social.instagram}
-                      </Button>
-                      
-                      <Button 
-                        type="text" 
-                        block 
-                        style={{ 
-                          textAlign: 'left',
-                          color: '#3b5998',
-                          background: '#3b599810',
-                          borderRadius: 8,
-                          height: 40
-                        }}
-                      >
-                        <SocialIcon type="facebook" />
-                        {userData.social.facebook}
-                      </Button>
-                    </Space>
                   </Card>
                   
                   <Card 
                     title={
                       <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <CarOutlined style={{ 
-                          color: colors.secondary,
-                          fontSize: 20,
-                          marginRight: 12
-                        }} />
+                        <div style={iconContainerStyle}>
+                          <CarOutlined style={iconStyle} />
+                        </div>
                         <Text strong style={{ color: colors.dark, fontSize: 18 }}>
                           Mis Motos
                         </Text>
@@ -893,7 +682,7 @@ const MotoUserProfile = () => {
                         onClick={() => setIsAddBikeModalVisible(true)}
                         size="small"
                         style={{
-                          background: `linear-gradient(135deg, ${colors.accent} 0%, ${colors.accentDark} 100%)`,
+                          background: `linear-gradient(135deg, ${colors.accent} 0%, ${colors.primary} 100%)`,
                           border: 'none',
                           borderRadius: 8,
                           fontWeight: 500
@@ -991,11 +780,13 @@ const MotoUserProfile = () => {
                 fontWeight: 500
               }}>
                 <div style={{
-                  ...iconStyle,
-                  background: activeTab === 'history' ? colors.primary : 'white',
-                  color: activeTab === 'history' ? 'white' : colors.primary
+                  ...iconContainerStyle,
+                  background: activeTab === 'history' ? colors.primary : 'rgba(67, 97, 238, 0.1)',
                 }}>
-                  <HistoryOutlined />
+                  <HistoryOutlined style={{
+                    ...iconStyle,
+                    color: activeTab === 'history' ? 'white' : colors.primary
+                  }} />
                 </div>
                 <span style={{ 
                   marginLeft: 8,
@@ -1069,11 +860,13 @@ const MotoUserProfile = () => {
                 fontWeight: 500
               }}>
                 <div style={{
-                  ...iconStyle,
-                  background: activeTab === 'security' ? colors.primary : 'white',
-                  color: activeTab === 'security' ? 'white' : colors.primary
+                  ...iconContainerStyle,
+                  background: activeTab === 'security' ? colors.primary : 'rgba(67, 97, 238, 0.1)',
                 }}>
-                  <SafetyCertificateFilled />
+                  <VerifiedOutlined style={{
+                    ...iconStyle,
+                    color: activeTab === 'security' ? 'white' : colors.primary
+                  }} />
                 </div>
                 <span style={{ 
                   marginLeft: 8,
@@ -1113,11 +906,8 @@ const MotoUserProfile = () => {
                   >
                     <List.Item.Meta
                       avatar={
-                        <div style={{
-                          ...iconStyle,
-                          background: `${colors.primary}20`
-                        }}>
-                          <KeyOutlined />
+                        <div style={iconContainerStyle}>
+                          <KeyOutlined style={iconStyle} />
                         </div>
                       }
                       title={<Text strong style={{ color: colors.dark }}>Contraseña</Text>}
@@ -1145,11 +935,8 @@ const MotoUserProfile = () => {
                   >
                     <List.Item.Meta
                       avatar={
-                        <div style={{
-                          ...iconStyle,
-                          background: `${colors.primary}20`
-                        }}>
-                          <SafetyCertificateFilled />
+                        <div style={iconContainerStyle}>
+                          <VerifiedOutlined style={iconStyle} />
                         </div>
                       }
                       title={<Text strong style={{ color: colors.dark }}>Autenticación en dos pasos</Text>}
@@ -1177,7 +964,7 @@ const MotoUserProfile = () => {
                           size="small"
                           onClick={handleVerifyAccount}
                           style={{
-                            background: `linear-gradient(135deg, ${colors.accent} 0%, ${colors.accentDark} 100%)`,
+                            background: `linear-gradient(135deg, ${colors.accent} 0%, ${colors.primary} 100%)`,
                             border: 'none',
                             borderRadius: 6,
                             fontWeight: 500
@@ -1190,11 +977,8 @@ const MotoUserProfile = () => {
                   >
                     <List.Item.Meta
                       avatar={
-                        <div style={{
-                          ...iconStyle,
-                          background: `${colors.primary}20`
-                        }}>
-                          <IdcardOutlined />
+                        <div style={iconContainerStyle}>
+                          <IdcardOutlined style={iconStyle} />
                         </div>
                       }
                       title={<Text strong style={{ color: colors.dark }}>Verificación de cuenta</Text>}
@@ -1212,11 +996,9 @@ const MotoUserProfile = () => {
       <Modal
         title={
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <PlusOutlined style={{ 
-              color: colors.accent,
-              fontSize: 20,
-              marginRight: 12
-            }} />
+            <div style={iconContainerStyle}>
+              <PlusOutlined style={iconStyle} />
+            </div>
             <Text strong style={{ fontSize: 18 }}>
               Añadir Nueva Moto
             </Text>
@@ -1229,7 +1011,7 @@ const MotoUserProfile = () => {
         cancelText="Cancelar"
         okButtonProps={{
           style: {
-            background: `linear-gradient(135deg, ${colors.success} 0%, ${colors.successLight} 100%)`,
+            background: `linear-gradient(135deg, ${colors.success} 0%, ${colors.primary} 100%)`,
             border: 'none',
             borderRadius: 6,
             fontWeight: 500
@@ -1314,11 +1096,9 @@ const MotoUserProfile = () => {
       <Modal
         title={
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <VerifiedOutlined style={{ 
-              color: colors.primary,
-              fontSize: 20,
-              marginRight: 12
-            }} />
+            <div style={iconContainerStyle}>
+              <VerifiedOutlined style={iconStyle} />
+            </div>
             <Text strong style={{ fontSize: 18 }}>
               Verificar Cuenta
             </Text>
@@ -1385,7 +1165,7 @@ const MotoUserProfile = () => {
                 <MailOutlined style={{ marginRight: 8 }} /> Correo
               </Radio.Button>
               <Radio.Button value="whatsapp" style={{ width: '50%' }}>
-                <SocialIcon type="whatsapp" /> WhatsApp
+                WhatsApp
               </Radio.Button>
             </Radio.Group>
             
@@ -1468,11 +1248,9 @@ const MotoUserProfile = () => {
       <Modal
         title={
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <KeyOutlined style={{ 
-              color: colors.primary,
-              fontSize: 20,
-              marginRight: 12
-            }} />
+            <div style={iconContainerStyle}>
+              <KeyOutlined style={iconStyle} />
+            </div>
             <Text strong style={{ fontSize: 18 }}>
               Cambiar Contraseña
             </Text>
@@ -1550,7 +1328,7 @@ const MotoUserProfile = () => {
                 <MailOutlined style={{ marginRight: 8 }} /> Correo
               </Radio.Button>
               <Radio.Button value="whatsapp" style={{ width: '50%' }}>
-                <SocialIcon type="whatsapp" /> WhatsApp
+                WhatsApp
               </Radio.Button>
             </Radio.Group>
             
@@ -1562,7 +1340,7 @@ const MotoUserProfile = () => {
                 height: 48,
                 borderRadius: 8,
                 fontWeight: 500,
-                background: `linear-gradient(135deg, ${colors.accent} 0%, ${colors.accentDark} 100%)`,
+                background: `linear-gradient(135deg, ${colors.accent} 0%, ${colors.primary} 100%)`,
                 border: 'none',
                 marginBottom: 16
               }}
