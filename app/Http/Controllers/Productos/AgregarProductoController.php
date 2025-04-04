@@ -10,6 +10,7 @@ use App\Models\Producto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class AgregarProductoController extends Controller
 {
@@ -27,27 +28,18 @@ class AgregarProductoController extends Controller
         ]);
     }
 
-    /**
-     * Normaliza un valor numérico con formato de moneda a un float
-     */
     protected function normalizeCurrency($value)
     {
         if (is_null($value)) {
             return 0.00;
         }
 
-        // Eliminar todos los caracteres no numéricos excepto el punto decimal
         $normalized = preg_replace('/[^0-9.]/', '', str_replace(',', '', $value));
-
         return (float) $normalized;
     }
 
-    /**
-     * Valida y procesa las imágenes adicionales
-     */
     protected function processAdditionalImages($images)
     {
-        // Si es una cadena JSON, decodifícala primero
         if (is_string($images)) {
             $images = json_decode($images, true) ?? [];
         }
@@ -59,7 +51,6 @@ class AgregarProductoController extends Controller
         $processed = [];
         foreach ($images as $image) {
             if (is_array($image)) {
-                // Si ya es un array con url y estilo
                 $url = filter_var($image['url'] ?? $image, FILTER_VALIDATE_URL);
                 if ($url !== false) {
                     $processed[] = [
@@ -68,7 +59,6 @@ class AgregarProductoController extends Controller
                     ];
                 }
             } elseif (filter_var($image, FILTER_VALIDATE_URL)) {
-                // Si es solo una URL string válida
                 $processed[] = [
                     'url' => $image,
                     'estilo' => ''
@@ -81,26 +71,24 @@ class AgregarProductoController extends Controller
 
     public function store(Request $request)
     {
-        // Procesar imágenes adicionales primero
+        // Procesar imágenes adicionales
         $imagenesProcesadas = $this->processAdditionalImages($request->imagenes_adicionales);
 
-        // Normalizar los campos numéricos antes de validar
+        // Normalizar campos numéricos
         $request->merge([
             'precio' => $this->normalizeCurrency($request->precio),
             'descuento' => $this->normalizeCurrency($request->descuento),
             'imagenes_adicionales' => $imagenesProcesadas
         ]);
 
-        $validator = Validator::make($request->all(), [
+        // Reglas base de validación
+        $validationRules = [
             'codigo' => 'required|string|max:50|unique:productos',
             'nombre' => 'required|string|max:255',
             'descripcion_corta' => 'required|string|max:255',
             'detalles' => 'nullable|string',
             'categoria_id' => 'required|exists:categorias,id',
             'subcategoria_id' => 'required|exists:subcategorias,id',
-            'motos_compatibles' => 'nullable|array',
-            'motos_compatibles.*' => 'exists:motos,id',
-            'todas_las_motos' => 'required|boolean',
             'precio' => 'required|numeric|min:0|max:9999999.99',
             'descuento' => 'required|numeric|min:0|max:100',
             'imagen_principal' => 'required|url|max:500',
@@ -112,15 +100,29 @@ class AgregarProductoController extends Controller
             'stock' => 'required|integer|min:0',
             'destacado' => 'required|boolean',
             'mas_vendido' => 'required|boolean',
-        ], [
-            'imagenes_adicionales.max' => 'No se pueden agregar más de 10 imágenes adicionales',
+            'todas_las_motos' => 'required|boolean',
+            'motos_compatibles' => [
+                Rule::requiredIf(function () use ($request) {
+                    return !$request->todas_las_motos;
+                }),
+                'array'
+            ],
+            'motos_compatibles.*' => 'exists:motos,id'
+        ];
+
+        // Mensajes de error personalizados
+        $customMessages = [
             'subcategoria_id.required' => 'Debe seleccionar una subcategoría',
+            'motos_compatibles.required' => 'Debe seleccionar al menos una moto compatible cuando no está marcada la opción "Todas las motos"',
+            'imagenes_adicionales.max' => 'No se pueden agregar más de 10 imágenes adicionales',
             'imagenes_adicionales.*.url.required' => 'La URL de la imagen es requerida',
             'imagenes_adicionales.*.url.url' => 'La URL de la imagen no es válida',
             'precio.max' => 'El precio no puede ser mayor a 9,999,999.99',
             'descuento.max' => 'El descuento no puede ser mayor a 100%',
             'motos_compatibles.*.exists' => 'Una o más motos seleccionadas no existen'
-        ]);
+        ];
+
+        $validator = Validator::make($request->all(), $validationRules, $customMessages);
 
         if ($validator->fails()) {
             return redirect()->back()
@@ -131,7 +133,7 @@ class AgregarProductoController extends Controller
         try {
             DB::beginTransaction();
 
-            $producto = Producto::create([
+            $productoData = [
                 'codigo' => $request->codigo,
                 'nombre' => $request->nombre,
                 'descripcion_corta' => $request->descripcion_corta,
@@ -149,9 +151,11 @@ class AgregarProductoController extends Controller
                 'destacado' => $request->destacado,
                 'mas_vendido' => $request->mas_vendido,
                 'estado' => 'Activo'
-            ]);
+            ];
 
-            // Asignar motos compatibles si no es para todas las motos
+            $producto = Producto::create($productoData);
+
+            // Solo sincronizar motos si no es para todas las motos
             if (!$request->todas_las_motos && !empty($request->motos_compatibles)) {
                 $producto->motos()->sync($request->motos_compatibles);
             }
