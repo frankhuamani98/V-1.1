@@ -30,6 +30,13 @@ interface ImagenAdicional {
   estilo?: string;
 }
 
+interface MotoCompatible {
+  id: number;
+  marca: string;
+  modelo: string;
+  año: number;
+}
+
 interface Producto {
   id: number;
   codigo: string;
@@ -44,6 +51,7 @@ interface Producto {
   imagen_principal: string;
   imagenes_adicionales: ImagenAdicional[];
   moto_compatible: string;
+  motos_compatibles: MotoCompatible[];
   todas_las_motos: boolean;
   destacado: boolean;
   mas_vendido: boolean;
@@ -115,7 +123,7 @@ const InventarioProductos: React.FC<InventarioProductosProps> = ({ productos = [
       Stock: p.stock,
       Estado: p.estado,
       'Imagen Principal': p.imagen_principal,
-      'Moto Compatible': p.moto_compatible,
+      'Motos Compatibles': p.todas_las_motos ? 'Todas las motos' : p.motos_compatibles.map(m => `${m.marca} ${m.modelo} (${m.año})`).join(', '),
       'Todas las motos': p.todas_las_motos ? 'Sí' : 'No',
       Destacado: p.destacado ? 'Sí' : 'No',
       'Más Vendido': p.mas_vendido ? 'Sí' : 'No',
@@ -322,7 +330,11 @@ const InventarioProductos: React.FC<InventarioProductosProps> = ({ productos = [
                           </Badge>
                         )}
                       </CardTitle>
-                      <CardDescription className="mt-1">Código: {producto.codigo}</CardDescription>
+                      <CardDescription className="mt-1">
+                        Código: {producto.codigo} | {producto.todas_las_motos 
+                          ? "Todas las motos" 
+                          : `${producto.motos_compatibles.length} motos`}
+                      </CardDescription>
                     </div>
                     <span className="font-medium">{producto.precio}</span>
                   </div>
@@ -438,7 +450,26 @@ const InventarioProductos: React.FC<InventarioProductosProps> = ({ productos = [
                               )}
                             </div>
                             <div className="text-sm text-gray-500">
-                              {producto.moto_compatible}
+                              {producto.todas_las_motos ? (
+                                "Todas las motos"
+                              ) : producto.motos_compatibles.length > 0 ? (
+                                <Tooltip>
+                                  <TooltipTrigger>
+                                    {producto.motos_compatibles.length} motos compatibles
+                                  </TooltipTrigger>
+                                  <TooltipContent className="max-w-xs">
+                                    <div className="grid gap-1">
+                                      {producto.motos_compatibles.map((moto, i) => (
+                                        <div key={i}>
+                                          {moto.marca} {moto.modelo} ({moto.año})
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </TooltipContent>
+                                </Tooltip>
+                              ) : (
+                                "No especificado"
+                              )}
                             </div>
                           </div>
                         </div>
@@ -653,8 +684,32 @@ const InventarioProductos: React.FC<InventarioProductosProps> = ({ productos = [
                 </div>
 
                 <div>
-                  <Label>Moto compatible</Label>
-                  <Input value={currentProduct.moto_compatible} readOnly />
+                  <Label>Motos compatibles</Label>
+                  {currentProduct.todas_las_motos ? (
+                    <Input value="Todas las motos" readOnly />
+                  ) : currentProduct.motos_compatibles.length > 0 ? (
+                    <div className="space-y-2">
+                      <Input 
+                        value={`${currentProduct.motos_compatibles.length} motos seleccionadas`} 
+                        readOnly 
+                      />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {currentProduct.motos_compatibles.map((moto, i) => (
+                          <Badge 
+                            key={i} 
+                            variant="outline" 
+                            className="flex items-center justify-between"
+                          >
+                            <span>
+                              {moto.marca} {moto.modelo} ({moto.año})
+                            </span>
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <Input value="No especificado" readOnly />
+                  )}
                 </div>
 
                 <div>

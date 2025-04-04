@@ -17,6 +17,15 @@ class InventarioProductosController extends Controller
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($producto) {
+                // Formatear las motos compatibles
+                $motosCompatibles = $producto->todas_las_motos 
+                    ? 'Todas las motos'
+                    : ($producto->motos->count() > 0 
+                        ? $producto->motos->map(function($moto) {
+                            return $moto->marca . ' ' . $moto->modelo . ' (' . $moto->año . ')';
+                          })->join(', ')
+                        : 'No especificado');
+
                 return [
                     'id' => $producto->id,
                     'codigo' => $producto->codigo,
@@ -30,11 +39,15 @@ class InventarioProductosController extends Controller
                     'estado' => $producto->estado,
                     'imagen_principal' => $producto->imagen_principal,
                     'imagenes_adicionales' => $producto->imagenes_adicionales ?? [],
-                    'moto_compatible' => $producto->todas_las_motos 
-                        ? 'Todas las motos'
-                        : ($producto->motos->first() 
-                            ? $producto->motos->first()->marca . ' ' . $producto->motos->first()->modelo . ' (' . $producto->motos->first()->año . ')' 
-                            : 'No especificado'),
+                    'moto_compatible' => $motosCompatibles,
+                    'motos_compatibles' => $producto->motos->map(function($moto) {
+                        return [
+                            'id' => $moto->id,
+                            'marca' => $moto->marca,
+                            'modelo' => $moto->modelo,
+                            'año' => $moto->año
+                        ];
+                    })->toArray(),
                     'todas_las_motos' => $producto->todas_las_motos,
                     'destacado' => $producto->destacado,
                     'mas_vendido' => $producto->mas_vendido,
