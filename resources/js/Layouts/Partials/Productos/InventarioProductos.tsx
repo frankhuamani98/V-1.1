@@ -35,6 +35,7 @@ interface MotoCompatible {
   marca: string;
   modelo: string;
   año: number;
+  nombre_completo: string;
 }
 
 interface Producto {
@@ -68,6 +69,7 @@ const InventarioProductos: React.FC<InventarioProductosProps> = ({ productos = [
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
+  const [isMarcasOpen, setIsMarcasOpen] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<Producto | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [importProgress, setImportProgress] = useState(0);
@@ -332,7 +334,7 @@ const InventarioProductos: React.FC<InventarioProductosProps> = ({ productos = [
                       </CardTitle>
                       <CardDescription className="mt-1">
                         Código: {producto.codigo} | {producto.todas_las_motos 
-                          ? "Todas las motos" 
+                          ? `Todas las motos (${producto.motos_compatibles.length})` 
                           : `${producto.motos_compatibles.length} motos`}
                       </CardDescription>
                     </div>
@@ -451,19 +453,37 @@ const InventarioProductos: React.FC<InventarioProductosProps> = ({ productos = [
                             </div>
                             <div className="text-sm text-gray-500">
                               {producto.todas_las_motos ? (
-                                "Todas las motos"
+                                <div className="flex items-center gap-1">
+                                  <span>Todas las motos ({producto.motos_compatibles.length})</span>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className="h-6 px-2 text-xs text-blue-500"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setCurrentProduct(producto);
+                                      setIsMarcasOpen(true);
+                                    }}
+                                  >
+                                    <Info className="h-3 w-3 mr-1" />
+                                    Ver todas
+                                  </Button>
+                                </div>
                               ) : producto.motos_compatibles.length > 0 ? (
                                 <Tooltip>
                                   <TooltipTrigger>
-                                    {producto.motos_compatibles.length} motos compatibles
+                                    {producto.motos_compatibles.length} motos seleccionadas
                                   </TooltipTrigger>
                                   <TooltipContent className="max-w-xs">
                                     <div className="grid gap-1">
-                                      {producto.motos_compatibles.map((moto, i) => (
-                                        <div key={i}>
-                                          {moto.marca} {moto.modelo} ({moto.año})
-                                        </div>
+                                      {producto.motos_compatibles.slice(0, 5).map((moto, i) => (
+                                        <div key={i}>{moto.nombre_completo}</div>
                                       ))}
+                                      {producto.motos_compatibles.length > 5 && (
+                                        <div className="text-sm text-gray-500">
+                                          + {producto.motos_compatibles.length - 5} más...
+                                        </div>
+                                      )}
                                     </div>
                                   </TooltipContent>
                                 </Tooltip>
@@ -686,7 +706,18 @@ const InventarioProductos: React.FC<InventarioProductosProps> = ({ productos = [
                 <div>
                   <Label>Motos compatibles</Label>
                   {currentProduct.todas_las_motos ? (
-                    <Input value="Todas las motos" readOnly />
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Input value={`Todas las motos (${currentProduct.motos_compatibles.length})`} readOnly />
+                        <Button 
+                          variant="outline"
+                          onClick={() => setIsMarcasOpen(true)}
+                        >
+                          <Info className="h-4 w-4 mr-1" />
+                          Ver listado completo
+                        </Button>
+                      </div>
+                    </div>
                   ) : currentProduct.motos_compatibles.length > 0 ? (
                     <div className="space-y-2">
                       <Input 
@@ -701,7 +732,7 @@ const InventarioProductos: React.FC<InventarioProductosProps> = ({ productos = [
                             className="flex items-center justify-between"
                           >
                             <span>
-                              {moto.marca} {moto.modelo} ({moto.año})
+                              {moto.nombre_completo}
                             </span>
                           </Badge>
                         ))}
@@ -773,6 +804,33 @@ const InventarioProductos: React.FC<InventarioProductosProps> = ({ productos = [
               <Button onClick={importFromExcel} disabled={!file || importProgress > 0}>
                 Importar
               </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Modal de Marcas Compatibles */}
+        <Dialog open={isMarcasOpen} onOpenChange={setIsMarcasOpen}>
+          <DialogContent className="max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Listado completo de motos compatibles</DialogTitle>
+              <DialogDescription>
+                {currentProduct?.todas_las_motos 
+                  ? `Este producto es compatible con todas las ${currentProduct?.motos_compatibles.length} motos disponibles`
+                  : 'Motos específicamente seleccionadas para este producto'}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-2">
+              {currentProduct?.motos_compatibles.map((moto, i) => (
+                <div key={i} className="p-2 border rounded-md">
+                  <div className="font-medium">{moto.nombre_completo}</div>
+                  <div className="text-sm text-gray-500">
+                    ID: {moto.id} | Año: {moto.año}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <DialogFooter>
+              <Button onClick={() => setIsMarcasOpen(false)}>Cerrar</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

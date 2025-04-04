@@ -13,18 +13,17 @@ class InventarioProductosController extends Controller
 {
     public function index()
     {
+        // Obtenemos todas las motos disponibles para usar en productos con "todas_las_motos"
+        $todasLasMotos = Moto::where('estado', 'Activo')->get();
+
         $productos = Producto::with(['categoria', 'subcategoria', 'motos'])
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function ($producto) {
-                // Formatear las motos compatibles
-                $motosCompatibles = $producto->todas_las_motos 
-                    ? 'Todas las motos'
-                    : ($producto->motos->count() > 0 
-                        ? $producto->motos->map(function($moto) {
-                            return $moto->marca . ' ' . $moto->modelo . ' (' . $moto->año . ')';
-                          })->join(', ')
-                        : 'No especificado');
+            ->map(function ($producto) use ($todasLasMotos) {
+                // Para productos con "todas_las_motos", usamos todas las motos disponibles
+                $motosMostrar = $producto->todas_las_motos 
+                    ? $todasLasMotos 
+                    : $producto->motos;
 
                 return [
                     'id' => $producto->id,
@@ -39,13 +38,18 @@ class InventarioProductosController extends Controller
                     'estado' => $producto->estado,
                     'imagen_principal' => $producto->imagen_principal,
                     'imagenes_adicionales' => $producto->imagenes_adicionales ?? [],
-                    'moto_compatible' => $motosCompatibles,
-                    'motos_compatibles' => $producto->motos->map(function($moto) {
+                    'moto_compatible' => $producto->todas_las_motos 
+                        ? 'Todas las motos (' . $todasLasMotos->count() . ')' 
+                        : ($producto->motos->count() > 0 
+                            ? $producto->motos->count() . ' motos seleccionadas'
+                            : 'No especificado'),
+                    'motos_compatibles' => $motosMostrar->map(function($moto) {
                         return [
                             'id' => $moto->id,
                             'marca' => $moto->marca,
                             'modelo' => $moto->modelo,
-                            'año' => $moto->año
+                            'año' => $moto->año,
+                            'nombre_completo' => $moto->marca . ' ' . $moto->modelo . ' (' . $moto->año . ')'
                         ];
                     })->toArray(),
                     'todas_las_motos' => $producto->todas_las_motos,
