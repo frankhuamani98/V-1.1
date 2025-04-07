@@ -443,30 +443,6 @@ export default function MotorcycleSearch({ motoData }: Props) {
           </Card>
         </motion.div>
       </div>
-
-      {/* Floating Action Button */}
-      <motion.div
-        className={`fixed bottom-6 right-6 z-50 transition-all duration-300 ${scrolled ? "opacity-100 scale-100" : "opacity-0 scale-90"}`}
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: scrolled ? 1 : 0, scale: scrolled ? 1 : 0.9 }}
-        transition={{ duration: 0.3 }}
-      >
-        <Button
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="w-12 h-12 rounded-full bg-cyan-500 hover:bg-cyan-600 text-white shadow-lg hover:shadow-cyan-500/30 flex items-center justify-center"
-          aria-label="Volver arriba"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-          </svg>
-        </Button>
-      </motion.div>
     </div>
   )
 }
