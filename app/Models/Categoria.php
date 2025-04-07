@@ -24,7 +24,7 @@ class Categoria extends Model
     public function productos()
     {
         return $this->hasManyThrough(
-            Producto::class,      // Modelo destino (Producto)
+
             Subcategoria::class,  // Modelo intermedio (Subcategoria)
             'categoria_id',       // FK en Subcategoria (referencia a Categoria)
             'subcategoria_id',   // FK en Producto (referencia a Subcategoria)
