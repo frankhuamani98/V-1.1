@@ -11,9 +11,13 @@ interface AgregarProductoProps {
       nombre: string;
     }>;
   }>;
+  motos: Array<{
+    id: number;
+    nombre_completo: string;
+  }>;
 }
 
-const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias = [] }) => {
+const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias = [], motos = [] }) => {
   const { data, setData, post, processing, errors, reset } = useForm({
     codigo: "",
     nombre: "",
@@ -53,16 +57,6 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias = [] }) =>
   const [showImageForm, setShowImageForm] = useState(false);
   const [currentImageUrl, setCurrentImageUrl] = useState("");
 
-  // Función para formatear números con separadores de miles
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('es-PE').format(num);
-  };
-
-  // Función para parsear números con formato
-  const parseNumber = (str: string) => {
-    return parseFloat(str.replace(/,/g, '')) || 0;
-  };
-
   // Filtra subcategorías cuando se selecciona una categoría
   useEffect(() => {
     if (data.categoria) {
@@ -77,9 +71,9 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias = [] }) =>
 
   // Calcula el precio final cuando cambia el precio, descuento o IGV
   useEffect(() => {
-    const precioBase = data.precio;
-    const descuento = data.descuento;
-    
+    const precioBase = parseFloat(data.precio.toString()) || 0;
+    const descuento = parseFloat(data.descuento.toString()) || 0;
+
     // Validar que el descuento esté entre 0 y 100
     const descuentoValidado = Math.min(Math.max(descuento, 0), 100);
     if (descuento !== descuentoValidado) {
@@ -91,60 +85,20 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias = [] }) =>
     const precioConDescuento = precioBase - (precioBase * descuentoValidado / 100);
     const precioConDescuentoRedondeado = parseFloat(precioConDescuento.toFixed(2));
     setData("precio_con_descuento", precioConDescuentoRedondeado);
-    
+
     // Calcula el IGV correctamente
     let igv = 0;
     let precioFinal = precioConDescuentoRedondeado;
-    
+
     if (!data.incluye_igv) {
       // Si NO incluye IGV, calculamos el IGV sobre el precio con descuento
       igv = precioConDescuentoRedondeado * 0.18;
       precioFinal = precioConDescuentoRedondeado + igv;
     }
-    
+
     setData("igv", parseFloat(igv.toFixed(2)));
     setData("precio_final", parseFloat(precioFinal.toFixed(2)));
   }, [data.precio, data.descuento, data.incluye_igv]);
-
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    // Permitir solo números y comas
-    if (/^[0-9,]*$/.test(value)) {
-      const parsedValue = parseNumber(value);
-      // Validar que no supere los 90,000 soles
-      if (parsedValue <= 90000) {
-        setData("precio", parsedValue);
-      } else {
-        toast.error("El precio máximo permitido es 90,000 soles");
-        // Mantener el valor anterior
-        setData("precio", data.precio);
-      }
-    }
-  };
-
-  const handleDiscountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    // Permitir solo números y comas
-    if (/^[0-9,]*$/.test(value)) {
-      const parsedValue = parseNumber(value);
-      // Validar que esté entre 0 y 100
-      if (parsedValue >= 0 && parsedValue <= 100) {
-        setData("descuento", parsedValue);
-      } else {
-        toast.error("El descuento debe estar entre 0% y 100%");
-        // Mantener el valor anterior
-        setData("descuento", data.descuento);
-      }
-    }
-  };
-
-  const handleStockChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (/^[0-9,]*$/.test(value)) {
-      const parsedValue = parseNumber(value);
-      setData("stock", parsedValue);
-    }
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -156,11 +110,6 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias = [] }) =>
 
     if (data.precio <= 0) {
       toast.error("El precio debe ser mayor a 0");
-      return;
-    }
-
-    if (data.precio > 90000) {
-      toast.error("El precio máximo permitido es 90,000 soles");
       return;
     }
 
@@ -184,7 +133,7 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias = [] }) =>
     formData.append('es_destacado', data.es_destacado ? '1' : '0');
     formData.append('es_mas_vendido', data.es_mas_vendido ? '1' : '0');
     formData.append('calificacion', data.calificacion.toString());
-    
+
     if (data.compatible_motos === "especifica") {
       formData.append('moto_especifica', data.moto_especifica);
     }
@@ -259,7 +208,7 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias = [] }) =>
     if (files && files.length > 0) {
       const file = files[0];
       setShowImageForm(true);
-      
+
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
@@ -294,7 +243,7 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias = [] }) =>
     setCurrentImageDetails({ url: "", estilo: "" });
     setCurrentImageUrl("");
     setShowImageForm(false);
-    
+
     // Limpiar el input de archivo
     if (uploadMethodAdicional === 'file') {
       const fileInput = document.getElementById('imagenes_adicionales') as HTMLInputElement;
@@ -395,24 +344,25 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias = [] }) =>
           <div>
             <label className="block mb-1">Precio Base (S/)</label>
             <input
-              type="text"
-              value={formatNumber(data.precio)}
-              onChange={handlePriceChange}
+              type="number"
+              value={data.precio || ""}
+              onChange={(e) => setData("precio", parseFloat(e.target.value) || 0)}
               className="w-full p-2 border rounded"
-              placeholder="Ej: 10,000"
+              min="0"
+              step="0.01"
             />
             {errors.precio && <p className="text-red-500 text-sm">{errors.precio}</p>}
-            <p className="text-xs text-gray-500 mt-1">Máximo: 90,000 soles</p>
           </div>
 
           <div>
             <label className="block mb-1">Descuento (%)</label>
             <input
-              type="text"
-              value={formatNumber(data.descuento)}
-              onChange={handleDiscountChange}
+              type="number"
+              value={data.descuento || ""}
+              onChange={(e) => setData("descuento", parseFloat(e.target.value) || 0)}
               className="w-full p-2 border rounded"
-              placeholder="Ej: 10"
+              min="0"
+              max="100"
             />
             {errors.descuento && <p className="text-red-500 text-sm">{errors.descuento}</p>}
           </div>
@@ -420,15 +370,15 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias = [] }) =>
           <div className="bg-white p-3 rounded border border-blue-200">
             <div className="flex justify-between mb-1">
               <span>Precio con descuento:</span>
-              <span>S/ {formatNumber(data.precio_con_descuento)}</span>
+              <span>S/ {data.precio_con_descuento.toFixed(2)}</span>
             </div>
             <div className="flex justify-between mb-1">
               <span>IGV (18%):</span>
-              <span>{data.incluye_igv ? "Incluido" : `S/ ${formatNumber(data.igv)}`}</span>
+              <span>{data.incluye_igv ? "Incluido" : `S/ ${data.igv.toFixed(2)}`}</span>
             </div>
             <div className="flex justify-between font-bold">
               <span>Precio Final:</span>
-              <span>S/ {formatNumber(data.precio_final)}</span>
+              <span>S/ {data.precio_final.toFixed(2)}</span>
             </div>
             <div className="mt-2">
               <label className="flex items-center">
@@ -447,11 +397,11 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias = [] }) =>
         <div>
           <label className="block mb-1">Stock Disponible</label>
           <input
-            type="text"
-            value={formatNumber(data.stock)}
-            onChange={handleStockChange}
+            type="number"
+            value={data.stock || ""}
+            onChange={(e) => setData("stock", parseInt(e.target.value) || 0)}
             className="w-full p-2 border rounded"
-            placeholder="Ej: 100"
+            min="0"
           />
           {errors.stock && <p className="text-red-500 text-sm">{errors.stock}</p>}
         </div>
@@ -468,7 +418,7 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias = [] }) =>
             />
             <label htmlFor="es_destacado" className="font-medium">Producto Destacado</label>
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <input
               type="checkbox"
@@ -479,7 +429,7 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias = [] }) =>
             />
             <label htmlFor="es_mas_vendido" className="font-medium">Lo Más Vendido</label>
           </div>
-          
+
           <div>
             <label className="block mb-1">Calificación</label>
             {renderStarRating()}
@@ -490,7 +440,7 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias = [] }) =>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="border p-4 rounded-lg">
             <h2 className="text-lg font-semibold mb-3">Imagen Principal</h2>
-            
+
             <div className="mb-3">
               <div className="flex border-b">
                 <button
@@ -566,7 +516,7 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias = [] }) =>
 
           <div className="border p-4 rounded-lg">
             <h2 className="text-lg font-semibold mb-3">Imágenes Adicionales (Máx. 10)</h2>
-            
+
             <div className="mb-3">
               <div className="flex border-b">
                 <button
@@ -650,7 +600,7 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias = [] }) =>
                     />
                   )}
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium mb-1">Estilo (Ej: Moderno, Clásico, Deportivo)</label>
                   <input
@@ -753,7 +703,7 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias = [] }) =>
         {/* Sección de compatibilidad con motos */}
         <div className="border p-4 rounded-lg">
           <h2 className="text-lg font-semibold mb-3">Compatibilidad con Motos</h2>
-          
+
           <div className="mb-3">
             <label className="block mb-1">Tipo de compatibilidad</label>
             <select
@@ -769,12 +719,18 @@ const AgregarProducto: React.FC<AgregarProductoProps> = ({ categorias = [] }) =>
           {data.compatible_motos === "especifica" && (
             <div>
               <label className="block mb-1">Modelo de moto compatible</label>
-              <input
+              <select
                 value={data.moto_especifica}
                 onChange={(e) => setData("moto_especifica", e.target.value)}
-                placeholder="Ej: Yamaha YZF-R3 2023"
                 className="w-full p-2 border rounded"
-              />
+              >
+                <option value="">Selecciona una moto</option>
+                {motos.map((moto) => (
+                  <option key={moto.id} value={moto.nombre_completo}>
+                    {moto.nombre_completo}
+                  </option>
+                ))}
+              </select>
               {errors.moto_especifica && <p className="text-red-500 text-sm">{errors.moto_especifica}</p>}
             </div>
           )}
