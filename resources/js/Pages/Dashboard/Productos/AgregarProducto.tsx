@@ -30,8 +30,6 @@ const AgregarProductoPage = ({ auth, categorias, motos }: AgregarProductoPagePro
     return (
         <DashboardLayout auth={auth}>
             <AgregarProducto 
-                categorias={categorias} 
-                motos={motos}
             />
         </DashboardLayout>
     );
