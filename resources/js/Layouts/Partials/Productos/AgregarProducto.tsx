@@ -26,6 +26,7 @@ const AgregarProducto = () => {
   const [previewArchivoAdicional, setPreviewArchivoAdicional] = useState('');
 
   const { data, setData, post, processing, errors } = useForm({
+    codigo: '',
     nombre: '',
     descripcion: '',
     precio: '',
@@ -162,6 +163,7 @@ const AgregarProducto = () => {
         setImagenesAdicionales([]);
         setPreviewPrincipal("");
         setData({
+          codigo: '',
           nombre: '',
           descripcion: '',
           precio: '',
@@ -182,6 +184,17 @@ const AgregarProducto = () => {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Campos básicos del producto */}
+          <div className="space-y-2">
+            <Label htmlFor="codigo">Código del Producto</Label>
+            <Input
+              id="codigo"
+              value={data.codigo}
+              onChange={(e) => setData('codigo', e.target.value)}
+              required
+            />
+            {errors.codigo && <p className="text-sm text-red-500">{errors.codigo}</p>}
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="nombre">Nombre del Producto</Label>
             <Input
