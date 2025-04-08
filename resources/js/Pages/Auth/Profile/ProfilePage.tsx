@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { 
-  Card, Typography, Divider, Space, Button, Avatar, 
-  Tag, Row, Col, List, Input, Form, Badge, Tabs, 
-  Upload, message, Descriptions, Statistic, 
-  Modal, InputNumber, Steps, Alert, Switch, Radio 
+import {
+  Card, Typography, Divider, Space, Button, Avatar,
+  Tag, Row, Col, List, Input, Form, Badge, Tabs,
+  Upload, message, Descriptions, Statistic,
+  Modal, InputNumber, Steps, Alert, Switch, Radio
 } from 'antd';
-import { 
+import {
   UserOutlined, MailOutlined, PhoneOutlined, EditOutlined,
-  CarOutlined, CameraOutlined, CheckOutlined, 
-  HistoryOutlined, PlusOutlined, DeleteOutlined, 
-  IdcardOutlined, VerifiedOutlined, KeyOutlined, 
-  LoadingOutlined, CheckCircleOutlined, ManOutlined, 
+  CarOutlined, CameraOutlined, CheckOutlined,
+  HistoryOutlined, PlusOutlined, DeleteOutlined,
+  IdcardOutlined, VerifiedOutlined, KeyOutlined,
+  LoadingOutlined, CheckCircleOutlined, ManOutlined,
   WomanOutlined, StarFilled, ShoppingOutlined, SafetyCertificateFilled
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -248,16 +248,16 @@ const MotoUserProfile = () => {
   };
 
   return (
-    <div style={{ 
-      maxWidth: 1200, 
-      margin: '0 auto', 
+    <div style={{
+      maxWidth: 1200,
+      margin: '0 auto',
       padding: '24px 16px',
       background: colors.light,
       minHeight: '100vh'
     }}>
       <Card
         bordered={false}
-        style={{ 
+        style={{
           ...cardStyle,
           borderTop: `4px solid ${colors.primary}`,
           background: 'white'
@@ -265,7 +265,7 @@ const MotoUserProfile = () => {
         bodyStyle={{ padding: 0 }}
       >
         {/* Header con avatar y stats */}
-        <div style={{ 
+        <div style={{
           padding: 24,
           background: `linear-gradient(135deg, ${colors.light} 0%, white 100%)`,
           borderBottom: `1px solid #e8e8e8`
@@ -307,14 +307,14 @@ const MotoUserProfile = () => {
                   }}
                 />
               </Badge>
-              
+
               <Title level={3} style={{ marginTop: 16, marginBottom: 0, color: colors.dark }}>
                 {userData.name}
               </Title>
-              
-              <Tag 
-                color={colors.primary} 
-                style={{ 
+
+              <Tag
+                color={colors.primary}
+                style={{
                   marginTop: 8,
                   fontSize: 14,
                   padding: '4px 12px',
@@ -324,10 +324,10 @@ const MotoUserProfile = () => {
               >
                 {userData.role}
               </Tag>
-              
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
+
+              <div style={{
+                display: 'flex',
+                justifyContent: 'center',
                 marginTop: 16,
                 gap: 8
               }}>
@@ -335,11 +335,11 @@ const MotoUserProfile = () => {
                   {userData.stats.rating}/5
                 </Tag>
               </div>
-              
+
               <div style={{ marginTop: 16 }}>
-                <Button 
-                  type="primary" 
-                  style={{ 
+                <Button
+                  type="primary"
+                  style={{
                     background: `linear-gradient(135deg, ${colors.secondary} 0%, ${colors.primary} 100%)`,
                     border: 'none',
                     borderRadius: 8,
@@ -353,24 +353,24 @@ const MotoUserProfile = () => {
                 </Button>
               </div>
             </Col>
-            
+
             <Col xs={24} md={18}>
               <Space direction="vertical" size="large" style={{ width: '100%' }}>
                 <div>
-                  <Text style={{ 
-                    fontSize: 16, 
+                  <Text style={{
+                    fontSize: 16,
                     color: colors.text,
                     lineHeight: 1.6
                   }}>
                     {userData.bio}
                   </Text>
                 </div>
-                
+
                 <Row gutter={[16, 16]}>
                   <Col xs={24} sm={12} md={8}>
-                    <Card 
-                      bordered={false} 
-                      style={{ 
+                    <Card
+                      bordered={false}
+                      style={{
                         background: `linear-gradient(135deg, ${colors.light} 0%, #ffffff 100%)`,
                         borderRadius: 12,
                         boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
@@ -380,8 +380,8 @@ const MotoUserProfile = () => {
                         title={<Text style={{ color: colors.text }}>Pedidos realizados</Text>}
                         value={userData.stats.orders}
                         prefix={<ShoppingOutlined style={{ color: colors.primary }} />}
-                        valueStyle={{ 
-                          color: colors.dark, 
+                        valueStyle={{
+                          color: colors.dark,
                           fontSize: 28,
                           fontWeight: 600
                         }}
@@ -389,9 +389,9 @@ const MotoUserProfile = () => {
                     </Card>
                   </Col>
                   <Col xs={24} sm={12} md={8}>
-                    <Card 
-                      bordered={false} 
-                      style={{ 
+                    <Card
+                      bordered={false}
+                      style={{
                         background: `linear-gradient(135deg, ${colors.light} 0%, #ffffff 100%)`,
                         borderRadius: 12,
                         boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
@@ -400,10 +400,10 @@ const MotoUserProfile = () => {
                       <Statistic
                         title={<Text style={{ color: colors.text }}>Estado de cuenta</Text>}
                         value={verificationStatus ? 'Verificada' : 'No verificada'}
-                        prefix={verificationStatus ? 
-                          <CheckCircleOutlined style={{ color: colors.success }} /> : 
+                        prefix={verificationStatus ?
+                          <CheckCircleOutlined style={{ color: colors.success }} /> :
                           <LoadingOutlined style={{ color: colors.warning }} />}
-                        valueStyle={{ 
+                        valueStyle={{
                           color: verificationStatus ? colors.success : colors.warning,
                           fontSize: 22,
                           fontWeight: 600
@@ -412,10 +412,10 @@ const MotoUserProfile = () => {
                     </Card>
                   </Col>
                 </Row>
-                
+
                 <Space>
-                  <Button 
-                    type={editMode ? 'default' : 'primary'} 
+                  <Button
+                    type={editMode ? 'default' : 'primary'}
                     icon={<EditOutlined />}
                     onClick={() => setEditMode(!editMode)}
                     shape="round"
@@ -429,10 +429,10 @@ const MotoUserProfile = () => {
                   >
                     {editMode ? 'Cancelar' : 'Editar Perfil'}
                   </Button>
-                  
+
                   {editMode && (
-                    <Button 
-                      type="primary" 
+                    <Button
+                      type="primary"
                       onClick={handleSave}
                       shape="round"
                       size="large"
@@ -450,12 +450,12 @@ const MotoUserProfile = () => {
             </Col>
           </Row>
         </div>
-        
+
         {/* Pestañas de contenido */}
-        <Tabs 
-          activeKey={activeTab} 
+        <Tabs
+          activeKey={activeTab}
           onChange={setActiveTab}
-          tabBarStyle={{ 
+          tabBarStyle={{
             margin: 0,
             padding: '0 24px',
             background: 'white'
@@ -464,8 +464,8 @@ const MotoUserProfile = () => {
         >
           <TabPane
             tab={
-              <span style={{ 
-                display: 'flex', 
+              <span style={{
+                display: 'flex',
                 alignItems: 'center',
                 padding: '12px 0',
                 fontWeight: 500
@@ -479,7 +479,7 @@ const MotoUserProfile = () => {
                     color: activeTab === 'info' ? 'white' : colors.primary
                   }} />
                 </div>
-                <span style={{ 
+                <span style={{
                   marginLeft: 8,
                   color: activeTab === 'info' ? colors.primary : colors.text
                 }}>
@@ -492,7 +492,7 @@ const MotoUserProfile = () => {
             <div style={{ padding: 24 }}>
               <Row gutter={[24, 24]}>
                 <Col xs={24} md={12}>
-                  <Card 
+                  <Card
                     title={
                       <div style={{ display: 'flex', alignItems: 'center' }}>
                         <div style={iconContainerStyle}>
@@ -504,7 +504,7 @@ const MotoUserProfile = () => {
                       </div>
                     }
                     bordered={false}
-                    style={{ 
+                    style={{
                       ...cardStyle,
                       borderLeft: `3px solid ${colors.secondary}`
                     }}
@@ -536,18 +536,18 @@ const MotoUserProfile = () => {
                         <Text style={{ color: colors.text }}>
                           {userData.personalInfo.gender === 'male' ? (
                             <span>
-                              <ManOutlined style={{ 
+                              <ManOutlined style={{
                                 marginRight: 8,
                                 color: colors.primary
-                              }} /> 
+                              }} />
                               Masculino
                             </span>
                           ) : (
                             <span>
-                              <WomanOutlined style={{ 
+                              <WomanOutlined style={{
                                 marginRight: 8,
                                 color: '#ff4d6d'
-                              }} /> 
+                              }} />
                               Femenino
                             </span>
                           )}
@@ -561,9 +561,9 @@ const MotoUserProfile = () => {
                     </Descriptions>
                   </Card>
                 </Col>
-                
+
                 <Col xs={24} md={12}>
-                  <Card 
+                  <Card
                     title={
                       <div style={{ display: 'flex', alignItems: 'center' }}>
                         <div style={iconContainerStyle}>
@@ -575,7 +575,7 @@ const MotoUserProfile = () => {
                       </div>
                     }
                     bordered={false}
-                    style={{ 
+                    style={{
                       ...cardStyle,
                       borderLeft: `3px solid ${colors.primary}`
                     }}
@@ -585,8 +585,8 @@ const MotoUserProfile = () => {
                       email: userData.email,
                       phone: userData.phone
                     }}>
-                      <Form.Item 
-                        label={<Text strong style={{ color: colors.dark }}>Nombre de usuario</Text>} 
+                      <Form.Item
+                        label={<Text strong style={{ color: colors.dark }}>Nombre de usuario</Text>}
                         name="username"
                         rules={[
                           { required: true, message: 'Ingrese su nombre de usuario' },
@@ -594,24 +594,24 @@ const MotoUserProfile = () => {
                         ]}
                       >
                         {editMode ? (
-                          <Input 
-                            prefix={<UserOutlined style={{ color: colors.text }} />} 
+                          <Input
+                            prefix={<UserOutlined style={{ color: colors.text }} />}
                             placeholder="@usuario"
                             style={{ borderRadius: 6 }}
                           />
                         ) : (
                           <Text style={{ color: colors.text }}>
-                            <UserOutlined style={{ 
-                              marginRight: 8, 
+                            <UserOutlined style={{
+                              marginRight: 8,
                               color: colors.primary
                             }} />
                             {userData.username}
                           </Text>
                         )}
                       </Form.Item>
-                      
-                      <Form.Item 
-                        label={<Text strong style={{ color: colors.dark }}>Correo electrónico</Text>} 
+
+                      <Form.Item
+                        label={<Text strong style={{ color: colors.dark }}>Correo electrónico</Text>}
                         name="email"
                         rules={[
                           { required: true, message: 'Ingrese su correo' },
@@ -619,37 +619,37 @@ const MotoUserProfile = () => {
                         ]}
                       >
                         {editMode ? (
-                          <Input 
-                            prefix={<MailOutlined style={{ color: colors.text }} />} 
+                          <Input
+                            prefix={<MailOutlined style={{ color: colors.text }} />}
                             style={{ borderRadius: 6 }}
                           />
                         ) : (
                           <Text style={{ color: colors.text }}>
-                            <MailOutlined style={{ 
-                              marginRight: 8, 
+                            <MailOutlined style={{
+                              marginRight: 8,
                               color: colors.primary
                             }} />
                             {userData.email}
                           </Text>
                         )}
                       </Form.Item>
-                      
-                      <Form.Item 
-                        label={<Text strong style={{ color: colors.dark }}>Teléfono</Text>} 
+
+                      <Form.Item
+                        label={<Text strong style={{ color: colors.dark }}>Teléfono</Text>}
                         name="phone"
                         rules={[
                           { required: true, message: 'Ingrese su teléfono' }
                         ]}
                       >
                         {editMode ? (
-                          <Input 
-                            prefix={<PhoneOutlined style={{ color: colors.text }} />} 
+                          <Input
+                            prefix={<PhoneOutlined style={{ color: colors.text }} />}
                             style={{ borderRadius: 6 }}
                           />
                         ) : (
                           <Text style={{ color: colors.text }}>
-                            <PhoneOutlined style={{ 
-                              marginRight: 8, 
+                            <PhoneOutlined style={{
+                              marginRight: 8,
                               color: colors.primary
                             }} />
                             {userData.phone}
@@ -658,8 +658,8 @@ const MotoUserProfile = () => {
                       </Form.Item>
                     </Form>
                   </Card>
-                  
-                  <Card 
+
+                  <Card
                     title={
                       <div style={{ display: 'flex', alignItems: 'center' }}>
                         <div style={iconContainerStyle}>
@@ -671,13 +671,13 @@ const MotoUserProfile = () => {
                       </div>
                     }
                     bordered={false}
-                    style={{ 
+                    style={{
                       ...cardStyle,
                       borderLeft: `3px solid ${colors.secondary}`
                     }}
                     extra={
-                      <Button 
-                        type="primary" 
+                      <Button
+                        type="primary"
                         icon={<PlusOutlined />}
                         onClick={() => setIsAddBikeModalVisible(true)}
                         size="small"
@@ -699,24 +699,24 @@ const MotoUserProfile = () => {
                             <Card
                               hoverable
                               cover={
-                                <div style={{ 
-                                  height: 140, 
+                                <div style={{
+                                  height: 140,
                                   background: `url(${bike.image}) center/cover`,
                                   borderTopLeftRadius: 8,
                                   borderTopRightRadius: 8
                                 }} />
                               }
-                              style={{ 
+                              style={{
                                 borderRadius: 8,
                                 boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
                               }}
                               actions={[
-                                <Button 
-                                  type="text" 
-                                  danger 
+                                <Button
+                                  type="text"
+                                  danger
                                   icon={<DeleteOutlined />}
                                   onClick={() => handleDeleteBike(bike.id)}
-                                  style={{ 
+                                  style={{
                                     color: colors.error,
                                     fontWeight: 500
                                   }}
@@ -746,14 +746,14 @@ const MotoUserProfile = () => {
                         ))}
                       </Row>
                     ) : (
-                      <div style={{ 
-                        textAlign: 'center', 
+                      <div style={{
+                        textAlign: 'center',
                         padding: '40px 0',
                         borderRadius: 8,
                         background: colors.light
                       }}>
-                        <CarOutlined style={{ 
-                          fontSize: 48, 
+                        <CarOutlined style={{
+                          fontSize: 48,
                           color: colors.text,
                           marginBottom: 16
                         }} />
@@ -770,11 +770,11 @@ const MotoUserProfile = () => {
               </Row>
             </div>
           </TabPane>
-          
+
           <TabPane
             tab={
-              <span style={{ 
-                display: 'flex', 
+              <span style={{
+                display: 'flex',
                 alignItems: 'center',
                 padding: '12px 0',
                 fontWeight: 500
@@ -788,7 +788,7 @@ const MotoUserProfile = () => {
                     color: activeTab === 'history' ? 'white' : colors.primary
                   }} />
                 </div>
-                <span style={{ 
+                <span style={{
                   marginLeft: 8,
                   color: activeTab === 'history' ? colors.primary : colors.text
                 }}>
@@ -799,28 +799,28 @@ const MotoUserProfile = () => {
             key="history"
           >
             <div style={{ padding: 24 }}>
-              <Card 
-                bordered={false} 
-                style={{ 
+              <Card
+                bordered={false}
+                style={{
                   ...cardStyle,
                   borderLeft: `3px solid ${colors.primary}`
                 }}
               >
-                <div style={{ 
-                  textAlign: 'center', 
+                <div style={{
+                  textAlign: 'center',
                   padding: '60px 0',
                   background: `linear-gradient(135deg, ${colors.light} 0%, white 100%)`,
                   borderRadius: 12
                 }}>
-                  <ShoppingOutlined style={{ 
-                    fontSize: 64, 
+                  <ShoppingOutlined style={{
+                    fontSize: 64,
                     color: colors.primary,
                     marginBottom: 24
                   }} />
                   <Title level={3} style={{ marginBottom: 16, color: colors.dark }}>
                     Historial de Pedidos
                   </Title>
-                  <Text style={{ 
+                  <Text style={{
                     color: colors.text,
                     maxWidth: 500,
                     margin: '0 auto',
@@ -830,11 +830,11 @@ const MotoUserProfile = () => {
                     Aquí podrás ver todos tus pedidos de repuestos, accesorios y servicios para tus motos.
                     Actualmente tienes {userData.stats.orders} pedidos realizados.
                   </Text>
-                  
-                  <Button 
-                    type="primary" 
-                    size="large" 
-                    style={{ 
+
+                  <Button
+                    type="primary"
+                    size="large"
+                    style={{
                       marginTop: 24,
                       background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryLight} 100%)`,
                       border: 'none',
@@ -850,11 +850,11 @@ const MotoUserProfile = () => {
               </Card>
             </div>
           </TabPane>
-          
+
           <TabPane
             tab={
-              <span style={{ 
-                display: 'flex', 
+              <span style={{
+                display: 'flex',
                 alignItems: 'center',
                 padding: '12px 0',
                 fontWeight: 500
@@ -868,7 +868,7 @@ const MotoUserProfile = () => {
                     color: activeTab === 'security' ? 'white' : colors.primary
                   }} />
                 </div>
-                <span style={{ 
+                <span style={{
                   marginLeft: 8,
                   color: activeTab === 'security' ? colors.primary : colors.text
                 }}>
@@ -879,9 +879,9 @@ const MotoUserProfile = () => {
             key="security"
           >
             <div style={{ padding: 24 }}>
-              <Card 
-                bordered={false} 
-                style={{ 
+              <Card
+                bordered={false}
+                style={{
                   ...cardStyle,
                   borderLeft: `3px solid ${colors.primary}`
                 }}
@@ -889,8 +889,8 @@ const MotoUserProfile = () => {
                 <List itemLayout="horizontal">
                   <List.Item
                     actions={[
-                      <Button 
-                        type="primary" 
+                      <Button
+                        type="primary"
                         size="small"
                         onClick={handleChangePassword}
                         style={{
@@ -914,16 +914,16 @@ const MotoUserProfile = () => {
                       description={<Text style={{ color: colors.text }}>Última actualización hace 3 meses</Text>}
                     />
                   </List.Item>
-                  
+
                   <List.Item
                     actions={[
-                      <Switch 
-                        checked={twoFactorAuth} 
+                      <Switch
+                        checked={twoFactorAuth}
                         onChange={checked => {
                           setTwoFactorAuth(checked);
                           message.success(
-                            checked ? 
-                            'Autenticación en dos pasos activada' : 
+                            checked ?
+                            'Autenticación en dos pasos activada' :
                             'Autenticación en dos pasos desactivada'
                           );
                         }}
@@ -947,10 +947,10 @@ const MotoUserProfile = () => {
                   <List.Item
                     actions={[
                       verificationStatus ? (
-                        <Tag 
-                          icon={<VerifiedOutlined />} 
+                        <Tag
+                          icon={<VerifiedOutlined />}
                           color={colors.success}
-                          style={{ 
+                          style={{
                             borderRadius: 20,
                             padding: '4px 12px',
                             fontWeight: 500
@@ -959,8 +959,8 @@ const MotoUserProfile = () => {
                           Verificado
                         </Tag>
                       ) : (
-                        <Button 
-                          type="primary" 
+                        <Button
+                          type="primary"
                           size="small"
                           onClick={handleVerifyAccount}
                           style={{
@@ -1046,7 +1046,7 @@ const MotoUserProfile = () => {
               </Form.Item>
             </Col>
           </Row>
-          
+
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
@@ -1054,9 +1054,9 @@ const MotoUserProfile = () => {
                 label={<Text strong>Año</Text>}
                 rules={[{ required: true, message: 'Ingrese el año' }]}
               >
-                <InputNumber 
-                  style={{ width: '100%', borderRadius: 6 }} 
-                  placeholder="Ej. 2019" 
+                <InputNumber
+                  style={{ width: '100%', borderRadius: 6 }}
+                  placeholder="Ej. 2019"
                 />
               </Form.Item>
             </Col>
@@ -1070,12 +1070,12 @@ const MotoUserProfile = () => {
               </Form.Item>
             </Col>
           </Row>
-          
+
           <Form.Item
             name="image"
             label={<Text strong>Imagen de la moto (Opcional)</Text>}
           >
-            <Upload.Dragger 
+            <Upload.Dragger
               accept="image/*"
               beforeUpload={beforeUpload}
               showUploadList={false}
@@ -1151,11 +1151,11 @@ const MotoUserProfile = () => {
             }}>
               <IdcardOutlined style={{ fontSize: 36, color: colors.primary }} />
             </div>
-            
+
             <Title level={4} style={{ marginBottom: 24 }}>Verificación de Identidad</Title>
-            
-            <Radio.Group 
-              value={verificationMethod} 
+
+            <Radio.Group
+              value={verificationMethod}
               onChange={(e) => setVerificationMethod(e.target.value)}
               style={{ marginBottom: 24, width: '100%' }}
               optionType="button"
@@ -1168,18 +1168,18 @@ const MotoUserProfile = () => {
                 WhatsApp
               </Radio.Button>
             </Radio.Group>
-            
+
             <Text style={{ marginBottom: 24, display: 'block', color: colors.text }}>
-              Hemos enviado un código de verificación a tu {verificationMethod === 'email' ? 'correo electrónico' : 'WhatsApp'}. 
+              Hemos enviado un código de verificación a tu {verificationMethod === 'email' ? 'correo electrónico' : 'WhatsApp'}.
               Por favor ingrésalo a continuación.
             </Text>
-            
-            <Input 
-              placeholder="Código de verificación" 
+
+            <Input
+              placeholder="Código de verificación"
               value={verificationCode}
               onChange={(e) => setVerificationCode(e.target.value)}
-              style={{ 
-                textAlign: 'center', 
+              style={{
+                textAlign: 'center',
                 fontSize: 18,
                 height: 48,
                 borderRadius: 8,
@@ -1187,11 +1187,11 @@ const MotoUserProfile = () => {
               }}
               maxLength={6}
             />
-            
+
             <Text style={{ marginTop: 16, display: 'block', color: colors.text }}>
-              ¿No recibiste el código? <Button 
-                type="link" 
-                size="small" 
+              ¿No recibiste el código? <Button
+                type="link"
+                size="small"
                 onClick={sendVerificationCode}
                 style={{ fontWeight: 500 }}
               >
@@ -1303,22 +1303,22 @@ const MotoUserProfile = () => {
             }}>
               <SafetyCertificateFilled style={{ fontSize: 36, color: colors.primary }} />
             </div>
-            
+
             <Title level={4} style={{ marginBottom: 24 }}>Verificación Requerida</Title>
-            
-            <Alert 
+
+            <Alert
               message="Para cambiar tu contraseña necesitamos verificar tu identidad"
               type="info"
               showIcon
-              style={{ 
+              style={{
                 marginBottom: 24,
                 borderRadius: 8,
                 textAlign: 'left'
               }}
             />
-            
-            <Radio.Group 
-              value={verificationMethod} 
+
+            <Radio.Group
+              value={verificationMethod}
               onChange={(e) => setVerificationMethod(e.target.value)}
               style={{ marginBottom: 16, width: '100%' }}
               optionType="button"
@@ -1331,12 +1331,12 @@ const MotoUserProfile = () => {
                 WhatsApp
               </Radio.Button>
             </Radio.Group>
-            
-            <Button 
-              type="primary" 
+
+            <Button
+              type="primary"
               onClick={sendVerificationCode}
-              style={{ 
-                width: '100%', 
+              style={{
+                width: '100%',
                 height: 48,
                 borderRadius: 8,
                 fontWeight: 500,
