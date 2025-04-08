@@ -4,81 +4,145 @@ namespace App\Http\Controllers\Productos;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Producto;
-use App\Models\Categoria;
-use App\Models\Subcategoria;
+use App\Models\Product;
+use App\Models\ProductImage;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 
 class AgregarProductoController extends Controller
 {
     public function index()
     {
-        $categorias = Categoria::with('subcategorias')->where('estado', 'Activo')->get();
-        
-        return Inertia::render('Dashboard/Productos/AgregarProducto', [
-            'categorias' => $categorias
-        ]);
+        return Inertia::render('Dashboard/Productos/AgregarProducto');
     }
-    
+
     public function store(Request $request)
     {
         $request->validate([
-            'codigo' => 'required|unique:productos',
-            'nombre' => 'required|max:255',
-            'descripcion_corta' => 'required',
-            'detalles' => 'required',
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'required|string',
             'precio' => 'required|numeric|min:0',
-            'descuento' => 'numeric|min:0|max:100',
-            'precio_con_descuento' => 'required|numeric|min:0',
-            'igv' => 'required|numeric|min:0',
-            'precio_final' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
-            'categoria' => 'required|exists:categorias,id',
-            'subcategoria' => 'required|exists:subcategorias,id',
-            'imagen_principal' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
-            'imagen_url' => 'nullable|url',
-            'compatible_motos' => 'required|in:todas,especifica',
-            'moto_especifica' => 'required_if:compatible_motos,especifica',
-            'es_destacado' => 'boolean',
-            'es_mas_vendido' => 'boolean',
-            'calificacion' => 'integer|min:0|max:5'
+            'imagen_principal' => 'nullable|image|max:5120',
+            'imagen_principal_url' => 'nullable|url',
+            'imagenes_adicionales' => 'nullable|array',
+            'imagenes_adicionales.*.tipo' => 'required|in:archivo,url',
+            'imagenes_adicionales.*.estilo' => 'required|string|max:255',
+            'imagenes_adicionales.*.archivo' => 'required_if:imagenes_adicionales.*.tipo,archivo|image|max:5120',
+            'imagenes_adicionales.*.url' => 'required_if:imagenes_adicionales.*.tipo,url|url',
         ]);
 
-        // Manejo de la imagen principal
-        $imagenPath = null;
+        // Validar que al menos una imagen principal esté presente
+        if (!$request->hasFile('imagen_principal') && empty($request->imagen_principal_url)) {
+            return back()->withErrors(['imagen_principal' => 'Debes proporcionar una imagen principal (archivo o URL)']);
+        }
+
+        // Procesar imagen principal
+        $urlImagenPrincipal = '';
+        
         if ($request->hasFile('imagen_principal')) {
-            $imagenPath = $request->file('imagen_principal')->store('productos', 'public');
-        } elseif ($request->imagen_url) {
-            // Aquí podrías implementar la descarga de la imagen desde la URL si es necesario
-            $imagenPath = $request->imagen_url;
+            $imagenPrincipal = $request->file('imagen_principal');
+            $nombreImagenPrincipal = Str::uuid() . '.' . $imagenPrincipal->extension();
+            
+            // Cambio aquí: Usar el disco 'public' directamente
+            $imagenPrincipalPath = $imagenPrincipal->storeAs('productos', $nombreImagenPrincipal, 'public');
+            $urlImagenPrincipal = asset('storage/' . $imagenPrincipalPath);
+        } else {
+            try {
+                $url = $request->imagen_principal_url;
+                $client = new \GuzzleHttp\Client([
+                    'verify' => false,
+                    'timeout' => 10,
+                    'allow_redirects' => true,
+                    'headers' => ['Accept' => 'image/*']
+                ]);
+                
+                try {
+                    $response = $client->head($url);
+                    $contentType = $response->getHeaderLine('Content-Type');
+                    if (!str_starts_with($contentType, 'image/')) {
+                        return back()->withErrors(['imagen_principal_url' => 'La URL no apunta a una imagen válida']);
+                    }
+                    $urlImagenPrincipal = $url;
+                } catch (\GuzzleHttp\Exception\RequestException $e) {
+                    try {
+                        $response = $client->get($url, ['headers' => ['Range' => 'bytes=0-1']]);
+                        $contentType = $response->getHeaderLine('Content-Type');
+                        if (!str_starts_with($contentType, 'image/')) {
+                            return back()->withErrors(['imagen_principal_url' => 'La URL no apunta a una imagen válida']);
+                        }
+                        $urlImagenPrincipal = $url;
+                    } catch (\Exception $e) {
+                        return back()->withErrors(['imagen_principal_url' => 'No se pudo validar la URL de la imagen: ' . $e->getMessage()]);
+                    }
+                }
+            } catch (\Exception $e) {
+                return back()->withErrors(['imagen_principal_url' => 'Error al procesar la URL: ' . $e->getMessage()]);
+            }
         }
 
         // Crear el producto
-        $producto = Producto::create([
-            'codigo' => $request->codigo,
+        $product = Product::create([
             'nombre' => $request->nombre,
-            'descripcion_corta' => $request->descripcion_corta,
-            'detalles' => $request->detalles,
+            'descripcion' => $request->descripcion,
             'precio' => $request->precio,
-            'descuento' => $request->descuento,
-            'precio_con_descuento' => $request->precio_con_descuento,
-            'igv' => $request->igv,
-            'precio_final' => $request->precio_final,
-            'incluye_igv' => $request->incluye_igv,
-            'stock' => $request->stock,
-            'imagen_principal' => $imagenPath,
-            'compatible_motos' => $request->compatible_motos,
-            'moto_especifica' => $request->moto_especifica,
-            'es_destacado' => $request->es_destacado,
-            'es_mas_vendido' => $request->es_mas_vendido,
-            'calificacion' => $request->calificacion,
-            'subcategoria_id' => $request->subcategoria
+            'imagen_principal' => $urlImagenPrincipal,
         ]);
 
-        // Manejo de imágenes adicionales (puedes implementar esto después)
-        
-        return redirect()->route('productos.agregar')->with('success', 'Producto creado exitosamente!');
+        // Procesar imágenes adicionales
+        if ($request->has('imagenes_adicionales') && is_array($request->imagenes_adicionales)) {
+            foreach ($request->imagenes_adicionales as $imagenAdicional) {
+                try {
+                    if ($imagenAdicional['tipo'] === 'archivo' && isset($imagenAdicional['archivo'])) {
+                        // Procesar archivo subido
+                        $imagen = $imagenAdicional['archivo'];
+                        $nombreImagen = Str::uuid() . '.' . $imagen->extension();
+                        
+                        // Cambio aquí: Usar el disco 'public' directamente
+                        $imagenPath = $imagen->storeAs('productos', $nombreImagen, 'public');
+                        $urlImagen = asset('storage/' . $imagenPath);
+                        
+                        ProductImage::create([
+                            'product_id' => $product->id,
+                            'image_path' => $urlImagen,
+                            'description' => $imagenAdicional['estilo']
+                        ]);
+                    } elseif ($imagenAdicional['tipo'] === 'url' && isset($imagenAdicional['url'])) {
+                        // Procesar URL de imagen
+                        $url = trim($imagenAdicional['url']);
+                        if (!empty($url)) {
+                            // Verificación básica para URLs adicionales
+                            $client = new \GuzzleHttp\Client(['verify' => false, 'timeout' => 5]);
+                            
+                            try {
+                                $response = $client->head($url);
+                                $contentType = $response->getHeaderLine('Content-Type');
+                                
+                                if (str_starts_with($contentType, 'image/')) {
+                                    ProductImage::create([
+                                        'product_id' => $product->id,
+                                        'image_path' => $url,
+                                        'description' => $imagenAdicional['estilo']
+                                    ]);
+                                }
+                            } catch (\GuzzleHttp\Exception\RequestException $e) {
+                                // Si falla HEAD, intentamos agregar igual con el estilo
+                                ProductImage::create([
+                                    'product_id' => $product->id,
+                                    'image_path' => $url,
+                                    'description' => $imagenAdicional['estilo']
+                                ]);
+                            }
+                        }
+                    }
+                } catch (\Exception $e) {
+                    continue; // Continuar con la siguiente imagen si hay error
+                }
+            }
+        }
+
+        return redirect()->back()->with('success', 'Producto agregado correctamente');
     }
 }
