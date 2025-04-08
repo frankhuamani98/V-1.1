@@ -1387,7 +1387,7 @@ const MotoUserProfile = () => {
             </div>
             <Title level={4} style={{ marginTop: 16 }}>¡Contraseña cambiada!</Title>
             <Text style={{ color: colors.text }}>
-              Tu contraseña ha sido actualizada exitosamente.
+              Tu contraseña a sido actualizada exitosamente.
             </Text>
           </div>
         )}
