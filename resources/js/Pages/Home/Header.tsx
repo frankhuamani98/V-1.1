@@ -705,11 +705,11 @@ export default function Header() {
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-  <Link href="/profile" className="w-full">  {/* O usa route('profile') si prefieres */}
-    <UserIcon className="mr-2 h-4 w-4" />
-    <span>Perfil</span>
-  </Link>
-</DropdownMenuItem>
+                      <Link href="/profile" className="w-full"> 
+                        <UserIcon className="mr-2 h-4 w-4" />
+                        <span>Perfil</span>
+                      </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuItem>
                       <ShoppingBagIcon className="mr-2 h-4 w-4" />
                       <span>Pedidos</span>
