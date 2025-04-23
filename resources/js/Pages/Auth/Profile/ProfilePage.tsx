@@ -3,15 +3,13 @@ import {
   Card, Typography, Divider, Space, Button, Avatar,
   Tag, Row, Col, List, Input, Form, Badge, Tabs,
   Upload, message, Descriptions, Statistic,
-  Modal, InputNumber, Switch, Layout, DatePicker,
-  notification
+  Modal, InputNumber, Switch, Layout, DatePicker
 } from 'antd';
 import {
   UserOutlined, MailOutlined, PhoneOutlined, EditOutlined,
   CameraOutlined, PlusOutlined, DeleteOutlined, CloseOutlined,
   ManOutlined, WomanOutlined, StarFilled, ShoppingOutlined,
-  LoadingOutlined, SaveOutlined, BulbOutlined, BulbFilled,
-  BellOutlined, LockOutlined, KeyOutlined, EyeInvisibleOutlined, EyeTwoTone
+  LoadingOutlined, SaveOutlined, BulbOutlined, BulbFilled
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -32,9 +30,7 @@ const colors = {
   light: '#f8f9fa',
   text: '#34495e',
   textLight: '#e6e6e6',
-  textDark: '#b8b8b8',
-  backgroundLight: '#f0f2f5',
-  backgroundDark: '#121212'
+  textDark: '#b8b8b8'
 };
 
 // Estilos dinámicos basados en el modo
@@ -60,7 +56,7 @@ const getStyles = (darkMode: boolean) => ({
     border: darkMode ? '1px solid #333' : '1px solid #f0f0f0'
   },
   layout: {
-    backgroundColor: darkMode ? colors.backgroundDark : colors.backgroundLight,
+    backgroundColor: darkMode ? colors.dark : colors.light,
     minHeight: '100vh'
   },
   text: {
@@ -68,20 +64,6 @@ const getStyles = (darkMode: boolean) => ({
   },
   textSecondary: {
     color: darkMode ? colors.textDark : colors.text
-  },
-  imageContainer: {
-    height: 160,
-    overflow: 'hidden',
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
-    objectPosition: 'center'
   }
 });
 
@@ -192,7 +174,7 @@ const MotoUserProfile = () => {
 
   useEffect(() => {
     localStorage.setItem('darkMode', darkMode.toString());
-    document.body.style.backgroundColor = darkMode ? colors.backgroundDark : colors.backgroundLight;
+    document.body.style.backgroundColor = darkMode ? colors.dark : colors.light;
   }, [darkMode]);
 
   const styles = getStyles(darkMode);
@@ -371,37 +353,18 @@ const MotoUserProfile = () => {
     </div>
   );
 
-  const showNotification = () => {
-    notification.open({
-      message: 'Nueva Notificación',
-      description: 'Tienes una nueva notificación.',
-      icon: <BellOutlined style={{ color: colors.warning }} />,
-      duration: 5
-    });
-  };
-
   return (
     <Layout style={styles.layout}>
       <Header style={{
         backgroundColor: 'transparent',
         padding: 0,
         display: 'flex',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-end',
         alignItems: 'center',
         height: 'auto',
         lineHeight: 'normal',
         margin: '16px 24px 0 0'
       }}>
-        <Space>
-          <Button
-            type="primary"
-            icon={<BellOutlined />}
-            onClick={showNotification}
-            style={{ backgroundColor: darkMode ? colors.darkAccent : colors.primary }}
-          >
-            Notificaciones
-          </Button>
-        </Space>
         <Switch
           checked={darkMode}
           onChange={setDarkMode}
@@ -431,14 +394,13 @@ const MotoUserProfile = () => {
                     style={{
                       border: `4px solid ${colors.primary}`,
                       cursor: 'pointer',
-                      opacity: avatarLoading ? 0.7 : 1,
-                      transition: 'opacity 0.3s ease'
+                      opacity: avatarLoading ? 0.7 : 1
                     }}
                   />
                 </Upload>
 
                 <Title level={3} style={{ marginTop: 16, ...styles.text }}>{userData.name}</Title>
-                <Tag color={colors.primary} icon={<UserOutlined />}>{userData.username}</Tag>
+                <Tag color={colors.primary}>{userData.username}</Tag>
 
                 <div style={{ marginTop: 16 }}>
                   {editMode ? (
@@ -511,7 +473,6 @@ const MotoUserProfile = () => {
             activeKey={activeTab}
             onChange={setActiveTab}
             tabBarStyle={styles.text}
-            animated
           >
             <TabPane tab="Información" key="info">
               <div style={{ padding: 24 }}>
@@ -594,11 +555,11 @@ const MotoUserProfile = () => {
                             key={bike.id}
                             style={styles.bikeCard}
                             cover={
-                              <div style={styles.imageContainer}>
+                              <div style={{ height: 160, overflow: 'hidden', position: 'relative' }}>
                                 <img
                                   alt={bike.model}
                                   src={bike.image}
-                                  style={styles.image}
+                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 />
                                 <Upload
                                   accept="image/*"
@@ -665,13 +626,11 @@ const MotoUserProfile = () => {
                         style={styles.bikeCard}
                         cover={
                           order.image && (
-                            <div style={styles.imageContainer}>
-                              <img
-                                alt={`Pedido ${order.id}`}
-                                src={order.image}
-                                style={styles.image}
-                              />
-                            </div>
+                            <img
+                              alt={`Pedido ${order.id}`}
+                              src={order.image}
+                              style={{ height: 160, objectFit: 'cover' }}
+                            />
                           )
                         }
                         actions={[
@@ -710,7 +669,6 @@ const MotoUserProfile = () => {
               <div style={{ padding: 24 }}>
                 <Button
                   type="primary"
-                  icon={<LockOutlined />}
                   onClick={() => setIsChangePasswordModalVisible(true)}
                   style={{ marginBottom: 16 }}
                 >
@@ -741,7 +699,6 @@ const MotoUserProfile = () => {
                   rules={[{ required: true, message: 'Ingrese la marca de la moto' }]}
                 >
                   <Input
-                    prefix={<UserOutlined />}
                     placeholder="Ej. Yamaha, Honda, etc."
                     style={{ backgroundColor: darkMode ? colors.darkAccent : '#fff' }}
                   />
@@ -754,7 +711,6 @@ const MotoUserProfile = () => {
                   rules={[{ required: true, message: 'Ingrese el modelo de la moto' }]}
                 >
                   <Input
-                    prefix={<UserOutlined />}
                     placeholder="Ej. YZF-R6, CBR600RR, etc."
                     style={{ backgroundColor: darkMode ? colors.darkAccent : '#fff' }}
                   />
@@ -782,7 +738,6 @@ const MotoUserProfile = () => {
                   rules={[{ required: true, message: 'Ingrese la placa de la moto' }]}
                 >
                   <Input
-                    prefix={<UserOutlined />}
                     placeholder="Ej. ABC-1234"
                     style={{ backgroundColor: darkMode ? colors.darkAccent : '#fff' }}
                   />
@@ -807,7 +762,7 @@ const MotoUserProfile = () => {
                   <img
                     src={URL.createObjectURL(newBikeForm.getFieldValue('imageFile'))}
                     alt="preview"
-                    style={styles.image}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 ) : (
                   uploadButton
@@ -834,33 +789,21 @@ const MotoUserProfile = () => {
               label="Contraseña Actual"
               rules={[{ required: true, message: 'Ingrese su contraseña actual' }]}
             >
-              <Input.Password
-                prefix={<LockOutlined />}
-                iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
-                style={{ backgroundColor: darkMode ? colors.darkAccent : '#fff' }}
-              />
+              <Input.Password style={{ backgroundColor: darkMode ? colors.darkAccent : '#fff' }} />
             </Form.Item>
             <Form.Item
               name="newPassword"
               label="Nueva Contraseña"
               rules={[{ required: true, message: 'Ingrese su nueva contraseña' }]}
             >
-              <Input.Password
-                prefix={<KeyOutlined />}
-                iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
-                style={{ backgroundColor: darkMode ? colors.darkAccent : '#fff' }}
-              />
+              <Input.Password style={{ backgroundColor: darkMode ? colors.darkAccent : '#fff' }} />
             </Form.Item>
             <Form.Item
               name="confirmPassword"
               label="Confirmar Contraseña"
               rules={[{ required: true, message: 'Confirme su nueva contraseña' }]}
             >
-              <Input.Password
-                prefix={<KeyOutlined />}
-                iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
-                style={{ backgroundColor: darkMode ? colors.darkAccent : '#fff' }}
-              />
+              <Input.Password style={{ backgroundColor: darkMode ? colors.darkAccent : '#fff' }} />
             </Form.Item>
           </Form>
         </Modal>
@@ -890,7 +833,6 @@ const MotoUserProfile = () => {
               rules={[{ required: true, message: 'Ingrese el estado del pedido' }]}
             >
               <Input
-                prefix={<UserOutlined />}
                 placeholder="Ej. Completado, En Proceso, etc."
                 style={{ backgroundColor: darkMode ? colors.darkAccent : '#fff' }}
               />
@@ -901,7 +843,6 @@ const MotoUserProfile = () => {
               rules={[{ required: true, message: 'Ingrese los artículos del pedido' }]}
             >
               <Input.TextArea
-                prefix={<UserOutlined />}
                 placeholder="Ej. Repuesto 1, Repuesto 2, etc."
                 style={{ backgroundColor: darkMode ? colors.darkAccent : '#fff' }}
               />
@@ -924,7 +865,7 @@ const MotoUserProfile = () => {
                   <img
                     src={URL.createObjectURL(newOrderForm.getFieldValue('imageFile'))}
                     alt="preview"
-                    style={styles.image}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 ) : (
                   uploadButton
