@@ -41,4 +41,22 @@ class User extends Authenticatable
     {
         $this->attributes['email'] = strtolower($value);
     }
+
+    // Relación con las opiniones del usuario
+    public function opiniones()
+    {
+        return $this->hasMany(Opinion::class, 'user_id');
+    }
+
+    // Relación con las respuestas del usuario
+    public function respuestasOpiniones()
+    {
+        return $this->hasMany(RespuestaOpinion::class, 'user_id');
+    }
+
+    // Relación con las reservas del usuario
+    public function reservas()
+    {
+        return $this->hasMany(Reserva::class);
+    }
 }

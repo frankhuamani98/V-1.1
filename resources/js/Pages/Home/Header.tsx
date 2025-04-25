@@ -179,7 +179,11 @@ const FavoriteItem = ({
 };
 
 export default function Header() {
-  const { auth: { user }, categoriasMenu = [] } = usePage<{ auth: { user: { id: number; name: string; first_name: string; last_name: string; email: string } } }>().props;
+  const { auth: { user }, categoriasMenu = [], categoriasServicio = [], servicios = [] } = usePage<{ 
+    auth: { user: { id: number; name: string; first_name: string; last_name: string; email: string } },
+    categoriasServicio: Array<{ id: number; nombre: string }>,
+    servicios: Array<{ id: number; nombre: string; categoria_id: number }>
+  }>().props;
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -217,36 +221,34 @@ export default function Header() {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
-  // Definimos las categorías fijas para Servicios, Reservas y Contactos
+  // Process service categories and services from the backend
+  const serviceCategory = {
+    title: "Servicios",
+    href: "/servicios",
+    description: "Ofrecemos una amplia gama de servicios para tu motocicleta",
+    icon: <WrenchIcon className="mr-2 h-4 w-4" />,
+    subcategories: Array.isArray(categoriasServicio) 
+      ? categoriasServicio.map(categoria => ({
+          name: categoria.nombre,
+          href: `/servicios/categoria/${categoria.id}`,
+        }))
+      : [{ name: "Ver todos los servicios", href: "/servicios" }]
+  };
+
+  // Definimos las categorías fijas para Reservas y Contactos
   const fixedCategories = [
     {
-      title: "Servicios",
-      href: "#",
-      description: "Ofrecemos una amplia gama de servicios para tu motocicleta",
-      icon: <WrenchIcon className="mr-2 h-4 w-4" />,
-      subcategories: [
-        { name: "Mantenimiento general", href: "#" },
-        { name: "Reparación de motor y transmisión", href: "#" },
-        { name: "Servicio de frenos y suspensión", href: "#" },
-        { name: "Sistema eléctrico y diagnóstico", href: "#" },
-        { name: "Cambio y balanceo de neumáticos", href: "#" },
-        { name: "Personalización y accesorios", href: "#" },
-        { name: "Ver más", href: "#" },
-      ],
-    },
-    {
       title: "Reservas",
-      href: "#",
-      description: "Reserva tu cita para servicios",
+      href: "/reservas",
+      description: "Solicita una cita para tu moto",
       icon: <CalendarIcon className="mr-2 h-4 w-4" />,
       subcategories: [
-        { name: "Reservar Citas", href: "/home/partials/Reservas/recervas" },
-        { name: "Horarios Disponibles", href: "#" },
-        { name: "Promociones", href: "#" },
-        { name: "Agregar Reserva", href: "#" },
-        { name: "Ver más", href: "#" },
+        { name: "Agendar Servicio", href: "/reservas/agendar" },
+        { name: "Mis Citas", href: "/reservas" },
+        { name: "Servicios Disponibles", href: "/reservas/servicios-disponibles" },
+        { name: "Horarios de Atención", href: "/reservas/horarios-atencion" }
       ],
-    },
+    },      
     {
       title: "Contactos",
       href: "#",
@@ -296,7 +298,7 @@ export default function Header() {
   };
 
   // Combinamos todas las categorías
-  const allCategories = [productosCategory, ...fixedCategories];
+  const allCategories = [productosCategory, serviceCategory, ...fixedCategories];
 
   // Manejar el efecto de desplazamiento con debounce
   useEffect(() => {

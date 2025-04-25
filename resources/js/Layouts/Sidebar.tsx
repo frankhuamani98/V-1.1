@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "@inertiajs/react";
-import { ChevronDown, ChevronRight, Home, LogOut, Car, Users, BarChart as ChartBar, Cog, Menu, FileText, CreditCard, Bell, HelpCircle, UserPlus, Truck, Calendar, BarChart2, PieChart, TrendingUp, Layers, MessageCircle, Tag, Megaphone, Package, Wrench , Briefcase, Bike } from "lucide-react";
+import { ChevronDown, ChevronRight, Home, LogOut, CalendarIcon, Users, BarChart as ChartBar, Cog, Menu, FileText, CreditCard, Bell, HelpCircle, UserPlus, Truck, Calendar, BarChart2, PieChart, TrendingUp, Layers, MessageCircle, Tag, Megaphone, Package, Wrench , Briefcase, Bike, MessageSquare, Hammer } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -96,15 +96,23 @@ const Sidebar = ({ isOpen, toggleSidebar, activeHref = window.location.pathname 
       ],
     },
     {
-      icon: <Calendar size={20} />,
+      icon: <Hammer size={20} />,
+      label: "Gestión de Servicios",
+      subItems: [
+        { label: "Agregar Categoría", href: "/servicios/categorias/crear" },
+        { label: "Agregar Servicio", href: "/servicios/crear" },
+        { label: "Lista General", href: "/servicios" },
+      ],
+    },    
+    {
+      icon: <CalendarIcon size={20} />,
       label: "Gestión de Reservas",
       subItems: [
-        { label: "Reservas Nuevas", href: "/reservas/nuevas" },
-        { label: "Estado de Reservas", href: "/reservas/estado" },
-        { label: "Reservas Finalizadas", href: "/reservas/finalizadas" },
-        { label: "Historial de Reservas", href: "/reservas/historial" },
+          { label: "Todas las Reservas", href: "/dashboard/reservas" },
+          { label: "Reservas Confirmadas", href: "/dashboard/reservas/confirmadas" },
+          { label: "Horarios de Atención", href: "/dashboard/reservas/horario-atencion" },
       ],
-    },
+    },   
     {
       icon: <Users size={20} />,
       label: "Gestión de Usuarios",
@@ -139,10 +147,10 @@ const Sidebar = ({ isOpen, toggleSidebar, activeHref = window.location.pathname 
       ],
     },
     {
-      icon: <MessageCircle size={20} />,
-      label: "Gestión de Comentarios",
+      icon: <MessageSquare size={20} />,
+      label: "Gestión de Opiniones",
       subItems: [
-        { label: "Lista de Comentarios", href: "/comentarios/lista" },
+        { label: "Lista de Opiniones", href: "/dashboard/opiniones" },
       ],
     },
     {

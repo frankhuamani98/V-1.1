@@ -8,37 +8,25 @@ use Illuminate\Database\Eloquent\Model;
 class RespuestaOpinion extends Model
 {
     use HasFactory;
-    
-    protected $table = 'respuestas_opinion';
-    
+
+    protected $table = 'respuestas_opiniones';
+
     protected $fillable = [
         'opinion_id',
         'user_id',
-        'nombre_respondedor',
-        'respuesta'
+        'contenido',
+        'es_soporte'
     ];
-    
-    // Relación con la opinión principal
+
+    // Relación con la opinión a la que pertenece esta respuesta
     public function opinion()
     {
         return $this->belongsTo(Opinion::class, 'opinion_id');
     }
-    
-    // Relación con el usuario que respondió
-    public function user()
+
+    // Relación con el usuario que creó la respuesta
+    public function usuario()
     {
-        return $this->belongsTo(User::class);
-    }
-    
-    // Al crear una nueva respuesta, actualizar el contador en la opinión
-    protected static function booted()
-    {
-        static::created(function ($respuesta) {
-            $respuesta->opinion->actualizarComentariosCount();
-        });
-        
-        static::deleted(function ($respuesta) {
-            $respuesta->opinion->actualizarComentariosCount();
-        });
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

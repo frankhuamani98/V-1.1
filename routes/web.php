@@ -4,12 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{  DashboardController, WelcomeController, ResultadosController};
 use App\Http\Controllers\Usuarios\{ListaUsuariosController, AdministradoresController};
 use App\Http\Controllers\Productos\{AgregarProductoController, InventarioProductosController};
-use App\Http\Controllers\Categorias\{CategoriasPrincipalesController, SubcategoriasController, ListaCategoriasController};
-use App\Http\Controllers\Reservas\{NuevasReservasController, EstadoReservasController, ReservasFinalizadasController, HistorialReservasController};
+use App\Http\Controllers\Servicio\{CategoriaServicioController, ServicioController};
+use App\Http\Controllers\Reserva\{ReservaController, DashboardReservaController};
 use App\Http\Controllers\Moto\RegistroMotosController;
 use App\Http\Controllers\Facturacion\{FacturasPendientesController, HistorialFacturasController};
 use App\Http\Controllers\Soporte\{ManualUsuarioController, SoporteTecnicoController};
-use App\Http\Controllers\Comentarios\ListaComentariosController;
+use App\Http\Controllers\Opinion\{OpinionController, DashboardOpinionController};
 use App\Http\Controllers\Banners\{SubirBannersController, HistorialBannersController};
 use App\Http\Controllers\Pedidos\{EstadoPedidosController, NuevosPedidosController, PedidosFinalizadosController, HistorialPedidosController};
 
@@ -17,6 +17,18 @@ use App\Http\Controllers\Pedidos\{EstadoPedidosController, NuevosPedidosControll
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
 Route::get('/resultados', [ResultadosController::class, 'index'])->name('resultados');
 
+// Rutas para servicios públicos
+Route::prefix('servicios')->name('servicios.publico.')->group(function () {
+    Route::get('/', [ServicioController::class, 'publicIndex'])->name('index');
+    Route::get('/categoria/{categoria}', [ServicioController::class, 'publicCategory'])
+        ->name('categoria')
+        ->where('categoria', '[0-9]+');
+    
+    // Debe ir al final porque contiene un parámetro dinámico
+    Route::get('/{servicio}', [ServicioController::class, 'publicShow'])
+        ->name('show')
+        ->where('servicio', '[0-9]+');
+});
 
 // Autenticación
 require __DIR__.'/auth.php';
@@ -37,6 +49,15 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{user}', [AdministradoresController::class, 'destroy'])->name('usuarios.administradores.destroy');
             Route::post('/{user}/promote', [AdministradoresController::class, 'promote'])->name('usuarios.administradores.promote');
         });
+    });
+
+    // Dashboard Reservas - Movido fuera del grupo de usuarios
+    Route::prefix('dashboard/reservas')->name('dashboard.reservas.')->group(function () {
+        Route::get('/', [DashboardReservaController::class, 'index'])->name('index');
+        Route::get('/confirmadas', [DashboardReservaController::class, 'confirmadas'])->name('confirmadas');
+        Route::get('/horario-atencion', [DashboardReservaController::class, 'horarioAtencion'])->name('horario-atencion');
+        Route::get('/{reserva}', [DashboardReservaController::class, 'show'])->name('show');
+        Route::patch('/{reserva}/estado', [DashboardReservaController::class, 'actualizarEstado'])->name('actualizar-estado');
     });
     
     // Categorías
@@ -68,21 +89,62 @@ Route::middleware('auth')->group(function () {
         Route::delete('/registro/{moto}', [RegistroMotosController::class, 'destroy'])->name('motos.destroy');
     });
     
-// Productos
-Route::prefix('productos')->group(function () {
-    Route::get('/agregar', [AgregarProductoController::class, 'index'])->name('productos.agregar');
-    Route::post('/agregar', [AgregarProductoController::class, 'store'])->name('productos.store');
-    Route::get('/inventario', [InventarioProductosController::class, 'index'])->name('productos.inventario');
-    Route::delete('/{producto}', [InventarioProductosController::class, 'destroy'])->name('productos.destroy');
-});
-    // Reservas
-    Route::prefix('reservas')->group(function () {
-        Route::get('/nuevas', [NuevasReservasController::class, 'index'])->name('reservas.nuevas');
-        Route::get('/estado', [EstadoReservasController::class, 'index'])->name('reservas.estado');
-        Route::get('/finalizadas', [ReservasFinalizadasController::class, 'index'])->name('reservas.finalizadas');
-        Route::get('/historial', [HistorialReservasController::class, 'index'])->name('reservas.historial');
+    // Productos
+    Route::prefix('productos')->group(function () {
+        Route::get('/agregar', [AgregarProductoController::class, 'index'])->name('productos.agregar');
+        Route::post('/agregar', [AgregarProductoController::class, 'store'])->name('productos.store');
+        Route::get('/inventario', [InventarioProductosController::class, 'index'])->name('productos.inventario');
+        Route::delete('/{producto}', [InventarioProductosController::class, 'destroy'])->name('productos.destroy');
     });
-    
+
+    // Servicios
+    Route::prefix('servicios')->name('servicios.')->group(function () {
+        Route::get('/', [ServicioController::class, 'index'])->name('lista');
+        Route::get('/crear', [ServicioController::class, 'create'])->name('crear');
+        Route::post('/', [ServicioController::class, 'store'])->name('store');
+        
+        // Categorías de Servicios
+        Route::prefix('categorias')->name('categorias.')->group(function () {
+            Route::get('/crear', [CategoriaServicioController::class, 'create'])->name('crear');
+            Route::post('/', [CategoriaServicioController::class, 'store'])->name('store');
+            Route::get('/todas', [CategoriaServicioController::class, 'getAll'])->name('todas');
+            Route::get('/{categoriaServicio}/editar', [CategoriaServicioController::class, 'edit'])
+                ->name('editar')
+                ->where('categoriaServicio', '[0-9]+');
+            Route::put('/{categoriaServicio}', [CategoriaServicioController::class, 'update'])
+                ->name('update')
+                ->where('categoriaServicio', '[0-9]+');
+            Route::delete('/{categoriaServicio}', [CategoriaServicioController::class, 'destroy'])
+                ->name('destroy')
+                ->where('categoriaServicio', '[0-9]+');
+        });
+        
+        // Estas rutas deben ir al final porque contienen parámetros dinámicos
+        Route::get('/{servicio}/editar', [ServicioController::class, 'edit'])
+            ->name('editar')
+            ->where('servicio', '[0-9]+');
+        Route::put('/{servicio}', [ServicioController::class, 'update'])
+            ->name('update')
+            ->where('servicio', '[0-9]+');
+        Route::delete('/{servicio}', [ServicioController::class, 'destroy'])
+            ->name('destroy')
+            ->where('servicio', '[0-9]+');
+    });
+
+    // Reservas
+    Route::prefix('reservas')->name('reservas.')->middleware(['auth'])->group(function () {
+        Route::get('/', [ReservaController::class, 'index'])->name('index');
+        Route::get('/agendar', [ReservaController::class, 'create'])->name('create');
+        Route::post('/', [ReservaController::class, 'store'])->name('store');
+        Route::get('/servicios-disponibles', [ReservaController::class, 'serviciosDisponibles'])->name('servicios-disponibles');
+        Route::get('/horarios-atencion', [ReservaController::class, 'horariosAtencion'])->name('horarios-atencion');
+        Route::get('/{reserva}', [ReservaController::class, 'show'])->name('show');
+        Route::get('/{reserva}/editar', [ReservaController::class, 'edit'])->name('edit');
+        Route::put('/{reserva}', [ReservaController::class, 'update'])->name('update');
+        Route::delete('/{reserva}', [ReservaController::class, 'destroy'])->name('destroy');
+    });
+
+   
     // Pedidos
     Route::prefix('pedidos')->group(function () {
         Route::get('/nuevos', [NuevosPedidosController::class, 'index'])->name('pedidos.nuevos');
@@ -91,9 +153,25 @@ Route::prefix('productos')->group(function () {
         Route::get('/historial', [HistorialPedidosController::class, 'index'])->name('pedidos.historial');
     });
     
-    // Comentarios
-    Route::prefix('comentarios')->group(function () {
-        Route::get('/lista', [ListaComentariosController::class, 'index'])->name('comentarios.lista');
+    //Opiniones
+    Route::prefix('opiniones')->group(function () {
+        Route::get('/', [OpinionController::class, 'index'])->name('opiniones.index');
+        
+        // Rutas que requieren autenticación
+        Route::middleware(['auth'])->group(function () {
+            Route::post('/', [OpinionController::class, 'store'])->name('opiniones.store');
+            Route::post('/{id}/util', [OpinionController::class, 'marcarUtil'])->name('opiniones.util');
+            Route::post('/{id}/responder', [OpinionController::class, 'responder'])->name('opiniones.responder');
+            Route::delete('/{id}', [OpinionController::class, 'destroy'])->name('opiniones.destroy');
+            Route::delete('/respuesta/{id}', [OpinionController::class, 'eliminarRespuesta'])->name('opiniones.respuesta.destroy');
+        });
+    });
+
+    // Dashboard - Opiniones
+    Route::prefix('dashboard')->group(function () {
+        Route::get('/opiniones', [DashboardOpinionController::class, 'index'])->name('dashboard.opiniones.index');
+        Route::delete('/opiniones/{id}', [DashboardOpinionController::class, 'destroy'])->name('dashboard.opiniones.destroy');
+        Route::delete('/opiniones/respuesta/{id}', [DashboardOpinionController::class, 'eliminarRespuesta'])->name('dashboard.opiniones.respuesta.destroy');
     });
     
 // Banners
