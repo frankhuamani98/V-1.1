@@ -45,6 +45,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetDescription,
   SheetTrigger,
   SheetClose,
   SheetFooter,
@@ -188,7 +189,13 @@ export default function Header() {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedMode = localStorage.getItem('darkMode');
+      return savedMode ? JSON.parse(savedMode) : false;
+    }
+    return false;
+  });
   const [isAuthenticated, setIsAuthenticated] = useState(!!user);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   // Cart and favorites state
@@ -342,11 +349,23 @@ export default function Header() {
     };
   }, [lastScrollY]);
 
-  // Alternar el modo oscuro
+  // Aplicar el modo oscuro al cargar
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
+
+  // Alternar el modo oscuro con persistencia
   const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle("dark");
+    const newMode = !isDarkMode;
+    setIsDarkMode(newMode);
+    document.documentElement.classList.toggle("dark", newMode);
+    localStorage.setItem('darkMode', JSON.stringify(newMode));
   };
+
   // Alternar la barra de búsqueda
   const toggleSearch = () => {
     setIsSearchOpen(!isSearchOpen);
@@ -377,10 +396,14 @@ export default function Header() {
             </SheetTrigger>
             <SheetContent side="left" className="w-[300px] sm:w-[350px] overflow-y-auto max-h-screen">
               <SheetHeader>
+                <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
+                <SheetDescription className="sr-only">
+                  Menú principal de navegación del sitio
+                </SheetDescription>
                 {/* Logo inside the menu */}
                 <div className="flex justify-center mb-4">
                   <Link href="/" className="h-12">
-                    <img src="/logo.png" alt="Rudolf Motors Logo" className="h-14" />
+                    <img src="" alt="Rudolf Motors Logo" className="h-14" />
                   </Link>
                 </div>
               </SheetHeader>
@@ -458,7 +481,7 @@ export default function Header() {
           {/* Logo for desktop */}
           <div className="hidden md:flex items-center justify-center">
             <Link href="/" className="h-12">
-              <img src="/logo.png" alt="Rudolf Motors Logo" className="h-14" />
+              <img src="" alt="Rudolf Motors Logo" className="h-14" />
             </Link>
           </div>
 
@@ -776,6 +799,7 @@ export default function Header() {
         <SheetContent side="right" className="w-full sm:max-w-md">
           <SheetHeader>
             <SheetTitle>Mi Carrito ({cartCount})</SheetTitle>
+            <SheetDescription>Revisa los productos en tu carrito de compras</SheetDescription>
           </SheetHeader>
           <div className="mt-6 flex flex-col h-[calc(100vh-10rem)]">
             <div className="flex-1 overflow-y-auto -mx-6 px-6">
@@ -822,6 +846,7 @@ export default function Header() {
         <SheetContent side="right" className="w-full sm:max-w-md">
           <SheetHeader>
             <SheetTitle>Mis Favoritos ({favoritesCount})</SheetTitle>
+            <SheetDescription>Tus productos guardados como favoritos</SheetDescription>
           </SheetHeader>
           <div className="mt-6 flex flex-col h-[calc(100vh-10rem)]">
             <div className="flex-1 overflow-y-auto -mx-6 px-6">
