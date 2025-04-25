@@ -403,7 +403,7 @@ export default function Header() {
                 {/* Logo inside the menu */}
                 <div className="flex justify-center mb-4">
                   <Link href="/" className="h-12">
-                    <img src="" alt="Rudolf Motors Logo" className="h-14" />
+                    <img src="/logo.png" alt="Rudolf Motors Logo" className="h-14" />
                   </Link>
                 </div>
               </SheetHeader>
@@ -481,7 +481,7 @@ export default function Header() {
           {/* Logo for desktop */}
           <div className="hidden md:flex items-center justify-center">
             <Link href="/" className="h-12">
-              <img src="" alt="Rudolf Motors Logo" className="h-14" />
+              <img src="/logo.png" alt="Rudolf Motors Logo" className="h-14" />
             </Link>
           </div>
 
