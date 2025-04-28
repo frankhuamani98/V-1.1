@@ -220,6 +220,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/opiniones', [DashboardOpinionController::class, 'index'])->name('dashboard.opiniones.index');
         Route::delete('/opiniones/{id}', [DashboardOpinionController::class, 'destroy'])->name('dashboard.opiniones.destroy');
         Route::delete('/opiniones/respuesta/{id}', [DashboardOpinionController::class, 'eliminarRespuesta'])->name('dashboard.opiniones.respuesta.destroy');
+        Route::post('/opiniones/{id}/responder', [DashboardOpinionController::class, 'responder'])->name('dashboard.opiniones.responder');
+        Route::post('/opiniones/{id}/util', [DashboardOpinionController::class, 'marcarUtil'])->name('dashboard.opiniones.util');
     });
     
 // Banners
