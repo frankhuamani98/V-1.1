@@ -608,7 +608,6 @@ const HorarioAtencion = ({ horariosRecurrentes, excepciones }: HorarioAtencionPr
                                 <Button 
                                     onClick={() => {
                                         setEditingHorario(null);
-                                        // Use current date without timezone issues
                                         const today = new Date();
                                         const year = today.getFullYear();
                                         const month = String(today.getMonth() + 1).padStart(2, '0');
@@ -630,61 +629,95 @@ const HorarioAtencion = ({ horariosRecurrentes, excepciones }: HorarioAtencionPr
                                     Agregar Excepción
                                 </Button>
                             </div>
-                            <div className="overflow-x-auto">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="text-xs sm:text-sm">Fecha</TableHead>
-                                            <TableHead className="text-xs sm:text-sm">Horario</TableHead>
-                                            <TableHead className="text-xs sm:text-sm">Estado</TableHead>
-                                            <TableHead className="text-xs sm:text-sm">Motivo</TableHead>
-                                            <TableHead className="text-right text-xs sm:text-sm">Acciones</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {excepciones.map((excepcion) => (
-                                            <TableRow key={excepcion.id}>
-                                                <TableCell className="font-medium text-xs sm:text-sm">
-                                                    {excepcion.fecha.split('-').reverse().join('/')}
-                                                </TableCell>
-                                                <TableCell className="text-xs sm:text-sm">
-                                                    {excepcion.hora_inicio} - {excepcion.hora_fin}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge className={cn(
-                                                        "text-xs",
-                                                        excepcion.activo ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                                                    )}>
-                                                        {excepcion.activo ? "Abierto" : "Cerrado"}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell className="text-xs sm:text-sm max-w-[150px] truncate">
-                                                    {excepcion.motivo || "-"}
-                                                </TableCell>
-                                                <TableCell className="text-right">
-                                                    <div className="flex justify-end gap-1 sm:gap-2">
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            onClick={() => handleEditHorario(excepcion)}
-                                                            className="h-8 w-8 p-0"
-                                                        >
-                                                            <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
-                                                        </Button>
-                                                        <Button
-                                                            variant="destructive"
-                                                            size="sm"
-                                                            onClick={() => handleDeleteHorario(excepcion)}
-                                                            className="h-8 w-8 p-0"
-                                                        >
-                                                            <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                                                        </Button>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
+                            <div className="overflow-x-auto -mx-4 sm:mx-0">
+                                <div className="min-w-full inline-block align-middle">
+                                    <div className="border rounded-lg overflow-hidden">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead className="text-xs sm:text-sm whitespace-nowrap">Fecha</TableHead>
+                                                    <TableHead className="text-xs sm:text-sm whitespace-nowrap hidden sm:table-cell">Horario</TableHead>
+                                                    <TableHead className="text-xs sm:text-sm whitespace-nowrap">Estado</TableHead>
+                                                    <TableHead className="text-xs sm:text-sm whitespace-nowrap hidden md:table-cell">Motivo</TableHead>
+                                                    <TableHead className="text-right text-xs sm:text-sm whitespace-nowrap">Acciones</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {excepciones.map((excepcion) => (
+                                                    <TableRow key={excepcion.id}>
+                                                        <TableCell className="font-medium text-xs sm:text-sm">
+                                                            <div>
+                                                                {excepcion.fecha.split('-').reverse().join('/')}
+                                                            </div>
+                                                            <div className="sm:hidden text-xs text-gray-500 mt-1">
+                                                                {excepcion.hora_inicio} - {excepcion.hora_fin}
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell className="text-xs sm:text-sm whitespace-nowrap hidden sm:table-cell">
+                                                            {excepcion.hora_inicio} - {excepcion.hora_fin}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Badge className={cn(
+                                                                "text-xs whitespace-nowrap",
+                                                                excepcion.activo ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                                                            )}>
+                                                                {excepcion.activo ? "Abierto" : "Cerrado"}
+                                                            </Badge>
+                                                            {!excepcion.activo && excepcion.motivo && (
+                                                                <div className="md:hidden text-xs text-gray-500 mt-1 line-clamp-1">
+                                                                    {excepcion.motivo}
+                                                                </div>
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell className="text-xs sm:text-sm max-w-[200px] hidden md:table-cell">
+                                                            <div className="truncate" title={excepcion.motivo || "-"}>
+                                                                {excepcion.motivo || "-"}
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell className="text-right">
+                                                            <div className="flex justify-end gap-1 sm:gap-2">
+                                                                <TooltipProvider>
+                                                                    <Tooltip>
+                                                                        <TooltipTrigger asChild>
+                                                                            <Button
+                                                                                variant="outline"
+                                                                                size="sm"
+                                                                                onClick={() => handleEditHorario(excepcion)}
+                                                                                className="h-8 w-8 p-0"
+                                                                            >
+                                                                                <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+                                                                            </Button>
+                                                                        </TooltipTrigger>
+                                                                        <TooltipContent>
+                                                                            <p>Editar excepción</p>
+                                                                        </TooltipContent>
+                                                                    </Tooltip>
+                                                                </TooltipProvider>
+                                                                <TooltipProvider>
+                                                                    <Tooltip>
+                                                                        <TooltipTrigger asChild>
+                                                                            <Button
+                                                                                variant="destructive"
+                                                                                size="sm"
+                                                                                onClick={() => handleDeleteHorario(excepcion)}
+                                                                                className="h-8 w-8 p-0"
+                                                                            >
+                                                                                <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                                                                            </Button>
+                                                                        </TooltipTrigger>
+                                                                        <TooltipContent>
+                                                                            <p>Eliminar excepción</p>
+                                                                        </TooltipContent>
+                                                                    </Tooltip>
+                                                                </TooltipProvider>
+                                                            </div>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                </div>
                             </div>
                         </TabsContent>
                     </Tabs>
