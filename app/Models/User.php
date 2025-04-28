@@ -42,6 +42,12 @@ class User extends Authenticatable
         $this->attributes['email'] = strtolower($value);
     }
 
+    // Accessor para obtener el nombre completo del usuario
+    public function getNameAttribute()
+    {
+        return $this->first_name . ' ' . $this->last_name;
+    }
+
     // Relación con las opiniones del usuario
     public function opiniones()
     {

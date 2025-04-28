@@ -13,7 +13,16 @@ interface Servicio {
     id: number;
     nombre: string;
     precio_base: number;
-    duracion_estimada: string;
+    duracion_estimada: number;
+}
+
+interface Horario {
+    id: number;
+    tipo: string;
+    dia_semana?: string;
+    fecha?: string;
+    hora_inicio: string;
+    hora_fin: string;
 }
 
 interface Reserva {
@@ -22,6 +31,8 @@ interface Reserva {
     vehiculo: string;
     placa: string;
     servicio: Servicio | null;
+    horario_id: number;
+    horario: Horario | null;
     fecha: string;
     hora: string;
     detalles: string;

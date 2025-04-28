@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('vehiculo');
             $table->string('placa');
             $table->foreignId('servicio_id')->constrained('servicios')->onDelete('restrict');
+            $table->foreignId('horario_id')->constrained('horarios')->onDelete('restrict');
             $table->date('fecha');
             $table->time('hora');
             $table->text('detalles')->nullable();

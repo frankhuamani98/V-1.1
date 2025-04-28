@@ -2,13 +2,7 @@ import React from 'react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import HorarioAtencion from '@/Layouts/Partials/Reserva/HorarioAtencion';
 import { Head } from '@inertiajs/react';
-
-interface Horario {
-    dia: string;
-    inicio: string;
-    fin: string;
-    disponible: boolean;
-}
+import { HorarioRecurrente, HorarioExcepcion } from '@/types/horarios';
 
 interface HorarioAtencionPageProps {
     auth: {
@@ -17,14 +11,18 @@ interface HorarioAtencionPageProps {
             email: string;
         };
     };
-    horarios: Horario[];
+    horariosRecurrentes: HorarioRecurrente[];
+    excepciones: HorarioExcepcion[];
 }
 
-const HorarioAtencionPage = ({ auth, horarios }: HorarioAtencionPageProps) => {
+const HorarioAtencionPage = ({ auth, horariosRecurrentes, excepciones }: HorarioAtencionPageProps) => {
     return (
         <DashboardLayout auth={auth}>
             <Head title="Horarios de Atención" />
-            <HorarioAtencion horarios={horarios} />
+            <HorarioAtencion 
+                horariosRecurrentes={horariosRecurrentes}
+                excepciones={excepciones}
+            />
         </DashboardLayout>
     );
 };

@@ -18,7 +18,7 @@ class ReservaController extends Controller
     public function index()
     {
         $reservas = Auth::user()->reservas()
-            ->with('servicio')
+            ->with(['servicio', 'horario'])
             ->orderBy('fecha', 'desc')
             ->orderBy('hora', 'asc')
             ->get()
@@ -28,6 +28,7 @@ class ReservaController extends Controller
                     'vehiculo' => $reserva->vehiculo,
                     'placa' => $reserva->placa,
                     'servicio' => $reserva->servicio ? $reserva->servicio->nombre : 'Servicio no disponible',
+                    'horario_id' => $reserva->horario_id,
                     'fecha' => $reserva->fecha,
                     'hora' => $reserva->hora,
                     'detalles' => $reserva->detalles,
@@ -47,7 +48,7 @@ class ReservaController extends Controller
      */
     public function create()
     {
-        $serviciosDisponibles = Servicio::where('estado', true)
+        $servicios = Servicio::where('estado', true)
             ->orderBy('nombre')
             ->get()
             ->map(function ($servicio) {
@@ -65,11 +66,11 @@ class ReservaController extends Controller
                 ];
             });
             
-        $horariosDisponibles = $this->getHorariosDisponibles();
-        
+        $horarios = $this->getHorariosDisponibles();
+
         return Inertia::render('Home/Partials/Reserva/AgendarServicio', [
-            'servicios' => $serviciosDisponibles,
-            'horarios' => $horariosDisponibles
+            'servicios' => $servicios,
+            'horarios' => $horarios,
         ]);
     }
 
@@ -84,11 +85,13 @@ class ReservaController extends Controller
             'servicio_id' => 'required|exists:servicios,id',
             'fecha' => 'required|date|after_or_equal:today',
             'hora' => 'required|string',
+            'horario_id' => 'required|exists:horarios,id',
             'detalles' => 'nullable|string|max:500',
         ]);
 
         // Asegurar que servicio_id sea un entero
         $validated['servicio_id'] = (int) $validated['servicio_id'];
+        $validated['horario_id'] = (int) $validated['horario_id'];
 
         // Verificar disponibilidad del horario
         $existeReserva = Reserva::where('fecha', $validated['fecha'])
@@ -105,6 +108,7 @@ class ReservaController extends Controller
             'vehiculo' => $validated['vehiculo'],
             'placa' => $validated['placa'],
             'servicio_id' => $validated['servicio_id'],
+            'horario_id' => $validated['horario_id'],
             'fecha' => $validated['fecha'],
             'hora' => $validated['hora'],
             'detalles' => $validated['detalles'],
@@ -149,7 +153,7 @@ class ReservaController extends Controller
         }
 
         // Cargar el servicio relacionado
-        $reserva->load('servicio');
+        $reserva->load(['servicio', 'horario']);
         
         // Formatear la reserva
         $reservaFormateada = [
@@ -157,6 +161,7 @@ class ReservaController extends Controller
             'vehiculo' => $reserva->vehiculo,
             'placa' => $reserva->placa,
             'servicio_id' => $reserva->servicio_id,
+            'horario_id' => $reserva->horario_id,
             'fecha' => $reserva->fecha->format('Y-m-d'), // Formatear la fecha
             'hora' => $reserva->hora,
             'detalles' => $reserva->detalles,
@@ -212,6 +217,7 @@ class ReservaController extends Controller
             'vehiculo' => 'required|string|max:255',
             'placa' => 'required|string|max:10',
             'servicio_id' => 'required|exists:servicios,id',
+            'horario_id' => 'required|exists:horarios,id',
             'fecha' => 'required|date|after_or_equal:today',
             'hora' => 'required|string',
             'detalles' => 'nullable|string|max:500',
@@ -320,33 +326,227 @@ class ReservaController extends Controller
      */
     public function horariosAtencion()
     {
-        $horarios = $this->getHorariosDisponibles();
-
-        return Inertia::render('Home/Partials/Reserva/HorariosAtencion', [
-            'horarios' => $horarios
-        ]);
+        // Redirigir al controlador específico para horarios
+        return redirect()->route('reservas.horarios-atencion');
     }
 
     /**
-     * Obtiene la lista de horarios disponibles (simulado)
+     * Obtiene la lista de horarios disponibles de la base de datos
      */
     private function getHorariosDisponibles()
     {
-        // Generar franjas horarias con formato 'H:i'
-        $franjas = [];
-        for ($hora = 8; $hora <= 17; $hora++) {
-            if ($hora != 13) { // Excluir la hora de almuerzo (13:00)
-                $franjas[] = sprintf('%02d:00', $hora);
+        // Log para depuración
+        \Log::info('Obteniendo horarios disponibles');
+        
+        // Obtener horarios recurrentes
+        $horariosRecurrentes = \App\Models\Horario::where('tipo', 'recurrente')
+            ->orderBy('dia_semana')
+            ->get();
+            
+        // Log para horarios recurrentes
+        \Log::info('Horarios recurrentes encontrados', [
+            'cantidad' => $horariosRecurrentes->count(),
+            'horarios' => $horariosRecurrentes->toArray()
+        ]);
+            
+        // Crear un mapeo de días
+        $mapDiasSemana = [
+            'lunes' => 'Lunes',
+            'martes' => 'Martes',
+            'miercoles' => 'Miércoles',
+            'jueves' => 'Jueves',
+            'viernes' => 'Viernes',
+            'sabado' => 'Sábado',
+            'domingo' => 'Domingo',
+        ];
+        
+        // Crear array de horarios por día
+        $horariosPorDia = [];
+        $diasDisponibles = [];
+        
+        foreach ($horariosRecurrentes as $horario) {
+            $nombreDia = $mapDiasSemana[$horario->dia_semana] ?? null;
+            
+            if ($nombreDia) {
+                // Añadir información del horario
+                $horariosPorDia[$nombreDia] = "{$horario->hora_inicio} - {$horario->hora_fin}";
+                
+                // Si está activo, añadirlo a la lista de días disponibles
+                if ($horario->activo) {
+                    $diasDisponibles[] = $nombreDia;
+                }
+                
+                // Log específico para cada día
+                \Log::info("Horario configurado para: {$nombreDia}", [
+                    'hora_inicio' => $horario->hora_inicio,
+                    'hora_fin' => $horario->hora_fin,
+                    'activo' => $horario->activo,
+                    'dia_semana' => $horario->dia_semana
+                ]);
             }
         }
         
+        // Log de días disponibles
+        \Log::info('Días disponibles generados', [
+            'dias_disponibles' => $diasDisponibles,
+            'horarios_por_dia' => $horariosPorDia
+        ]);
+        
+        // Obtener excepciones para los próximos 30 días
+        $hoy = \Carbon\Carbon::now()->startOfDay();
+        $unMesDespues = \Carbon\Carbon::now()->addDays(30)->endOfDay();
+        
+        $excepciones = \App\Models\Horario::where('tipo', 'excepcion')
+            ->whereBetween('fecha', [$hoy, $unMesDespues])
+            ->get()
+            ->map(function ($horario) {
+                return [
+                    'fecha' => $horario->fecha->format('Y-m-d'),
+                    'activo' => $horario->activo,
+                    'hora_inicio' => $horario->hora_inicio,
+                    'hora_fin' => $horario->hora_fin,
+                    'motivo' => $horario->motivo
+                ];
+            })->keyBy('fecha');
+            
+        // Generar lista de franjas horarias (de hora en hora, de 8 a 18)
+        $franjas = [];
+        for ($hora = 8; $hora <= 17; $hora++) {
+            $franjas[] = sprintf('%02d:00', $hora);
+        }
+        
         return [
-            'dias' => ['Lunes a Viernes', 'Sábados'],
-            'horarios' => [
-                'Lunes a Viernes' => '8:00 AM - 6:00 PM',
-                'Sábados' => '9:00 AM - 2:00 PM'
-            ],
-            'franjas' => $franjas
+            'dias' => $diasDisponibles,
+            'horarios' => $horariosPorDia,
+            'franjas' => $franjas,
+            'diasDisponibles' => $diasDisponibles, // Mantener por compatibilidad
+            'excepciones' => $excepciones->all()
         ];
+    }
+
+    /**
+     * API para obtener horas disponibles para una fecha específica
+     */
+    public function horasDisponibles(Request $request)
+    {
+        $request->validate([
+            'fecha' => 'required|date|after_or_equal:today',
+        ]);
+        
+        $fecha = \Carbon\Carbon::parse($request->fecha);
+        $diaSemana = $fecha->dayOfWeek; // 0 (domingo) a 6 (sábado) en Carbon
+        
+        \Log::info('Procesando solicitud para horas disponibles', [
+            'fecha' => $request->fecha,
+            'dia_semana' => $diaSemana,
+            'es_domingo' => $diaSemana === 0
+        ]);
+        
+        // Rechazar solicitudes para domingo (día 0 en Carbon)
+        if ($diaSemana === 0) {
+            return response()->json([
+                'disponible' => false,
+                'motivo' => 'No hay atención los días domingo',
+                'horas' => []
+            ]);
+        }
+        
+        // Verificar primero si hay una excepción para esta fecha
+        $excepcion = \App\Models\Horario::where('tipo', 'excepcion')
+            ->whereDate('fecha', $fecha->format('Y-m-d'))
+            ->first();
+        
+        if ($excepcion) {
+            \Log::info('Encontrada excepción para fecha', [
+                'excepcion' => $excepcion->toArray()
+            ]);
+            
+            // Si hay una excepción y está marcada como inactiva
+            if (!$excepcion->activo) {
+                return response()->json([
+                    'disponible' => false,
+                    'motivo' => $excepcion->motivo ?? 'Fecha no disponible por excepción',
+                    'horas' => []
+                ]);
+            }
+            
+            // Usar horario de la excepción
+            $horaInicio = \Carbon\Carbon::parse($excepcion->hora_inicio);
+            $horaFin = \Carbon\Carbon::parse($excepcion->hora_fin);
+            $horarioId = $excepcion->id;
+        } else {
+            // Si no hay excepción, buscar el horario para este día de la semana
+            $nombresDias = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+            $diaSemanaKey = $nombresDias[$diaSemana];
+            
+            $horarioRecurrente = \App\Models\Horario::where('tipo', 'recurrente')
+                ->where('dia_semana', $diaSemanaKey)
+                ->first();
+            
+            \Log::info('Buscando horario recurrente', [
+                'dia_semana_key' => $diaSemanaKey,
+                'encontrado' => $horarioRecurrente ? true : false
+            ]);
+            
+            // Si no hay horario configurado para este día, usar valores predeterminados
+            if (!$horarioRecurrente) {
+                // Valores predeterminados para día laborable (9:00 - 18:00)
+                $horaInicio = \Carbon\Carbon::parse('09:00:00');
+                $horaFin = \Carbon\Carbon::parse('18:00:00');
+                
+                // Si es sábado, usar horario reducido
+                if ($diaSemana === 6) { // 6 = sábado
+                    $horaFin = \Carbon\Carbon::parse('14:00:00');
+                }
+                
+                // Crear un horario temporal
+                $horarioRecurrente = new \App\Models\Horario([
+                    'tipo' => 'recurrente',
+                    'dia_semana' => $diaSemanaKey,
+                    'hora_inicio' => $horaInicio->format('H:i:s'),
+                    'hora_fin' => $horaFin->format('H:i:s'),
+                    'activo' => true
+                ]);
+                
+                $horarioRecurrente->id = 0; // ID temporal
+                
+                \Log::info('Usando horario predeterminado', [
+                    'dia' => $diaSemanaKey,
+                    'horario' => $horarioRecurrente->toArray()
+                ]);
+            } else {
+                $horaInicio = \Carbon\Carbon::parse($horarioRecurrente->hora_inicio);
+                $horaFin = \Carbon\Carbon::parse($horarioRecurrente->hora_fin);
+            }
+            
+            $horarioId = $horarioRecurrente->id;
+        }
+        
+        // Generar franjas horarias de hora en hora
+        $horas = [];
+        $current = $horaInicio->copy();
+        
+        while ($current < $horaFin) {
+            $horas[] = $current->format('H:i');
+            $current->addHour();
+        }
+        
+        // Buscar reservas ya existentes para esta fecha
+        $reservasExistentes = \App\Models\Reserva::whereDate('fecha', $fecha->format('Y-m-d'))
+            ->where('estado', '!=', 'cancelada')
+            ->pluck('hora')
+            ->toArray();
+        
+        // Filtrar horas disponibles
+        $horasDisponibles = array_values(array_filter($horas, function($hora) use ($reservasExistentes) {
+            return !in_array($hora, $reservasExistentes);
+        }));
+        
+        return response()->json([
+            'disponible' => true,
+            'fecha' => $fecha->format('Y-m-d'),
+            'horas' => $horasDisponibles,
+            'horario_id' => $horarioId
+        ]);
     }
 }

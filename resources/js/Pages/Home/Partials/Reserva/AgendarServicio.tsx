@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Head } from "@inertiajs/react";
 import { useForm } from "@inertiajs/react";
 import NavigationMenu from '@/Components/NavigationMenu';
+import axios from "axios";
 
 interface Servicio {
   id: number;
@@ -20,6 +21,7 @@ interface Reserva {
   hora: string;
   detalles: string | null;
   estado?: string;
+  horario_id?: number;
 }
 
 interface Props {
@@ -37,6 +39,14 @@ interface Props {
   isEditing?: boolean;
 }
 
+interface HorasDisponiblesResponse {
+  disponible: boolean;
+  motivo?: string;
+  horas: string[];
+  fecha: string;
+  horario_id: number;
+}
+
 export default function AgendarServicio({ servicios, horarios, reserva, flash, isEditing = false }: Props) {
   // Debugging
   console.log("Modo:", isEditing ? "Editar" : "Crear");
@@ -48,6 +58,10 @@ export default function AgendarServicio({ servicios, horarios, reserva, flash, i
   const [selectedDate, setSelectedDate] = useState(reserva?.fecha || "");
   const [successMessage, setSuccessMessage] = useState(flash?.success || "");
   const [errorMessage, setErrorMessage] = useState(flash?.error || "");
+  const [availableHours, setAvailableHours] = useState<string[]>([]);
+  const [horarioId, setHorarioId] = useState<number | null>(null);
+  const [loadingHours, setLoadingHours] = useState(false);
+  const [dateErrorMessage, setDateErrorMessage] = useState("");
   
   const { data, setData, post, put, processing, errors, reset } = useForm({
     vehiculo: reserva?.vehiculo || "",
@@ -56,6 +70,7 @@ export default function AgendarServicio({ servicios, horarios, reserva, flash, i
     fecha: reserva?.fecha || "",
     hora: reserva?.hora || "",
     detalles: reserva?.detalles || "",
+    horario_id: reserva?.horario_id?.toString() || "",
   });
 
   // Limpiar los mensajes después de 5 segundos
@@ -70,8 +85,54 @@ export default function AgendarServicio({ servicios, horarios, reserva, flash, i
     }
   }, [successMessage, errorMessage]);
 
+  // Fetch available hours when date changes
+  useEffect(() => {
+    if (selectedDate) {
+      fetchAvailableHours(selectedDate);
+    } else {
+      setAvailableHours([]);
+      setHorarioId(null);
+      setDateErrorMessage("");
+    }
+  }, [selectedDate]);
+  
+  const fetchAvailableHours = async (date: string) => {
+    setLoadingHours(true);
+    setDateErrorMessage("");
+    
+    try {
+      const response = await axios.get<HorasDisponiblesResponse>(route('api.reservas.horas-disponibles'), {
+        params: { fecha: date }
+      });
+      
+      if (response.data.disponible) {
+        setAvailableHours(response.data.horas);
+        setHorarioId(response.data.horario_id);
+        // If editing and current time is not in available hours, reset the time
+        if (isEditing && data.hora && !response.data.horas.includes(data.hora)) {
+          setData("hora", "");
+        }
+      } else {
+        setAvailableHours([]);
+        setDateErrorMessage(response.data.motivo || "No hay horarios disponibles para esta fecha");
+        setData("hora", "");
+      }
+    } catch (error) {
+      console.error("Error fetching available hours:", error);
+      setDateErrorMessage("Error al cargar horarios disponibles");
+      setAvailableHours([]);
+    } finally {
+      setLoadingHours(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Set horario_id before submitting
+    if (horarioId) {
+      setData("horario_id", horarioId.toString());
+    }
     
     if (isEditing && reserva?.id) {
       // Actualizar reserva existente
@@ -87,8 +148,9 @@ export default function AgendarServicio({ servicios, horarios, reserva, flash, i
       // Crear nueva reserva
       post(route("reservas.store"), {
         onSuccess: () => {
-          reset("vehiculo", "placa", "servicio_id", "fecha", "hora", "detalles");
+          reset();
           setSelectedDate("");
+          setAvailableHours([]);
           setSuccessMessage("Reserva creada exitosamente. Será redirigido a sus citas.");
         },
         onError: () => {
@@ -225,6 +287,9 @@ export default function AgendarServicio({ servicios, horarios, reserva, flash, i
                     {errors.fecha && (
                       <p className="mt-1 text-sm text-red-600">{errors.fecha}</p>
                     )}
+                    {dateErrorMessage && (
+                      <p className="mt-1 text-sm text-red-600">{dateErrorMessage}</p>
+                    )}
                   </div>
                   
                   <div>
@@ -237,10 +302,16 @@ export default function AgendarServicio({ servicios, horarios, reserva, flash, i
                       value={data.hora}
                       onChange={(e) => setData("hora", e.target.value)}
                       required
-                      disabled={!selectedDate}
+                      disabled={!selectedDate || loadingHours || availableHours.length === 0}
                     >
-                      <option value="">Seleccione una hora</option>
-                      {selectedDate && horarios.franjas.map((hora) => (
+                      <option value="">
+                        {loadingHours
+                          ? "Cargando horarios..."
+                          : availableHours.length === 0 && selectedDate
+                          ? "No hay horarios disponibles"
+                          : "Seleccione una hora"}
+                      </option>
+                      {availableHours.map((hora) => (
                         <option key={hora} value={hora}>
                           {hora}
                         </option>
@@ -253,11 +324,21 @@ export default function AgendarServicio({ servicios, horarios, reserva, flash, i
                   
                   <div className="bg-gray-50 p-4 rounded-md mt-4">
                     <h3 className="text-sm font-medium text-gray-700 mb-2">Horarios de Atención</h3>
-                    {horarios.dias.map((dia) => (
-                      <p key={dia} className="text-sm text-gray-600">
-                        <span className="font-medium">{dia}:</span> {horarios.horarios[dia]}
-                      </p>
-                    ))}
+                    {Object.entries({
+                      'Lunes': horarios.horarios['Lunes'] || '',
+                      'Martes': horarios.horarios['Martes'] || '',
+                      'Miércoles': horarios.horarios['Miércoles'] || '',
+                      'Jueves': horarios.horarios['Jueves'] || '',
+                      'Viernes': horarios.horarios['Viernes'] || '',
+                      'Sábado': horarios.horarios['Sábado'] || '',
+                      'Domingo': horarios.horarios['Domingo'] || ''
+                    })
+                      .filter(([_, horario]) => horario !== '')
+                      .map(([dia, horario]) => (
+                        <p key={dia} className="text-sm text-gray-600">
+                          <span className="font-medium">{dia}:</span> {horario}
+                        </p>
+                      ))}
                   </div>
                 </div>
               </div>
@@ -274,7 +355,7 @@ export default function AgendarServicio({ servicios, horarios, reserva, flash, i
                 <button
                   type="submit"
                   className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  disabled={processing}
+                  disabled={processing || Boolean(availableHours.length === 0 && selectedDate)}
                 >
                   {processing ? "Procesando..." : isEditing ? "Guardar Cambios" : "Agendar Cita"}
                 </button>

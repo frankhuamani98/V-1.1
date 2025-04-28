@@ -8,6 +8,7 @@ interface Reserva {
   vehiculo: string;
   placa: string;
   servicio: string;
+  horario_id?: number;
   fecha: string;
   hora: string;
   detalles: string | null;

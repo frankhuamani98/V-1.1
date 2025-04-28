@@ -5,7 +5,7 @@ use App\Http\Controllers\{  DashboardController, WelcomeController, ResultadosCo
 use App\Http\Controllers\Usuarios\{ListaUsuariosController, AdministradoresController};
 use App\Http\Controllers\Productos\{AgregarProductoController, InventarioProductosController};
 use App\Http\Controllers\Servicio\{CategoriaServicioController, ServicioController};
-use App\Http\Controllers\Reserva\{ReservaController, DashboardReservaController};
+use App\Http\Controllers\Reserva\{DashboardHorarioController, ReservaController, DashboardReservaController, HorarioController};
 use App\Http\Controllers\Moto\RegistroMotosController;
 use App\Http\Controllers\Facturacion\{FacturasPendientesController, HistorialFacturasController};
 use App\Http\Controllers\Soporte\{ManualUsuarioController, SoporteTecnicoController};
@@ -51,15 +51,58 @@ Route::middleware('auth')->group(function () {
         });
     });
 
-    // Dashboard Reservas - Movido fuera del grupo de usuarios
+    // Dashboard Reservas
     Route::prefix('dashboard/reservas')->name('dashboard.reservas.')->group(function () {
+        // Rutas específicas primero
         Route::get('/', [DashboardReservaController::class, 'index'])->name('index');
         Route::get('/confirmadas', [DashboardReservaController::class, 'confirmadas'])->name('confirmadas');
-        Route::get('/horario-atencion', [DashboardReservaController::class, 'horarioAtencion'])->name('horario-atencion');
-        Route::get('/{reserva}', [DashboardReservaController::class, 'show'])->name('show');
-        Route::patch('/{reserva}/estado', [DashboardReservaController::class, 'actualizarEstado'])->name('actualizar-estado');
+        Route::patch('/{reserva}/estado', [DashboardReservaController::class, 'actualizarEstado'])
+            ->where('reserva', '[0-9]+')
+            ->name('actualizar-estado');
+            
+        // Horarios de atención (debe ir antes de la ruta con parámetro wildcard)
+        Route::prefix('horario-atencion')->name('horario.')->group(function () {
+            Route::get('/', [DashboardHorarioController::class, 'index'])->name('index');
+            
+            // Horarios recurrentes
+            Route::prefix('recurrentes')->name('recurrentes.')->group(function () {
+                Route::get('/crear', [DashboardHorarioController::class, 'createRecurrente'])->name('create');
+                Route::post('/', [DashboardHorarioController::class, 'storeRecurrente'])->name('store');
+                Route::get('/{horario}/editar', [DashboardHorarioController::class, 'editRecurrente'])
+                    ->where('horario', '[0-9]+')
+                    ->name('edit');
+                Route::put('/{horario}', [DashboardHorarioController::class, 'updateRecurrente'])
+                    ->where('horario', '[0-9]+')
+                    ->name('update');
+                Route::delete('/{horario}', [DashboardHorarioController::class, 'destroyRecurrente'])
+                    ->where('horario', '[0-9]+')
+                    ->name('destroy');
+            });
+            
+            // Excepciones
+            Route::prefix('excepciones')->name('excepciones.')->group(function () {
+                Route::get('/crear', [DashboardHorarioController::class, 'createExcepcion'])->name('create');
+                Route::post('/', [DashboardHorarioController::class, 'storeExcepcion'])->name('store');
+                Route::get('/{horario}/editar', [DashboardHorarioController::class, 'editExcepcion'])
+                    ->where('horario', '[0-9]+')
+                    ->name('edit');
+                Route::put('/{horario}', [DashboardHorarioController::class, 'updateExcepcion'])
+                    ->where('horario', '[0-9]+')
+                    ->name('update');
+                Route::delete('/{horario}', [DashboardHorarioController::class, 'destroyExcepcion'])
+                    ->where('horario', '[0-9]+')
+                    ->name('destroy');
+            });
+            
+            Route::get('/disponibles', [DashboardHorarioController::class, 'horariosDisponibles'])->name('disponibles');
+        });
+        
+        // Ruta con parámetro wildcard debe ir al final
+        Route::get('/{reserva}', [DashboardReservaController::class, 'show'])
+            ->where('reserva', '[0-9]+')
+            ->name('show');
     });
-    
+
     // Categorías
     Route::prefix('categorias')->group(function () {
         Route::get('/lista', [ListaCategoriasController::class, 'index'])->name('categorias.lista');
@@ -137,14 +180,19 @@ Route::middleware('auth')->group(function () {
         Route::get('/agendar', [ReservaController::class, 'create'])->name('create');
         Route::post('/', [ReservaController::class, 'store'])->name('store');
         Route::get('/servicios-disponibles', [ReservaController::class, 'serviciosDisponibles'])->name('servicios-disponibles');
-        Route::get('/horarios-atencion', [ReservaController::class, 'horariosAtencion'])->name('horarios-atencion');
+        Route::get('/horarios-atencion', [HorarioController::class, 'index'])->name('horarios-atencion');
+        Route::get('/horas-disponibles', [ReservaController::class, 'horasDisponibles'])->name('horas-disponibles');
         Route::get('/{reserva}', [ReservaController::class, 'show'])->name('show');
         Route::get('/{reserva}/editar', [ReservaController::class, 'edit'])->name('edit');
         Route::put('/{reserva}', [ReservaController::class, 'update'])->name('update');
         Route::delete('/{reserva}', [ReservaController::class, 'destroy'])->name('destroy');
     });
 
-   
+    // API Routes
+    Route::prefix('api')->name('api.')->group(function () {
+        Route::get('/reservas/horas-disponibles', [ReservaController::class, 'horasDisponibles'])->name('reservas.horas-disponibles');
+    });
+
     // Pedidos
     Route::prefix('pedidos')->group(function () {
         Route::get('/nuevos', [NuevosPedidosController::class, 'index'])->name('pedidos.nuevos');

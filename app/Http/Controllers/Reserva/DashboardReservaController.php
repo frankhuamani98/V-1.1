@@ -18,7 +18,7 @@ class DashboardReservaController extends Controller
      */
     public function index()
     {
-        $reservas = Reserva::with(['user', 'servicio'])
+        $reservas = Reserva::with(['user', 'servicio', 'horario'])
             ->orderBy('fecha', 'desc')
             ->orderBy('hora', 'asc')
             ->get()
@@ -29,6 +29,13 @@ class DashboardReservaController extends Controller
                     'vehiculo' => $reserva->vehiculo,
                     'placa' => $reserva->placa,
                     'servicio' => $reserva->servicio ? $reserva->servicio->nombre : 'Servicio no disponible',
+                    'horario_id' => $reserva->horario_id,
+                    'horario' => $reserva->horario ? [
+                        'id' => $reserva->horario->id,
+                        'tipo' => $reserva->horario->tipo,
+                        'hora_inicio' => $reserva->horario->hora_inicio,
+                        'hora_fin' => $reserva->horario->hora_fin
+                    ] : null,
                     'fecha' => $reserva->fecha->format('Y-m-d'),
                     'hora' => $reserva->hora,
                     'detalles' => $reserva->detalles,
@@ -48,7 +55,7 @@ class DashboardReservaController extends Controller
      */
     public function confirmadas()
     {
-        $reservas = Reserva::with(['user', 'servicio'])
+        $reservas = Reserva::with(['user', 'servicio', 'horario'])
             ->where('estado', 'confirmada')
             ->orderBy('fecha', 'asc')
             ->orderBy('hora', 'asc')
@@ -60,6 +67,13 @@ class DashboardReservaController extends Controller
                     'vehiculo' => $reserva->vehiculo,
                     'placa' => $reserva->placa,
                     'servicio' => $reserva->servicio ? $reserva->servicio->nombre : 'Servicio no disponible',
+                    'horario_id' => $reserva->horario_id,
+                    'horario' => $reserva->horario ? [
+                        'id' => $reserva->horario->id,
+                        'tipo' => $reserva->horario->tipo,
+                        'hora_inicio' => $reserva->horario->hora_inicio,
+                        'hora_fin' => $reserva->horario->hora_fin
+                    ] : null,
                     'fecha' => $reserva->fecha->format('Y-m-d'),
                     'hora' => $reserva->hora,
                     'detalles' => $reserva->detalles,
@@ -79,18 +93,7 @@ class DashboardReservaController extends Controller
      */
     public function horarioAtencion()
     {
-        $horarios = [
-            ['dia' => 'lunes', 'apertura' => '08:00', 'cierre' => '18:00'],
-            ['dia' => 'martes', 'apertura' => '08:00', 'cierre' => '18:00'],
-            ['dia' => 'miercoles', 'apertura' => '08:00', 'cierre' => '18:00'],
-            ['dia' => 'jueves', 'apertura' => '08:00', 'cierre' => '18:00'],
-            ['dia' => 'viernes', 'apertura' => '08:00', 'cierre' => '18:00'],
-            ['dia' => 'sabado', 'apertura' => '09:00', 'cierre' => '13:00'],
-        ];
-        
-        return Inertia::render('Dashboard/Reserva/HorarioAtencion', [
-            'horarios' => $horarios
-        ]);
+        return redirect()->route('dashboard.reservas.horario.index');
     }
 
     /**
@@ -114,7 +117,7 @@ class DashboardReservaController extends Controller
     public function show(Reserva $reserva)
     {
         // Carga las relaciones
-        $reserva->load(['user', 'servicio']);
+        $reserva->load(['user', 'servicio', 'horario']);
         
         $reservaFormateada = [
             'id' => $reserva->id,
@@ -130,6 +133,15 @@ class DashboardReservaController extends Controller
                 'nombre' => $reserva->servicio->nombre,
                 'precio_base' => (float) $reserva->servicio->precio_base,
                 'duracion_estimada' => $reserva->servicio->duracion_estimada,
+            ] : null,
+            'horario_id' => $reserva->horario_id,
+            'horario' => $reserva->horario ? [
+                'id' => $reserva->horario->id,
+                'tipo' => $reserva->horario->tipo,
+                'dia_semana' => $reserva->horario->dia_semana ?? null,
+                'fecha' => $reserva->horario->fecha ? $reserva->horario->fecha->format('Y-m-d') : null,
+                'hora_inicio' => $reserva->horario->hora_inicio,
+                'hora_fin' => $reserva->horario->hora_fin,
             ] : null,
             'fecha' => $reserva->fecha->format('Y-m-d'),
             'hora' => $reserva->hora,

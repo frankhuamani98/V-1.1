@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text('descripcion')->nullable();
             $table->decimal('precio_base', 10, 2);
             $table->integer('duracion_estimada')->comment('Duración en minutos');
-            $table->foreignId('categoria_servicio_id')->nullable()->constrained('categorias_servicios')->onDelete('set null');
+            $table->foreignId('categoria_servicio_id')->constrained('categorias_servicios')->onDelete('restrict');
             $table->boolean('estado')->default(true)->comment('true: activo, false: inactivo');
             $table->timestamps();
         });

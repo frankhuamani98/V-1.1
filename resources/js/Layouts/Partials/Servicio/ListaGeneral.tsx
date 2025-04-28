@@ -7,6 +7,16 @@ import { ChevronDown, ChevronUp, ListChecks, Plus, Pencil, Trash2 } from "lucide
 import { Toaster, toast } from "sonner";
 import { router } from "@inertiajs/react";
 import { Link } from "@inertiajs/react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/Components/ui/alert-dialog";
 
 interface Servicio {
   id: number;
@@ -33,6 +43,12 @@ interface ListaGeneralProps {
 const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
   const [categorias, setCategorias] = useState<CategoriaServicio[]>(initialCategorias);
   const [expandedCategories, setExpandedCategories] = useState<number[]>([]);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [categoriaToDelete, setCategoriaToDelete] = useState<number | null>(null);
+  const [servicioToDelete, setServicioToDelete] = useState<{id: number, categoriaId: number} | null>(null);
+  const [deleteDialogTitle, setDeleteDialogTitle] = useState("");
+  const [deleteDialogDescription, setDeleteDialogDescription] = useState("");
+  const [deleteAction, setDeleteAction] = useState<"categoria" | "servicio">("categoria");
 
   const toggleCategory = (id: number) => {
     setExpandedCategories((prev) =>
@@ -40,46 +56,102 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
     );
   };
 
-  const handleDeleteCategoria = (id: number) => {
-    if (confirm("¿Estás seguro de eliminar esta categoría? Esta acción no se puede deshacer.")) {
-      router.delete(`/servicios/categorias/${id}`, {
-        preserveScroll: true,
-        onSuccess: () => {
-          setCategorias(categorias.filter(categoria => categoria.id !== id));
-          toast.success("Categoría eliminada correctamente");
-        },
-        onError: () => {
-          toast.error("Error al eliminar la categoría");
-        }
-      });
-    }
+  const openDeleteCategoriaDialog = (categoria: CategoriaServicio, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setCategoriaToDelete(categoria.id);
+    setDeleteDialogTitle("Eliminar Categoría");
+    setDeleteDialogDescription(`¿Estás seguro de que deseas eliminar la categoría "${categoria.nombre}"? Esta acción no se puede deshacer.`);
+    setDeleteAction("categoria");
+    setIsDeleteDialogOpen(true);
   };
 
-  const handleDeleteServicio = (id: number, categoriaId: number) => {
-    if (confirm("¿Estás seguro de eliminar este servicio? Esta acción no se puede deshacer.")) {
-      router.delete(`/servicios/${id}`, {
-        preserveScroll: true,
-        onSuccess: () => {
-          setCategorias(categorias.map(categoria => {
-            if (categoria.id === categoriaId) {
-              return {
-                ...categoria,
-                servicios: categoria.servicios.filter(servicio => servicio.id !== id)
-              };
-            }
-            return categoria;
-          }));
-          toast.success("Servicio eliminado correctamente");
-        },
-        onError: () => {
+  const openDeleteServicioDialog = (servicio: Servicio, categoriaId: number) => {
+    setServicioToDelete({id: servicio.id, categoriaId});
+    setDeleteDialogTitle("Eliminar Servicio");
+    setDeleteDialogDescription(`¿Estás seguro de que deseas eliminar el servicio "${servicio.nombre}"? Esta acción no se puede deshacer.`);
+    setDeleteAction("servicio");
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteCategoria = () => {
+    if (!categoriaToDelete) return;
+
+    router.delete(`/servicios/categorias/${categoriaToDelete}`, {
+      preserveScroll: true,
+      onSuccess: () => {
+        setCategorias(categorias.filter(categoria => categoria.id !== categoriaToDelete));
+        toast.success("Categoría eliminada correctamente");
+        setCategoriaToDelete(null);
+      },
+      onError: (errors: any) => {
+        const errorMessage = errors.message || "No se pudo eliminar la categoría porque tiene servicios asociados. Elimine primero todos los servicios de esta categoría.";
+        toast.error(errorMessage);
+      }
+    });
+  };
+
+  const handleDeleteServicio = () => {
+    if (!servicioToDelete) return;
+
+    router.delete(`/servicios/${servicioToDelete.id}`, {
+      preserveScroll: true,
+      onSuccess: () => {
+        setCategorias(categorias.map(categoria => {
+          if (categoria.id === servicioToDelete.categoriaId) {
+            return {
+              ...categoria,
+              servicios: categoria.servicios.filter(servicio => servicio.id !== servicioToDelete.id)
+            };
+          }
+          return categoria;
+        }));
+        toast.success("Servicio eliminado correctamente");
+        setServicioToDelete(null);
+      },
+      onError: (errors) => {
+        if (errors.message) {
+          toast.error(errors.message);
+        } else {
           toast.error("Error al eliminar el servicio");
         }
-      });
+      }
+    });
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteAction === "categoria") {
+      handleDeleteCategoria();
+    } else {
+      handleDeleteServicio();
     }
+    setIsDeleteDialogOpen(false);
   };
 
   return (
     <div className="p-2 sm:p-4 md:p-6">
+      <Toaster position="top-center" />
+      
+      {/* Diálogo de confirmación para eliminar */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{deleteDialogTitle}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteDialogDescription}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <Card className="border-0 sm:border shadow-md rounded-xl overflow-hidden">
         <CardHeader className="px-4 sm:px-6 bg-white border-b">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -170,7 +242,7 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
                           className="h-8"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDeleteCategoria(categoria.id);
+                            openDeleteCategoriaDialog(categoria);
                           }}
                         >
                           <Trash2 className="h-3.5 w-3.5 mr-1" />
@@ -199,7 +271,10 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
                       variant="destructive" 
                       size="sm" 
                       className="w-1/2"
-                      onClick={() => handleDeleteCategoria(categoria.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openDeleteCategoriaDialog(categoria);
+                      }}
                     >
                       <Trash2 className="h-3.5 w-3.5 mr-1" />
                       Eliminar
@@ -247,7 +322,10 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
                                       variant="destructive" 
                                       size="sm" 
                                       className="h-8"
-                                      onClick={() => handleDeleteServicio(servicio.id, categoria.id)}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        openDeleteServicioDialog(servicio, categoria.id);
+                                      }}
                                     >
                                       <Trash2 className="h-3.5 w-3.5 sm:mr-1" />
                                       <span className="hidden sm:inline">Eliminar</span>
@@ -281,7 +359,6 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
           )}
         </CardContent>
       </Card>
-      <Toaster position="top-right" closeButton />
     </div>
   );
 };

@@ -15,6 +15,7 @@ class Reserva extends Model
         'vehiculo',
         'placa',
         'servicio_id',
+        'horario_id',
         'fecha',
         'hora',
         'detalles',
@@ -31,9 +32,15 @@ class Reserva extends Model
         return $this->belongsTo(User::class);
     }
 
-    // Nueva relación con el servicio
+    // Relación con el servicio
     public function servicio(): BelongsTo
     {
         return $this->belongsTo(Servicio::class);
+    }
+
+    // Relación con el horario
+    public function horario(): BelongsTo
+    {
+        return $this->belongsTo(Horario::class);
     }
 }

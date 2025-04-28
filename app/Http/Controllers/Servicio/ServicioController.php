@@ -13,17 +13,30 @@ class ServicioController extends Controller
     /**
      * Muestra la lista general de categorías y servicios.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $categorias = CategoriaServicio::with(['servicios' => function ($query) {
+        $mostrarInactivas = $request->has('mostrar_inactivas');
+        
+        $query = CategoriaServicio::query();
+        
+        // Si no se solicita ver inactivas, mostrar solo activas
+        if (!$mostrarInactivas) {
             $query->where('estado', true);
+        }
+        
+        $categorias = $query->with(['servicios' => function ($query) use ($mostrarInactivas) {
+            // Si no se solicita ver inactivas, mostrar solo servicios activos
+            if (!$mostrarInactivas) {
+                $query->where('estado', true);
+            }
         }])
         ->orderBy('orden')
         ->orderBy('nombre')
         ->get();
 
         return Inertia::render('Dashboard/Servicio/ListaGeneral', [
-            'categorias' => $categorias
+            'categorias' => $categorias,
+            'mostrarInactivas' => $mostrarInactivas
         ]);
     }
 
@@ -48,7 +61,21 @@ class ServicioController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
+            'nombre' => [
+                'required',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) use ($request) {
+                    // Verificar si ya existe un servicio con el mismo nombre en la misma categoría
+                    $exists = Servicio::where('nombre', $value)
+                        ->where('categoria_servicio_id', $request->categoria_servicio_id)
+                        ->exists();
+                    
+                    if ($exists) {
+                        $fail('Ya existe un servicio con este nombre en la categoría seleccionada.');
+                    }
+                },
+            ],
             'descripcion' => 'nullable|string',
             'precio_base' => 'required|numeric|min:0',
             'duracion_estimada' => 'required|integer|min:1',
@@ -85,7 +112,22 @@ class ServicioController extends Controller
     public function update(Request $request, Servicio $servicio)
     {
         $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
+            'nombre' => [
+                'required',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) use ($request, $servicio) {
+                    // Verificar si ya existe un servicio con el mismo nombre en la misma categoría (excepto el actual)
+                    $exists = Servicio::where('nombre', $value)
+                        ->where('categoria_servicio_id', $request->categoria_servicio_id)
+                        ->where('id', '!=', $servicio->id)
+                        ->exists();
+                    
+                    if ($exists) {
+                        $fail('Ya existe un servicio con este nombre en la categoría seleccionada.');
+                    }
+                },
+            ],
             'descripcion' => 'nullable|string',
             'precio_base' => 'required|numeric|min:0',
             'duracion_estimada' => 'required|integer|min:1',
@@ -104,10 +146,34 @@ class ServicioController extends Controller
      */
     public function destroy(Servicio $servicio)
     {
+        // Verificar si tiene reservas asociadas
+        if ($servicio->reservas()->count() > 0) {
+            return redirect()->route('servicios.lista')
+                ->with('error', 'No se puede eliminar el servicio porque tiene reservas asociadas.');
+        }
+
         $servicio->delete();
 
         return redirect()->route('servicios.lista')
             ->with('message', 'Servicio eliminado exitosamente');
+    }
+
+    /**
+     * Helper para mapear servicios al formato necesario.
+     */
+    private function mapearServicios($servicios)
+    {
+        return $servicios->map(function ($servicio) {
+            return [
+                'id' => $servicio->id,
+                'nombre' => $servicio->nombre,
+                'descripcion' => $servicio->descripcion,
+                'precio_base' => $servicio->precio_base,
+                'duracion_estimada' => $servicio->duracion_estimada,
+                'categoria_id' => $servicio->categoria_servicio_id,
+                'categoria_servicio_id' => $servicio->categoria_servicio_id
+            ];
+        });
     }
 
     /**
@@ -122,22 +188,13 @@ class ServicioController extends Controller
             
         $servicios = Servicio::where('estado', true)
             ->orderBy('nombre')
-            ->get()
-            ->map(function ($servicio) {
-                return [
-                    'id' => $servicio->id,
-                    'nombre' => $servicio->nombre,
-                    'descripcion' => $servicio->descripcion,
-                    'precio_base' => $servicio->precio_base,
-                    'duracion_estimada' => $servicio->duracion_estimada,
-                    'categoria_id' => $servicio->categoria_servicio_id,
-                    'categoria_servicio_id' => $servicio->categoria_servicio_id
-                ];
-            });
+            ->get();
+            
+        $serviciosMapeados = $this->mapearServicios($servicios);
 
         return Inertia::render('Home/Partials/Servicio/ServiciosList', [
             'categoriasServicio' => $categoriasServicio,
-            'servicios' => $servicios
+            'servicios' => $serviciosMapeados
         ]);
     }
 
@@ -146,38 +203,29 @@ class ServicioController extends Controller
      */
     public function publicCategory(CategoriaServicio $categoria)
     {
+        // Verificar si la categoría está activa
+        if (!$categoria->estado) {
+            return redirect()->route('servicios.publico.index')
+                ->with('error', 'La categoría seleccionada no está disponible.');
+        }
+        
         $categoriasServicio = CategoriaServicio::where('estado', true)
             ->orderBy('orden')
             ->orderBy('nombre')
             ->get();
             
-        // Get all active services
+        // Obtener solo los servicios activos de esta categoría
         $servicios = Servicio::where('estado', true)
-            ->orderBy('nombre')
-            ->get()
-            ->map(function ($servicio) {
-                return [
-                    'id' => $servicio->id,
-                    'nombre' => $servicio->nombre,
-                    'descripcion' => $servicio->descripcion,
-                    'precio_base' => $servicio->precio_base,
-                    'duracion_estimada' => $servicio->duracion_estimada,
-                    'categoria_id' => $servicio->categoria_servicio_id,
-                    'categoria_servicio_id' => $servicio->categoria_servicio_id
-                ];
-            });
-
-        // Get services specific to this category
-        $serviciosCategoria = Servicio::where('estado', true)
             ->where('categoria_servicio_id', $categoria->id)
             ->orderBy('nombre')
             ->get();
+        
+        $serviciosMapeados = $this->mapearServicios($servicios);
 
         return Inertia::render('Home/Partials/Servicio/CategoryServices', [
             'categoryId' => $categoria->id,
             'categoriasServicio' => $categoriasServicio,
-            'servicios' => $servicios,
-            'serviciosCategoria' => $serviciosCategoria, // Add this for debugging if needed
+            'servicios' => $serviciosMapeados,
             'nombreCategoria' => $categoria->nombre,
             'descripcionCategoria' => $categoria->descripcion
         ]);
@@ -188,6 +236,18 @@ class ServicioController extends Controller
      */
     public function publicShow(Servicio $servicio)
     {
+        // Verificar si el servicio está activo
+        if (!$servicio->estado) {
+            return redirect()->route('servicios.publico.index')
+                ->with('error', 'El servicio seleccionado no está disponible.');
+        }
+
+        // Verificar si la categoría está activa
+        if (!$servicio->categoriaServicio || !$servicio->categoriaServicio->estado) {
+            return redirect()->route('servicios.publico.index')
+                ->with('error', 'La categoría del servicio no está disponible.');
+        }
+        
         $servicio->load('categoriaServicio');
         
         $serviciosRelacionados = Servicio::where('estado', true)

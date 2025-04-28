@@ -1,4 +1,3 @@
-
 import React from 'react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import TodasReservas from '@/Layouts/Partials/Reserva/TodasReservas';
@@ -10,6 +9,13 @@ interface Reserva {
     vehiculo: string;
     placa: string;
     servicio: string;
+    horario_id: number;
+    horario: {
+        id: number;
+        tipo: string;
+        hora_inicio: string;
+        hora_fin: string;
+    } | null;
     fecha: string;
     hora: string;
     detalles: string;

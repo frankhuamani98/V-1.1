@@ -16,7 +16,7 @@ interface Servicio {
     id: number;
     nombre: string;
     precio_base: number;
-    duracion_estimada: string;
+    duracion_estimada: number;
 }
 
 interface Reserva {
@@ -160,7 +160,7 @@ const DetalleReserva = ({ reserva: initialReserva }: DetalleReservaProps) => {
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <span className="text-sm text-gray-500">Duración Estimada:</span>
-                                                <span className="text-sm font-medium text-gray-700">{reserva.servicio.duracion_estimada}</span>
+                                                <span className="text-sm font-medium text-gray-700">{reserva.servicio.duracion_estimada} minutos</span>
                                             </div>
                                         </div>
                                     </div>

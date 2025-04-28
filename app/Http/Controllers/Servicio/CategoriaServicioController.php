@@ -58,6 +58,17 @@ class CategoriaServicioController extends Controller
             'orden' => 'integer'
         ]);
 
+        // Si estamos desactivando una categoría, verificar e informar sobre servicios afectados
+        if ($categoriaServicio->estado && isset($validated['estado']) && !$validated['estado']) {
+            $serviciosActivos = $categoriaServicio->servicios()->where('estado', true)->count();
+            if ($serviciosActivos > 0) {
+                // Informar al usuario sobre los servicios afectados
+                return redirect()->back()
+                    ->with('warning', "Esta categoría tiene {$serviciosActivos} servicios activos. Desactivar la categoría afectará la visibilidad de estos servicios en el catálogo público.")
+                    ->withInput();
+            }
+        }
+
         $categoriaServicio->update($validated);
 
         return redirect()->route('servicios.lista')
@@ -69,8 +80,19 @@ class CategoriaServicioController extends Controller
      */
     public function destroy(CategoriaServicio $categoriaServicio)
     {
-        $categoriaServicio->delete();
+        // Verificar si tiene servicios asociados
+        $cantidadServicios = $categoriaServicio->servicios()->count();
+        if ($cantidadServicios > 0) {
+            $mensaje = "No se puede eliminar la categoría '{$categoriaServicio->nombre}' porque tiene {$cantidadServicios} servicio(s) asociado(s). Debe eliminar primero todos los servicios de esta categoría.";
+            
+            // Inertia maneja los errores de manera especial
+            return back()->withErrors([
+                'message' => $mensaje
+            ]);
+        }
 
+        $categoriaServicio->delete();
+        
         return redirect()->route('servicios.lista')
             ->with('message', 'Categoría de servicio eliminada exitosamente');
     }
