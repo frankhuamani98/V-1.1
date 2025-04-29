@@ -48,23 +48,9 @@ class ReservaController extends Controller
      */
     public function create()
     {
-        $servicios = Servicio::where('estado', true)
+        $servicios = $this->mapearServicios(Servicio::where('estado', true)
             ->orderBy('nombre')
-            ->get()
-            ->map(function ($servicio) {
-                // Convertir explícitamente el precio a un float
-                $precio = is_numeric($servicio->precio_base) 
-                    ? (float) $servicio->precio_base 
-                    : 0.0;
-                
-                return [
-                    'id' => $servicio->id,
-                    'nombre' => $servicio->nombre,
-                    'descripcion' => $servicio->descripcion,
-                    'precio' => $precio,
-                    'duracion' => $servicio->duracion_estimada . ' minutos'
-                ];
-            });
+            ->get());
             
         $horarios = $this->getHorariosDisponibles();
 
@@ -169,23 +155,9 @@ class ReservaController extends Controller
         ];
 
         // Obtener servicios disponibles con formato
-        $serviciosDisponibles = Servicio::where('estado', true)
+        $serviciosDisponibles = $this->mapearServicios(Servicio::where('estado', true)
             ->orderBy('nombre')
-            ->get()
-            ->map(function ($servicio) {
-                // Convertir explícitamente el precio a un float
-                $precio = is_numeric($servicio->precio_base) 
-                    ? (float) $servicio->precio_base 
-                    : 0.0;
-                
-                return [
-                    'id' => $servicio->id,
-                    'nombre' => $servicio->nombre,
-                    'descripcion' => $servicio->descripcion,
-                    'precio' => $precio,
-                    'duracion' => $servicio->duracion_estimada . ' minutos'
-                ];
-            });
+            ->get());
             
         $horariosDisponibles = $this->getHorariosDisponibles();
 
@@ -276,36 +248,7 @@ class ReservaController extends Controller
                 ->orderBy('nombre')
                 ->get();
             
-            // Log para depuración
-            \Log::info('Servicios antes del mapeo:', $servicios->map(function($s) {
-                return [
-                    'id' => $s->id,
-                    'nombre' => $s->nombre,
-                    'precio_base' => $s->precio_base,
-                    'tipo_precio' => gettype($s->precio_base)
-                ];
-            })->toArray());
-            
-            $serviciosMapeados = $servicios->map(function ($servicio) {
-                // Convertir explícitamente el precio a un float
-                $precio = is_numeric($servicio->precio_base) 
-                    ? (float) $servicio->precio_base 
-                    : 0.0;
-                
-                return [
-                    'id' => $servicio->id,
-                    'nombre' => $servicio->nombre,
-                    'descripcion' => $servicio->descripcion,
-                    'precio_base' => $precio,
-                    'duracion_estimada' => $servicio->duracion_estimada,
-                    'categoria_servicio_id' => $servicio->categoria_servicio_id,
-                    'categoriaServicio' => $servicio->categoriaServicio ? [
-                        'id' => $servicio->categoriaServicio->id,
-                        'nombre' => $servicio->categoriaServicio->nombre,
-                        'descripcion' => $servicio->categoriaServicio->descripcion,
-                    ] : null
-                ];
-            });
+            $serviciosMapeados = $this->mapearServicios($servicios);
 
             return Inertia::render('Home/Partials/Reserva/ServiciosDisponibles', [
                 'servicios' => $serviciosMapeados
@@ -548,5 +491,25 @@ class ReservaController extends Controller
             'horas' => $horasDisponibles,
             'horario_id' => $horarioId
         ]);
+    }
+
+    /**
+     * Mapea los servicios para su formato de salida
+     */
+    private function mapearServicios($servicios)
+    {
+        return $servicios->map(function ($servicio) {
+            return [
+                'id' => $servicio->id,
+                'nombre' => $servicio->nombre,
+                'descripcion' => $servicio->descripcion,
+                'categoria_servicio_id' => $servicio->categoria_servicio_id,
+                'categoriaServicio' => $servicio->categoriaServicio ? [
+                    'id' => $servicio->categoriaServicio->id,
+                    'nombre' => $servicio->categoriaServicio->nombre,
+                    'descripcion' => $servicio->categoriaServicio->descripcion,
+                ] : null
+            ];
+        });
     }
 }

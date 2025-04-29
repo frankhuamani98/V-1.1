@@ -8,8 +8,6 @@ interface Servicio {
   id: number;
   nombre: string;
   descripcion: string;
-  duracion: string;
-  precio: number;
 }
 
 interface Reserva {
@@ -243,7 +241,7 @@ export default function AgendarServicio({ servicios, horarios, reserva, flash, i
                       <option value="">Seleccione un servicio</option>
                       {servicios.map((servicio) => (
                         <option key={servicio.id} value={servicio.id}>
-                          {servicio.nombre} - S/{servicio.precio.toFixed(2)} ({servicio.duracion})
+                          {servicio.nombre}
                         </option>
                       ))}
                     </select>

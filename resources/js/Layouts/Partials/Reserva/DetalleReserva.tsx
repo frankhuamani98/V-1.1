@@ -7,7 +7,6 @@ import { Toaster, toast } from "sonner";
 import { router } from "@inertiajs/react";
 
 interface Usuario {
-    id: number;
     name: string;
     email: string;
 }
@@ -15,20 +14,18 @@ interface Usuario {
 interface Servicio {
     id: number;
     nombre: string;
-    precio_base: number;
-    duracion_estimada: number;
 }
 
 interface Reserva {
     id: number;
-    usuario: Usuario | null;
     vehiculo: string;
     placa: string;
-    servicio: Servicio | null;
     fecha: string;
     hora: string;
-    detalles: string;
     estado: string;
+    detalles: string | null;
+    usuario?: Usuario;
+    servicio?: Servicio;
     created_at: string;
     updated_at: string;
 }
@@ -41,7 +38,6 @@ const DetalleReserva = ({ reserva: initialReserva }: DetalleReservaProps) => {
     const [reserva, setReserva] = useState<Reserva>(initialReserva);
 
     const formatFecha = (fecha: string) => {
-        // Convierte YYYY-MM-DD a DD/MM/YYYY
         const [year, month, day] = fecha.split('-');
         return `${day}/${month}/${year}`;
     };
@@ -153,16 +149,6 @@ const DetalleReserva = ({ reserva: initialReserva }: DetalleReservaProps) => {
                                 {reserva.servicio ? (
                                     <div>
                                         <h4 className="font-medium text-gray-800">{reserva.servicio.nombre}</h4>
-                                        <div className="flex flex-col gap-1 mt-2">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-sm text-gray-500">Precio Base:</span>
-                                                <span className="text-sm font-medium text-gray-700">${reserva.servicio.precio_base.toFixed(2)}</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-sm text-gray-500">Duración Estimada:</span>
-                                                <span className="text-sm font-medium text-gray-700">{reserva.servicio.duracion_estimada} minutos</span>
-                                            </div>
-                                        </div>
                                     </div>
                                 ) : (
                                     <p className="text-gray-600">Servicio no disponible</p>

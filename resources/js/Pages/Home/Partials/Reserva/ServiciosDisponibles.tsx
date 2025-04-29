@@ -12,8 +12,6 @@ interface Servicio {
   id: number;
   nombre: string;
   descripcion: string;
-  precio_base: number;
-  duracion_estimada: string;
   categoria_servicio_id: number;
   categoriaServicio?: CategoriaServicio;
 }
@@ -24,13 +22,6 @@ interface Props {
 }
 
 export default function ServiciosDisponibles({ servicios, error }: Props) {
-  // Debugging
-  console.log("Servicios recibidos completos:", servicios);
-  if (servicios.length > 0) {
-    console.log("Primer servicio:", servicios[0]);
-    console.log("Precio del primer servicio:", servicios[0].precio_base, "Tipo:", typeof servicios[0].precio_base);
-  }
-
   const serviciosPorCategoria = servicios.reduce((acc, servicio) => {
     if (!servicio.categoriaServicio) {
       const sinCategoriaId = 0;
@@ -70,35 +61,26 @@ export default function ServiciosDisponibles({ servicios, error }: Props) {
             {error && (
               <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
                 <div className="flex">
-                  <div>
+                  <div className="ml-3">
                     <p className="text-sm text-red-700">{error}</p>
                   </div>
                 </div>
               </div>
             )}
             
-            {Object.values(serviciosPorCategoria).map(({ categoria, servicios }) => (
-              <div key={categoria.id} className="mb-10">
-                <h2 className="text-xl font-medium text-gray-800 mb-4 pb-2 border-b">
-                  {categoria.nombre}
-                </h2>
-                <p className="text-gray-600 mb-6">{categoria.descripcion}</p>
-                
+            {Object.entries(serviciosPorCategoria).map(([categoriaId, { categoria, servicios }]) => (
+              <div key={categoriaId} className="mb-8">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">{categoria.nombre}</h2>
+                {categoria.descripcion && (
+                  <p className="text-gray-600 mb-4">{categoria.descripcion}</p>
+                )}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {servicios.map((servicio) => (
                     <div key={servicio.id} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
                       <div className="p-5">
                         <h3 className="text-lg font-semibold text-gray-900 mb-1">{servicio.nombre}</h3>
-                        <p className="text-gray-500 text-sm mb-3">
-                          Duración: {servicio.duracion_estimada || 'No especificada'} 
-                          {servicio.duracion_estimada ? ' minutos' : ''}
-                        </p>
                         <p className="text-gray-600 mb-4">{servicio.descripcion}</p>
-                        <div className="flex justify-between items-center">
-                          {/* {console.log(`Precio de ${servicio.nombre}:`, servicio.precio_base, typeof servicio.precio_base)} */}
-                          <span className="text-xl font-bold text-gray-900">
-                            S/{parseFloat(servicio.precio_base?.toString() || '0').toFixed(2)}
-                          </span>
+                        <div className="flex justify-end">
                           <Link
                             href={route('reservas.create', { servicio_id: servicio.id })}
                             className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"

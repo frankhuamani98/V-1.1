@@ -18,8 +18,6 @@ class Servicio extends Model
     protected $fillable = [
         'nombre',
         'descripcion',
-        'precio_base',
-        'duracion_estimada',
         'categoria_servicio_id',
         'estado'
     ];
@@ -30,8 +28,6 @@ class Servicio extends Model
      * @var array
      */
     protected $casts = [
-        'precio_base' => 'decimal:2',
-        'duracion_estimada' => 'integer',
         'estado' => 'boolean'
     ];
 

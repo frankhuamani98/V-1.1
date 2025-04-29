@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, router } from "@inertiajs/react";
 import { Star, ThumbsUp, Trash, Reply, ChevronDown, ChevronUp, Filter, Search } from "lucide-react";
 import { Button } from "@/Components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/Components/ui/dialog";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -42,6 +43,7 @@ const ListaOpinion = ({ opiniones, showActions = false, isDashboard = false }: P
   const [responseContent, setResponseContent] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRating, setFilterRating] = useState<number | null>(null);
+  const [opinionToDelete, setOpinionToDelete] = useState<{id: number, type: 'opinion' | 'respuesta'} | null>(null);
 
   const toggleResponses = (opinionId: number) => {
     setExpandedOpinions((prev) => ({
@@ -50,20 +52,24 @@ const ListaOpinion = ({ opiniones, showActions = false, isDashboard = false }: P
     }));
   };
 
-  const handleDelete = (id: number, e: React.MouseEvent) => {
+  const handleDelete = (id: number, type: 'opinion' | 'respuesta', e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm("¿Está seguro que desea eliminar esta opinión?")) {
-      const url = isDashboard ? `/dashboard/opiniones/${id}` : `/opiniones/${id}`;
-      router.delete(url);
-    }
+    setOpinionToDelete({id, type});
   };
 
-  const handleDeleteRespuesta = (id: number, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (confirm("¿Está seguro que desea eliminar esta respuesta?")) {
-      const url = isDashboard ? `/dashboard/opiniones/respuesta/${id}` : `/opiniones/respuesta/${id}`;
-      router.delete(url);
-    }
+  const confirmDelete = () => {
+    if (!opinionToDelete) return;
+    
+    const url = isDashboard 
+      ? opinionToDelete.type === 'opinion' 
+        ? `/dashboard/opiniones/${opinionToDelete.id}` 
+        : `/dashboard/opiniones/respuesta/${opinionToDelete.id}`
+      : opinionToDelete.type === 'opinion'
+        ? `/opiniones/${opinionToDelete.id}`
+        : `/opiniones/respuesta/${opinionToDelete.id}`;
+        
+    router.delete(url);
+    setOpinionToDelete(null);
   };
 
   const handleResponderSubmit = (opinionId: number, e: React.FormEvent) => {
@@ -328,7 +334,7 @@ const ListaOpinion = ({ opiniones, showActions = false, isDashboard = false }: P
                         variant="destructive"
                         size="sm"
                         className="h-8 w-8 p-0"
-                        onClick={(e) => handleDelete(opinion.id, e)}
+                        onClick={(e) => handleDelete(opinion.id, 'opinion', e)}
                       >
                         <Trash size={14} />
                       </Button>
@@ -404,7 +410,7 @@ const ListaOpinion = ({ opiniones, showActions = false, isDashboard = false }: P
                                   variant="destructive"
                                   size="sm"
                                   className="h-7 w-7 p-0"
-                                  onClick={(e) => handleDeleteRespuesta(respuesta.id, e)}
+                                  onClick={(e) => handleDelete(respuesta.id, 'respuesta', e)}
                                 >
                                   <Trash size={12} />
                                 </Button>
@@ -421,6 +427,25 @@ const ListaOpinion = ({ opiniones, showActions = false, isDashboard = false }: P
           )}
         </div>
       </div>
+
+      <Dialog open={opinionToDelete !== null} onOpenChange={() => setOpinionToDelete(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmar eliminación</DialogTitle>
+            <DialogDescription>
+              ¿Está seguro que desea eliminar esta {opinionToDelete?.type === 'opinion' ? 'opinión' : 'respuesta'}? Esta acción no se puede deshacer.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpinionToDelete(null)}>
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete}>
+              Eliminar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -77,8 +77,6 @@ class ServicioController extends Controller
                 },
             ],
             'descripcion' => 'nullable|string',
-            'precio_base' => 'required|numeric|min:0',
-            'duracion_estimada' => 'required|integer|min:1',
             'categoria_servicio_id' => 'required|exists:categorias_servicios,id',
             'estado' => 'boolean'
         ]);
@@ -129,8 +127,6 @@ class ServicioController extends Controller
                 },
             ],
             'descripcion' => 'nullable|string',
-            'precio_base' => 'required|numeric|min:0',
-            'duracion_estimada' => 'required|integer|min:1',
             'categoria_servicio_id' => 'required|exists:categorias_servicios,id',
             'estado' => 'boolean'
         ]);
@@ -168,8 +164,6 @@ class ServicioController extends Controller
                 'id' => $servicio->id,
                 'nombre' => $servicio->nombre,
                 'descripcion' => $servicio->descripcion,
-                'precio_base' => $servicio->precio_base,
-                'duracion_estimada' => $servicio->duracion_estimada,
                 'categoria_id' => $servicio->categoria_servicio_id,
                 'categoria_servicio_id' => $servicio->categoria_servicio_id
             ];
@@ -192,7 +186,7 @@ class ServicioController extends Controller
             
         $serviciosMapeados = $this->mapearServicios($servicios);
 
-        return Inertia::render('Home/Partials/Servicio/ServiciosList', [
+        return Inertia::render('Home/Partials/Servicio/CategoriaServicios', [
             'categoriasServicio' => $categoriasServicio,
             'servicios' => $serviciosMapeados
         ]);
@@ -222,7 +216,7 @@ class ServicioController extends Controller
         
         $serviciosMapeados = $this->mapearServicios($servicios);
 
-        return Inertia::render('Home/Partials/Servicio/CategoryServices', [
+        return Inertia::render('Home/Partials/Servicio/ListaServicios', [
             'categoryId' => $categoria->id,
             'categoriasServicio' => $categoriasServicio,
             'servicios' => $serviciosMapeados,
@@ -256,7 +250,7 @@ class ServicioController extends Controller
             ->limit(3)
             ->get();
 
-        return Inertia::render('Home/Partials/Servicio/ServiceDetail', [
+        return Inertia::render('Home/Partials/Servicio/DetalleServicio', [
             'servicio' => $servicio,
             'serviciosRelacionados' => $serviciosRelacionados
         ]);

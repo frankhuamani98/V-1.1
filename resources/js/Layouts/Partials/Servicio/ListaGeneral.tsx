@@ -288,9 +288,7 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
                         <Table className="min-w-full">
                           <TableHeader className="bg-white">
                             <TableRow>
-                              <TableHead className="w-1/3">Nombre</TableHead>
-                              <TableHead className="hidden sm:table-cell">Duración</TableHead>
-                              <TableHead>Precio</TableHead>
+                              <TableHead>Nombre</TableHead>
                               <TableHead className="hidden sm:table-cell">Estado</TableHead>
                               <TableHead>Acciones</TableHead>
                             </TableRow>
@@ -299,8 +297,6 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
                             {categoria.servicios.map((servicio) => (
                               <TableRow key={servicio.id} className="bg-white hover:bg-gray-50">
                                 <TableCell className="font-medium">{servicio.nombre}</TableCell>
-                                <TableCell className="hidden sm:table-cell">{servicio.duracion_estimada} min</TableCell>
-                                <TableCell>S/ {servicio.precio_base}</TableCell>
                                 <TableCell className="hidden sm:table-cell">
                                   <Badge className={servicio.estado ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100" : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"}>
                                     {servicio.estado ? "Activo" : "Inactivo"}

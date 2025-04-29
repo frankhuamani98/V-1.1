@@ -19,8 +19,6 @@ interface Servicio {
     id?: number;
     nombre: string;
     descripcion: string;
-    precio_base: string;
-    duracion_estimada: string;
     categoria_servicio_id: string;
     estado: boolean;
 }
@@ -35,8 +33,6 @@ const AgregarServicio = ({ servicio, isEditing = false, categorias }: AgregarSer
     const [formData, setFormData] = useState<Servicio>({
         nombre: "",
         descripcion: "",
-        precio_base: "",
-        duracion_estimada: "",
         categoria_servicio_id: "",
         estado: true
     });
@@ -88,8 +84,6 @@ const AgregarServicio = ({ servicio, isEditing = false, categorias }: AgregarSer
                     setFormData({
                         nombre: "",
                         descripcion: "",
-                        precio_base: "",
-                        duracion_estimada: "",
                         categoria_servicio_id: "",
                         estado: true
                     });
@@ -183,36 +177,6 @@ const AgregarServicio = ({ servicio, isEditing = false, categorias }: AgregarSer
                                                 )}
                                             </SelectContent>
                                         </Select>
-                                    </div>
-                                </div>
-
-                                <div className="grid gap-4 sm:grid-cols-2">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="precio_base">Precio Base (S/) *</Label>
-                                        <Input
-                                            id="precio_base"
-                                            name="precio_base"
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            value={formData.precio_base}
-                                            onChange={handleChange}
-                                            placeholder="0.00"
-                                            required
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="duracion_estimada">Duración Estimada (minutos) *</Label>
-                                        <Input
-                                            id="duracion_estimada"
-                                            name="duracion_estimada"
-                                            type="number"
-                                            min="1"
-                                            value={formData.duracion_estimada}
-                                            onChange={handleChange}
-                                            placeholder="30"
-                                            required
-                                        />
                                     </div>
                                 </div>
 
