@@ -12,7 +12,7 @@ class Reserva extends Model
 
     protected $fillable = [
         'user_id',
-        'vehiculo',
+        'moto_id',
         'placa',
         'servicio_id',
         'horario_id',
@@ -30,6 +30,12 @@ class Reserva extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    // Relación con la moto
+    public function moto(): BelongsTo
+    {
+        return $this->belongsTo(Moto::class);
     }
 
     // Relación con el servicio

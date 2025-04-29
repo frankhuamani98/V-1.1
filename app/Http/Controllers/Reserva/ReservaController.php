@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Reserva;
 use App\Http\Controllers\Controller;
 use App\Models\Reserva;
 use App\Models\Servicio;
+use App\Models\Moto;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
@@ -18,16 +19,20 @@ class ReservaController extends Controller
     public function index()
     {
         $reservas = Auth::user()->reservas()
-            ->with(['servicio', 'horario'])
+            ->with(['servicio', 'horario', 'moto'])
             ->orderBy('fecha', 'desc')
             ->orderBy('hora', 'asc')
             ->get()
             ->map(function ($reserva) {
                 return [
                     'id' => $reserva->id,
-                    'vehiculo' => $reserva->vehiculo,
                     'placa' => $reserva->placa,
                     'servicio' => $reserva->servicio ? $reserva->servicio->nombre : 'Servicio no disponible',
+                    'moto' => $reserva->moto ? [
+                        'año' => $reserva->moto->año,
+                        'marca' => $reserva->moto->marca,
+                        'modelo' => $reserva->moto->modelo
+                    ] : null,
                     'horario_id' => $reserva->horario_id,
                     'fecha' => $reserva->fecha,
                     'hora' => $reserva->hora,
@@ -53,10 +58,44 @@ class ReservaController extends Controller
             ->get());
             
         $horarios = $this->getHorariosDisponibles();
+        
+        // Obtener años únicos de motos activas ordenados por año descendente
+        $years = Moto::select('año')
+            ->where('estado', 'Activo')
+            ->distinct()
+            ->orderBy('año', 'desc')
+            ->pluck('año');
+
+        // Obtener marcas únicas de motos activas ordenadas alfabéticamente
+        $marcas = Moto::select('marca')
+            ->where('estado', 'Activo')
+            ->distinct()
+            ->orderBy('marca')
+            ->pluck('marca');
+
+        // Obtener todos los modelos de motos activas
+        $modelos = Moto::select('id', 'modelo', 'marca', 'año')
+            ->where('estado', 'Activo')
+            ->orderBy('marca')
+            ->orderBy('modelo')
+            ->get()
+            ->map(function($moto) {
+                return [
+                    'id' => $moto->id,
+                    'modelo' => $moto->modelo,
+                    'marca' => $moto->marca,
+                    'año' => $moto->año
+                ];
+            });
 
         return Inertia::render('Home/Partials/Reserva/AgendarServicio', [
             'servicios' => $servicios,
             'horarios' => $horarios,
+            'motoData' => [
+                'years' => $years,
+                'brands' => $marcas,
+                'models' => $modelos
+            ]
         ]);
     }
 
@@ -66,7 +105,7 @@ class ReservaController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'vehiculo' => 'required|string|max:255',
+            'moto_id' => 'required|exists:motos,id',
             'placa' => 'required|string|max:10',
             'servicio_id' => 'required|exists:servicios,id',
             'fecha' => 'required|date|after_or_equal:today',
@@ -75,9 +114,10 @@ class ReservaController extends Controller
             'detalles' => 'nullable|string|max:500',
         ]);
 
-        // Asegurar que servicio_id sea un entero
+        // Asegurar que los IDs sean enteros
         $validated['servicio_id'] = (int) $validated['servicio_id'];
         $validated['horario_id'] = (int) $validated['horario_id'];
+        $validated['moto_id'] = (int) $validated['moto_id'];
 
         // Verificar disponibilidad del horario
         $existeReserva = Reserva::where('fecha', $validated['fecha'])
@@ -91,7 +131,7 @@ class ReservaController extends Controller
 
         $reserva = Reserva::create([
             'user_id' => Auth::id(),
-            'vehiculo' => $validated['vehiculo'],
+            'moto_id' => $validated['moto_id'],
             'placa' => $validated['placa'],
             'servicio_id' => $validated['servicio_id'],
             'horario_id' => $validated['horario_id'],
@@ -114,11 +154,27 @@ class ReservaController extends Controller
             abort(403, 'No tienes permiso para ver esta reserva.');
         }
 
-        // Carga la relación con el servicio
-        $reserva->load('servicio');
+        // Carga las relaciones necesarias
+        $reserva->load(['servicio', 'moto']);
+
+        // Formatear la reserva con la información de la moto
+        $reservaFormateada = [
+            'id' => $reserva->id,
+            'placa' => $reserva->placa,
+            'servicio' => $reserva->servicio ? $reserva->servicio->nombre : 'Servicio no disponible',
+            'moto' => $reserva->moto ? [
+                'año' => $reserva->moto->año,
+                'marca' => $reserva->moto->marca,
+                'modelo' => $reserva->moto->modelo
+            ] : null,
+            'fecha' => $reserva->fecha->format('Y-m-d'),
+            'hora' => $reserva->hora,
+            'detalles' => $reserva->detalles,
+            'estado' => $reserva->estado
+        ];
 
         return Inertia::render('Home/Partials/Reserva/DetalleReserva', [
-            'reserva' => $reserva
+            'reserva' => $reservaFormateada
         ]);
     }
 
@@ -138,20 +194,26 @@ class ReservaController extends Controller
                 ->with('error', 'Solo se pueden editar reservas en estado pendiente.');
         }
 
-        // Cargar el servicio relacionado
-        $reserva->load(['servicio', 'horario']);
+        // Cargar las relaciones necesarias
+        $reserva->load(['servicio', 'horario', 'moto']);
         
         // Formatear la reserva
         $reservaFormateada = [
             'id' => $reserva->id,
-            'vehiculo' => $reserva->vehiculo,
+            'moto_id' => $reserva->moto_id,
             'placa' => $reserva->placa,
             'servicio_id' => $reserva->servicio_id,
             'horario_id' => $reserva->horario_id,
-            'fecha' => $reserva->fecha->format('Y-m-d'), // Formatear la fecha
+            'fecha' => $reserva->fecha->format('Y-m-d'),
             'hora' => $reserva->hora,
             'detalles' => $reserva->detalles,
-            'estado' => $reserva->estado
+            'estado' => $reserva->estado,
+            'moto' => $reserva->moto ? [
+                'id' => $reserva->moto->id,
+                'marca' => $reserva->moto->marca,
+                'modelo' => $reserva->moto->modelo,
+                'año' => $reserva->moto->año
+            ] : null
         ];
 
         // Obtener servicios disponibles con formato
@@ -161,10 +223,42 @@ class ReservaController extends Controller
             
         $horariosDisponibles = $this->getHorariosDisponibles();
 
+        // Obtener años, marcas y modelos únicos de motos activas
+        $years = Moto::select('año')
+            ->where('estado', 'Activo')
+            ->distinct()
+            ->orderBy('año', 'desc')
+            ->pluck('año');
+
+        $marcas = Moto::select('marca')
+            ->where('estado', 'Activo')
+            ->distinct()
+            ->orderBy('marca')
+            ->pluck('marca');
+
+        $modelos = Moto::select('modelo', 'marca', 'año')
+            ->where('estado', 'Activo')
+            ->orderBy('marca')
+            ->orderBy('modelo')
+            ->get()
+            ->map(function($moto) {
+                return [
+                    'id' => $moto->id,
+                    'modelo' => $moto->modelo,
+                    'marca' => $moto->marca,
+                    'año' => $moto->año
+                ];
+            });
+
         return Inertia::render('Home/Partials/Reserva/AgendarServicio', [
             'reserva' => $reservaFormateada,
             'servicios' => $serviciosDisponibles,
             'horarios' => $horariosDisponibles,
+            'motoData' => [
+                'years' => $years,
+                'brands' => $marcas,
+                'models' => $modelos
+            ],
             'isEditing' => true
         ]);
     }
@@ -186,7 +280,7 @@ class ReservaController extends Controller
         }
 
         $validated = $request->validate([
-            'vehiculo' => 'required|string|max:255',
+            'moto_id' => 'required|exists:motos,id',
             'placa' => 'required|string|max:10',
             'servicio_id' => 'required|exists:servicios,id',
             'horario_id' => 'required|exists:horarios,id',

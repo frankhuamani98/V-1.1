@@ -4,6 +4,13 @@ import { useForm } from "@inertiajs/react";
 import NavigationMenu from '@/Components/NavigationMenu';
 import axios from "axios";
 
+interface Moto {
+  id: number;
+  año: number;
+  marca: string;
+  modelo: string;
+}
+
 interface Servicio {
   id: number;
   nombre: string;
@@ -12,7 +19,7 @@ interface Servicio {
 
 interface Reserva {
   id?: number;
-  vehiculo: string;
+  moto_id?: number;
   placa: string;
   servicio_id: number;
   fecha: string;
@@ -20,6 +27,12 @@ interface Reserva {
   detalles: string | null;
   estado?: string;
   horario_id?: number;
+  moto?: {
+    id: number;
+    año: number;
+    marca: string;
+    modelo: string;
+  };
 }
 
 interface Props {
@@ -28,6 +41,11 @@ interface Props {
     dias: string[];
     horarios: Record<string, string>;
     franjas: string[];
+  };
+  motoData: {
+    years: number[];
+    brands: string[];
+    models: Array<{ id: number; año: number; marca: string; modelo: string; }>;
   };
   reserva?: Reserva;
   flash?: {
@@ -45,14 +63,7 @@ interface HorasDisponiblesResponse {
   horario_id: number;
 }
 
-export default function AgendarServicio({ servicios, horarios, reserva, flash, isEditing = false }: Props) {
-  // Debugging
-  console.log("Modo:", isEditing ? "Editar" : "Crear");
-  console.log("Servicios disponibles:", servicios);
-  if (isEditing) {
-    console.log("Reserva a editar:", reserva);
-  }
-  
+export default function AgendarServicio({ servicios, horarios, motoData, reserva, flash, isEditing = false }: Props) {
   const [selectedDate, setSelectedDate] = useState(reserva?.fecha || "");
   const [successMessage, setSuccessMessage] = useState(flash?.success || "");
   const [errorMessage, setErrorMessage] = useState(flash?.error || "");
@@ -60,16 +71,31 @@ export default function AgendarServicio({ servicios, horarios, reserva, flash, i
   const [horarioId, setHorarioId] = useState<number | null>(null);
   const [loadingHours, setLoadingHours] = useState(false);
   const [dateErrorMessage, setDateErrorMessage] = useState("");
+  const [selectedYear, setSelectedYear] = useState(reserva?.moto?.año?.toString() || "");
+  const [selectedBrand, setSelectedBrand] = useState(reserva?.moto?.marca || "");
+  const [filteredModels, setFilteredModels] = useState(motoData.models);
   
   const { data, setData, post, put, processing, errors, reset } = useForm({
-    vehiculo: reserva?.vehiculo || "",
+    moto_id: reserva?.moto_id?.toString() || "",
     placa: reserva?.placa || "",
-    servicio_id: reserva?.servicio_id || "",
+    servicio_id: reserva?.servicio_id?.toString() || "",
     fecha: reserva?.fecha || "",
     hora: reserva?.hora || "",
     detalles: reserva?.detalles || "",
     horario_id: reserva?.horario_id?.toString() || "",
   });
+
+  // Update filtered models when brand changes
+  useEffect(() => {
+    if (selectedBrand) {
+      setFilteredModels(motoData.models.filter(m => 
+        m.marca === selectedBrand && 
+        (!selectedYear || m.año.toString() === selectedYear)
+      ));
+    } else {
+      setFilteredModels([]);
+    }
+  }, [selectedBrand, selectedYear]);
 
   // Limpiar los mensajes después de 5 segundos
   useEffect(() => {
@@ -93,7 +119,7 @@ export default function AgendarServicio({ servicios, horarios, reserva, flash, i
       setDateErrorMessage("");
     }
   }, [selectedDate]);
-  
+
   const fetchAvailableHours = async (date: string) => {
     setLoadingHours(true);
     setDateErrorMessage("");
@@ -106,7 +132,6 @@ export default function AgendarServicio({ servicios, horarios, reserva, flash, i
       if (response.data.disponible) {
         setAvailableHours(response.data.horas);
         setHorarioId(response.data.horario_id);
-        // If editing and current time is not in available hours, reset the time
         if (isEditing && data.hora && !response.data.horas.includes(data.hora)) {
           setData("hora", "");
         }
@@ -127,13 +152,16 @@ export default function AgendarServicio({ servicios, horarios, reserva, flash, i
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Set horario_id before submitting
     if (horarioId) {
       setData("horario_id", horarioId.toString());
     }
     
+    if (!data.moto_id) {
+      setErrorMessage("Por favor seleccione una motocicleta");
+      return;
+    }
+    
     if (isEditing && reserva?.id) {
-      // Actualizar reserva existente
       put(route("reservas.update", reserva.id), {
         onSuccess: () => {
           setSuccessMessage("Reserva actualizada exitosamente.");
@@ -143,7 +171,6 @@ export default function AgendarServicio({ servicios, horarios, reserva, flash, i
         }
       });
     } else {
-      // Crear nueva reserva
       post(route("reservas.store"), {
         onSuccess: () => {
           reset();
@@ -156,6 +183,21 @@ export default function AgendarServicio({ servicios, horarios, reserva, flash, i
         }
       });
     }
+  };
+
+  const handleBrandChange = (value: string) => {
+    setSelectedBrand(value);
+    setData("moto_id", ""); // Clear selected moto when brand changes
+  };
+
+  const handleYearChange = (value: string) => {
+    setSelectedYear(value);
+    setData("moto_id", ""); // Clear selected moto when year changes
+  };
+
+  const handleModelSelect = (motoId: string) => {
+    setData("moto_id", motoId);
+    const selectedMoto = motoData.models.find(m => m.id.toString() === motoId);
   };
 
   return (
@@ -191,25 +233,73 @@ export default function AgendarServicio({ servicios, horarios, reserva, flash, i
             
             <form onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Información del Vehículo */}
+                {/* Selección de Moto */}
                 <div className="space-y-4">
                   <div>
-                    <label htmlFor="vehiculo" className="block text-sm font-medium text-gray-700">
-                      Modelo de Moto
+                    <label className="block text-sm font-medium text-gray-700">
+                      Año del Modelo
                     </label>
-                    <input
-                      type="text"
-                      id="vehiculo"
+                    <select
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                      value={data.vehiculo}
-                      onChange={(e) => setData("vehiculo", e.target.value)}
+                      value={selectedYear}
+                      onChange={(e) => handleYearChange(e.target.value)}
                       required
-                    />
-                    {errors.vehiculo && (
-                      <p className="mt-1 text-sm text-red-600">{errors.vehiculo}</p>
+                    >
+                      <option value="">Seleccione un año</option>
+                      {motoData.years.map((year) => (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Marca
+                    </label>
+                    <select
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      value={selectedBrand}
+                      onChange={(e) => handleBrandChange(e.target.value)}
+                      required
+                    >
+                      <option value="">Seleccione una marca</option>
+                      {motoData.brands.map((brand) => (
+                        <option key={brand} value={brand}>
+                          {brand}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Modelo
+                    </label>
+                    <select
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      value={data.moto_id}
+                      onChange={(e) => handleModelSelect(e.target.value)}
+                      required
+                      disabled={!selectedBrand || !selectedYear}
+                    >
+                      <option value="">
+                        {!selectedBrand || !selectedYear
+                          ? "Primero seleccione año y marca"
+                          : "Seleccione un modelo"}
+                      </option>
+                      {filteredModels.map((moto) => (
+                        <option key={moto.id} value={moto.id}>
+                          {moto.modelo}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.moto_id && (
+                      <p className="mt-1 text-sm text-red-600">{errors.moto_id}</p>
                     )}
                   </div>
-                  
+
                   <div>
                     <label htmlFor="placa" className="block text-sm font-medium text-gray-700">
                       Placa
@@ -226,7 +316,10 @@ export default function AgendarServicio({ servicios, horarios, reserva, flash, i
                       <p className="mt-1 text-sm text-red-600">{errors.placa}</p>
                     )}
                   </div>
-                  
+                </div>
+
+                {/* Servicio y Detalles */}
+                <div className="space-y-4">
                   <div>
                     <label htmlFor="servicio_id" className="block text-sm font-medium text-gray-700">
                       Servicio

@@ -18,7 +18,7 @@ class DashboardReservaController extends Controller
      */
     public function index()
     {
-        $reservas = Reserva::with(['user', 'servicio', 'horario'])
+        $reservas = Reserva::with(['user', 'servicio', 'horario', 'moto'])
             ->orderBy('fecha', 'desc')
             ->orderBy('hora', 'asc')
             ->get()
@@ -26,8 +26,12 @@ class DashboardReservaController extends Controller
                 return [
                     'id' => $reserva->id,
                     'usuario' => $reserva->user ? $reserva->user->name : 'Usuario eliminado',
-                    'vehiculo' => $reserva->vehiculo,
                     'placa' => $reserva->placa,
+                    'moto' => $reserva->moto ? [
+                        'año' => $reserva->moto->año,
+                        'marca' => $reserva->moto->marca,
+                        'modelo' => $reserva->moto->modelo
+                    ] : null,
                     'servicio' => $reserva->servicio ? $reserva->servicio->nombre : 'Servicio no disponible',
                     'horario_id' => $reserva->horario_id,
                     'horario' => $reserva->horario ? [
@@ -44,7 +48,7 @@ class DashboardReservaController extends Controller
                     'updated_at' => $reserva->updated_at->format('Y-m-d H:i')
                 ];
             });
-        
+
         return Inertia::render('Dashboard/Reserva/TodasReservas', [
             'reservas' => $reservas
         ]);
@@ -55,7 +59,7 @@ class DashboardReservaController extends Controller
      */
     public function confirmadas()
     {
-        $reservas = Reserva::with(['user', 'servicio', 'horario'])
+        $reservas = Reserva::with(['user', 'servicio', 'horario', 'moto'])
             ->where('estado', 'confirmada')
             ->orderBy('fecha', 'asc')
             ->orderBy('hora', 'asc')
@@ -64,8 +68,12 @@ class DashboardReservaController extends Controller
                 return [
                     'id' => $reserva->id,
                     'usuario' => $reserva->user ? $reserva->user->name : 'Usuario eliminado',
-                    'vehiculo' => $reserva->vehiculo,
                     'placa' => $reserva->placa,
+                    'moto' => $reserva->moto ? [
+                        'año' => $reserva->moto->año,
+                        'marca' => $reserva->moto->marca,
+                        'modelo' => $reserva->moto->modelo
+                    ] : null,
                     'servicio' => $reserva->servicio ? $reserva->servicio->nombre : 'Servicio no disponible',
                     'horario_id' => $reserva->horario_id,
                     'horario' => $reserva->horario ? [
@@ -117,7 +125,7 @@ class DashboardReservaController extends Controller
     public function show(Reserva $reserva)
     {
         // Carga las relaciones
-        $reserva->load(['user', 'servicio', 'horario']);
+        $reserva->load(['user', 'servicio', 'horario', 'moto']);
         
         $reservaFormateada = [
             'id' => $reserva->id,
@@ -126,8 +134,13 @@ class DashboardReservaController extends Controller
                 'name' => $reserva->user->name,
                 'email' => $reserva->user->email,
             ] : null,
-            'vehiculo' => $reserva->vehiculo,
             'placa' => $reserva->placa,
+            'moto' => $reserva->moto ? [
+                'id' => $reserva->moto->id,
+                'año' => $reserva->moto->año,
+                'marca' => $reserva->moto->marca,
+                'modelo' => $reserva->moto->modelo
+            ] : null,
             'servicio' => $reserva->servicio ? [
                 'id' => $reserva->servicio->id,
                 'nombre' => $reserva->servicio->nombre,
