@@ -33,8 +33,7 @@ class ReservaController extends Controller
                         'marca' => $reserva->moto->marca,
                         'modelo' => $reserva->moto->modelo
                     ] : null,
-                    'horario_id' => $reserva->horario_id,
-                    'fecha' => $reserva->fecha,
+                    'fecha' => $reserva->fecha->format('Y-m-d'),
                     'hora' => $reserva->hora,
                     'detalles' => $reserva->detalles,
                     'estado' => $reserva->estado,

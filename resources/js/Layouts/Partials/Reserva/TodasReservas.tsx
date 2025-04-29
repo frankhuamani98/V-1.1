@@ -10,7 +10,11 @@ import { router } from "@inertiajs/react";
 interface Reserva {
     id: number;
     usuario: string;
-    vehiculo: string;
+    moto: {
+        marca: string;
+        modelo: string;
+        año: number;
+    };
     placa: string;
     servicio: string;
     horario_id: number;
@@ -113,7 +117,7 @@ const TodasReservas = ({ reservas: initialReservas }: TodasReservasProps) => {
                                 <TableHeader className="hidden sm:table-header-group bg-gray-50">
                                     <TableRow>
                                         <TableHead className="px-4 py-3 text-gray-600">Cliente</TableHead>
-                                        <TableHead className="px-4 py-3 text-gray-600">Vehículo</TableHead>
+                                        <TableHead className="px-4 py-3 text-gray-600">Moto</TableHead>
                                         <TableHead className="px-4 py-3 text-gray-600">Servicio</TableHead>
                                         <TableHead className="px-4 py-3 text-gray-600">Fecha</TableHead>
                                         <TableHead className="px-4 py-3 text-gray-600">Hora</TableHead>
@@ -127,7 +131,7 @@ const TodasReservas = ({ reservas: initialReservas }: TodasReservasProps) => {
                                             {/* Vista de escritorio */}
                                             <TableRow className="hidden sm:table-row hover:bg-gray-50 transition-colors">
                                                 <TableCell className="px-4 py-4 font-medium">{reserva.usuario}</TableCell>
-                                                <TableCell className="px-4 py-4">{reserva.vehiculo} - {reserva.placa}</TableCell>
+                                                <TableCell className="px-4 py-4">{`${reserva.moto.marca} ${reserva.moto.modelo} ${reserva.moto.año}`} - {reserva.placa}</TableCell>
                                                 <TableCell className="px-4 py-4">{reserva.servicio}</TableCell>
                                                 <TableCell className="px-4 py-4">{formatFecha(reserva.fecha)}</TableCell>
                                                 <TableCell className="px-4 py-4">{reserva.hora}</TableCell>
@@ -214,8 +218,8 @@ const TodasReservas = ({ reservas: initialReservas }: TodasReservasProps) => {
                                                 {expandedRows.includes(reserva.id) && (
                                                     <div className="mt-3 space-y-3 pt-3 border-t border-gray-100">
                                                         <div className="flex justify-between text-sm">
-                                                            <span className="text-gray-500">Vehículo:</span>
-                                                            <span className="font-medium text-gray-800">{reserva.vehiculo} - {reserva.placa}</span>
+                                                            <span className="text-gray-500">Moto:</span>
+                                                            <span className="font-medium text-gray-800">{`${reserva.moto.marca} ${reserva.moto.modelo} ${reserva.moto.año}`} - {reserva.placa}</span>
                                                         </div>
                                                         {reserva.detalles && (
                                                             <div className="flex justify-between text-sm">
