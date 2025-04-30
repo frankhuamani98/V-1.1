@@ -27,7 +27,6 @@ class AgregarProductoController extends Controller
 
     public function store(Request $request)
     {
-        // Validación de los datos
         $request->validate([
             'codigo' => 'required|unique:productos|max:50',
             'nombre' => 'required|max:255',
@@ -51,7 +50,6 @@ class AgregarProductoController extends Controller
 
         DB::beginTransaction();
         try {
-            // Procesar imagen principal
             $imagenPrincipalPath = null;
             if ($request->hasFile('imagen_principal_file')) {
                 $imagenPrincipalPath = $request->file('imagen_principal_file')->store('productos', 'public');
@@ -59,7 +57,6 @@ class AgregarProductoController extends Controller
                 $imagenPrincipalPath = $request->imagen_principal;
             }
 
-            // Procesar imágenes adicionales - VERSIÓN COMPLETA
             $imagenesAdicionales = [];
             if ($request->imagenes_adicionales) {
                 $imagenesAdicionalesData = json_decode($request->imagenes_adicionales, true);
@@ -70,12 +67,10 @@ class AgregarProductoController extends Controller
                     ];
                     
                     if (isset($imagenData['file'])) {
-                        // Procesar archivo base64
                         if (strpos($imagenData['file'], 'data:image') === 0) {
                             $fileData = explode(',', $imagenData['file']);
                             $fileContent = base64_decode($fileData[1]);
                             
-                            // Determinar extensión
                             $extension = 'jpg';
                             if (strpos($imagenData['file'], 'image/png') !== false) {
                                 $extension = 'png';
@@ -99,7 +94,6 @@ class AgregarProductoController extends Controller
                 }
             }
 
-            // Crear el producto
             $producto = Producto::create([
                 'codigo' => $request->codigo,
                 'nombre' => $request->nombre,
@@ -107,8 +101,8 @@ class AgregarProductoController extends Controller
                 'detalles' => $request->detalles,
                 'categoria_id' => $request->categoria_id,
                 'subcategoria_id' => $request->subcategoria_id,
-                'precio' => $request->precio,
-                'descuento' => $request->descuento ?? 0,
+                'precio' => (float)$request->precio, // Aseguramos float
+                'descuento' => (float)($request->descuento ?? 0), // Aseguramos float
                 'imagen_principal' => $imagenPrincipalPath,
                 'imagenes_adicionales' => !empty($imagenesAdicionales) ? json_encode($imagenesAdicionales) : null,
                 'calificacion' => $request->calificacion ?? 0,
@@ -119,7 +113,6 @@ class AgregarProductoController extends Controller
                 'estado' => Producto::ESTADO_ACTIVO,
             ]);
 
-            // Asociar motos compatibles
             if ($request->moto_ids) {
                 $producto->motos()->sync($request->moto_ids);
             }

@@ -3,7 +3,30 @@ import DashboardLayout from '@/Layouts/DashboardLayout';
 import InventarioProductos from '@/Layouts/Partials/Productos/InventarioProductos';
 
 interface InventarioProductosPageProps {
-    productos: any[]; // O define una interfaz más específica
+    productos: {
+        id: number;
+        codigo: string;
+        nombre: string;
+        precio: number;
+        stock: number;
+        estado: string;
+        imagen_principal: string | null;
+        imagenes_adicionales: Array<{
+            url: string;
+            estilo?: string;
+        }> | null;
+        categoria: {
+            nombre: string;
+        };
+        subcategoria: {
+            nombre: string;
+        };
+        motos: Array<{
+            marca: string;
+            modelo: string;
+            año: number;
+        }>;
+    }[];
     auth: {
         user: {
             username: string;
