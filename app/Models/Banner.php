@@ -13,6 +13,7 @@ class Banner extends Model
         'titulo',
         'subtitulo',
         'imagen_principal',
+        'tipo_imagen',
         'activo',
         'fecha_inicio',
         'fecha_fin',
@@ -23,5 +24,6 @@ class Banner extends Model
         'fecha_inicio' => 'datetime',
         'fecha_fin' => 'datetime',
         'deleted_at' => 'datetime',
+        'tipo_imagen' => 'string',
     ];
 }

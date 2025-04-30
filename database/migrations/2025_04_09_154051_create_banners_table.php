@@ -13,8 +13,14 @@ return new class extends Migration
     {
         Schema::create('banners', function (Blueprint $table) {
             $table->id();
-            $table->boolean('activo')->default(true); // ← Campo que causaba el error
-            $table->softDeletes(); // ← Para que funcione el where "deleted_at" is null
+            $table->string('titulo');
+            $table->string('subtitulo')->nullable();
+            $table->string('imagen_principal');
+            $table->enum('tipo_imagen', ['local', 'url'])->default('local');
+            $table->boolean('activo')->default(true);
+            $table->timestamp('fecha_inicio')->nullable();
+            $table->timestamp('fecha_fin')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

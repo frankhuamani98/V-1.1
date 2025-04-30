@@ -225,22 +225,22 @@ Route::middleware('auth')->group(function () {
         Route::post('/opiniones/{id}/util', [DashboardOpinionController::class, 'marcarUtil'])->name('dashboard.opiniones.util');
     });
     
-// Banners
-Route::prefix('banners')->group(function () {
-    // Create
-    Route::get('/subir', [SubirBannersController::class, 'index'])->name('banners.subir');
-    Route::post('/subir', [SubirBannersController::class, 'store'])->name('banners.store');
-    
-    // Read
-    Route::get('/historial', [HistorialBannersController::class, 'index'])->name('banners.historial');
-    
-    // Update (toggle status)
-    Route::put('/{banner}/toggle-status', [HistorialBannersController::class, 'toggleStatus'])->name('banners.toggle-status');
-    
-    // Delete/Restore
-    Route::delete('/{banner}', [HistorialBannersController::class, 'destroy'])->name('banners.destroy');
-    Route::post('/{id}/restore', [HistorialBannersController::class, 'restore'])->name('banners.restore');
-});
+    // Banners
+    Route::prefix('banners')->group(function () {
+        // Create
+        Route::get('/subir', [SubirBannersController::class, 'index'])->name('banners.subir');
+        Route::post('/subir', [SubirBannersController::class, 'store'])->name('banners.store');
+        
+        // Read
+        Route::get('/historial', [HistorialBannersController::class, 'index'])->name('banners.historial');
+        
+        // Update (toggle status)
+        Route::put('/{banner}/toggle-status', [HistorialBannersController::class, 'toggleStatus'])->name('banners.toggle-status');
+        
+        // Delete/Restore
+        Route::delete('/{banner}', [HistorialBannersController::class, 'destroy'])->name('banners.destroy');
+        Route::post('/{id}/restore', [HistorialBannersController::class, 'restore'])->name('banners.restore');
+    });
     
     // Facturación
     Route::prefix('facturacion')->group(function () {
