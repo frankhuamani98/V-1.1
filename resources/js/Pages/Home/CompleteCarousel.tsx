@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Circle, CircleDot } from 'lucide-react';
 import { usePage } from '@inertiajs/react';
 import { PageProps } from '@/types';
@@ -14,13 +14,13 @@ interface Banner {
 }
 
 export default function CarruselResponsivo() {
-  // Obtener los banners de las props de Inertia
   const { banners } = usePage<PageProps>().props;
   const [indiceActual, setIndiceActual] = useState(0);
   const [estaTransicionando, setEstaTransicionando] = useState(false);
   const [autoPlay, setAutoPlay] = useState(true);
+  const carruselRef = useRef<HTMLDivElement>(null);
 
-  // Filtrar banners activos y que estén dentro del rango de fechas
+  // Filtrar banners activos
   const bannersActivos = (banners as Banner[]).filter(banner => {
     if (!banner.activo) return false;
     
@@ -28,97 +28,102 @@ export default function CarruselResponsivo() {
     const fechaInicio = banner.fecha_inicio ? new Date(banner.fecha_inicio) : null;
     const fechaFin = banner.fecha_fin ? new Date(banner.fecha_fin) : null;
     
-    // Si no hay fechas definidas, mostrar el banner
     if (!fechaInicio && !fechaFin) return true;
-    
-    // Si solo hay fecha de inicio, mostrar si la fecha actual es posterior
     if (fechaInicio && !fechaFin) return ahora >= fechaInicio;
-    
-    // Si solo hay fecha de fin, mostrar si la fecha actual es anterior
     if (!fechaInicio && fechaFin) return ahora <= fechaFin;
-    
-    // Si ambas fechas están definidas, mostrar si está dentro del rango
     return ahora >= fechaInicio! && ahora <= fechaFin!;
   });
 
-  // Ir al siguiente banner
-  const siguienteBanner = () => {
-    if (estaTransicionando || bannersActivos.length <= 1) return;
+  // Crear array con banners clonados para el efecto infinito
+  const bannersInfinitos = [...bannersActivos, ...bannersActivos, ...bannersActivos];
+
+  const moverA = useCallback((indice: number, suave = true) => {
+    if (estaTransicionando || !carruselRef.current) return;
 
     setEstaTransicionando(true);
-    setIndiceActual(indiceAnterior =>
-      indiceAnterior === bannersActivos.length - 1 ? 0 : indiceAnterior + 1
-    );
-
-    setTimeout(() => setEstaTransicionando(false), 500);
-  };
-
-  // Ir al banner anterior
-  const bannerAnterior = () => {
-    if (estaTransicionando || bannersActivos.length <= 1) return;
-
-    setEstaTransicionando(true);
-    setIndiceActual(indiceAnterior =>
-      indiceAnterior === 0 ? bannersActivos.length - 1 : indiceAnterior - 1
-    );
-
-    setTimeout(() => setEstaTransicionando(false), 500);
-  };
-
-  // Ir a un banner específico
-  const irABanner = (indice: number) => {
-    if (estaTransicionando || indice === indiceActual || bannersActivos.length <= 1) return;
-
-    setEstaTransicionando(true);
-    setIndiceActual(indice);
-
-    setTimeout(() => setEstaTransicionando(false), 500);
-  };
-
-  // Configurar el auto-play
-  useEffect(() => {
-    let intervalo: number | undefined;
-
-    if (autoPlay && bannersActivos.length > 1) {
-      intervalo = window.setInterval(() => {
-        siguienteBanner();
-      }, 5000); // Cambiar cada 5 segundos
+    const nuevoIndice = indice;
+    
+    if (suave) {
+      carruselRef.current.style.transition = 'transform 500ms ease-in-out';
+    } else {
+      carruselRef.current.style.transition = 'none';
     }
 
-    return () => {
-      if (intervalo) {
-        clearInterval(intervalo);
-      }
-    };
-  }, [indiceActual, autoPlay, estaTransicionando, bannersActivos.length]);
+    setIndiceActual(nuevoIndice);
 
-  // Pausar el auto-play al pasar el mouse
-  const manejarMouseEntra = () => setAutoPlay(false);
-  const manejarMouseSale = () => setAutoPlay(true);
+    // Si llegamos al final del segundo set, saltar al primer set sin animación
+    if (nuevoIndice >= bannersActivos.length * 2) {
+      setTimeout(() => {
+        if (carruselRef.current) {
+          carruselRef.current.style.transition = 'none';
+          setIndiceActual(nuevoIndice % bannersActivos.length);
+        }
+      }, 500);
+    }
 
-  // No mostrar nada si no hay banners activos
-  if (bannersActivos.length === 0) {
-    return null;
-  }
+    // Si retrocedemos al inicio del primer set, saltar al segundo set sin animación
+    if (nuevoIndice < 0) {
+      setTimeout(() => {
+        if (carruselRef.current) {
+          carruselRef.current.style.transition = 'none';
+          setIndiceActual(bannersActivos.length - 1);
+        }
+      }, 500);
+    }
+
+    setTimeout(() => setEstaTransicionando(false), 500);
+  }, [bannersActivos.length, estaTransicionando]);
+
+  const siguienteBanner = useCallback(() => {
+    if (bannersActivos.length <= 1) return;
+    moverA(indiceActual + 1);
+  }, [indiceActual, bannersActivos.length, moverA]);
+
+  const bannerAnterior = useCallback(() => {
+    if (bannersActivos.length <= 1) return;
+    moverA(indiceActual - 1);
+  }, [indiceActual, bannersActivos.length, moverA]);
+
+  useEffect(() => {
+    if (!autoPlay || bannersActivos.length <= 1) return;
+
+    const intervalo = setInterval(siguienteBanner, 5000);
+    return () => clearInterval(intervalo);
+  }, [autoPlay, siguienteBanner, bannersActivos.length]);
+
+  // Reiniciar posición al montar el componente
+  useEffect(() => {
+    if (carruselRef.current) {
+      setIndiceActual(bannersActivos.length);
+      carruselRef.current.style.transform = `translateX(-${bannersActivos.length * 100}%)`;
+    }
+  }, [bannersActivos.length]);
+
+  // Manejar transición
+  useEffect(() => {
+    if (carruselRef.current) {
+      carruselRef.current.style.transform = `translateX(-${indiceActual * 100}%)`;
+    }
+  }, [indiceActual]);
+
+  if (bannersActivos.length === 0) return null;
 
   return (
     <div
       className="relative w-full max-w-6xl mx-auto overflow-hidden rounded-lg shadow-xl h-[50vh] md:h-[60vh] lg:h-[70vh]"
-      onMouseEnter={manejarMouseEntra}
-      onMouseLeave={manejarMouseSale}
+      onMouseEnter={() => setAutoPlay(false)}
+      onMouseLeave={() => setAutoPlay(true)}
     >
-      {/* Contenedor del carrusel */}
       <div
-        className="flex h-full transition-transform duration-500 ease-in-out"
-        style={{ transform: `translateX(-${indiceActual * 100}%)` }}
+        ref={carruselRef}
+        className="flex h-full"
       >
-        {bannersActivos.map((banner) => (
+        {bannersInfinitos.map((banner, index) => (
           <div
-            key={banner.id}
+            key={`${banner.id}-${index}`}
             className="relative flex-shrink-0 w-full h-full"
             style={{ minWidth: '100%' }}
           >
-            {/* Imagen de fondo con superposición - maneja tanto URLs como rutas locales */}
             <div className="absolute inset-0 w-full h-full">
               {banner.imagen_principal.startsWith('http') ? (
                 <img
@@ -126,7 +131,6 @@ export default function CarruselResponsivo() {
                   alt={banner.titulo}
                   className="object-cover w-full h-full"
                   onError={(e) => {
-                    // Manejar errores de carga de imagen
                     const target = e.target as HTMLImageElement;
                     target.src = 'https://via.placeholder.com/1600x900?text=Imagen+no+disponible';
                   }}
@@ -137,7 +141,6 @@ export default function CarruselResponsivo() {
                   alt={banner.titulo}
                   className="object-cover w-full h-full"
                   onError={(e) => {
-                    // Manejar errores de carga de imagen
                     const target = e.target as HTMLImageElement;
                     target.src = 'https://via.placeholder.com/1600x900?text=Imagen+no+disponible';
                   }}
@@ -146,7 +149,6 @@ export default function CarruselResponsivo() {
               <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent"></div>
             </div>
 
-            {/* Contenido del banner */}
             <div className="absolute inset-0 flex flex-col justify-center px-4 md:px-8 lg:px-16 text-white">
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight mb-3">{banner.titulo}</h2>
               {banner.subtitulo && (
@@ -157,10 +159,8 @@ export default function CarruselResponsivo() {
         ))}
       </div>
 
-      {/* Mostrar controles solo si hay más de un banner */}
       {bannersActivos.length > 1 && (
         <>
-          {/* Flechas de navegación */}
           <button
             onClick={bannerAnterior}
             className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
@@ -177,22 +177,24 @@ export default function CarruselResponsivo() {
             <ChevronRight size={24} />
           </button>
 
-          {/* Indicadores */}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
-            {bannersActivos.map((_, indice) => (
-              <button
-                key={indice}
-                onClick={() => irABanner(indice)}
-                className="p-1 focus:outline-none"
-                aria-label={`Ir al banner ${indice + 1}`}
-              >
-                {indice === indiceActual ? (
-                  <CircleDot size={16} className="text-white" />
-                ) : (
-                  <Circle size={16} className="text-white/70" />
-                )}
-              </button>
-            ))}
+            {bannersActivos.map((_, indice) => {
+              const indiceReal = indiceActual % bannersActivos.length;
+              return (
+                <button
+                  key={indice}
+                  onClick={() => moverA(indice + bannersActivos.length)}
+                  className="p-1 focus:outline-none"
+                  aria-label={`Ir al banner ${indice + 1}`}
+                >
+                  {indice === indiceReal ? (
+                    <CircleDot size={16} className="text-white" />
+                  ) : (
+                    <Circle size={16} className="text-white/70" />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </>
       )}
