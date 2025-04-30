@@ -209,9 +209,9 @@ class ReservaController extends Controller
             'estado' => $reserva->estado,
             'moto' => $reserva->moto ? [
                 'id' => $reserva->moto->id,
+                'año' => $reserva->moto->año,
                 'marca' => $reserva->moto->marca,
-                'modelo' => $reserva->moto->modelo,
-                'año' => $reserva->moto->año
+                'modelo' => $reserva->moto->modelo
             ] : null
         ];
 
@@ -235,7 +235,7 @@ class ReservaController extends Controller
             ->orderBy('marca')
             ->pluck('marca');
 
-        $modelos = Moto::select('modelo', 'marca', 'año')
+        $modelos = Moto::select('id', 'modelo', 'marca', 'año')
             ->where('estado', 'Activo')
             ->orderBy('marca')
             ->orderBy('modelo')

@@ -29,6 +29,11 @@ class Reserva extends Model
         'updated_at' => 'datetime:Y-m-d H:i',
     ];
 
+    protected function serializeDate(\DateTimeInterface $date)
+    {
+        return $date->setTimezone(new \DateTimeZone('America/Lima'))->format('Y-m-d H:i');
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
