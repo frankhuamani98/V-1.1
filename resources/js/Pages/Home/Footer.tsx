@@ -2,10 +2,7 @@ import React from "react";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import { Separator } from "@/Components/ui/separator";
-import "../../../css/app.css";
-import "../../../css/Icons.css";
-
-import { FaTiktok } from 'react-icons/fa';
+import { usePage } from "@inertiajs/react";
 import { toast } from "sonner";
 import {
   FacebookIcon,
@@ -19,8 +16,37 @@ import {
   TruckIcon,
   ShieldCheckIcon,
   HeadphonesIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
 } from "lucide-react";
+import { FaTiktok } from "react-icons/fa";
+import "../../../css/app.css";
+import "../../../css/Icons.css";
+
+interface User {
+  id: number;
+  first_name: string;
+  last_name: string;
+  name: string;
+  username: string;
+  email: string;
+}
+
+interface PageProps {
+  auth: {
+    user: User;
+  };
+  categoriasMenu: Array<{
+    id: number;
+    nombre: string;
+    estado: string;
+    subcategorias: Array<{
+      id: number;
+      nombre: string;
+      estado: string;
+    }>;
+  }>;
+  [key: string]: any;  // Add index signature
+}
 
 const Footer = () => {
   const handleSubscribe = (e: React.FormEvent) => {
@@ -42,6 +68,10 @@ const Footer = () => {
   };
 
   const currentYear = new Date().getFullYear();
+  const { categoriasMenu } = usePage<PageProps>().props;
+
+  // Filtrar solo las categorías activas
+  const categoriasActivas = categoriasMenu.filter(categoria => categoria.estado === "Activo");
 
   return (
     <footer className="bg-[var(--custom-footer)] text-white pt-12 pb-6">
@@ -53,8 +83,8 @@ const Footer = () => {
               <CreditCardIcon className="h-6 w-6 text-white" />
             </div>
             <div className="text-center sm:text-left">
-              <h4 className="font-semibold text-sm">Pago Seguro</h4>
-              <p className="text-xs text-neutral-400">Múltiples métodos de pago</p>
+              <h4 className="font-semibold text-sm">Métodos de Pago</h4>
+              <p className="text-xs text-neutral-400">Yape, Plin y efectivo</p>
             </div>
           </div>
 
@@ -63,8 +93,8 @@ const Footer = () => {
               <TruckIcon className="h-6 w-6 text-white" />
             </div>
             <div className="text-center sm:text-left">
-              <h4 className="font-semibold text-sm">Envío Rápido</h4>
-              <p className="text-xs text-neutral-400">A todo el país</p>
+              <h4 className="font-semibold text-sm">Retiro en Tienda</h4>
+              <p className="text-xs text-neutral-400">Disponibilidad inmediata</p>
             </div>
           </div>
 
@@ -73,8 +103,8 @@ const Footer = () => {
               <ShieldCheckIcon className="h-6 w-6 text-white" />
             </div>
             <div className="text-center sm:text-left">
-              <h4 className="font-semibold text-sm">Garantía de Calidad</h4>
-              <p className="text-xs text-neutral-400">Productos originales</p>
+              <h4 className="font-semibold text-sm">Garantía Original</h4>
+              <p className="text-xs text-neutral-400">Repuestos certificados</p>
             </div>
           </div>
 
@@ -83,8 +113,8 @@ const Footer = () => {
               <HeadphonesIcon className="h-6 w-6 text-white" />
             </div>
             <div className="text-center sm:text-left">
-              <h4 className="font-semibold text-sm">Soporte 24/7</h4>
-              <p className="text-xs text-neutral-400">Atención personalizada</p>
+              <h4 className="font-semibold text-sm">Asesoría Técnica</h4>
+              <p className="text-xs text-neutral-400">Expertos en repuestos</p>
             </div>
           </div>
         </div>
@@ -101,7 +131,7 @@ const Footer = () => {
               <span className="mr-2">Rudolf</span>Motors
             </h3>
             <p className="text-neutral-400 text-sm mb-6">
-              Somos especialistas en partes y accesorios para motocicletas, ofreciendo la más amplia selección de productos de alta calidad para todas las marcas y modelos.
+              Especialistas en repuestos y accesorios para motocicletas desde 2020. Comprometidos con la calidad y el servicio técnico especializado para mantener tu moto en óptimas condiciones.
             </p>
             <ul className="flex space-x-4 justify-center sm:justify-start">
               <li className="icon facebook">
@@ -129,9 +159,9 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div className="text-center sm:text-left">
-            <h3 className="text-xl font-bold mb-4 flex justify-center sm:justify-start">Enlaces Rápidos</h3>
+            <h3 className="text-xl font-bold mb-4 flex justify-center sm:justify-start">Menú Principal</h3>
             <ul className="space-y-3">
-              {["Inicio", "Catálogo", "Ofertas", "Sobre Nosotros", "Contacto", "Blog"].map((item) => (
+              {["Inicio", "Productos", "Servicios", "Nosotros", "Contacto"].map((item) => (
                 <li key={item}>
                   <a href="#" className="text-neutral-400 text-sm hover:text-neutral-200 transition-colors flex items-center justify-center sm:justify-start group">
                     <ChevronRightIcon className="h-4 w-4 mr-2 text-neutral-200 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -142,15 +172,18 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Categories */}
+          {/* Categorías */}
           <div className="text-center sm:text-left">
             <h3 className="text-xl font-bold mb-4">Categorías</h3>
             <ul className="space-y-3">
-              {["Repuestos de Motor", "Sistemas de Freno", "Suspensión", "Accesorios", "Neumáticos", "Lubricantes", "Equipamiento"].map((item) => (
-                <li key={item}>
-                  <a href="#" className="text-neutral-400 text-sm hover:text-neutral-200 transition-colors flex items-center justify-center sm:justify-start group">
+              {categoriasActivas.map((categoria) => (
+                <li key={categoria.id}>
+                  <a 
+                    href={`/productos/categoria/${categoria.id}`} 
+                    className="text-neutral-400 text-sm hover:text-neutral-200 transition-colors flex items-center justify-center sm:justify-start group"
+                  >
                     <ChevronRightIcon className="h-4 w-4 mr-2 text-neutral-200 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    {item}
+                    {categoria.nombre}
                   </a>
                 </li>
               ))}
@@ -159,9 +192,9 @@ const Footer = () => {
 
           {/* Newsletter */}
           <div className="text-center sm:text-left">
-            <h3 className="text-xl font-bold mb-4">Mantente Informado</h3>
+            <h3 className="text-xl font-bold mb-4">Novedades</h3>
             <p className="text-neutral-400 text-sm mb-5">
-              Suscríbete para recibir las últimas novedades, ofertas exclusivas y consejos para el mantenimiento de tu moto.
+              Regístrate para recibir ofertas exclusivas, nuevos productos y consejos de mantenimiento para tu motocicleta.
             </p>
             <form onSubmit={handleSubscribe} className="flex flex-col space-y-3 max-w-xs mx-auto sm:mx-0">
               <div className="flex">
@@ -190,7 +223,7 @@ const Footer = () => {
             </div>
             <span className="text-sm text-neutral-400">
               <a href="https://maps.app.goo.gl/aihry7fG7kKrb5xp6"
-                target="_blank" rel="noopener noreferrer" className="hover:text-neutral-200 transition-colors"> Av Huayna Capac 168, Cusco </a>
+                target="_blank" rel="noopener noreferrer" className="hover:text-neutral-200 transition-colors">Av. Huayna Capac 168, Cusco - Perú</a>
             </span>
           </div>
           <div className="flex items-center justify-center gap-3">
@@ -211,29 +244,29 @@ const Footer = () => {
 
         {/* Copyright */}
         <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-neutral-800">
-  <div className="text-left mb-4 md:mb-0 md:w-1/3">
-    <p className="text-xs text-neutral-500">
-      © {currentYear} student. Todos los derechos reservados.
-    </p>
-  </div>
-  <div className="flex flex-col items-center mb-4 md:mb-0 md:w-1/3">
-    <div className="flex flex-wrap justify-center gap-2 mt-2 sm:mt-4">
-      <img src="https://cdn.brandfetch.io/id08GK8vip/w/960/h/960/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B" alt="Yape" className="h-8 opacity-70 hover:opacity-100 transition-opacity rounded-lg" />
-      <img src="https://plin.pe/wp-content/themes/plin/favicon/apple-icon-57x57.png" alt="Plin" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
-      <img src="https://cdn-icons-png.flaticon.com/128/196/196578.png" alt="Visa" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
-      <img src="https://cdn-icons-png.flaticon.com/128/196/196561.png" alt="MasterCard" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
-      <img src="https://cdn-icons-png.flaticon.com/128/196/196539.png" alt="PayPal" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
-      <img src="https://cdn-icons-png.flaticon.com/128/5968/5968299.png" alt="Apple Pay" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
-    </div>
-  </div>
-  <div className="text-center mb-4 md:mb-0 md:w-1/3">
-    <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 mt-2 sm:mt-4">
-      <a href="#" className="text-xs text-neutral-500 hover:text-[var(--custom-blue)] transition-colors">Términos y Condiciones</a>
-      <a href="#" className="text-xs text-neutral-500 hover:text-[var(--custom-blue)] transition-colors">Política de Privacidad</a>
-      <a href="#" className="text-xs text-neutral-500 hover:text-[var(--custom-blue)] transition-colors">Política de Cookies</a>
-    </div>
-  </div>
-</div>
+          <div className="text-left mb-4 md:mb-0 md:w-1/3">
+            <p className="text-xs text-neutral-500">
+              © {currentYear} Rudolf Motors. Especialistas en Repuestos y Accesorios para Motos.
+            </p>
+          </div>
+          <div className="flex flex-col items-center mb-4 md:mb-0 md:w-1/3">
+            <div className="flex flex-wrap justify-center gap-2 mt-2 sm:mt-4">
+              <img src="https://cdn.brandfetch.io/id08GK8vip/w/960/h/960/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B" alt="Yape" className="h-8 opacity-70 hover:opacity-100 transition-opacity rounded-lg" />
+              <img src="https://plin.pe/wp-content/themes/plin/favicon/apple-icon-57x57.png" alt="Plin" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
+              <img src="https://cdn-icons-png.flaticon.com/128/196/196578.png" alt="Visa" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
+              <img src="https://cdn-icons-png.flaticon.com/128/196/196561.png" alt="MasterCard" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
+              <img src="https://cdn-icons-png.flaticon.com/128/196/196539.png" alt="PayPal" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
+              <img src="https://cdn-icons-png.flaticon.com/128/5968/5968299.png" alt="Apple Pay" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
+            </div>
+          </div>
+          <div className="text-center mb-4 md:mb-0 md:w-1/3">
+            <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 mt-2 sm:mt-4">
+              <a href="#" className="text-xs text-neutral-500 hover:text-[var(--custom-blue)] transition-colors">Términos de Servicio</a>
+              <a href="#" className="text-xs text-neutral-500 hover:text-[var(--custom-blue)] transition-colors">Política de Privacidad</a>
+              <a href="#" className="text-xs text-neutral-500 hover:text-[var(--custom-blue)] transition-colors">Garantía y Devoluciones</a>
+            </div>
+          </div>
+        </div>
       </div>
     </footer>
   );
