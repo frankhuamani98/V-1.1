@@ -1,12 +1,15 @@
-import type React from "react"
-import { useState, useEffect } from "react"
+"use client"
 
-const WhatsAppButton: React.FC = () => {
+import type React from "react"
+
+import { useState, useEffect, useRef } from "react"
+
+const WhatsAppButton = () => {
   const [isVisible, setIsVisible] = useState(false)
   const [showDialog, setShowDialog] = useState(false)
-  const [messageInput, setMessageInput] = useState(() => {
-    return localStorage.getItem("whatsappMessage") || ""
-  })
+  const [messageInput, setMessageInput] = useState("")
+  const [selectedOptionIndex, setSelectedOptionIndex] = useState<number | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const phoneNumber = "51993303312"
 
   const messageOptions = [
@@ -36,8 +39,24 @@ const WhatsAppButton: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    localStorage.setItem("whatsappMessage", messageInput)
+    const savedMessage = localStorage.getItem("whatsappMessage")
+    if (savedMessage) setMessageInput(savedMessage)
+  }, [])
+
+  useEffect(() => {
+    if (messageInput) {
+      localStorage.setItem("whatsappMessage", messageInput)
+    }
   }, [messageInput])
+
+  // Focus input when dialog opens
+  useEffect(() => {
+    if (showDialog && inputRef.current) {
+      setTimeout(() => {
+        inputRef.current?.focus()
+      }, 100)
+    }
+  }, [showDialog])
 
   const handleButtonClick = () => {
     setShowDialog(true)
@@ -47,17 +66,44 @@ const WhatsAppButton: React.FC = () => {
     const messageToSend = messageInput.trim()
     if (!messageToSend) return
 
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(messageToSend)}`
-    window.open(whatsappUrl, "_blank")
-    setShowDialog(false)
+    openWhatsApp(messageToSend)
   }
 
-  const handleSelectMessage = (message: string) => {
+  const openWhatsApp = (message: string) => {
+    // Properly encode the message for WhatsApp
+    const encodedMessage = encodeURIComponent(message)
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`
+
+    // Use window.open with specific parameters for better compatibility
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer")
+
+    // Reset state after sending
+    setShowDialog(false)
+    setSelectedOptionIndex(null)
+  }
+
+  const handleSelectMessage = (message: string, index: number) => {
+    // Update the input field with the selected message
     setMessageInput(message)
+    setSelectedOptionIndex(index)
+
+    // Focus the input field to allow editing
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus()
+      }
+    }, 100)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSendMessage()
+    }
   }
 
   return (
     <>
+      {/* WhatsApp Button */}
       <div
         className={`fixed bottom-6 right-6 z-50 transition-all duration-500 ${
           isVisible ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0"
@@ -80,108 +126,96 @@ const WhatsAppButton: React.FC = () => {
         </button>
       </div>
 
+      {/* WhatsApp Dialog */}
       {showDialog && (
-        <div className="fixed bottom-24 right-6 z-50 w-[320px] bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
+        <div className="fixed bottom-24 right-6 z-50 w-[320px] bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
           {/* Header */}
-          <div className="bg-[#25D366] px-4 py-3">
+          <div className="bg-gradient-to-r from-[#25D366] to-[#128C7E] px-5 py-3.5">
             <div className="flex items-center justify-between">
-              <h2 className="font-medium text-white">Enviar mensaje</h2>
+              <h2 className="font-semibold text-white text-sm tracking-wide">Enviar mensaje</h2>
               <button
                 onClick={() => setShowDialog(false)}
                 className="text-white/80 hover:text-white transition-colors p-1 hover:bg-white/10 rounded-full"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
           </div>
 
-          {/* Quick message options */}
-          <div className="p-3 space-y-2">
-            {messageOptions.map((option, index) => (
-              <div
-                key={index}
-                className={`group rounded-lg transition-all duration-200 cursor-pointer border ${
-                  messageInput === option.text
-                    ? "bg-[#dcf8c6] border-[#25D366]/30 shadow-sm"
-                    : "hover:bg-gray-50 border-gray-100 hover:border-[#25D366]/20"
-                }`}
-                onClick={() => handleSelectMessage(option.text)}
-              >
-                <div className="p-2.5 flex items-center space-x-3">
-                  <div
-                    className={`w-9 h-9 flex items-center justify-center rounded-full ${
-                      messageInput === option.text ? "bg-[#25D366] text-white" : "bg-[#25D366]/10 text-[#25D366]"
-                    } transform transition-all duration-200 ${
-                      messageInput === option.text ? "scale-110" : "group-hover:scale-105"
+          {/* Quick message options - Premium styling */}
+          <div className="p-3 space-y-2 bg-gradient-to-b from-white to-[#f7fdf8]">
+            <div className="grid grid-cols-1 gap-2">
+              {messageOptions.map((option, index) => (
+                <button
+                  key={index}
+                  className={`w-full text-left p-2.5 rounded-xl transition-all duration-200 flex items-center space-x-3
+                    ${
+                      selectedOptionIndex === index
+                        ? "bg-[#e7f7e9] border-[#25D366] border shadow-md"
+                        : "bg-white hover:bg-[#f0f9f1] border border-gray-100 hover:border-[#25D366]/40 shadow-sm hover:shadow-md"
                     }`}
-                  >
-                    <span className="text-lg">{option.icon}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p
-                      className={`text-sm ${
-                        messageInput === option.text ? "text-[#075e54] font-medium" : "text-gray-700"
-                      }`}
-                    >
-                      {option.text}
-                    </p>
-                    <div className="flex items-center mt-1">
-                      <span
-                        className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                          messageInput === option.text
-                            ? "bg-[#25D366] text-white"
-                            : "bg-[#25D366]/10 text-[#075e54]"
-                        }`}
-                      >
+                  onClick={() => handleSelectMessage(option.text, index)}
+                >
+                  <span className="w-8 h-8 flex items-center justify-center rounded-full bg-gradient-to-br from-[#25D366] to-[#128C7E] text-white text-sm shadow-inner">
+                    {option.icon}
+                  </span>
+                  <div className="flex-1 min-w-0 flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-gray-800 font-medium line-clamp-1">{option.text}</p>
+                      <span className="inline-block text-[10px] mt-1 px-2 py-0.5 rounded-full font-medium bg-[#E8F5E9] text-[#1E8449]">
                         {option.tag}
                       </span>
-                      {messageInput === option.text && (
-                        <div className="ml-2 text-[#25D366]">
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path
-                              fillRule="evenodd"
-                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </div>
-                      )}
                     </div>
+                    <svg
+                      className={`w-4 h-4 ${selectedOptionIndex === index ? "text-[#25D366]" : "text-[#25D366] opacity-70"}`}
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
                   </div>
-                </div>
-              </div>
-            ))}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Custom message input */}
-          <div className="px-3 py-2 bg-gray-50/80">
-            <textarea
-              value={messageInput}
-              onChange={(e) => setMessageInput(e.target.value)}
-              placeholder="Escribe tu mensaje personalizado..."
-              className="w-full p-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:border-transparent transition-all resize-none"
-              rows={3}
-            />
-          </div>
-
-          {/* Send button */}
-          <div className="p-3 bg-white border-t border-gray-100 flex justify-end">
-            <button
-              onClick={handleSendMessage}
-              disabled={!messageInput.trim()}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all flex items-center space-x-2 ${
-                !messageInput.trim()
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  : "bg-[#25D366] hover:bg-[#22c15e] text-white shadow-md hover:shadow-lg"
-              }`}
-            >
-              <span>Abrir chat</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14m-4-4l4 4m-4 4l4-4" />
-              </svg>
-            </button>
+          {/* Custom message input with send button */}
+          <div className="p-3 bg-white border-t border-gray-100">
+            <div className="flex items-center space-x-2 bg-gray-50 rounded-xl p-1 border border-gray-200">
+              <input
+                ref={inputRef}
+                type="text"
+                value={messageInput}
+                onChange={(e) => setMessageInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Escribe tu mensaje..."
+                className="flex-1 p-2 bg-transparent text-sm focus:outline-none transition-all"
+              />
+              <button
+                onClick={handleSendMessage}
+                disabled={!messageInput.trim()}
+                className={`p-2 rounded-lg transition-all ${
+                  !messageInput.trim()
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#1ea952] hover:to-[#0d7164] text-white shadow-sm"
+                }`}
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+            <p className="text-[10px] text-gray-400 mt-2 text-center">Powered by WhatsApp Business</p>
           </div>
         </div>
       )}
