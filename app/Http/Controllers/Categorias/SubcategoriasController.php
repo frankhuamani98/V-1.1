@@ -36,7 +36,7 @@ class SubcategoriasController extends Controller
 
         Subcategoria::create($request->all());
 
-        return redirect()->route('subcategorias.index')->with('success', 'Subcategoría creada exitosamente.');
+        return redirect()->back()->with('success', 'Subcategoría creada exitosamente');
     }
 
     /**
@@ -52,7 +52,7 @@ class SubcategoriasController extends Controller
 
         $subcategoria->update($request->all());
 
-        return redirect()->route('subcategorias.index')->with('success', 'Subcategoría actualizada exitosamente.');
+        return redirect()->back()->with('success', 'Subcategoría actualizada exitosamente');
     }
 
     /**
@@ -60,7 +60,11 @@ class SubcategoriasController extends Controller
      */
     public function destroy(Subcategoria $subcategoria)
     {
+        if ($subcategoria->productos()->count() > 0) {
+            return redirect()->back()->with('error', 'No se puede eliminar la subcategoría porque tiene productos asociados');
+        }
+
         $subcategoria->delete();
-        return redirect()->route('subcategorias.index')->with('success', 'Subcategoría eliminada exitosamente.');
+        return redirect()->back()->with('success', 'Subcategoría eliminada exitosamente');
     }
 }

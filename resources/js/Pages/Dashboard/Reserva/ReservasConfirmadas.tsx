@@ -3,10 +3,17 @@ import DashboardLayout from '@/Layouts/DashboardLayout';
 import ReservasConfirmadas from '@/Layouts/Partials/Reserva/ReservasConfirmadas';
 import { Head } from '@inertiajs/react';
 
+interface Moto {
+    id: number;
+    año: number;
+    marca: string;
+    modelo: string;
+}
+
 interface Reserva {
     id: number;
     usuario: string;
-    vehiculo: string;
+    moto: Moto;
     placa: string;
     servicio: string;
     horario_id: number;

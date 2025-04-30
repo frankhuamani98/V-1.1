@@ -25,10 +25,17 @@ interface Horario {
     hora_fin: string;
 }
 
+interface Moto {
+    id: number;
+    año: number;
+    marca: string;
+    modelo: string;
+}
+
 interface Reserva {
     id: number;
     usuario: Usuario | null;
-    vehiculo: string;
+    moto: Moto;
     placa: string;
     servicio: Servicio | null;
     horario_id: number;

@@ -26,12 +26,9 @@ class CategoriasPrincipalesController extends Controller
             'estado' => 'required|in:Activo,Inactivo,Pendiente',
         ]);
 
-        Categoria::create([
-            'nombre' => $request->nombre,
-            'estado' => $request->estado,
-        ]);
+        Categoria::create($request->all());
 
-        return redirect()->route('categorias.principales')->with('success', 'Categoría creada exitosamente.');
+        return redirect()->back()->with('success', 'Categoría creada exitosamente');
     }
 
     // Método para actualizar una categoría
@@ -43,20 +40,21 @@ class CategoriasPrincipalesController extends Controller
         ]);
 
         $categoria = Categoria::findOrFail($id);
-        $categoria->update([
-            'nombre' => $request->nombre,
-            'estado' => $request->estado,
-        ]);
+        $categoria->update($request->all());
 
-        return redirect()->route('categorias.principales')->with('success', 'Categoría actualizada exitosamente.');
+        return redirect()->back()->with('success', 'Categoría actualizada exitosamente');
     }
 
     // Método para eliminar una categoría
     public function destroy($id)
     {
         $categoria = Categoria::findOrFail($id);
+        
+        if ($categoria->subcategorias()->count() > 0) {
+            return redirect()->back()->with('error', 'No se puede eliminar la categoría porque tiene subcategorías asociadas');
+        }
+        
         $categoria->delete();
-
-        return redirect()->route('categorias.principales')->with('success', 'Categoría eliminada exitosamente.');
+        return redirect()->back()->with('success', 'Categoría eliminada exitosamente');
     }
 }

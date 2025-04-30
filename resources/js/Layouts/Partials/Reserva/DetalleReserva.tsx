@@ -7,6 +7,7 @@ import { Toaster, toast } from "sonner";
 import { router } from "@inertiajs/react";
 
 interface Usuario {
+    id: number;
     name: string;
     email: string;
 }
@@ -14,18 +15,38 @@ interface Usuario {
 interface Servicio {
     id: number;
     nombre: string;
+    precio_base: number;
+    duracion_estimada: number;
+}
+
+interface Horario {
+    id: number;
+    tipo: string;
+    dia_semana?: string;
+    fecha?: string;
+    hora_inicio: string;
+    hora_fin: string;
+}
+
+interface Moto {
+    id: number;
+    año: number;
+    marca: string;
+    modelo: string;
 }
 
 interface Reserva {
     id: number;
-    vehiculo: string;
+    usuario: Usuario | null;
+    moto: Moto;
     placa: string;
+    servicio: Servicio | null;
+    horario_id: number;
+    horario: Horario | null;
     fecha: string;
     hora: string;
+    detalles: string;
     estado: string;
-    detalles: string | null;
-    usuario?: Usuario;
-    servicio?: Servicio;
     created_at: string;
     updated_at: string;
 }
@@ -128,12 +149,12 @@ const DetalleReserva = ({ reserva: initialReserva }: DetalleReservaProps) => {
                         </div>
                         
                         <div>
-                            <h3 className="text-sm font-medium text-gray-500 mb-1">Detalles del Vehículo</h3>
+                            <h3 className="text-sm font-medium text-gray-500 mb-1">Detalles de la Moto</h3>
                             <div className="bg-gray-50 p-4 rounded-lg">
                                 <div className="flex items-start gap-3">
                                     <Bike className="h-5 w-5 text-gray-400 mt-0.5" />
                                     <div>
-                                        <h4 className="font-medium text-gray-800">{reserva.vehiculo}</h4>
+                                        <h4 className="font-medium text-gray-800">{`${reserva.moto.marca} ${reserva.moto.modelo} ${reserva.moto.año}`}</h4>
                                         <div className="flex items-center gap-2 mt-1">
                                             <Tag className="h-4 w-4 text-gray-400" />
                                             <span className="text-sm text-gray-600">{reserva.placa}</span>
