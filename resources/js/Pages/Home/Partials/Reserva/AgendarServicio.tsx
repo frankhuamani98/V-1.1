@@ -63,6 +63,20 @@ interface HorasDisponiblesResponse {
   horario_id: number;
 }
 
+interface FormData {
+  moto_id: string;
+  placa: string;
+  servicio_id: string;
+  fecha: string;
+  hora: string;
+  detalles: string;
+  horario_id: string;
+}
+
+interface FormErrors {
+  [key: string]: string[] | string | undefined;
+}
+
 export default function AgendarServicio({ servicios, horarios, motoData, reserva, flash, isEditing = false }: Props) {
   const [selectedDate, setSelectedDate] = useState(reserva?.fecha || "");
   const [successMessage, setSuccessMessage] = useState(flash?.success || "");
@@ -71,10 +85,11 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
   const [horarioId, setHorarioId] = useState<number | null>(null);
   const [loadingHours, setLoadingHours] = useState(false);
   const [dateErrorMessage, setDateErrorMessage] = useState("");
-  const [selectedYear, setSelectedYear] = useState(reserva?.moto?.año?.toString() || "");
-  const [selectedBrand, setSelectedBrand] = useState(reserva?.moto?.marca || "");
+  const [selectedYear, setSelectedYear] = useState("");
+  const [selectedBrand, setSelectedBrand] = useState("");
   const [filteredModels, setFilteredModels] = useState(motoData.models);
   
+  // Initialize form data
   const { data, setData, post, put, processing, errors, reset } = useForm({
     moto_id: reserva?.moto_id?.toString() || "",
     placa: reserva?.placa || "",
@@ -85,7 +100,15 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
     horario_id: reserva?.horario_id?.toString() || "",
   });
 
-  // Update filtered models when brand changes
+  // Set initial values for selectedYear and selectedBrand when editing
+  useEffect(() => {
+    if (isEditing && reserva?.moto) {
+      setSelectedYear(reserva.moto.año.toString());
+      setSelectedBrand(reserva.moto.marca);
+    }
+  }, [isEditing, reserva]);
+
+  // Update filtered models when brand or year changes
   useEffect(() => {
     if (selectedBrand) {
       setFilteredModels(motoData.models.filter(m => 
@@ -95,7 +118,7 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
     } else {
       setFilteredModels([]);
     }
-  }, [selectedBrand, selectedYear]);
+  }, [selectedBrand, selectedYear, motoData.models]);
 
   // Limpiar los mensajes después de 5 segundos
   useEffect(() => {
@@ -109,20 +132,18 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
     }
   }, [successMessage, errorMessage]);
 
-  // Fetch available hours when date changes
+  // Fetch available hours when date changes or when editing and there's an initial date
   useEffect(() => {
-    if (selectedDate) {
-      fetchAvailableHours(selectedDate);
-    } else {
-      setAvailableHours([]);
-      setHorarioId(null);
-      setDateErrorMessage("");
+    const dateToUse = selectedDate || reserva?.fecha;
+    if (dateToUse) {
+      fetchAvailableHours(dateToUse);
     }
-  }, [selectedDate]);
+  }, [selectedDate, isEditing, reserva?.fecha]);
 
   const fetchAvailableHours = async (date: string) => {
     setLoadingHours(true);
     setDateErrorMessage("");
+    setData("horario_id", ""); // Limpiar horario_id al cambiar la fecha
     
     try {
       const response = await axios.get<HorasDisponiblesResponse>(route('api.reservas.horas-disponibles'), {
@@ -132,6 +153,7 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
       if (response.data.disponible) {
         setAvailableHours(response.data.horas);
         setHorarioId(response.data.horario_id);
+        setData("horario_id", response.data.horario_id.toString()); // Establecer horario_id cuando se obtienen las horas disponibles
         if (isEditing && data.hora && !response.data.horas.includes(data.hora)) {
           setData("hora", "");
         }
@@ -152,22 +174,74 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (horarioId) {
-      setData("horario_id", horarioId.toString());
-    }
+    // Limpiar mensajes de error anteriores
+    setErrorMessage("");
     
-    if (!data.moto_id) {
-      setErrorMessage("Por favor seleccione una motocicleta");
+    // Validar campos requeridos con mensajes específicos
+    const validations = {
+      moto_id: "Por favor seleccione una motocicleta",
+      placa: "Por favor ingrese la placa de la motocicleta",
+      servicio_id: "Por favor seleccione un servicio",
+      fecha: "Por favor seleccione una fecha",
+      hora: "Por favor seleccione una hora disponible",
+      horario_id: "Por favor seleccione una fecha y hora válidas"
+    };
+
+    const newErrors: Record<string, string> = {};
+    let hasErrors = false;
+
+    Object.entries(validations).forEach(([field, message]) => {
+      if (!data[field as keyof typeof data]) {
+        newErrors[field] = message;
+        hasErrors = true;
+      }
+    });
+
+    // Validaciones específicas adicionales
+    if (data.placa && data.placa.length > 10) {
+      newErrors.placa = "La placa no puede tener más de 10 caracteres";
+      hasErrors = true;
+    }
+
+    if (data.fecha && new Date(data.fecha) < new Date()) {
+      newErrors.fecha = "La fecha no puede ser anterior a hoy";
+      hasErrors = true;
+    }
+
+    if (!data.horario_id && selectedDate) {
+      newErrors.horario_id = "No se pudo determinar el horario para la fecha seleccionada";
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      const errorMessages = Object.values(newErrors).join('\n');
+      setErrorMessage("Por favor corrija los siguientes errores:\n" + errorMessages);
       return;
     }
-    
+
+    // Proceder con el envío del formulario
     if (isEditing && reserva?.id) {
       put(route("reservas.update", reserva.id), {
         onSuccess: () => {
           setSuccessMessage("Reserva actualizada exitosamente.");
         },
-        onError: () => {
-          setErrorMessage("Hubo un problema al actualizar la reserva. Por favor revise los campos.");
+        onError: (errors: FormErrors) => {
+          const errorMessages: string[] = [];
+          Object.entries(errors).forEach(([field, message]) => {
+            const fieldName = field === 'moto_id' ? 'motocicleta' :
+                            field === 'servicio_id' ? 'servicio' :
+                            field === 'placa' ? 'placa' :
+                            field === 'fecha' ? 'fecha' :
+                            field === 'hora' ? 'hora' :
+                            field === 'horario_id' ? 'horario' : field;
+            
+            if (typeof message === 'string') {
+              errorMessages.push(`${fieldName}: ${message}`);
+            } else if (Array.isArray(message) && message.length > 0) {
+              errorMessages.push(`${fieldName}: ${message[0]}`);
+            }
+          });
+          setErrorMessage("Por favor corrija los siguientes errores:\n" + errorMessages.join('\n'));
         }
       });
     } else {
@@ -178,8 +252,23 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
           setAvailableHours([]);
           setSuccessMessage("Reserva creada exitosamente. Será redirigido a sus citas.");
         },
-        onError: () => {
-          setErrorMessage("Hubo un problema al crear la reserva. Por favor revise los campos.");
+        onError: (errors: FormErrors) => {
+          const errorMessages: string[] = [];
+          Object.entries(errors).forEach(([field, message]) => {
+            const fieldName = field === 'moto_id' ? 'motocicleta' :
+                            field === 'servicio_id' ? 'servicio' :
+                            field === 'placa' ? 'placa' :
+                            field === 'fecha' ? 'fecha' :
+                            field === 'hora' ? 'hora' :
+                            field === 'horario_id' ? 'horario' : field;
+            
+            if (typeof message === 'string') {
+              errorMessages.push(`${fieldName}: ${message}`);
+            } else if (Array.isArray(message) && message.length > 0) {
+              errorMessages.push(`${fieldName}: ${message[0]}`);
+            }
+          });
+          setErrorMessage("Por favor corrija los siguientes errores:\n" + errorMessages.join('\n'));
         }
       });
     }
@@ -230,7 +319,7 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                 </div>
               </div>
             )}
-            
+
             <form onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Selección de Moto */}
@@ -240,7 +329,7 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                       Año del Modelo
                     </label>
                     <select
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      className={`mt-1 block w-full border ${errors.moto_id ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
                       value={selectedYear}
                       onChange={(e) => handleYearChange(e.target.value)}
                       required
