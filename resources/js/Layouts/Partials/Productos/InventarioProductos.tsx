@@ -8,38 +8,28 @@ interface ImagenAdicional {
 }
 
 interface Categoria {
-    id: number;
     nombre: string;
 }
 
 interface Subcategoria {
-    id: number;
     nombre: string;
 }
 
 interface Moto {
-    id: number;
+    marca: string;
     modelo: string;
+    año: number;
 }
 
 interface Producto {
     id: number;
     codigo: string;
     nombre: string;
-    descripcion_corta: string;
-    detalles: string | null;
-    categoria_id: number;
-    subcategoria_id: number;
     precio: number;
-    descuento: number;
-    imagen_principal: string | null;
-    imagenes_adicionales: string | ImagenAdicional[] | null;
-    calificacion: number;
-    incluye_igv: boolean;
     stock: number;
-    destacado: boolean;
-    mas_vendido: boolean;
     estado: string;
+    imagen_principal: string | null;
+    imagenes_adicionales: ImagenAdicional[] | null;
     categoria: Categoria;
     subcategoria: Subcategoria;
     motos: Moto[];
@@ -170,17 +160,10 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
                                         <strong>Precio:</strong> S/ {producto.precio.toFixed(2)}
                                     </div>
                                     <div>
-                                        <strong>Descuento:</strong> {producto.descuento}%{producto.descuento > 0 && (
-                                            <span>
-                                                {" (Precio final: S/ " + (producto.precio * (1 - producto.descuento / 100)).toFixed(2) + ")"}
-                                            </span>
-                                        )}
+                                        <strong>Stock:</strong> {producto.stock} unidades
                                     </div>
                                     <div>
-                                        <strong>Descripción Corta:</strong> {producto.descripcion_corta}
-                                    </div>
-                                    <div>
-                                        <strong>Detalles:</strong> {producto.detalles || "Sin detalles"}
+                                        <strong>Estado:</strong> {producto.estado}
                                     </div>
                                     <div>
                                         <strong>Categoría:</strong> {producto.categoria?.nombre || "Sin categoría"}
@@ -189,27 +172,11 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
                                         <strong>Subcategoría:</strong> {producto.subcategoria?.nombre || "Sin subcategoría"}
                                     </div>
                                     <div>
-                                        <strong>Calificación:</strong> {producto.calificacion} / 5
-                                    </div>
-                                    <div>
-                                        <strong>Incluye IGV:</strong> {producto.incluye_igv ? "Sí" : "No"}
-                                    </div>
-                                    <div>
-                                        <strong>Stock:</strong> {producto.stock} unidades
-                                    </div>
-                                    <div>
-                                        <strong>Destacado:</strong> {producto.destacado ? "Sí" : "No"}
-                                    </div>
-                                    <div>
-                                        <strong>Más Vendido:</strong> {producto.mas_vendido ? "Sí" : "No"}
-                                    </div>
-                                    <div>
-                                        <strong>Estado:</strong> {producto.estado}
-                                    </div>
-                                    <div>
                                         <strong>Motos Compatibles:</strong>{" "}
                                         {producto.motos.length > 0
-                                            ? producto.motos.map((moto) => moto.modelo).join(", ")
+                                            ? producto.motos
+                                                  .map((moto) => `${moto.marca} ${moto.modelo} (${moto.año})`)
+                                                  .join(", ")
                                             : "Ninguna"}
                                     </div>
                                 </div>
