@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{  DashboardController, WelcomeController, ResultadosController};
+use App\Http\Controllers\{DashboardController, WelcomeController, ResultadosController};
 use App\Http\Controllers\Usuarios\{ListaUsuariosController, AdministradoresController};
 use App\Http\Controllers\Productos\{AgregarProductoController, InventarioProductosController};
 use App\Http\Controllers\Servicio\{CategoriaServicioController, ServicioController};
@@ -12,6 +12,7 @@ use App\Http\Controllers\Soporte\{ManualUsuarioController, SoporteTecnicoControl
 use App\Http\Controllers\Opinion\{OpinionController, DashboardOpinionController};
 use App\Http\Controllers\Banners\{SubirBannersController, HistorialBannersController};
 use App\Http\Controllers\Pedidos\{EstadoPedidosController, NuevosPedidosController, PedidosFinalizadosController, HistorialPedidosController};
+use App\Http\Controllers\Categorias\{CategoriasPrincipalesController, SubcategoriasController, ListaCategoriasController};
 
 // Rutas Públicas
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
