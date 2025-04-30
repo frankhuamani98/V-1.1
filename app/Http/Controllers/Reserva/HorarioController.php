@@ -17,7 +17,7 @@ class HorarioController extends Controller
     {
         // Obtener horarios recurrentes (semanales)
         $horariosRecurrentes = Horario::where('tipo', 'recurrente')
-            ->where('activo', true)
+            ->where('activo', true)  // Solo horarios activos
             ->orderBy('dia_semana')
             ->get();
             
@@ -32,10 +32,11 @@ class HorarioController extends Controller
             'domingo' => 'Domingo',
         ];
         
+        // Crear array de horarios por día, solo para días activos
         $horariosPorDia = [];
         foreach ($diasSemana as $dia => $nombreDia) {
             $horario = $horariosRecurrentes->where('dia_semana', $dia)->first();
-            if ($horario) {
+            if ($horario && $horario->activo) {  // Solo incluir si existe y está activo
                 $horariosPorDia[$nombreDia] = "{$horario->hora_inicio} - {$horario->hora_fin}";
             }
         }
