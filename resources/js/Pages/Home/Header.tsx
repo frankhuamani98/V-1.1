@@ -258,15 +258,13 @@ export default function Header() {
     },      
     {
       title: "Contactos",
-      href: "#",
+      href: "/contacto",
       description: "Ponte en contacto con nosotros para cualquier consulta",
       icon: <PhoneIcon className="mr-2 h-4 w-4" />,
       subcategories: [
-        { name: "Ubicanos", href: "#" },
-        { name: "Soporte", href: "#" },
-        { name: "Correo Electrónico", href: "#" },
-        { name: "Redes Sociales", href: "#" },
-        { name: "Preguntas Frecuentes", href: "#" },
+        { name: "Ubicación", href: "/contacto/ubicacion" },
+        { name: "Contáctanos", href: "/contacto/contactanos" },
+        { name: "Redes Sociales", href: "/contacto/redes-sociales" },
       ],
     },
   ];

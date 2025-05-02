@@ -13,6 +13,7 @@ use App\Http\Controllers\Opinion\{OpinionController, DashboardOpinionController}
 use App\Http\Controllers\Banners\{SubirBannersController, HistorialBannersController};
 use App\Http\Controllers\Pedidos\{EstadoPedidosController, NuevosPedidosController, PedidosFinalizadosController, HistorialPedidosController};
 use App\Http\Controllers\Categorias\{CategoriasPrincipalesController, SubcategoriasController, ListaCategoriasController};
+use App\Http\Controllers\Contacto\ContactoController;
 
 // Rutas Públicas
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
@@ -252,5 +253,12 @@ Route::middleware('auth')->group(function () {
     Route::prefix('soporte')->group(function () {
         Route::get('/manual', [ManualUsuarioController::class, 'index'])->name('soporte.manual');
         Route::get('/tecnico', [SoporteTecnicoController::class, 'index'])->name('soporte.tecnico');
+    });
+
+    // Rutas de Contacto
+    Route::prefix('contacto')->group(function () {
+        Route::get('/ubicacion', [ContactoController::class, 'ubicacion'])->name('contacto.ubicacion');
+        Route::get('/contactanos', [ContactoController::class, 'contactanos'])->name('contacto.contactanos');
+        Route::get('/redes-sociales', [ContactoController::class, 'redesSociales'])->name('contacto.redes-sociales');
     });
 });
