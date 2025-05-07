@@ -70,17 +70,58 @@ class ProfileController extends Controller
 
     public function updatePassword(Request $request)
     {
-        $validated = $request->validate([
-            'current_password' => ['required', 'current_password'],
-            'new_password' => ['required', Password::min(8)->letters()->numbers(), 'confirmed'],
-        ]);
+        try {
+            $user = $request->user();
+            
+            $request->validate([
+                'current_password' => ['required'],
+                'new_password' => [
+                    'required',
+                    'string',
+                    'confirmed',
+                    Password::min(8)
+                        ->letters()
+                        ->mixedCase()
+                        ->numbers()
+                        ->symbols()
+                ],
+                'new_password_confirmation' => 'required'
+            ], [
+                'current_password.required' => 'La contraseña actual es requerida',
+                'new_password.required' => 'La nueva contraseña es requerida',
+                'new_password.confirmed' => 'Las contraseñas no coinciden',
+                'new_password.min' => 'La contraseña debe tener al menos 8 caracteres',
+                'new_password_confirmation.required' => 'Debe confirmar la nueva contraseña'
+            ]);
 
-        $request->user()->update([
-            'password' => Hash::make($validated['new_password'])
-        ]);
+            if (!Hash::check($request->current_password, $user->password)) {
+                throw ValidationException::withMessages([
+                    'current_password' => ['La contraseña actual es incorrecta']
+                ]);
+            }
 
-        return response()->json([
-            'message' => 'Contraseña actualizada correctamente'
-        ]);
+            // Actualizar la contraseña
+            $user->password = Hash::make($request->new_password);
+            $user->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => '¡Contraseña actualizada con éxito!'
+            ]);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error al actualizar la contraseña',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Error in password update:', ['error' => $e->getMessage()]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error al actualizar la contraseña',
+                'errors' => ['general' => ['Ha ocurrido un error inesperado']]
+            ], 500);
+        }
     }
 }

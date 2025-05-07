@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
 
 class User extends Authenticatable
 {
@@ -48,10 +49,14 @@ class User extends Authenticatable
         return $this->first_name . ' ' . $this->last_name;
     }
 
-    // Mutator para hashear la contraseña
+    // Mutador para hashear la contraseña
     public function setPasswordAttribute($value)
     {
-        $this->attributes['password'] = bcrypt($value);
+        if (!empty($value) && !str_starts_with($value, '$2y$')) {
+            $this->attributes['password'] = Hash::make($value);
+        } else {
+            $this->attributes['password'] = $value;
+        }
     }
 
     // Relación con las opiniones del usuario

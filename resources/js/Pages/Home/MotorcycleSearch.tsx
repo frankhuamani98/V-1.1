@@ -44,22 +44,19 @@ export default function MotorcycleSearch({ motoData }: Props) {
   const [scrolled, setScrolled] = useState(false)
   const [showFeatures, setShowFeatures] = useState<number | null>(null)
 
-  // Retrieve recent searches from localStorage when component loads
   useEffect(() => {
     const savedSearches = localStorage.getItem("recentMotorcycleSearches")
     if (savedSearches) {
       setRecentSearches(JSON.parse(savedSearches).slice(0, 3))
     }
 
-    // Show welcome toast after 1.5 seconds
     const timeout = setTimeout(() => {
-      toast.success("¡Bienvenido a MotoPartes Pro!", {
+      toast.success("¡Bienvenido a Rudolf Motos!", {
         description: "Piezas originales y compatibles con garantía asegurada.",
         duration: 5000,
       })
     }, 1500)
 
-    // Detect scroll for visual effects
     const handleScroll = () => {
       setScrolled(window.scrollY > 50)
     }
@@ -79,7 +76,6 @@ export default function MotorcycleSearch({ motoData }: Props) {
   }
 
   const saveSearch = () => {
-    // Only save complete searches
     if (year && brand && model) {
       const modelName = motoData.models.find((m) => m.modelo === model)?.modelo || ""
 
@@ -111,7 +107,6 @@ export default function MotorcycleSearch({ motoData }: Props) {
       description: `Localizando componentes para tu ${brand} ${model} ${year}`,
     })
 
-    // Redirect with parameters
     setTimeout(() => {
       const params = new URLSearchParams()
       params.append("year", year)

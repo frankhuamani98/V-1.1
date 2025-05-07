@@ -1,5 +1,3 @@
-"use client"
-
 import type React from "react"
 import { useState } from "react"
 import { useForm } from "@inertiajs/react"
@@ -50,7 +48,6 @@ interface OpinionesProps {
 export default function Opiniones({ opiniones, auth }: OpinionesProps) {
   const [mostrarFormularioRespuesta, setMostrarFormularioRespuesta] = useState<number | null>(null)
 
-  // Formulario para nueva opinión
   const {
     data: opinionData,
     setData: setOpinionData,
@@ -63,7 +60,6 @@ export default function Opiniones({ opiniones, auth }: OpinionesProps) {
     contenido: "",
   })
 
-  // Formulario para respuestas
   const {
     data: respuestaData,
     setData: setRespuestaData,
@@ -75,7 +71,6 @@ export default function Opiniones({ opiniones, auth }: OpinionesProps) {
     contenido: "",
   })
 
-  // Maneja envío de nueva opinión
   const handleOpinionSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     postOpinion(route("opiniones.store"), {
@@ -86,7 +81,6 @@ export default function Opiniones({ opiniones, auth }: OpinionesProps) {
     })
   }
 
-  // Maneja envío de respuesta
   const handleRespuestaSubmit = (e: React.FormEvent, opinionId: number) => {
     e.preventDefault()
     postRespuesta(route("opiniones.responder", opinionId), {
@@ -98,7 +92,6 @@ export default function Opiniones({ opiniones, auth }: OpinionesProps) {
     })
   }
 
-  // Maneja marcar como útil
   const marcarUtil = (opinionId: number) => {
     if (!auth.user) {
       alert("Debes iniciar sesión para marcar una opinión como útil")
@@ -110,7 +103,6 @@ export default function Opiniones({ opiniones, auth }: OpinionesProps) {
     })
   }
 
-  // Componente de estrellas para calificaciones
   const StarRating = ({
     rating,
     size = "md",
@@ -143,7 +135,6 @@ export default function Opiniones({ opiniones, auth }: OpinionesProps) {
     )
   }
 
-  // Componente de avatar de usuario
   const UserAvatar = ({
     iniciales,
     esSoporte = false,
