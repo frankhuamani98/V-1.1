@@ -195,6 +195,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/reservas/horas-disponibles', [ReservaController::class, 'horasDisponibles'])->name('reservas.horas-disponibles');
     });
 
+    // Rutas de perfil
+    Route::middleware('auth')->group(function () {
+        Route::patch('/api/profile', [App\Http\Controllers\Auth\ProfileController::class, 'updateProfile']);
+        Route::post('/profile/update-password', [App\Http\Controllers\Auth\ProfileController::class, 'updatePassword']);
+        Route::post('/api/check-username', [App\Http\Controllers\Auth\ProfileController::class, 'checkUsername']);
+    });
+
     // Pedidos
     Route::prefix('pedidos')->group(function () {
         Route::get('/nuevos', [NuevosPedidosController::class, 'index'])->name('pedidos.nuevos');

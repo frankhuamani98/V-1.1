@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -55,7 +55,11 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [checkingUsername, setCheckingUsername] = useState(false);
+  const usernameCheckTimeout = useRef<NodeJS.Timeout>();
   const [editableFields, setEditableFields] = useState<{ [key: string]: EditableField }>({
+    username: { key: "username", value: user?.username || "", isEditing: false },
     first_name: { key: "first_name", value: user?.first_name || "", isEditing: false },
     last_name: { key: "last_name", value: user?.last_name || "", isEditing: false },
     phone: { key: "phone", value: user?.phone || "", isEditing: false },
@@ -67,11 +71,53 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
+  const checkUsernameAvailability = async (username: string) => {
+    setCheckingUsername(true);
+    try {
+      const response = await axios.post('/api/check-username', { username });
+      if (!response.data.available) {
+        setUsernameError(response.data.message);
+        return false;
+      }
+      setUsernameError(null);
+      return true;
+    } catch (error) {
+      console.error('Error checking username:', error);
+      return false;
+    } finally {
+      setCheckingUsername(false);
+    }
+  };
+
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newUsername = e.target.value;
+    setEditableFields(prev => ({
+      ...prev,
+      username: { ...prev.username, value: newUsername }
+    }));
+
+    if (usernameCheckTimeout.current) {
+      clearTimeout(usernameCheckTimeout.current);
+    }
+
+    if (newUsername === user?.username) {
+      setUsernameError(null);
+      return;
+    }
+
+    usernameCheckTimeout.current = setTimeout(() => {
+      checkUsernameAvailability(newUsername);
+    }, 500);
+  };
+
   const handleEdit = (field: string) => {
     setEditableFields(prev => ({
       ...prev,
       [field]: { ...prev[field], isEditing: true }
     }));
+    if (field === 'username') {
+      setUsernameError(null);
+    }
   };
 
   const handleCancel = (field: string) => {
@@ -83,12 +129,20 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
         value: user?.[field as keyof typeof user] || ""
       }
     }));
+    if (field === 'username') {
+      setUsernameError(null);
+    }
   };
 
   const handleSave = async (field: string) => {
+    if (field === 'username' && usernameError) {
+      toast.error("Por favor, elige otro nombre de usuario");
+      return;
+    }
+
     setIsUpdating(true);
     try {
-      await axios.patch('/api/profile', {
+      const response = await axios.patch('/api/profile', {
         [field]: editableFields[field].value
       });
       
@@ -99,7 +153,11 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
       
       toast.success("Información actualizada correctamente");
     } catch (error: any) {
-      toast.error("Error al actualizar la información");
+      if (error.response?.data?.errors?.username) {
+        toast.error(error.response.data.message || "Este nombre de usuario ya está registrado");
+      } else {
+        toast.error("Error al actualizar la información");
+      }
       handleCancel(field);
     } finally {
       setIsUpdating(false);
@@ -163,36 +221,56 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
             )}
           </div>
           {fieldData.isEditing ? (
-            <div className="flex items-center space-x-2">
-              <Input
-                value={fieldData.value}
-                onChange={(e) => setEditableFields(prev => ({
-                  ...prev,
-                  [field]: { ...prev[field], value: e.target.value }
-                }))}
-                className="flex-1"
-                autoFocus
-              />
-              <div className="flex items-center space-x-1">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleSave(field)}
-                  disabled={isUpdating}
-                  className="h-8 w-8 p-0"
-                >
-                  <CheckIcon className="h-4 w-4 text-green-600" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleCancel(field)}
-                  disabled={isUpdating}
-                  className="h-8 w-8 p-0"
-                >
-                  <XIcon className="h-4 w-4 text-red-600" />
-                </Button>
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <Input
+                  value={fieldData.value}
+                  onChange={field === 'username' ? handleUsernameChange : (e) => setEditableFields(prev => ({
+                    ...prev,
+                    [field]: { ...prev[field], value: e.target.value }
+                  }))}
+                  className={`flex-1 ${usernameError && field === 'username' ? 'border-red-500 focus:ring-red-500' : ''}`}
+                  autoFocus
+                />
+                <div className="flex items-center space-x-1">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleSave(field)}
+                    disabled={isUpdating || (field === 'username' && !!usernameError)}
+                    className="h-8 w-8 p-0"
+                  >
+                    {isUpdating ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <CheckIcon className="h-4 w-4 text-green-600" />
+                    )}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleCancel(field)}
+                    disabled={isUpdating}
+                    className="h-8 w-8 p-0"
+                  >
+                    <XIcon className="h-4 w-4 text-red-600" />
+                  </Button>
+                </div>
               </div>
+              {field === 'username' && (
+                <div className="min-h-[20px]">
+                  {checkingUsername && (
+                    <p className="text-sm text-muted-foreground">
+                      Verificando disponibilidad...
+                    </p>
+                  )}
+                  {usernameError && (
+                    <p className="text-sm text-red-500">
+                      {usernameError}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           ) : (
             <p className="text-base font-medium">{fieldData.value || "No especificado"}</p>
@@ -245,7 +323,7 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
               <div className="w-full space-y-4">
                 <div className="flex items-center text-sm">
                   <User className="w-4 h-4 mr-3 text-muted-foreground" />
-                  <span className="text-muted-foreground">@{user?.username}</span>
+                  <span className="text-muted-foreground">@{editableFields.username.value || user?.username}</span>
                 </div>
                 <div className="flex items-center text-sm">
                   <CreditCard className="w-4 h-4 mr-3 text-muted-foreground" />
@@ -296,6 +374,11 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
                   
                   <div className="mt-6 space-y-1">
                     <EditableField
+                      field="username"
+                      label="Nombre de Usuario"
+                      icon={<User className="h-5 w-5 text-primary/60" />}
+                    />
+                    <EditableField
                       field="first_name"
                       label="Nombre"
                       icon={<User className="h-5 w-5 text-primary/60" />}
@@ -309,11 +392,6 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
                       label="DNI"
                       value={user?.dni || ""}
                       icon={<CreditCard className="h-5 w-5 text-primary/60" />}
-                    />
-                    <NonEditableField
-                      label="Nombre de Usuario"
-                      value={user?.username || ""}
-                      icon={<User className="h-5 w-5 text-primary/60" />}
                     />
                     <NonEditableField
                       label="Correo Electrónico"

@@ -48,6 +48,12 @@ class User extends Authenticatable
         return $this->first_name . ' ' . $this->last_name;
     }
 
+    // Mutator para hashear la contraseña
+    public function setPasswordAttribute($value)
+    {
+        $this->attributes['password'] = bcrypt($value);
+    }
+
     // Relación con las opiniones del usuario
     public function opiniones()
     {
