@@ -23,4 +23,5 @@ Route::match(['get', 'post'], '/logout', [LoginController::class, 'logout'])->na
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::get('/auth/profile/profilepage', [ProfileController::class, 'show']); // Alias por si lo necesitas
+    Route::post('/profile/update-password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
 });

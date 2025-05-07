@@ -1,44 +1,46 @@
 import { useState } from 'react';
-import { useForm, router } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Input } from '@/Components/ui/input';
 import { Toaster, toast } from 'sonner';
 
-interface FormData {
+type LoginForm = {
     identifier: string;
     password: string;
-    [key: string]: string;
 }
 
-interface Errors {
-    identifier?: string;
-    password?: string;
-    email?: string;
+interface Props {
+    errors: {
+        identifier?: string;
+        password?: string;
+        email?: string;
+    };
 }
 
-export default function Login() {
-    const { data, setData, post, processing, errors, reset } = useForm<FormData>({
-        identifier: '', // DNI, email o username
+export default function Login({ errors: serverErrors }: Props) {
+    const { data, setData, post, processing, errors, reset } = useForm<LoginForm>({
+        identifier: '',
         password: '',
     });
 
     const [showPassword, setShowPassword] = useState<boolean>(false);
 
+    const isValidEmail = (email: string): boolean => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
     // Función para normalizar el identificador (email a minúsculas, otros campos sin cambios)
     const normalizeIdentifier = (value: string): string => {
-        // Verifica si el valor podría ser un email
-        const isEmail = value.includes('@') || value.includes('.');
-        return isEmail ? value.toLowerCase().trim() : value.trim();
+        const trimmedValue = value.trim();
+        return isValidEmail(trimmedValue) ? trimmedValue.toLowerCase() : trimmedValue;
     };
 
     const handleChangeIdentifier = (value: string) => {
-        // Normaliza el valor en tiempo real si parece un email
-        const normalizedValue = value.includes('@') || value.includes('.') 
-            ? value.toLowerCase() 
-            : value;
-        setData('identifier', normalizedValue);
+        const trimmedValue = value.trim();
+        setData('identifier', isValidEmail(trimmedValue) ? trimmedValue.toLowerCase() : trimmedValue);
     };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -56,7 +58,7 @@ export default function Login() {
             return;
         }
 
-        // Normalizar el identificador antes de enviar (asegurarse de que los emails estén en minúsculas)
+        // Normalizar el identificador antes de enviar
         const normalizedData = {
             ...data,
             identifier: normalizeIdentifier(data.identifier)
@@ -71,7 +73,7 @@ export default function Login() {
                 });
                 reset();
             },
-            onError: (errors: Errors) => {
+            onError: (errors) => {
                 if (errors.identifier) {
                     toast.error('Error en el inicio de sesión', {
                         description: errors.identifier,

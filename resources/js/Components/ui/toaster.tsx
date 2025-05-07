@@ -8,11 +8,15 @@ import {
   ToastViewport,
 } from "@/Components/ui/toast"
 
-export function Toaster() {
+interface ToasterProps extends React.ComponentPropsWithoutRef<typeof ToastProvider> {
+  // You can add additional props here if needed
+}
+
+export function Toaster({ ...props }: ToasterProps) {
   const { toasts } = useToast()
 
   return (
-    <ToastProvider>
+    <ToastProvider {...props}>
       {toasts.map(function ({ id, title, description, action, ...props }) {
         return (
           <Toast key={id} {...props}>

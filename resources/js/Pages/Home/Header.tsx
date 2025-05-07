@@ -21,7 +21,8 @@ import {
   PackageIcon,
   WrenchIcon,
   CalendarIcon,
-  PhoneIcon,
+  PhoneIcon as Phone,
+  MapPin,
 } from "lucide-react";
 import {
   NavigationMenu,
@@ -56,8 +57,11 @@ import { Badge } from "@/Components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { Separator } from "@/Components/ui/separator";
 import { cn } from "@/lib/utils";
-import { MapPin, Phone, Mail, Clock, Sun, Moon, Menu, X } from "lucide-react";
 import "../../../css/app.css";
+import { toast } from "sonner";
+import axios from "axios";
+import { motion } from "framer-motion";
+import { ProfileModal } from "@/Components/Modals/ProfileModal";
 
 // Sample products for cart
 const cartProducts = [
@@ -181,7 +185,7 @@ const FavoriteItem = ({
 
 export default function Header() {
   const { auth: { user }, categoriasMenu = [], categoriasServicio = [], servicios = [] } = usePage<{ 
-    auth: { user: { id: number; name: string; first_name: string; last_name: string; email: string } },
+    auth: { user: { id: number; name: string; first_name: string; last_name: string; email: string, username: string, dni: string, phone: string, address: string, sexo: string } },
     categoriasServicio: Array<{ id: number; nombre: string }>,
     servicios: Array<{ id: number; nombre: string; categoria_id: number }>
   }>().props;
@@ -205,6 +209,7 @@ export default function Header() {
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
   const [isCartSheetOpen, setIsCartSheetOpen] = useState(false);
   const [isFavoritesSheetOpen, setIsFavoritesSheetOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   // Calculate totals
@@ -260,7 +265,7 @@ export default function Header() {
       title: "Contactos",
       href: "/contacto",
       description: "Ponte en contacto con nosotros para cualquier consulta",
-      icon: <PhoneIcon className="mr-2 h-4 w-4" />,
+      icon: <Phone className="mr-2 h-4 w-4" />,
       subcategories: [
         { name: "Ubicación", href: "/contacto/ubicacion" },
         { name: "Contáctanos", href: "/contacto/contactanos" },
@@ -375,506 +380,514 @@ export default function Header() {
   }, [user]);
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-300",
-        isScrolled ? "bg-background/95 backdrop-blur-md shadow-sm border-b" : "bg-background"
-      )}
-    >
-      {/* Navegación principal */}
-      <div className="w-full max-w-[2000px] mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
-          {/* Menú móvil */}
-          <Sheet>
-            <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon" className="mr-2">
-                <MenuIcon className="h-5 w-5" />
-                <span className="sr-only">Abrir menú</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-[300px] sm:w-[350px] overflow-y-auto max-h-screen">
-              <SheetHeader>
-                <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
-                <SheetDescription className="sr-only">
-                  Menú principal de navegación del sitio
-                </SheetDescription>
-                {/* Logo inside the menu */}
-                <div className="flex justify-center mb-4">
-                  <Link href="/" className="h-12">
-                    <img src="/logo.png" alt="Rudolf Motors Logo" className="h-14" />
-                  </Link>
+    <>
+      <header
+        className={cn(
+          "sticky top-0 z-50 w-full transition-all duration-300",
+          isScrolled ? "bg-background/95 backdrop-blur-md shadow-sm border-b" : "bg-background"
+        )}
+      >
+        {/* Navegación principal */}
+        <div className="w-full max-w-[2000px] mx-auto px-4">
+          <div className="flex h-16 items-center justify-between">
+            {/* Menú móvil */}
+            <Sheet>
+              <SheetTrigger asChild className="md:hidden">
+                <Button variant="ghost" size="icon" className="mr-2">
+                  <MenuIcon className="h-5 w-5" />
+                  <span className="sr-only">Abrir menú</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[300px] sm:w-[350px] overflow-y-auto max-h-screen">
+                <SheetHeader>
+                  <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
+                  <SheetDescription className="sr-only">
+                    Menú principal de navegación del sitio
+                  </SheetDescription>
+                  {/* Logo inside the menu */}
+                  <div className="flex justify-center mb-4">
+                    <Link href="/" className="h-12">
+                      <img src="/logo.png" alt="Rudolf Motors Logo" className="h-14" />
+                    </Link>
+                  </div>
+                </SheetHeader>
+                <div className="py-4">
+                  <div className="space-y-4">
+                    {allCategories.map((category) => (
+                      <div key={category.title} className="space-y-2">
+                        <div className="flex items-center font-medium text-lg">
+                          {category.icon}
+                          <span>{category.title}</span>
+                        </div>
+                        <Separator />
+                        <div className="grid grid-cols-2 gap-2 pl-2">
+                          {category.subcategories.map((subcategory) => (
+                            <a
+                              key={subcategory.name}
+                              href={subcategory.href}
+                              className="text-sm text-muted-foreground hover:text-foreground transition-colors py-1"
+                            >
+                              {subcategory.name}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Separator className="my-4" />
+
+                  <div className="space-y-2">
+                    <a href="#" className="flex items-center py-2 text-foreground hover:text-primary transition-colors">
+                      <UserIcon className="mr-2 h-4 w-4" />
+                      <span>Cuenta</span>
+                    </a>
+                    <button
+                      className="w-full flex items-center py-2 text-foreground hover:text-primary transition-colors"
+                      onClick={() => setIsFavoritesSheetOpen(true)}
+                    >
+                      <HeartIcon className="mr-2 h-4 w-4" />
+                      <span>Favoritos</span>
+                      {favoritesCount > 0 && (
+                        <Badge variant="secondary" className="ml-auto">
+                          {favoritesCount}
+                        </Badge>
+                      )}
+                    </button>
+                    <button
+                      className="w-full flex items-center py-2 text-foreground hover:text-primary transition-colors"
+                      onClick={() => setIsCartSheetOpen(true)}
+                    >
+                      <ShoppingBagIcon className="mr-2 h-4 w-4" />
+                      <span>Carrito</span>
+                      {cartCount > 0 && (
+                        <Badge variant="secondary" className="ml-auto">
+                          {cartCount}
+                        </Badge>
+                      )}
+                    </button>
+                    <a href="#" className="flex items-center py-2 text-foreground hover:text-primary transition-colors">
+                      <HelpCircleIcon className="mr-2 h-4 w-4" />
+                      <span>Ayuda</span>
+                    </a>
+                  </div>
                 </div>
-              </SheetHeader>
-              <div className="py-4">
-                <div className="space-y-4">
+                <SheetFooter>
+                  <Button className="w-full" asChild>
+                    <a href={isAuthenticated ? "/logout" : "/login"}>
+                      {isAuthenticated ? "Cerrar Sesión" : "Iniciar Sesión"}
+                    </a>
+                  </Button>
+                </SheetFooter>
+              </SheetContent>
+            </Sheet>
+
+            {/* Logo for desktop */}
+            <div className="hidden md:flex items-center justify-center">
+              <Link href="/" className="h-12">
+                <img src="/logo.png" alt="Rudolf Motors Logo" className="h-14" />
+              </Link>
+            </div>
+
+            {/* Navegación del escritorio */}
+            <div className="hidden md:flex items-center space-x-1">
+              <NavigationMenu>
+                <NavigationMenuList>
                   {allCategories.map((category) => (
-                    <div key={category.title} className="space-y-2">
-                      <div className="flex items-center font-medium text-lg">
+                    <NavigationMenuItem key={category.title}>
+                      <NavigationMenuTrigger className="flex items-center">
                         {category.icon}
                         <span>{category.title}</span>
-                      </div>
-                      <Separator />
-                      <div className="grid grid-cols-2 gap-2 pl-2">
-                        {category.subcategories.map((subcategory) => (
-                          <a
-                            key={subcategory.name}
-                            href={subcategory.href}
-                            className="text-sm text-muted-foreground hover:text-foreground transition-colors py-1"
-                          >
-                            {subcategory.name}
-                          </a>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <Separator className="my-4" />
-
-                <div className="space-y-2">
-                  <a href="#" className="flex items-center py-2 text-foreground hover:text-primary transition-colors">
-                    <UserIcon className="mr-2 h-4 w-4" />
-                    <span>Cuenta</span>
-                  </a>
-                  <button
-                    className="w-full flex items-center py-2 text-foreground hover:text-primary transition-colors"
-                    onClick={() => setIsFavoritesSheetOpen(true)}
-                  >
-                    <HeartIcon className="mr-2 h-4 w-4" />
-                    <span>Favoritos</span>
-                    {favoritesCount > 0 && (
-                      <Badge variant="secondary" className="ml-auto">
-                        {favoritesCount}
-                      </Badge>
-                    )}
-                  </button>
-                  <button
-                    className="w-full flex items-center py-2 text-foreground hover:text-primary transition-colors"
-                    onClick={() => setIsCartSheetOpen(true)}
-                  >
-                    <ShoppingBagIcon className="mr-2 h-4 w-4" />
-                    <span>Carrito</span>
-                    {cartCount > 0 && (
-                      <Badge variant="secondary" className="ml-auto">
-                        {cartCount}
-                      </Badge>
-                    )}
-                  </button>
-                  <a href="#" className="flex items-center py-2 text-foreground hover:text-primary transition-colors">
-                    <HelpCircleIcon className="mr-2 h-4 w-4" />
-                    <span>Ayuda</span>
-                  </a>
-                </div>
-              </div>
-              <SheetFooter>
-                <Button className="w-full" asChild>
-                  <a href={isAuthenticated ? "/logout" : "/login"}>
-                    {isAuthenticated ? "Cerrar Sesión" : "Iniciar Sesión"}
-                  </a>
-                </Button>
-              </SheetFooter>
-            </SheetContent>
-          </Sheet>
-
-          {/* Logo for desktop */}
-          <div className="hidden md:flex items-center justify-center">
-            <Link href="/" className="h-12">
-              <img src="/logo.png" alt="Rudolf Motors Logo" className="h-14" />
-            </Link>
-          </div>
-
-          {/* Navegación del escritorio */}
-          <div className="hidden md:flex items-center space-x-1">
-            <NavigationMenu>
-              <NavigationMenuList>
-                {allCategories.map((category) => (
-                  <NavigationMenuItem key={category.title}>
-                    <NavigationMenuTrigger className="flex items-center">
-                      {category.icon}
-                      <span>{category.title}</span>
-                    </NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                      <div className="grid w-[600px] grid-cols-2 gap-3 p-4">
-                        <div className="col-span-2">
-                          <div className="mb-2 text-lg font-medium">{category.title}</div>
-                          <p className="text-sm text-muted-foreground mb-4">{category.description}</p>
-                          <div className="grid grid-cols-2 gap-2">
-                            {category.subcategories.map((subcategory) => (
-                              <a
-                                key={subcategory.name}
-                                href={subcategory.href}
-                                className="text-sm hover:underline py-1"
-                              >
-                                {subcategory.name}
-                              </a>
-                            ))}
+                      </NavigationMenuTrigger>
+                      <NavigationMenuContent>
+                        <div className="grid w-[600px] grid-cols-2 gap-3 p-4">
+                          <div className="col-span-2">
+                            <div className="mb-2 text-lg font-medium">{category.title}</div>
+                            <p className="text-sm text-muted-foreground mb-4">{category.description}</p>
+                            <div className="grid grid-cols-2 gap-2">
+                              {category.subcategories.map((subcategory) => (
+                                <a
+                                  key={subcategory.name}
+                                  href={subcategory.href}
+                                  className="text-sm hover:underline py-1"
+                                >
+                                  {subcategory.name}
+                                </a>
+                              ))}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </NavigationMenuContent>
-                  </NavigationMenuItem>
-                ))}
-              </NavigationMenuList>
-            </NavigationMenu>
-          </div>
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
+                  ))}
+                </NavigationMenuList>
+              </NavigationMenu>
+            </div>
 
-          {/* Acciones del lado derecho */}
-          <div className="flex items-center space-x-2">
-            {/* Barra de búsqueda */}
-            <div
-              className={cn(
-                "hidden md:block transition-all duration-300 overflow-hidden",
-                isSearchOpen ? "w-64 opacity-100" : "w-0 opacity-0"
-              )}
-            >
-              <div className="relative">
-                <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Buscar productos..."
-                  className="pl-9 h-9 w-full"
-                />
+            {/* Acciones del lado derecho */}
+            <div className="flex items-center space-x-2">
+              {/* Barra de búsqueda */}
+              <div
+                className={cn(
+                  "hidden md:block transition-all duration-300 overflow-hidden",
+                  isSearchOpen ? "w-64 opacity-100" : "w-0 opacity-0"
+                )}
+              >
+                <div className="relative">
+                  <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    placeholder="Buscar productos..."
+                    className="pl-9 h-9 w-full"
+                  />
+                </div>
               </div>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleSearch}
-              className="h-9 w-9"
-            >
-              {isSearchOpen ? <XIcon className="h-4 w-4" /> : <SearchIcon className="h-4 w-4" />}
-            </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleSearch}
+                className="h-9 w-9"
+              >
+                {isSearchOpen ? <XIcon className="h-4 w-4" /> : <SearchIcon className="h-4 w-4" />}
+              </Button>
 
-            {/* Botón de modo oscuro */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9"
-              onClick={toggleDarkMode}
-              aria-label={isDarkMode ? "Cambiar a Modo Claro" : "Cambiar a Modo Oscuro"}
-            >
-              {isDarkMode ? <SunIcon className="h-4 w-4" /> : <MoonIcon className="h-4 w-4" />}
-            </Button>
+              {/* Botón de modo oscuro */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9"
+                onClick={toggleDarkMode}
+                aria-label={isDarkMode ? "Cambiar a Modo Claro" : "Cambiar a Modo Oscuro"}
+              >
+                {isDarkMode ? <SunIcon className="h-4 w-4" /> : <MoonIcon className="h-4 w-4" />}
+              </Button>
 
-            {/* Favoritos - Desktop */}
-            <div className="hidden md:block">
-              <DropdownMenu open={isFavoritesOpen} onOpenChange={setIsFavoritesOpen}>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-9 w-9 relative">
-                    <HeartIcon className="h-4 w-4" />
-                    {favoritesCount > 0 && (
-                      <Badge
-                        variant="destructive"
-                        className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px]"
-                      >
-                        {favoritesCount}
-                      </Badge>
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-80">
-                  <DropdownMenuLabel>Mis Favoritos</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <div className="max-h-[300px] overflow-y-auto">
-                    {favorites.length > 0 ? (
-                      favorites.map((product) => (
-                        <div key={product.id}>
-                          <FavoriteItem product={product} onRemove={removeFromFavorites} />
-                          <DropdownMenuSeparator />
+              {/* Favoritos - Desktop */}
+              <div className="hidden md:block">
+                <DropdownMenu open={isFavoritesOpen} onOpenChange={setIsFavoritesOpen}>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-9 w-9 relative">
+                      <HeartIcon className="h-4 w-4" />
+                      {favoritesCount > 0 && (
+                        <Badge
+                          variant="destructive"
+                          className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px]"
+                        >
+                          {favoritesCount}
+                        </Badge>
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-80">
+                    <DropdownMenuLabel>Mis Favoritos</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <div className="max-h-[300px] overflow-y-auto">
+                      {favorites.length > 0 ? (
+                        favorites.map((product) => (
+                          <div key={product.id}>
+                            <FavoriteItem product={product} onRemove={removeFromFavorites} />
+                            <DropdownMenuSeparator />
+                          </div>
+                        ))
+                      ) : (
+                        <div className="py-4 text-center text-muted-foreground">
+                          No tienes productos favoritos
                         </div>
-                      ))
-                    ) : (
-                      <div className="py-4 text-center text-muted-foreground">
-                        No tienes productos favoritos
-                      </div>
-                    )}
-                  </div>
-                  {favorites.length > 0 && (
-                    <div className="p-3">
-                      <Button className="w-full" asChild>
-                        <a href="#">Ver todos los favoritos</a>
-                      </Button>
+                      )}
                     </div>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+                    {favorites.length > 0 && (
+                      <div className="p-3">
+                        <Button className="w-full" asChild>
+                          <a href="#">Ver todos los favoritos</a>
+                        </Button>
+                      </div>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
 
-            {/* Carrito - Desktop */}
-            <div className="hidden md:block">
-              <DropdownMenu open={isCartOpen} onOpenChange={setIsCartOpen}>
+              {/* Carrito - Desktop */}
+              <div className="hidden md:block">
+                <DropdownMenu open={isCartOpen} onOpenChange={setIsCartOpen}>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-9 w-9 relative">
+                      <ShoppingCartIcon className="h-4 w-4" />
+                      {cartCount > 0 && (
+                        <Badge
+                          variant="destructive"
+                          className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px]"
+                        >
+                          {cartCount}
+                        </Badge>
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-80">
+                    <DropdownMenuLabel>Mi Carrito</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <div className="max-h-[300px] overflow-y-auto">
+                      {cart.length > 0 ? (
+                        cart.map((product) => (
+                          <div key={product.id}>
+                            <CartItem product={product} onRemove={removeFromCart} />
+                            <DropdownMenuSeparator />
+                          </div>
+                        ))
+                      ) : (
+                        <div className="py-4 text-center text-muted-foreground">
+                          Tu carrito está vacío
+                        </div>
+                      )}
+                    </div>
+                    {cart.length > 0 && (
+                      <>
+                        <div className="p-3 border-t">
+                          <div className="flex justify-between mb-2">
+                            <span className="font-medium">Total:</span>
+                            <span className="font-bold">${cartTotal.toFixed(2)}</span>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <Button asChild>
+                              <a href="#">Finalizar Compra</a>
+                            </Button>
+                            <Button variant="outline" asChild>
+                              <a href="/shop">Ver Carrito</a>
+                            </Button>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+
+              {/* Carrito - Mobile */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 relative md:hidden"
+                onClick={() => setIsCartSheetOpen(true)}
+              >
+                <ShoppingCartIcon className="h-4 w-4" />
+                {cartCount > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px]"
+                  >
+                    {cartCount}
+                  </Badge>
+                )}
+              </Button>
+
+              {/* Favoritos - Mobile */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 relative md:hidden"
+                onClick={() => setIsFavoritesSheetOpen(true)}
+              >
+                <HeartIcon className="h-4 w-4" />
+                {favoritesCount > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px]"
+                  >
+                    {favoritesCount}
+                  </Badge>
+                )}
+              </Button>
+
+              {/* Menú de usuario */}
+              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-9 w-9 relative">
-                    <ShoppingCartIcon className="h-4 w-4" />
-                    {cartCount > 0 && (
-                      <Badge
-                        variant="destructive"
-                        className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px]"
-                      >
-                        {cartCount}
-                      </Badge>
+                  <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full">
+                    {user ? (
+                      <Avatar className="h-7 w-7">
+                        <AvatarFallback
+                          className={cn(
+                            "bg-[#cbd8fd] text-black dark:bg-[#2d3748] dark:text-white"
+                          )}
+                        >
+                          {getInitials(
+                            user.first_name || "",
+                            user.last_name || ""
+                          )}
+                        </AvatarFallback>
+                      </Avatar>
+                    ) : (
+                      <UserIcon className="h-4 w-4" />
                     )}
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-80">
-                  <DropdownMenuLabel>Mi Carrito</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <div className="max-h-[300px] overflow-y-auto">
-                    {cart.length > 0 ? (
-                      cart.map((product) => (
-                        <div key={product.id}>
-                          <CartItem product={product} onRemove={removeFromCart} />
-                          <DropdownMenuSeparator />
-                        </div>
-                      ))
-                    ) : (
-                      <div className="py-4 text-center text-muted-foreground">
-                        Tu carrito está vacío
-                      </div>
-                    )}
-                  </div>
-                  {cart.length > 0 && (
+                <DropdownMenuContent align="end" className="w-56">
+                  {user ? (
                     <>
-                      <div className="p-3 border-t">
-                        <div className="flex justify-between mb-2">
-                          <span className="font-medium">Total:</span>
-                          <span className="font-bold">${cartTotal.toFixed(2)}</span>
+                      <DropdownMenuLabel className="font-normal">
+                        <div className="flex flex-col space-y-1">
+                          <p className="text-sm font-medium leading-none">
+                            {user.first_name} {user.last_name}
+                          </p>
+                          <p className="text-xs leading-none text-muted-foreground">
+                            {user.email}
+                          </p>
                         </div>
-                        <div className="flex flex-col gap-2">
-                          <Button asChild>
-                            <a href="#">Finalizar Compra</a>
-                          </Button>
-                          <Button variant="outline" asChild>
-                            <a href="/shop">Ver Carrito</a>
-                          </Button>
-                        </div>
-                      </div>
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onSelect={(e) => {
+                        e.preventDefault();
+                        setIsProfileOpen(true);
+                      }}>
+                        <UserIcon className="mr-2 h-4 w-4" />
+                        <span>Perfil</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <ShoppingBagIcon className="mr-2 h-4 w-4" />
+                        <span>Pedidos</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <HeartIcon className="mr-2 h-4 w-4" />
+                        <span>Favoritos</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <SettingsIcon className="mr-2 h-4 w-4" />
+                        <span>Configuración</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <a href="/logout">
+                          <LogInIcon className="mr-2 h-4 w-4" />
+                          <span>Cerrar Sesión</span>
+                        </a>
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <>
+                      <DropdownMenuItem asChild>
+                        <a href="/login" className="w-full">
+                          <LogInIcon className="mr-2 h-4 w-4" />
+                          <span>Iniciar Sesión</span>
+                        </a>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <a href="/register" className="w-full">
+                          <UserIcon className="mr-2 h-4 w-4" />
+                          <span>Registrarse</span>
+                        </a>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem>
+                        <HelpCircleIcon className="mr-2 h-4 w-4" />
+                        <span>Ayuda</span>
+                      </DropdownMenuItem>
                     </>
                   )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-
-            {/* Carrito - Mobile */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 relative md:hidden"
-              onClick={() => setIsCartSheetOpen(true)}
-            >
-              <ShoppingCartIcon className="h-4 w-4" />
-              {cartCount > 0 && (
-                <Badge
-                  variant="destructive"
-                  className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px]"
-                >
-                  {cartCount}
-                </Badge>
-              )}
-            </Button>
-
-            {/* Favoritos - Mobile */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 relative md:hidden"
-              onClick={() => setIsFavoritesSheetOpen(true)}
-            >
-              <HeartIcon className="h-4 w-4" />
-              {favoritesCount > 0 && (
-                <Badge
-                  variant="destructive"
-                  className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px]"
-                >
-                  {favoritesCount}
-                </Badge>
-              )}
-            </Button>
-
-            {/* Menú de usuario */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full">
-                  {user ? (
-                    <Avatar className="h-7 w-7">
-                      <AvatarFallback
-                        className={cn(
-                          "bg-[#cbd8fd] text-black dark:bg-[#2d3748] dark:text-white"
-                        )}
-                      >
-                        {getInitials(
-                          user.first_name || "",
-                          user.last_name || ""
-                        )}
-                      </AvatarFallback>
-                    </Avatar>
-                  ) : (
-                    <UserIcon className="h-4 w-4" />
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                {user ? (
-                  <>
-                    <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                          {user.first_name} {user.last_name}
-                        </p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          {user.email}
-                        </p>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/profile" className="w-full"> 
-                        <UserIcon className="mr-2 h-4 w-4" />
-                        <span>Perfil</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <ShoppingBagIcon className="mr-2 h-4 w-4" />
-                      <span>Pedidos</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <HeartIcon className="mr-2 h-4 w-4" />
-                      <span>Favoritos</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <SettingsIcon className="mr-2 h-4 w-4" />
-                      <span>Configuración</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <a href="/logout">
-                        <LogInIcon className="mr-2 h-4 w-4" />
-                        <span>Cerrar Sesión</span>
-                      </a>
-                    </DropdownMenuItem>
-                  </>
+          </div>
+        </div>
+        {/* Search bar for responsive mode */}
+        {isSearchOpen && (
+          <div className="w-full px-4 py-2 bg-background md:hidden">
+            <div className="relative">
+              <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Buscar productos..."
+                className="pl-9 h-9 w-full"
+              />
+            </div>
+          </div>
+        )}
+        {/* Cart Sheet for Mobile */}
+        <Sheet open={isCartSheetOpen} onOpenChange={setIsCartSheetOpen}>
+          <SheetContent side="right" className="w-full sm:max-w-md">
+            <SheetHeader>
+              <SheetTitle>Mi Carrito ({cartCount})</SheetTitle>
+              <SheetDescription>Revisa los productos en tu carrito de compras</SheetDescription>
+            </SheetHeader>
+            <div className="mt-6 flex flex-col h-[calc(100vh-10rem)]">
+              <div className="flex-1 overflow-y-auto -mx-6 px-6">
+                {cart.length > 0 ? (
+                  cart.map((product) => (
+                    <div key={product.id} className="mb-4">
+                      <CartItem product={product} onRemove={removeFromCart} />
+                      <Separator className="mt-4" />
+                    </div>
+                  ))
                 ) : (
-                  <>
-                    <DropdownMenuItem asChild>
-                      <a href="/login" className="w-full">
-                        <LogInIcon className="mr-2 h-4 w-4" />
-                        <span>Iniciar Sesión</span>
-                      </a>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <a href="/register" className="w-full">
-                        <UserIcon className="mr-2 h-4 w-4" />
-                        <span>Registrarse</span>
-                      </a>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <HelpCircleIcon className="mr-2 h-4 w-4" />
-                      <span>Ayuda</span>
-                    </DropdownMenuItem>
-                  </>
+                  <div className="flex flex-col items-center justify-center h-full text-center">
+                    <ShoppingBagIcon className="h-12 w-12 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-medium">Tu carrito está vacío</h3>
+                    <p className="text-muted-foreground mt-1">Agrega algunos productos para comenzar</p>
+                  </div>
                 )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </div>
-      {/* Search bar for responsive mode */}
-      {isSearchOpen && (
-        <div className="w-full px-4 py-2 bg-background md:hidden">
-          <div className="relative">
-            <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Buscar productos..."
-              className="pl-9 h-9 w-full"
-            />
-          </div>
-        </div>
-      )}
-      {/* Cart Sheet for Mobile */}
-      <Sheet open={isCartSheetOpen} onOpenChange={setIsCartSheetOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-md">
-          <SheetHeader>
-            <SheetTitle>Mi Carrito ({cartCount})</SheetTitle>
-            <SheetDescription>Revisa los productos en tu carrito de compras</SheetDescription>
-          </SheetHeader>
-          <div className="mt-6 flex flex-col h-[calc(100vh-10rem)]">
-            <div className="flex-1 overflow-y-auto -mx-6 px-6">
-              {cart.length > 0 ? (
-                cart.map((product) => (
-                  <div key={product.id} className="mb-4">
-                    <CartItem product={product} onRemove={removeFromCart} />
-                    <Separator className="mt-4" />
+              </div>
+
+              {cart.length > 0 && (
+                <div className="border-t pt-4 mt-auto">
+                  <div className="flex justify-between mb-4">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span className="font-medium">${cartTotal.toFixed(2)}</span>
                   </div>
-                ))
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center">
-                  <ShoppingBagIcon className="h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium">Tu carrito está vacío</h3>
-                  <p className="text-muted-foreground mt-1">Agrega algunos productos para comenzar</p>
+                  <div className="flex justify-between mb-6">
+                    <span className="font-medium">Total</span>
+                    <span className="font-bold text-lg">${cartTotal.toFixed(2)}</span>
+                  </div>
+                  <div className="space-y-3">
+                    <Button className="w-full">Finalizar Compra</Button>
+                    <Button variant="outline" className="w-full">
+                      <a href="/shop">Ver Carrito</a>
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
+          </SheetContent>
+        </Sheet>
 
-            {cart.length > 0 && (
-              <div className="border-t pt-4 mt-auto">
-                <div className="flex justify-between mb-4">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-medium">${cartTotal.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between mb-6">
-                  <span className="font-medium">Total</span>
-                  <span className="font-bold text-lg">${cartTotal.toFixed(2)}</span>
-                </div>
-                <div className="space-y-3">
-                  <Button className="w-full">Finalizar Compra</Button>
-                  <Button variant="outline" className="w-full">
-                    <a href="/shop">Ver Carrito</a>
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        </SheetContent>
-      </Sheet>
-
-      {/* Favorites Sheet for Mobile */}
-      <Sheet open={isFavoritesSheetOpen} onOpenChange={setIsFavoritesSheetOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-md">
-          <SheetHeader>
-            <SheetTitle>Mis Favoritos ({favoritesCount})</SheetTitle>
-            <SheetDescription>Tus productos guardados como favoritos</SheetDescription>
-          </SheetHeader>
-          <div className="mt-6 flex flex-col h-[calc(100vh-10rem)]">
-            <div className="flex-1 overflow-y-auto -mx-6 px-6">
-              {favorites.length > 0 ? (
-                favorites.map((product) => (
-                  <div key={product.id} className="mb-4">
-                    <FavoriteItem product={product} onRemove={removeFromFavorites} />
-                    <Separator className="mt-4" />
+        {/* Favorites Sheet for Mobile */}
+        <Sheet open={isFavoritesSheetOpen} onOpenChange={setIsFavoritesSheetOpen}>
+          <SheetContent side="right" className="w-full sm:max-w-md">
+            <SheetHeader>
+              <SheetTitle>Mis Favoritos ({favoritesCount})</SheetTitle>
+              <SheetDescription>Tus productos guardados como favoritos</SheetDescription>
+            </SheetHeader>
+            <div className="mt-6 flex flex-col h-[calc(100vh-10rem)]">
+              <div className="flex-1 overflow-y-auto -mx-6 px-6">
+                {favorites.length > 0 ? (
+                  favorites.map((product) => (
+                    <div key={product.id} className="mb-4">
+                      <FavoriteItem product={product} onRemove={removeFromFavorites} />
+                      <Separator className="mt-4" />
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-center">
+                    <HeartIcon className="h-12 w-12 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-medium">No tienes favoritos</h3>
+                    <p className="text-muted-foreground mt-1">Guarda productos para verlos más tarde</p>
                   </div>
-                ))
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center">
-                  <HeartIcon className="h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium">No tienes favoritos</h3>
-                  <p className="text-muted-foreground mt-1">Guarda productos para verlos más tarde</p>
+                )}
+              </div>
+
+              {favorites.length > 0 && (
+                <div className="border-t pt-4 mt-auto">
+                  <div className="space-y-3">
+                    <Button className="w-full">Ver Todos los Favoritos</Button>
+                    <Button variant="outline" className="w-full">Agregar Todo al Carrito</Button>
+                  </div>
                 </div>
               )}
             </div>
-
-            {favorites.length > 0 && (
-              <div className="border-t pt-4 mt-auto">
-                <div className="space-y-3">
-                  <Button className="w-full">Ver Todos los Favoritos</Button>
-                  <Button variant="outline" className="w-full">Agregar Todo al Carrito</Button>
-                </div>
-              </div>
-            )}
-          </div>
-        </SheetContent>
-      </Sheet>
-    </header>
+          </SheetContent>
+        </Sheet>
+      </header>
+      <ProfileModal 
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+        user={user}
+      />
+    </>
   );
 }
