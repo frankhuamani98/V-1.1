@@ -50,12 +50,17 @@ export default function MotorcycleSearch({ motoData }: Props) {
       setRecentSearches(JSON.parse(savedSearches).slice(0, 3))
     }
 
-    const timeout = setTimeout(() => {
-      toast.success("¡Bienvenido a Rudolf Motos!", {
-        description: "Piezas originales y compatibles con garantía asegurada.",
-        duration: 5000,
-      })
-    }, 1500)
+    const hasSeenWelcome = sessionStorage.getItem("hasSeenWelcome")
+    if (!hasSeenWelcome) {
+      const timeout = setTimeout(() => {
+        toast.success("¡Bienvenido a Rudolf Motos!", {
+          description: "Piezas originales y compatibles con garantía asegurada.",
+          duration: 5000,
+        })
+        sessionStorage.setItem("hasSeenWelcome", "true")
+      }, 1500)
+      return () => clearTimeout(timeout)
+    }
 
     const handleScroll = () => {
       setScrolled(window.scrollY > 50)
@@ -64,7 +69,6 @@ export default function MotorcycleSearch({ motoData }: Props) {
     window.addEventListener("scroll", handleScroll)
 
     return () => {
-      clearTimeout(timeout)
       window.removeEventListener("scroll", handleScroll)
     }
   }, [])
