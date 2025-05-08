@@ -6,7 +6,7 @@ import CompleteCarousel from "./Home/CompleteCarousel";
 import Products from "./Home/Productos";
 import Opiniones from "./Home/Opiniones";
 import Footer from "./Home/Footer";
-import WhatsAppButton from '@/Components/WhatsAppButton';
+import WhatsAppButton from "@/Components/WhatsAppButton"; // Update the path to the correct location
 
 interface WelcomeProps extends PageProps {
     featuredProducts: any[];
@@ -68,17 +68,17 @@ export default function Welcome({
     return (
         <>
             <Head title="Inicio" />
-            
+
             <Header />
             <MotorcycleSearch motoData={motoData} />
             <CompleteCarousel />
-            
+
             <Products />
-            
+
             <Opiniones opiniones={opiniones} auth={auth} />
-            
+
             <Footer />
-            
+
             <WhatsAppButton />
         </>
     );
