@@ -13,7 +13,7 @@ class ContactoController extends Controller
         $ubicacionData = [
             'establecimientos' => [
                 'tienda' => [
-                    'nombre' => 'Tienda Principal Rudolf Motors',
+                    'nombre' => 'Tienda Principal Rudolf Motos',
                     'tipo' => 'Tienda de Ventas y Repuestos',
                     'direccion' => 'Av. Huayna Capac 168, Cusco 08002, Perú',
                     'referencias' => 'A dos cuadras de la Plaza Tupac Amaru',
@@ -23,7 +23,7 @@ class ContactoController extends Controller
                     ]
                 ],
                 'taller' => [
-                    'nombre' => 'Taller Técnico Rudolf Motors',
+                    'nombre' => 'Taller Técnico Rudolf Motos',
                     'tipo' => 'Centro de Servicio Técnico',
                     'direccion' => 'Cusco, Perú',
                     'referencias' => 'Taller especializado con equipo moderno',
