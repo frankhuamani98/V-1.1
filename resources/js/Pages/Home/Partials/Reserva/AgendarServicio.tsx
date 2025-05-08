@@ -434,7 +434,7 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                   
                   <div>
                     <label htmlFor="detalles" className="block text-sm font-medium text-gray-700">
-                      Detalles adicionales (opcional)
+                    ¿Qué problema presenta tu moto?
                     </label>
                     <textarea
                       id="detalles"

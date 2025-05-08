@@ -11,19 +11,28 @@ class ContactoController extends Controller
     public function ubicacion()
     {
         $ubicacionData = [
-            'direccion' => 'Av. Huayna Capac 168, Cusco 08002, Perú',
-            'referencias' => 'A dos cuadras de la Plaza Tupac Amaru',
-            'coordenadas' => [
-                'lat' => -13.5222183,
-                'lng' => -71.9696763
-            ],
-            'horarios' => [
-                'lunes-viernes' => '9:00 AM - 6:00 PM',
-                'sabado' => '9:00 AM - 2:00 PM',
-                'domingo' => 'Cerrado'
-            ],
-            'estacionamiento' => 'Disponible para clientes',
-            'adicional' => 'Local amplio y seguro con vigilancia 24/7'
+            'establecimientos' => [
+                'tienda' => [
+                    'nombre' => 'Tienda Principal Rudolf Motors',
+                    'tipo' => 'Tienda de Ventas y Repuestos',
+                    'direccion' => 'Av. Huayna Capac 168, Cusco 08002, Perú',
+                    'referencias' => 'A dos cuadras de la Plaza Tupac Amaru',
+                    'coordenadas' => [
+                        'lat' => -13.522141727238067,
+                        'lng' => -71.96969105962954
+                    ]
+                ],
+                'taller' => [
+                    'nombre' => 'Taller Técnico Rudolf Motors',
+                    'tipo' => 'Centro de Servicio Técnico',
+                    'direccion' => 'Cusco, Perú',
+                    'referencias' => 'Taller especializado con equipo moderno',
+                    'coordenadas' => [
+                        'lat' => -13.521869713279548,
+                        'lng' => -71.96909860496798
+                    ]
+                ]
+            ]
         ];
 
         return Inertia::render('Home/Partials/Contacto/Ubicacion', [
