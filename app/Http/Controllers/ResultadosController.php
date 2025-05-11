@@ -82,7 +82,7 @@ class ResultadosController extends Controller
                 ->toArray();
         }
 
-        return Inertia::render('Home/Partials/Resultado', [
+        return Inertia::render('Home/Partials/Productos/Resultado', [
             'year' => $year,
             'brand' => $brand,
             'model' => $model,
