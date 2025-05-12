@@ -1,104 +1,184 @@
 import React from 'react';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/Components/ui/card";
-import { Facebook, Instagram, Youtube, Twitter, Linkedin } from 'lucide-react';
+import { Facebook, Instagram, Youtube } from 'lucide-react';
+import { FaTiktok } from 'react-icons/fa';
 import SocialNav from '@/Components/SocialNav';
 
-interface SocialNetwork {
-  url: string;
-  usuario: string;
-  descripcion: string;
-}
-
-interface Props {
-  redesData: {
-    facebook: SocialNetwork;
-    instagram: SocialNetwork;
-    youtube: SocialNetwork;
-    twitter: SocialNetwork;
-    linkedin: SocialNetwork;
-  };
-}
-
-const socialIcons = {
-  facebook: Facebook,
-  instagram: Instagram,
-  youtube: Youtube,
-  twitter: Twitter,
-  linkedin: Linkedin,
-};
-
-const socialColors = {
-  facebook: "hover:text-[#1877F2]",
-  instagram: "hover:text-[#E4405F]",
-  youtube: "hover:text-[#FF0000]",
-  twitter: "hover:text-[#1DA1F2]",
-  linkedin: "hover:text-[#0A66C2]",
-};
-
-export default function RedesSociales({ redesData }: Props) {
+const RedesSociales = () => {
   return (
     <>
       <SocialNav />
-      <div className="container mx-auto py-8">
-        <h1 className="text-3xl font-bold text-center mb-8">Redes Sociales</h1>
-        
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {Object.entries(redesData).map(([network, data]) => {
-            const IconComponent = socialIcons[network as keyof typeof socialIcons];
-            const hoverColor = socialColors[network as keyof typeof socialColors];
-            
-            return (
-              <Card key={network} className="group transition-transform hover:-translate-y-1">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <IconComponent className={`h-5 w-5 transition-colors ${hoverColor}`} />
-                    <span className="capitalize">{network}</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <a
-                      href={data.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`text-lg font-medium block transition-colors ${hoverColor}`}
-                    >
-                      {data.usuario}
-                    </a>
-                    <p className="text-muted-foreground">{data.descripcion}</p>
-                    <a
-                      href={data.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center text-sm text-primary hover:underline"
-                    >
-                      Visitar perfil
-                      <svg
-                        className="ml-1 h-4 w-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                        />
-                      </svg>
-                    </a>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+    <div className="container mx-auto py-8 px-4">
+      <h1 className="text-4xl font-bold text-center mb-2 text-[#f43f5e]">
+        Redes Sociales
+      </h1>
+      <p className="text-center text-gray-600 mb-8">
+        Conecta con nosotros en todas nuestras plataformas sociales
+      </p>
+
+      <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-md h-64">
+          <div
+            className="relative p-6 flex flex-col items-center justify-between h-full"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 10h20v20H20V10zm30 0h20v20H50V10zm30 0h20v20H80V10zM20 40h20v20H20V40zm30 0h20v20H50V40zm30 0h20v20H80V40zM20 70h20v20H20V70zm30 0h20v20H50V70zm30 0h20v20H80V70z' fill='%231877F2' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E")`,
+              backgroundSize: '150px',
+              backgroundPosition: 'center'
+            }}
+          >
+            <div className="flex items-center mb-2 w-full justify-center">
+              <div className="bg-blue-100 p-2 rounded-lg mr-3">
+                <Facebook className="h-6 w-6 text-[#1877F2]" />
+              </div>
+              <span className="font-bold">Facebook</span>
+            </div>
+
+            <div className="text-[#1877F2] font-medium mb-2 text-center w-full">
+              @RudolfMotos
+            </div>
+
+            <p className="text-gray-600 mb-4 text-sm text-center">
+              Conecta con nuestra comunidad y descubre nuestras motos y servicios de motor.
+            </p>
+
+            <div className="w-full flex justify-center">
+              <a
+                href="https://facebook.com/rodoftmotors"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 bg-[#1877F2] text-white text-sm px-3 py-1 rounded"
+              >
+                Visitar perfil
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-md h-64">
+          <div
+            className="relative p-6 flex flex-col items-center justify-between h-full"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h50v50H0zm50 0h50v50H50zm0 50h50v50H50zm0-25h25v25H50z' fill='%23E4405F' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E")`,
+              backgroundSize: '150px',
+              backgroundPosition: 'center'
+            }}
+          >
+            <div className="flex items-center mb-2 w-full justify-center">
+              <div className="bg-pink-100 p-2 rounded-lg mr-3">
+                <Instagram className="h-6 w-6 text-[#E4405F]" />
+              </div>
+              <span className="font-bold">Instagram</span>
+            </div>
+
+            <div className="text-[#E4405F] font-medium mb-2 text-center w-full">
+              @RudolfMotos
+            </div>
+
+            <p className="text-gray-600 mb-4 text-sm text-center">
+              Explora nuestra galería de motos y eventos a través de fotografías y videos exclusivos.
+            </p>
+
+            <div className="w-full flex justify-center">
+              <a
+                href="https://instagram.com/rodoftmotors"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#F77737] text-white text-sm px-3 py-1 rounded"
+              >
+                Visitar perfil
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-md h-64">
+          <div
+            className="relative p-6 flex flex-col items-center justify-between h-full"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20h20v20H20V20zm40 0h20v20H60V20zm0 40h20v20H60V60zM20 60h20v20H20V60z' fill='%23FF0000' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E")`,
+              backgroundSize: '150px',
+              backgroundPosition: 'center'
+            }}
+          >
+            <div className="flex items-center mb-2 w-full justify-center">
+              <div className="bg-red-100 p-2 rounded-lg mr-3">
+                <Youtube className="h-6 w-6 text-[#FF0000]" />
+              </div>
+              <span className="font-bold">Youtube</span>
+            </div>
+
+            <div className="text-[#FF0000] font-medium mb-2 text-center w-full">
+              Rudolf Motos
+            </div>
+
+            <p className="text-gray-600 mb-4 text-sm text-center">
+              Videos sobre nuestras motos, demostraciones y eventos exclusivos del mundo motero.
+            </p>
+
+            <div className="w-full flex justify-center">
+              <a
+                href="https://youtube.com/rodoftmotorstv"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 bg-[#FF0000] text-white text-sm px-3 py-1 rounded"
+              >
+                Visitar perfil
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-md h-64">
+          <div
+            className="relative p-6 flex flex-col items-center justify-between h-full"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 50L50 0M50 50L100 50M50 50L0 50M50 50L50 100' stroke='%2300f2ea' stroke-opacity='0.1' stroke-width='8'/%3E%3C/svg%3E")`,
+              backgroundSize: '150px',
+              backgroundPosition: 'center'
+            }}
+          >
+            <div className="flex items-center mb-2 w-full justify-center">
+              <div className="bg-gray-100 p-2 rounded-lg mr-3">
+                <FaTiktok className="h-6 w-6 text-black" />
+              </div>
+              <span className="font-bold">Tiktok</span>
+            </div>
+
+            <div className="text-[#00f2ea] font-medium mb-2 text-center w-full">
+              @RudolfMotos
+            </div>
+
+            <p className="text-gray-600 mb-4 text-sm text-center">
+              Contenido breve y dinámico sobre nuestros servivios, novedades y tendencias en nuestras tienda.
+            </p>
+
+            <div className="w-full flex justify-center">
+              <a
+                href="https://tiktok.com/@rodoftmotors"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 bg-gradient-to-r from-[#00f2ea] to-[#ff0050] text-white text-sm px-3 py-1 rounded"
+              >
+                Visitar perfil
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
     </>
   );
-}
+};
+
+export default RedesSociales;
