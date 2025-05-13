@@ -112,7 +112,6 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
                                     </div>
                                 )}
 
-                                {/* Imágenes Adicionales */}
                                 <div className="flex flex-wrap justify-center gap-2">
                                     {additionalImages.length > 0 ? (
                                         additionalImages.map((img, index) => {
@@ -148,7 +147,6 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
                                     )}
                                 </div>
 
-                                {/* Detalles del Producto */}
                                 <div className="text-sm space-y-2">
                                     <div>
                                         <strong>Código:</strong> {producto.codigo}
@@ -181,7 +179,6 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
                                     </div>
                                 </div>
 
-                                {/* Enlace para Editar Producto */}
                                 <Link
                                     href={`/dashboard/productos/editar/${producto.id}`}
                                     className="text-blue-500 hover:underline text-sm"

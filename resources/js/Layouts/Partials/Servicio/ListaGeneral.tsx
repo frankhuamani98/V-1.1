@@ -131,7 +131,6 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
     <div className="p-2 sm:p-4 md:p-6">
       <Toaster position="top-center" />
       
-      {/* Diálogo de confirmación para eliminar */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -252,7 +251,6 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
                     </div>
                   </div>
                   
-                  {/* Mobile actions */}
                   <div className="flex items-center justify-end gap-2 p-2 md:hidden bg-gray-50 border-t border-gray-200">
                     <Link 
                       href={route('servicios.categorias.editar', { categoriaServicio: categoria.id })}
@@ -281,7 +279,6 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
                     </Button>
                   </div>
 
-                  {/* Show services when expanded on mobile or always on desktop */}
                   <div className={`${expandedCategories.includes(categoria.id) ? 'block' : 'hidden md:block'}`}>
                     {categoria.servicios && categoria.servicios.length > 0 ? (
                       <div className="overflow-x-auto">

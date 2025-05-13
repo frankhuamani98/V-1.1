@@ -119,7 +119,6 @@ const ListaUsuarios = ({ users: initialUsers }: ListaUsuariosProps) => {
       usuario.email.toLowerCase().includes(busqueda.toLowerCase())
     );
 
-    // Aplicar filtro de estado según la pestaña seleccionada
     if (tabActual === "activos") {
       usuariosFiltrados = usuariosFiltrados.filter(u => u.status === "active");
     } else if (tabActual === "inactivos") {

@@ -125,7 +125,6 @@ const ListaOpinion = ({ opiniones, showActions = false, isDashboard = false }: P
 
   const isExpanded = (opinionId: number) => expandedOpinions[opinionId] ?? false;
 
-  // Filter opinions based on search term and rating
   const filteredOpiniones = opiniones.filter(opinion => {
     const matchesSearch = searchTerm === "" || 
       opinion.contenido.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -135,8 +134,6 @@ const ListaOpinion = ({ opiniones, showActions = false, isDashboard = false }: P
     
     return matchesSearch && matchesRating;
   });
-
-  // Count opinions by rating
   const ratingCounts = opiniones.reduce((acc, opinion) => {
     acc[opinion.calificacion] = (acc[opinion.calificacion] || 0) + 1;
     return acc;
@@ -170,7 +167,6 @@ const ListaOpinion = ({ opiniones, showActions = false, isDashboard = false }: P
                         />
                       </div>
                       
-                      {/* Filter by rating */}
                       <div className="flex items-center space-x-1">
                         {[5, 4, 3, 2, 1].map((rating) => (
                           <button
@@ -191,7 +187,6 @@ const ListaOpinion = ({ opiniones, showActions = false, isDashboard = false }: P
                     </div>
                   </div>
                   
-                  {/* Stats summary */}
                   <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
                       <p className="text-sm text-blue-700 font-medium">Total opiniones</p>
@@ -341,7 +336,6 @@ const ListaOpinion = ({ opiniones, showActions = false, isDashboard = false }: P
                     )}
                   </div>
                   
-                  {/* Response Form */}
                   {respondingTo === opinion.id && (
                     <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
                       <form onSubmit={(e) => handleResponderSubmit(opinion.id, e)}>
@@ -376,7 +370,6 @@ const ListaOpinion = ({ opiniones, showActions = false, isDashboard = false }: P
                     </div>
                   )}
 
-                  {/* Respuestas */}
                   {opinion.respuestas.length > 0 && isExpanded(opinion.id) && (
                     <div className="mt-5 pt-4 border-t border-gray-100">
                       <div className="pl-4 md:pl-6 border-l-2 border-gray-200 space-y-4">

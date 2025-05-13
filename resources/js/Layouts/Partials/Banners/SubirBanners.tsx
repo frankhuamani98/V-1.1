@@ -41,19 +41,16 @@ const SubirBanners: React.FC = () => {
     
     const formData = new FormData()
     
-    // Handle basic text fields
     formData.append("titulo", data.titulo)
     formData.append("subtitulo", data.subtitulo)
     formData.append("tipo_imagen", data.tipo_imagen)
     
-    // Handle the image field
     if (data.tipo_imagen === "local" && data.imagen_principal instanceof File) {
       formData.append("imagen_principal", data.imagen_principal)
     } else {
       formData.append("imagen_principal", String(data.imagen_principal))
     }
     
-    // Handle dates
     if (data.fecha_inicio) {
       formData.append("fecha_inicio", data.fecha_inicio)
     }
@@ -76,7 +73,6 @@ const SubirBanners: React.FC = () => {
     const tipo = value as "url" | "local"
     setSelectedTab(tipo)
     setData("tipo_imagen", tipo)
-    // Reset the image field when changing tabs
     setData("imagen_principal", "")
   }
 
