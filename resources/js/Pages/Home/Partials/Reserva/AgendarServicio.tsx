@@ -88,8 +88,7 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
   const [filteredModels, setFilteredModels] = useState(motoData.models);
-  
-  // Initialize form data
+
   const { data, setData, post, put, processing, errors, reset } = useForm({
     moto_id: reserva?.moto_id?.toString() || "",
     placa: reserva?.placa || "",
@@ -100,7 +99,6 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
     horario_id: reserva?.horario_id?.toString() || "",
   });
 
-  // Set initial values for selectedYear and selectedBrand when editing
   useEffect(() => {
     if (isEditing && reserva?.moto) {
       setSelectedYear(reserva.moto.año.toString());
@@ -108,7 +106,6 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
     }
   }, [isEditing, reserva]);
 
-  // Update filtered models when brand or year changes
   useEffect(() => {
     if (selectedBrand) {
       setFilteredModels(motoData.models.filter(m => 
@@ -120,7 +117,6 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
     }
   }, [selectedBrand, selectedYear, motoData.models]);
 
-  // Limpiar los mensajes después de 5 segundos
   useEffect(() => {
     if (successMessage || errorMessage) {
       const timer = setTimeout(() => {
@@ -132,7 +128,6 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
     }
   }, [successMessage, errorMessage]);
 
-  // Fetch available hours when date changes or when editing and there's an initial date
   useEffect(() => {
     const dateToUse = selectedDate || reserva?.fecha;
     if (dateToUse) {
@@ -143,7 +138,7 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
   const fetchAvailableHours = async (date: string) => {
     setLoadingHours(true);
     setDateErrorMessage("");
-    setData("horario_id", ""); // Limpiar horario_id al cambiar la fecha
+    setData("horario_id", "");
     
     try {
       const response = await axios.get<HorasDisponiblesResponse>(route('api.reservas.horas-disponibles'), {
@@ -153,7 +148,7 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
       if (response.data.disponible) {
         setAvailableHours(response.data.horas);
         setHorarioId(response.data.horario_id);
-        setData("horario_id", response.data.horario_id.toString()); // Establecer horario_id cuando se obtienen las horas disponibles
+        setData("horario_id", response.data.horario_id.toString());
         if (isEditing && data.hora && !response.data.horas.includes(data.hora)) {
           setData("hora", "");
         }
@@ -173,11 +168,7 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Limpiar mensajes de error anteriores
     setErrorMessage("");
-    
-    // Validar campos requeridos con mensajes específicos
     const validations = {
       moto_id: "Por favor seleccione una motocicleta",
       placa: "Por favor ingrese la placa de la motocicleta",
@@ -197,7 +188,6 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
       }
     });
 
-    // Validaciones específicas adicionales
     if (data.placa && data.placa.length > 10) {
       newErrors.placa = "La placa no puede tener más de 10 caracteres";
       hasErrors = true;
@@ -219,7 +209,6 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
       return;
     }
 
-    // Proceder con el envío del formulario
     if (isEditing && reserva?.id) {
       put(route("reservas.update", reserva.id), {
         onSuccess: () => {
@@ -276,12 +265,12 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
 
   const handleBrandChange = (value: string) => {
     setSelectedBrand(value);
-    setData("moto_id", ""); // Clear selected moto when brand changes
+    setData("moto_id", "");
   };
 
   const handleYearChange = (value: string) => {
     setSelectedYear(value);
-    setData("moto_id", ""); // Clear selected moto when year changes
+    setData("moto_id", "");
   };
 
   const handleModelSelect = (motoId: string) => {
@@ -322,7 +311,6 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
 
             <form onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Selección de Moto */}
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
@@ -407,7 +395,6 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                   </div>
                 </div>
 
-                {/* Servicio y Detalles */}
                 <div className="space-y-4">
                   <div>
                     <label htmlFor="servicio_id" className="block text-sm font-medium text-gray-700">
@@ -446,7 +433,6 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                   </div>
                 </div>
                 
-                {/* Fecha y Hora */}
                 <div className="space-y-4">
                   <div>
                     <label htmlFor="fecha" className="block text-sm font-medium text-gray-700">

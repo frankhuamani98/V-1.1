@@ -45,7 +45,7 @@ interface PageProps {
       estado: string;
     }>;
   }>;
-  [key: string]: any;  // Add index signature
+  [key: string]: any;
 }
 
 const Footer = () => {
@@ -70,12 +70,10 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
   const { categoriasMenu } = usePage<PageProps>().props;
 
-  // Filtrar solo las categorías activas
   const categoriasActivas = categoriasMenu.filter(categoria => categoria.estado === "Activo");
 
   return (
     <footer className="bg-[var(--custom-footer)] text-white pt-12 pb-6">
-      {/* Payment and Shipping Info */}
       <div className="container mx-auto px-4 mb-8">
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
@@ -122,10 +120,8 @@ const Footer = () => {
         <Separator className="bg-neutral-800 my-8" />
       </div>
 
-      {/* Main Footer Content */}
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-10">
-          {/* About Column */}
           <div className="text-center sm:text-left">
             <h3 className="text-xl font-bold mb-4 flex items-center justify-center sm:justify-start">
               <span className="mr-2">Rudolf</span>Motors
@@ -157,7 +153,6 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Quick Links */}
           <div className="text-center sm:text-left">
             <h3 className="text-xl font-bold mb-4 flex justify-center sm:justify-start">Menú Principal</h3>
             <ul className="space-y-3">
@@ -172,7 +167,6 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Categorías */}
           <div className="text-center sm:text-left">
             <h3 className="text-xl font-bold mb-4">Categorías</h3>
             <ul className="space-y-3">
@@ -190,7 +184,6 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Newsletter */}
           <div className="text-center sm:text-left">
             <h3 className="text-xl font-bold mb-4">Novedades</h3>
             <p className="text-neutral-400 text-sm mb-5">
@@ -215,7 +208,6 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Contact Info */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 py-6 border-t border-neutral-800">
           <div className="flex items-center justify-center sm:justify-start gap-3">
             <div className="w-10 h-10 bg-[var(--custom-blue)] rounded-full flex items-center justify-center">
@@ -242,7 +234,6 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Copyright */}
         <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-neutral-800">
           <div className="text-left mb-4 md:mb-0 md:w-1/3">
             <p className="text-xs text-neutral-500">

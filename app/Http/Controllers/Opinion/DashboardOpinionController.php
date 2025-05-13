@@ -11,9 +11,6 @@ use Illuminate\Support\Facades\Auth;
 
 class DashboardOpinionController extends Controller
 {
-    /**
-     * Mostrar todas las opiniones en el dashboard
-     */
     public function index()
     {
         $opiniones = Opinion::with(['usuario', 'respuestas.usuario'])
@@ -25,9 +22,6 @@ class DashboardOpinionController extends Controller
         ]);
     }
 
-    /**
-     * Eliminar una opinión desde el dashboard
-     */
     public function destroy($id)
     {
         $opinion = Opinion::findOrFail($id);
@@ -37,9 +31,6 @@ class DashboardOpinionController extends Controller
             ->with('message', 'Opinión eliminada correctamente');
     }
 
-    /**
-     * Eliminar una respuesta desde el dashboard
-     */
     public function eliminarRespuesta($id)
     {
         $respuesta = RespuestaOpinion::findOrFail($id);
@@ -49,9 +40,6 @@ class DashboardOpinionController extends Controller
             ->with('message', 'Respuesta eliminada correctamente');
     }
 
-    /**
-     * Responder a una opinión desde el dashboard
-     */
     public function responder(Request $request, $id)
     {
         $request->validate([
@@ -64,16 +52,13 @@ class DashboardOpinionController extends Controller
             'opinion_id' => $opinion->id,
             'user_id' => Auth::id(),
             'contenido' => $request->contenido,
-            'es_soporte' => true // Always true for dashboard responses
+            'es_soporte' => true
         ]);
 
         return redirect()->back()
             ->with('message', 'Respuesta publicada correctamente');
     }
 
-    /**
-     * Marcar una opinión como útil desde el dashboard
-     */
     public function marcarUtil($id)
     {
         $opinion = Opinion::findOrFail($id);

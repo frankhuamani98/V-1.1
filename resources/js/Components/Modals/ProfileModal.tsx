@@ -457,7 +457,6 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
               </div>
             </div>
 
-            {/* Main content */}
             <div className="flex-1 overflow-y-auto">
               <DialogHeader className="p-6 bg-white dark:bg-gray-800 border-b sticky top-0 z-10">
                 <div className="flex items-center justify-between">

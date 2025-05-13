@@ -63,7 +63,6 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import { ProfileModal } from "@/Components/Modals/ProfileModal";
 
-// Sample products for cart
 const cartProducts = [
   {
     id: 1,
@@ -85,7 +84,6 @@ const cartProducts = [
   },
 ];
 
-// Sample products for favorites
 const favoriteProducts = [
   {
     id: 4,
@@ -125,7 +123,6 @@ const ListItem = React.forwardRef<
 });
 ListItem.displayName = "ListItem";
 
-// Cart Item Component
 const CartItem = ({
   product,
   onRemove,
@@ -155,7 +152,6 @@ const CartItem = ({
   );
 };
 
-// Favorite Item Component
 const FavoriteItem = ({
   product,
   onRemove,
@@ -202,7 +198,6 @@ export default function Header() {
   });
   const [isAuthenticated, setIsAuthenticated] = useState(!!user);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  // Cart and favorites state
   const [cart, setCart] = useState(cartProducts);
   const [favorites, setFavorites] = useState(favoriteProducts);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -212,28 +207,23 @@ export default function Header() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
-  // Calculate totals
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
   const favoritesCount = favorites.length;
   const cartTotal = cart.reduce(
     (total, item) => total + item.price * item.quantity,
     0
   );
-  // Remove item from cart
   const removeFromCart = (id: number) => {
     setCart(cart.filter((item) => item.id !== id));
   };
-  // Remove item from favorites
   const removeFromFavorites = (id: number) => {
     setFavorites(favorites.filter((item) => item.id !== id));
   };
 
-  // Función para generar las iniciales del usuario
   const getInitials = (firstName: string, lastName: string) => {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
-  // Process service categories and services from the backend
   const serviceCategory = {
     title: "Servicios",
     href: "/servicios",
@@ -247,7 +237,6 @@ export default function Header() {
       : [{ name: "Ver todos los servicios", href: "/servicios" }]
   };
 
-  // Definimos las categorías fijas para Reservas y Contactos
   const fixedCategories = [
     {
       title: "Reservas",
@@ -274,7 +263,6 @@ export default function Header() {
     },
   ];
 
-  // Creamos la categoría de Productos dinámica
   interface Subcategory {
     name: string;
     href: string;
@@ -296,52 +284,42 @@ export default function Header() {
     subcategories: [
       ...(Array.isArray(categoriasMenu)
         ? categoriasMenu
-            .slice(0, 6) // Mostrar solo las primeras 6 categorías
+            .slice(0, 6)
             .map((categoria: { nombre: string; id: number }) => ({
               name: categoria.nombre,
               href: `/productos/categoria/${categoria.id}`,
             }))
         : []),
-      // Agregar la opción "Ver más" al final
       { name: "Ver más", href: "/productos" }
     ]
   };
 
-  // Combinamos todas las categorías
   const allCategories = [productosCategory, serviceCategory, ...fixedCategories];
 
-  // Manejar el efecto de desplazamiento con debounce
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
-      // Determinar si se está desplazando hacia arriba o hacia abajo
       const scrollingDown = currentScrollY > lastScrollY;
 
-      // Aplicar el efecto de fondo cuando se desplaza más de 50px
       setIsScrolled(currentScrollY > 50);
 
-      // Controlar la visibilidad de la barra superior con histéresis
-      // Solo ocultarla cuando se desplaza hacia abajo Y ha pasado los 120px
-      // Solo mostrarla cuando se desplaza hacia arriba Y está antes de los 80px
       if (scrollingDown && currentScrollY > 120) {
         setIsVisible(false);
       } else if (!scrollingDown && currentScrollY < 80) {
         setIsVisible(true);
       }
 
-      // Actualizar la última posición de desplazamiento
       setLastScrollY(currentScrollY);
     };
 
-    // Usar throttle para evitar demasiadas actualizaciones
     let timeoutId: number | null = null;
     const throttledScroll = () => {
       if (timeoutId === null) {
         timeoutId = window.setTimeout(() => {
           handleScroll();
           timeoutId = null;
-        }, 100); // 100ms de throttle
+        }, 100);
       }
     };
 
@@ -352,7 +330,6 @@ export default function Header() {
     };
   }, [lastScrollY]);
 
-  // Aplicar el modo oscuro al cargar
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add("dark");
@@ -361,7 +338,6 @@ export default function Header() {
     }
   }, []);
 
-  // Alternar el modo oscuro con persistencia
   const toggleDarkMode = () => {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
@@ -369,12 +345,10 @@ export default function Header() {
     localStorage.setItem('darkMode', JSON.stringify(newMode));
   };
 
-  // Alternar la barra de búsqueda
   const toggleSearch = () => {
     setIsSearchOpen(!isSearchOpen);
   };
 
-  // Actualizar el estado de autenticación cuando el usuario cambie
   useEffect(() => {
     setIsAuthenticated(!!user);
   }, [user]);
@@ -387,10 +361,8 @@ export default function Header() {
           isScrolled ? "bg-background/95 backdrop-blur-md shadow-sm border-b" : "bg-background"
         )}
       >
-        {/* Navegación principal */}
         <div className="w-full max-w-[2000px] mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
-            {/* Menú móvil */}
             <Sheet>
               <SheetTrigger asChild className="md:hidden">
                 <Button variant="ghost" size="icon" className="mr-2">
@@ -404,7 +376,6 @@ export default function Header() {
                   <SheetDescription className="sr-only">
                     Menú principal de navegación del sitio
                   </SheetDescription>
-                  {/* Logo inside the menu */}
                   <div className="flex justify-center mb-4">
                     <Link href="/" className="h-12">
                       <img src="/logo.png" alt="Rudolf Motors Logo" className="h-14" />
@@ -482,14 +453,12 @@ export default function Header() {
               </SheetContent>
             </Sheet>
 
-            {/* Logo for desktop */}
             <div className="hidden md:flex items-center justify-center">
               <Link href="/" className="h-12">
                 <img src="/logo.png" alt="Rudolf Motors Logo" className="h-14" />
               </Link>
             </div>
 
-            {/* Navegación del escritorio */}
             <div className="hidden md:flex items-center space-x-1">
               <NavigationMenu>
                 <NavigationMenuList>
@@ -524,9 +493,7 @@ export default function Header() {
               </NavigationMenu>
             </div>
 
-            {/* Acciones del lado derecho */}
             <div className="flex items-center space-x-2">
-              {/* Barra de búsqueda */}
               <div
                 className={cn(
                   "hidden md:block transition-all duration-300 overflow-hidden",
@@ -551,7 +518,6 @@ export default function Header() {
                 {isSearchOpen ? <XIcon className="h-4 w-4" /> : <SearchIcon className="h-4 w-4" />}
               </Button>
 
-              {/* Botón de modo oscuro */}
               <Button
                 variant="ghost"
                 size="icon"
@@ -562,7 +528,6 @@ export default function Header() {
                 {isDarkMode ? <SunIcon className="h-4 w-4" /> : <MoonIcon className="h-4 w-4" />}
               </Button>
 
-              {/* Favoritos - Desktop */}
               <div className="hidden md:block">
                 <DropdownMenu open={isFavoritesOpen} onOpenChange={setIsFavoritesOpen}>
                   <DropdownMenuTrigger asChild>
@@ -606,7 +571,6 @@ export default function Header() {
                 </DropdownMenu>
               </div>
 
-              {/* Carrito - Desktop */}
               <div className="hidden md:block">
                 <DropdownMenu open={isCartOpen} onOpenChange={setIsCartOpen}>
                   <DropdownMenuTrigger asChild>
@@ -661,7 +625,6 @@ export default function Header() {
                 </DropdownMenu>
               </div>
 
-              {/* Carrito - Mobile */}
               <Button
                 variant="ghost"
                 size="icon"
@@ -679,7 +642,6 @@ export default function Header() {
                 )}
               </Button>
 
-              {/* Favoritos - Mobile */}
               <Button
                 variant="ghost"
                 size="icon"
@@ -697,7 +659,6 @@ export default function Header() {
                 )}
               </Button>
 
-              {/* Menú de usuario */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full">
@@ -786,7 +747,6 @@ export default function Header() {
             </div>
           </div>
         </div>
-        {/* Search bar for responsive mode */}
         {isSearchOpen && (
           <div className="w-full px-4 py-2 bg-background md:hidden">
             <div className="relative">
@@ -799,7 +759,6 @@ export default function Header() {
             </div>
           </div>
         )}
-        {/* Cart Sheet for Mobile */}
         <Sheet open={isCartSheetOpen} onOpenChange={setIsCartSheetOpen}>
           <SheetContent side="right" className="w-full sm:max-w-md">
             <SheetHeader>
@@ -846,7 +805,6 @@ export default function Header() {
           </SheetContent>
         </Sheet>
 
-        {/* Favorites Sheet for Mobile */}
         <Sheet open={isFavoritesSheetOpen} onOpenChange={setIsFavoritesSheetOpen}>
           <SheetContent side="right" className="w-full sm:max-w-md">
             <SheetHeader>

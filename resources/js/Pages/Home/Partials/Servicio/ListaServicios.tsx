@@ -45,7 +45,6 @@ export default function ListaServicios({ categoryId }: Props) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <div className="container mx-auto px-4 py-8">
-        {/* Back button */}
         <Button 
           variant="ghost" 
           className="mb-6 hover:bg-gray-100 transition-colors duration-200"

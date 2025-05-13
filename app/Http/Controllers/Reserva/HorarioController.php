@@ -10,18 +10,13 @@ use Carbon\Carbon;
 
 class HorarioController extends Controller
 {
-    /**
-     * Muestra los horarios de atención al usuario
-     */
     public function index()
     {
-        // Obtener horarios recurrentes (semanales)
         $horariosRecurrentes = Horario::where('tipo', 'recurrente')
-            ->where('activo', true)  // Solo horarios activos
+            ->where('activo', true)
             ->orderBy('dia_semana')
             ->get();
             
-        // Crear un array con los días de la semana y sus horarios
         $diasSemana = [
             'lunes' => 'Lunes',
             'martes' => 'Martes',
@@ -32,18 +27,16 @@ class HorarioController extends Controller
             'domingo' => 'Domingo',
         ];
         
-        // Crear array de horarios por día, solo para días activos
         $horariosPorDia = [];
         foreach ($diasSemana as $dia => $nombreDia) {
             $horario = $horariosRecurrentes->where('dia_semana', $dia)->first();
-            if ($horario && $horario->activo) {  // Solo incluir si existe y está activo
+            if ($horario && $horario->activo) {
                 $horariosPorDia[$nombreDia] = "{$horario->hora_inicio} - {$horario->hora_fin}";
             }
         }
         
-        // Obtener excepciones (días específicos) para un rango más amplio
-        $hoy = Carbon::now()->subWeek(); // Incluir desde una semana antes
-        $tresMesesDespues = Carbon::now()->addMonths(3); // Hasta tres meses después
+        $hoy = Carbon::now()->subWeek();
+        $tresMesesDespues = Carbon::now()->addMonths(3);
         
         \Log::info('Buscando excepciones en el rango', [
             'desde' => $hoy->format('Y-m-d'),

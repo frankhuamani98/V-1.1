@@ -2,7 +2,6 @@ import React from 'react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import ManualUsuario from '@/Layouts/Partials/Soporte/ManualUsuario';
 
-// Definir las props que recibe el componente
 interface ManualUsuarioPageProps {
     auth: {
         user: {

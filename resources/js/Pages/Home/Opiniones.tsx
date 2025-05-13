@@ -171,9 +171,7 @@ export default function Opiniones({ opiniones, auth }: OpinionesProps) {
           </p>
         </div>
 
-        {/* Resumen y estadísticas */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-          {/* Tarjeta de resumen */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 flex flex-col items-center text-center">
             <div className="flex flex-col items-center mb-6">
               <div className="text-5xl font-bold text-gray-900 dark:text-white mb-2">
@@ -183,7 +181,6 @@ export default function Opiniones({ opiniones, auth }: OpinionesProps) {
               <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">Basado en {opiniones.total} opiniones</div>
             </div>
 
-            {/* Barras de distribución */}
             <div className="w-full space-y-2">
               {[5, 4, 3, 2, 1].map((rating) => {
                 const count = opiniones.conteo[rating as keyof typeof opiniones.conteo]
@@ -206,7 +203,6 @@ export default function Opiniones({ opiniones, auth }: OpinionesProps) {
             </div>
           </div>
 
-          {/* Formulario para nueva opinión o mensaje de login */}
           <div className="lg:col-span-2">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 h-full">
               {auth.user ? (
@@ -291,7 +287,6 @@ export default function Opiniones({ opiniones, auth }: OpinionesProps) {
           </div>
         </div>
 
-        {/* Lista de opiniones */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
           <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Todas las opiniones</h3>
@@ -334,7 +329,6 @@ export default function Opiniones({ opiniones, auth }: OpinionesProps) {
                         <p className="text-gray-700 dark:text-gray-300">{opinion.contenido}</p>
                       </div>
 
-                      {/* Acciones */}
                       <div className="flex flex-wrap items-center gap-4 mt-2">
                         <button
                           onClick={() => marcarUtil(opinion.id)}
@@ -359,7 +353,6 @@ export default function Opiniones({ opiniones, auth }: OpinionesProps) {
                         )}
                       </div>
 
-                      {/* Formulario de respuesta */}
                       {mostrarFormularioRespuesta === opinion.id && auth.user && (
                         <div className="mt-4 bg-slate-50 dark:bg-gray-700/40 p-4 rounded-lg border border-slate-200 dark:border-gray-700">
                           <form onSubmit={(e) => handleRespuestaSubmit(e, opinion.id)}>
@@ -403,7 +396,6 @@ export default function Opiniones({ opiniones, auth }: OpinionesProps) {
                         </div>
                       )}
 
-                      {/* Respuestas */}
                       {opinion.respuestas.length > 0 && (
                         <div className="mt-5 space-y-3 pl-4 border-l-2 border-slate-200 dark:border-slate-700">
                           {opinion.respuestas.map((respuesta) => (

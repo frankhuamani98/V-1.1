@@ -135,9 +135,7 @@ function LocationContent({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Columna izquierda: Imágenes y detalles */}
       <div className="space-y-6">
-        {/* Galería de imágenes */}
         <Card className="overflow-hidden">
           <div className="relative aspect-video bg-muted">
             <AnimatePresence mode="wait">
@@ -153,7 +151,6 @@ function LocationContent({
               />
             </AnimatePresence>
 
-            {/* Controles de navegación */}
             <div className="absolute inset-0 flex items-center justify-between p-2">
               <Button
                 variant="secondary"
@@ -175,7 +172,6 @@ function LocationContent({
               </Button>
             </div>
 
-            {/* Indicador de imágenes */}
             <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
               {images.map((_, index) => (
                 <div
@@ -189,7 +185,6 @@ function LocationContent({
           </div>
         </Card>
 
-        {/* Información del local */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -221,7 +216,6 @@ function LocationContent({
         </Card>
       </div>
 
-      {/* Columna derecha: Mapa */}
       <Card className="overflow-hidden h-full">
         <div className="h-[400px] lg:h-full bg-muted relative">
           <iframe

@@ -41,7 +41,6 @@ export default function DetalleServicio() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <div className="container mx-auto px-4 py-8">
-        {/* Back button */}
         <Button 
           variant="ghost" 
           className="mb-6 hover:bg-gray-100 transition-colors duration-200"
@@ -52,7 +51,6 @@ export default function DetalleServicio() {
         </Button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main content */}
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
               <h1 className="text-3xl font-bold mb-3 text-gray-900">{servicio.nombre}</h1>
@@ -117,7 +115,6 @@ export default function DetalleServicio() {
             )}
           </div>
 
-          {/* Sidebar */}
           <div className="space-y-6">
             <Card className="border-0 shadow-sm hover:shadow-md transition-shadow duration-200 bg-gradient-to-br from-blue-50 to-indigo-50">
               <CardHeader>

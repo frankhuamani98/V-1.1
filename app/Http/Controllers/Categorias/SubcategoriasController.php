@@ -10,22 +10,16 @@ use Illuminate\Http\Request;
 
 class SubcategoriasController extends Controller
 {
-    /**
-     * Muestra la lista de subcategorías.
-     */
     public function index()
     {
         $subcategorias = Subcategoria::with('categoria')->get();
         $categorias = Categoria::all();
-        return Inertia::render('Dashboard/Categorias/Subcategorias', [ // Asegúrate de que esta ruta sea correcta
+        return Inertia::render('Dashboard/Categorias/Subcategorias', [
             'subcategorias' => $subcategorias,
             'categorias' => $categorias,
         ]);
     }
 
-    /**
-     * Guarda una nueva subcategoría en la base de datos.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -39,9 +33,6 @@ class SubcategoriasController extends Controller
         return redirect()->back()->with('success', 'Subcategoría creada exitosamente');
     }
 
-    /**
-     * Actualiza una subcategoría en la base de datos.
-     */
     public function update(Request $request, Subcategoria $subcategoria)
     {
         $request->validate([
@@ -55,9 +46,6 @@ class SubcategoriasController extends Controller
         return redirect()->back()->with('success', 'Subcategoría actualizada exitosamente');
     }
 
-    /**
-     * Elimina una subcategoría de la base de datos.
-     */
     public function destroy(Subcategoria $subcategoria)
     {
         if ($subcategoria->productos()->count() > 0) {

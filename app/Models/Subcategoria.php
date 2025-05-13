@@ -15,13 +15,11 @@ class Subcategoria extends Model
         'estado',
     ];
 
-    // Relación con la tabla categorias
     public function categoria()
     {
         return $this->belongsTo(Categoria::class);
     }
 
-    // Relación con productos
     public function productos()
     {
         return $this->hasMany(Producto::class);

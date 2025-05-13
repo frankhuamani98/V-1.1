@@ -19,8 +19,6 @@ export default function CarruselResponsivo() {
   const [estaTransicionando, setEstaTransicionando] = useState(false);
   const [autoPlay, setAutoPlay] = useState(true);
   const carruselRef = useRef<HTMLDivElement>(null);
-
-  // Filtrar banners activos
   const bannersActivos = (banners as Banner[]).filter(banner => {
     if (!banner.activo) return false;
     
@@ -34,7 +32,6 @@ export default function CarruselResponsivo() {
     return ahora >= fechaInicio! && ahora <= fechaFin!;
   });
 
-  // Crear array con banners clonados para el efecto infinito
   const bannersInfinitos = [...bannersActivos, ...bannersActivos, ...bannersActivos];
 
   const moverA = useCallback((indice: number, suave = true) => {
@@ -51,7 +48,6 @@ export default function CarruselResponsivo() {
 
     setIndiceActual(nuevoIndice);
 
-    // Si llegamos al final del segundo set, saltar al primer set sin animación
     if (nuevoIndice >= bannersActivos.length * 2) {
       setTimeout(() => {
         if (carruselRef.current) {
@@ -61,7 +57,6 @@ export default function CarruselResponsivo() {
       }, 500);
     }
 
-    // Si retrocedemos al inicio del primer set, saltar al segundo set sin animación
     if (nuevoIndice < 0) {
       setTimeout(() => {
         if (carruselRef.current) {
@@ -91,7 +86,6 @@ export default function CarruselResponsivo() {
     return () => clearInterval(intervalo);
   }, [autoPlay, siguienteBanner, bannersActivos.length]);
 
-  // Reiniciar posición al montar el componente
   useEffect(() => {
     if (carruselRef.current) {
       setIndiceActual(bannersActivos.length);
@@ -99,7 +93,6 @@ export default function CarruselResponsivo() {
     }
   }, [bannersActivos.length]);
 
-  // Manejar transición
   useEffect(() => {
     if (carruselRef.current) {
       carruselRef.current.style.transform = `translateX(-${indiceActual * 100}%)`;

@@ -28,7 +28,6 @@ import {
 } from "@/Components/ui/tooltip";
 import { Link } from '@inertiajs/react';
 import { useTheme } from "next-themes";
-// import { useTheme } from "@/Components/theme-provider"; // Removed as it's not exported
 
 interface Producto {
     id: number;
@@ -74,13 +73,10 @@ interface ResultadoProps {
 }
 
 const formatPrice = (price: number): string => {
-    // Redondear el precio a 2 decimales
     const roundedPrice = Math.round(price * 100) / 100;
-    // Si es un número entero, no mostrar decimales
     if (Number.isInteger(roundedPrice)) {
         return `S/${roundedPrice}`;
     }
-    // Si tiene decimales, mostrar máximo 2
     return `S/${roundedPrice.toFixed(2)}`;
 };
 
@@ -88,7 +84,6 @@ const ProductCard = ({ product }: { product: Producto }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [imageError, setImageError] = useState(false);
-  // const { theme } = useTheme(); // Removed as useTheme is not available
 
   useEffect(() => {
     const checkMobile = () => {
@@ -282,7 +277,7 @@ const ProductCard = ({ product }: { product: Producto }) => {
           variant="outline"
           asChild
         >
-          <Link href={`/productos/${product.id}`}>
+          <Link href={`/details/${product.id}`}>
             <PlusIcon size={16} className="mr-2" />
             Ver más detalles
           </Link>

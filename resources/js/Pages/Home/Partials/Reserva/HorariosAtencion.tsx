@@ -20,13 +20,11 @@ interface Props {
 }
 
 export default function HorariosAtencion({ horarios }: Props) {
-  // Depuración - verificar si las excepciones están llegando correctamente
   useEffect(() => {
     console.log("Horarios recibidos:", horarios);
     console.log("Excepciones:", horarios.excepciones);
   }, [horarios]);
 
-  // Verificar si tenemos excepciones
   const tieneExcepciones = Array.isArray(horarios.excepciones) && horarios.excepciones.length > 0;
   
   return (

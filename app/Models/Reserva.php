@@ -39,19 +39,16 @@ class Reserva extends Model
         return $this->belongsTo(User::class);
     }
 
-    // Relación con la moto
     public function moto(): BelongsTo
     {
         return $this->belongsTo(Moto::class);
     }
 
-    // Relación con el servicio
     public function servicio(): BelongsTo
     {
         return $this->belongsTo(Servicio::class);
     }
 
-    // Relación con el horario
     public function horario(): BelongsTo
     {
         return $this->belongsTo(Horario::class);

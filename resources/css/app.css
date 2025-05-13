@@ -62,16 +62,15 @@
 
   * {
     @apply border-border;
-    scrollbar-width: none; /* Para Firefox */
+    scrollbar-width: none;
   }
 
   body {
     @apply bg-background text-foreground;
-    -ms-overflow-style: none; /* Para Internet Explorer */
+    -ms-overflow-style: none;
   }
 }
 
-/* Ocultar la barra de desplazamiento en navegadores WebKit */
 ::-webkit-scrollbar {
   display: none;
 }

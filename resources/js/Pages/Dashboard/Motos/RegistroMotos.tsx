@@ -2,7 +2,6 @@ import React from 'react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import RegistroMotos from '@/Layouts/Partials/Motos/RegistroMotos';
 
-// Definir las props que recibe el componente
 interface RegistroMotosPageProps {
     auth: {
         user: {

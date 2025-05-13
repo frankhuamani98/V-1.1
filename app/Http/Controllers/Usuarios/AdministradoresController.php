@@ -8,7 +8,6 @@ use App\Models\User;
 
 class AdministradoresController extends Controller
 {
-    // Mostrar lista de administradores
     public function index()
     {
         $admins = User::where('role', 'admin')
@@ -30,10 +29,8 @@ class AdministradoresController extends Controller
         ]);
     }
 
-    // Quitar rol de administrador
     public function destroy(User $user)
     {
-        // Evitar eliminar el último admin
         if (User::where('role', 'admin')->count() <= 1) {
             return back()->withErrors(['message' => 'No puedes eliminar el último administrador']);
         }

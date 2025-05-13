@@ -60,17 +60,13 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
   const [autoplayInterval, setAutoplayInterval] = useState<NodeJS.Timeout | null>(null);
 
   const formatPrice = (price: number): string => {
-    // Redondear el precio a 2 decimales
     const roundedPrice = Math.round(price * 100) / 100;
-    // Si es un número entero, no mostrar decimales
     if (Number.isInteger(roundedPrice)) {
       return `S/${roundedPrice}`;
     }
-    // Si tiene decimales, mostrar máximo 2
     return `S/${roundedPrice.toFixed(2)}`;
   };
 
-  // Calcular el precio final con descuento
   const calculateFinalPrice = (price: number, descuento: number) => {
     if (descuento > 0) {
       return price - (price * descuento / 100);
@@ -78,7 +74,6 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
     return price;
   };
 
-  // Actualizar la lógica de visualización de precios
   const renderPrice = (product: any) => {
     const precioFinal = formatPrice(calculateFinalPrice(product.precio, product.descuento));
     const precioOriginal = product.descuento > 0 ? formatPrice(product.precio) : null;
@@ -100,7 +95,6 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
     );
   };
 
-  // Manejar la selección del carrusel
   useEffect(() => {
     if (!api) return;
 
@@ -115,7 +109,6 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
     };
   }, [api]);
 
-  // Manejar la reproducción automática
   useEffect(() => {
     if (!api || !isPlaying) {
       if (autoplayInterval) {
@@ -125,12 +118,10 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
       return;
     }
 
-    // Reiniciar el progreso
     setProgress(0);
 
-    // Crear nuevo intervalo
     const intervalTime = 3000;
-    const progressInterval = 30; // Actualizar el progreso cada 30ms
+    const progressInterval = 30;
     const progressStep = (progressInterval / intervalTime) * 100;
 
     let currentProgress = 0;
@@ -168,7 +159,6 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
         ? prev.filter(id => id !== productId)
         : [...prev, productId];
 
-      // Mostrar notificación toast
       if (newFavorites.includes(productId)) {
         toast.success("Añadido a favoritos", {
           description: `${productList.find(p => p.id === productId)?.nombre} ha sido añadido a tus favoritos.`,
@@ -189,7 +179,6 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
     setCart(prev => {
       const newCart = [...prev, productId];
 
-      // Mostrar notificación toast
       toast.success("Añadido al carrito", {
         description: `${productList.find(p => p.id === productId)?.nombre} ha sido añadido a tu carrito.`,
         duration: 3000,
@@ -206,7 +195,6 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
     });
   };
 
-  // Generar la visualización de la calificación
   const renderRating = (rating: number, reviews: number) => {
     return (
       <div className="flex items-center mt-1">
@@ -226,7 +214,6 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
     );
   };
 
-  // Calcular el porcentaje de descuento
   const calculateDiscount = (price: number, originalPrice?: number) => {
     if (originalPrice && originalPrice > price) {
       const discount = Math.round(((originalPrice - price) / originalPrice) * 100);
@@ -235,7 +222,6 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
     return 0;
   };
 
-  // Indicador de stock
   const renderStockIndicator = (stock: number) => {
     let stockClass = "bg-green-500";
     let stockText = "En Stock";

@@ -1,8 +1,7 @@
 import React from 'react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
-import Subcategorias from '@/Layouts/Partials/Categorias/Subcategorias'; // Asegúrate de que esta ruta sea correcta
+import Subcategorias from '@/Layouts/Partials/Categorias/Subcategorias';
 
-// Definir las props que recibe el componente
 interface SubcategoriasPageProps {
     auth: {
         user: {

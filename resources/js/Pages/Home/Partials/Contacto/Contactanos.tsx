@@ -41,7 +41,6 @@ export default function Contactanos({ contactoData }: Props) {
         
         <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
           <div className="space-y-6">
-            {/* Teléfonos */}
             <Card className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-md">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center justify-center gap-2 text-[#3B82F6]">
@@ -144,7 +143,6 @@ export default function Contactanos({ contactoData }: Props) {
           </div>
 
           <div className="space-y-6">
-            {/* Personal */}
             <Card className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-md">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center justify-center gap-2 text-[#EF4444]">
@@ -191,7 +189,6 @@ export default function Contactanos({ contactoData }: Props) {
               </CardContent>
             </Card>
 
-            {/* Horarios de Atención */}
             <Card className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-md">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center justify-center gap-2 text-[#0EA5E9]">

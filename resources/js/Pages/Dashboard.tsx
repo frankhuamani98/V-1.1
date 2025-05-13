@@ -1,9 +1,9 @@
 import React from "react";
-import DashboardLayout from "../Layouts/DashboardLayout"; // Asegúrate de que la ruta sea correcta
-import DashboardContent from "../Layouts/DashboardContent"; // Asegúrate de que la ruta sea correcta
+import DashboardLayout from "../Layouts/DashboardLayout";
+import DashboardContent from "../Layouts/DashboardContent";
 
 interface DashboardProps {
-    auth: any; // Replace 'any' with the appropriate type if known
+    auth: any;
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ auth }) => {

@@ -29,9 +29,6 @@ class Horario extends Model
         'activo' => 'boolean',
     ];
 
-    /**
-     * Obtener las reservas asociadas a este horario
-     */
     public function reservas(): HasMany
     {
         return $this->hasMany(Reserva::class);
