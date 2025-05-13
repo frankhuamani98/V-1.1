@@ -15,10 +15,28 @@ class WelcomeController extends Controller
 {
     public function index()
     {
-        // Obtener marcas y modelos desde la base de datos
-        $marcas = Moto::select('marca')->distinct()->get()->pluck('marca');
-        $modelos = Moto::select('modelo', 'marca')->get();
-        $years = Moto::select('año')->distinct()->orderBy('año', 'desc')->get()->pluck('año');
+        // Obtener todos los datos de motos activas
+        $motos = Moto::where('estado', 'Activo')
+            ->select('año', 'marca', 'modelo')
+            ->orderBy('año', 'desc')
+            ->orderBy('marca')
+            ->orderBy('modelo')
+            ->get();
+
+        // Obtener años únicos
+        $years = $motos->pluck('año')->unique()->values();
+
+        // Agrupar marcas y modelos por año
+        $marcasPorAño = $motos->groupBy('año')->map(function($motosPorAño) {
+            return $motosPorAño->pluck('marca')->unique()->values();
+        });
+
+        // Agrupar modelos por año y marca
+        $modelosPorAñoMarca = $motos->groupBy('año')->map(function($motosPorAño) {
+            return $motosPorAño->groupBy('marca')->map(function($motosPorMarca) {
+                return $motosPorMarca->pluck('modelo')->values();
+            });
+        });
 
 
         // Obtener todos los banners activos
@@ -139,15 +157,87 @@ class WelcomeController extends Controller
                 ];
             });
 
+        // Obtener productos destacados, más vendidos y todos los productos
+        $featuredProducts = Producto::where('estado', 'Activo')
+            ->where('destacado', true)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($producto) {
+                return [
+                    'id' => $producto->id,
+                    'nombre' => $producto->nombre,
+                    'precio' => (float)$producto->precio,
+                    'descuento' => (float)$producto->descuento,
+                    'precio_final' => (float)($producto->descuento ? 
+                        $producto->precio - ($producto->precio * $producto->descuento / 100) : 
+                        $producto->precio),
+                    'descripcion_corta' => $producto->descripcion_corta,
+                    'imagen_principal' => $producto->imagen_principal,
+                    'stock' => $producto->stock,
+                    'destacado' => (bool)$producto->destacado,
+                    'mas_vendido' => (bool)$producto->mas_vendido,
+                    'calificacion' => $producto->calificacion ?? 0,
+                    'total_reviews' => $producto->total_reviews ?? 0
+                ];
+            });
+
+        $bestSellingProducts = Producto::where('estado', 'Activo')
+            ->where('mas_vendido', true)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($producto) {
+                return [
+                    'id' => $producto->id,
+                    'nombre' => $producto->nombre,
+                    'precio' => (float)$producto->precio,
+                    'descuento' => (float)$producto->descuento,
+                    'precio_final' => (float)($producto->descuento ? 
+                        $producto->precio - ($producto->precio * $producto->descuento / 100) : 
+                        $producto->precio),
+                    'descripcion_corta' => $producto->descripcion_corta,
+                    'imagen_principal' => $producto->imagen_principal,
+                    'stock' => $producto->stock,
+                    'destacado' => (bool)$producto->destacado,
+                    'mas_vendido' => (bool)$producto->mas_vendido,
+                    'calificacion' => $producto->calificacion ?? 0,
+                    'total_reviews' => $producto->total_reviews ?? 0
+                ];
+            });
+
+        $allProducts = Producto::where('estado', 'Activo')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($producto) {
+                return [
+                    'id' => $producto->id,
+                    'nombre' => $producto->nombre,
+                    'precio' => (float)$producto->precio,
+                    'descuento' => (float)$producto->descuento,
+                    'precio_final' => (float)($producto->descuento ? 
+                        $producto->precio - ($producto->precio * $producto->descuento / 100) : 
+                        $producto->precio),
+                    'descripcion_corta' => $producto->descripcion_corta,
+                    'imagen_principal' => $producto->imagen_principal,
+                    'stock' => $producto->stock,
+                    'destacado' => (bool)$producto->destacado,
+                    'mas_vendido' => (bool)$producto->mas_vendido,
+                    'calificacion' => $producto->calificacion ?? 0,
+                    'total_reviews' => $producto->total_reviews ?? 0
+                ];
+            });
+
         return Inertia::render('Welcome', [
             'banners' => $banners,
             'categoriasMenu' => $categoriasMenu, 
             'categoriasServicio' => $categoriasServicio,
             'servicios' => $servicios,
+            'featuredProducts' => $featuredProducts,
+            'bestSellingProducts' => $bestSellingProducts,
+            'allProducts' => $allProducts,
             'motoData' => [
                 'years' => $years,
-                'brands' => $marcas,
-                'models' => $modelos
+                'brandsByYear' => $marcasPorAño,
+                'modelsByYearAndBrand' => $modelosPorAñoMarca
             ],
             'opiniones' => [
                 'lista' => $opiniones,

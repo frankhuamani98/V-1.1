@@ -23,11 +23,8 @@ import { motion } from "framer-motion"
 // Types for motorcycle data
 interface MotoData {
   years: number[]
-  brands: string[]
-  models: Array<{
-    modelo: string
-    marca: string
-  }>
+  brandsByYear: { [key: string]: string[] }
+  modelsByYearAndBrand: { [key: string]: { [key: string]: string[] } }
 }
 
 interface Props {
@@ -38,7 +35,8 @@ export default function MotorcycleSearch({ motoData }: Props) {
   const [year, setYear] = useState<string>("")
   const [brand, setBrand] = useState<string>("")
   const [model, setModel] = useState<string>("")
-  const [filteredModels, setFilteredModels] = useState<Array<{ modelo: string; marca: string }>>([])
+  const [availableBrands, setAvailableBrands] = useState<string[]>([])
+  const [availableModels, setAvailableModels] = useState<string[]>([])
   const [recentSearches, setRecentSearches] = useState<Array<{ year: string; brand: string; model: string }>>([])
   const [loading, setLoading] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -73,20 +71,36 @@ export default function MotorcycleSearch({ motoData }: Props) {
     }
   }, [])
 
-  const handleBrandChange = (value: string) => {
-    setBrand(value)
+  // Actualizar marcas disponibles cuando cambia el año
+  const handleYearChange = (selectedYear: string) => {
+    setYear(selectedYear)
+    setBrand("")
     setModel("")
-    setFilteredModels(motoData.models.filter((m) => m.marca === value))
+    
+    const brandsForYear = motoData.brandsByYear[selectedYear] || []
+    setAvailableBrands(brandsForYear)
+    setAvailableModels([])
+  }
+
+  // Actualizar modelos disponibles cuando cambia la marca
+  const handleBrandChange = (selectedBrand: string) => {
+    setBrand(selectedBrand)
+    setModel("")
+    
+    if (year && selectedBrand) {
+      const modelsForYearAndBrand = motoData.modelsByYearAndBrand[year]?.[selectedBrand] || []
+      setAvailableModels(modelsForYearAndBrand)
+    } else {
+      setAvailableModels([])
+    }
   }
 
   const saveSearch = () => {
     if (year && brand && model) {
-      const modelName = motoData.models.find((m) => m.modelo === model)?.modelo || ""
-
-      const newSearch = { year, brand, model: modelName }
+      const newSearch = { year, brand, model }
       const updatedSearches = [
         newSearch,
-        ...recentSearches.filter((s) => !(s.year === year && s.brand === brand && s.model === modelName)),
+        ...recentSearches.filter((s) => !(s.year === year && s.brand === brand && s.model === model)),
       ].slice(0, 3)
 
       setRecentSearches(updatedSearches)
@@ -315,7 +329,7 @@ export default function MotorcycleSearch({ motoData }: Props) {
                         <ClockIcon className="h-4 w-4 mr-2 text-cyan-500 group-hover:scale-110 transition-transform" />
                         Año del modelo
                       </Label>
-                      <Select value={year} onValueChange={setYear}>
+                      <Select value={year} onValueChange={handleYearChange}>
                         <SelectTrigger
                           id="year"
                           className="w-full bg-background border-border rounded-xl h-12 transition-all hover:border-cyan-400 focus:border-cyan-500 group-hover:shadow-sm"
@@ -344,15 +358,15 @@ export default function MotorcycleSearch({ motoData }: Props) {
                         <SettingsIcon className="h-4 w-4 mr-2 text-cyan-500 group-hover:scale-110 transition-transform" />
                         Marca
                       </Label>
-                      <Select value={brand} onValueChange={handleBrandChange}>
+                      <Select value={brand} onValueChange={handleBrandChange} disabled={!year}>
                         <SelectTrigger
                           id="brand"
                           className="w-full bg-background border-border rounded-xl h-12 transition-all hover:border-cyan-400 focus:border-cyan-500 group-hover:shadow-sm"
                         >
-                          <SelectValue placeholder="Selecciona marca" />
+                          <SelectValue placeholder={year ? "Selecciona marca" : "Primero selecciona un año"} />
                         </SelectTrigger>
                         <SelectContent className="max-h-60 rounded-xl">
-                          {motoData.brands.map((b, index) => (
+                          {availableBrands.map((b, index) => (
                             <SelectItem key={index} value={b} className="focus:bg-cyan-50 dark:focus:bg-cyan-900/20">
                               {b}
                             </SelectItem>
@@ -377,13 +391,9 @@ export default function MotorcycleSearch({ motoData }: Props) {
                           <SelectValue placeholder={brand ? "Selecciona modelo" : "Primero selecciona una marca"} />
                         </SelectTrigger>
                         <SelectContent className="max-h-60 rounded-xl">
-                          {filteredModels.map((m, index) => (
-                            <SelectItem
-                              key={index}
-                              value={m.modelo}
-                              className="focus:bg-cyan-50 dark:focus:bg-cyan-900/20"
-                            >
-                              {m.modelo}
+                          {availableModels.map((m, index) => (
+                            <SelectItem key={index} value={m} className="focus:bg-cyan-50 dark:focus:bg-cyan-900/20">
+                              {m}
                             </SelectItem>
                           ))}
                         </SelectContent>

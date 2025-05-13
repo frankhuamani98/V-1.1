@@ -28,8 +28,10 @@ class ResultadosController extends Controller
 
         if ($moto) {
             // Productos específicos para esta moto con relaciones cargadas
-            $productos = Producto::with(['categoria', 'subcategoria', 'moto'])
-                ->where('moto_id', $moto->id)
+            $productos = Producto::with(['categoria', 'subcategoria', 'motos'])
+                ->whereHas('motos', function($query) use ($moto) {
+                    $query->where('motos.id', $moto->id);
+                })
                 ->where('estado', 'Activo')
                 ->get()
                 ->map(function ($producto) {
@@ -39,12 +41,12 @@ class ResultadosController extends Controller
                         'descripcion_corta' => $producto->descripcion_corta,
                         'precio' => $producto->precio,
                         'descuento' => $producto->descuento,
-                        'precio_final' => $producto->descuento ? 
+                        'precio_final' => (float)($producto->descuento ? 
                             $producto->precio - ($producto->precio * $producto->descuento / 100) : 
-                            $producto->precio,
+                            $producto->precio),
                         'imagen_principal' => $producto->imagen_principal,
                         'calificacion' => $producto->calificacion,
-                        'stock' => $producto->stock > 0 ? 'Disponible' : 'Agotado',
+                        'stock' => (int)$producto->stock,
                         'categoria' => $producto->categoria->nombre,
                         'subcategoria' => $producto->subcategoria->nombre,
                         'compatibility' => '100% Compatible'
@@ -52,12 +54,12 @@ class ResultadosController extends Controller
                 });
 
             // Obtener categorías únicas para los filtros
-            $categorias = Categoria::whereHas('productos', function($query) use ($moto) {
-                    $query->where('moto_id', $moto->id);
+            $categorias = Categoria::whereHas('productos.motos', function($query) use ($moto) {
+                    $query->where('motos.id', $moto->id);
                 })
                 ->with(['subcategorias' => function($query) use ($moto) {
-                    $query->whereHas('productos', function($q) use ($moto) {
-                        $q->where('moto_id', $moto->id);
+                    $query->whereHas('productos.motos', function($q) use ($moto) {
+                        $q->where('motos.id', $moto->id);
                     });
                 }])
                 ->get()
@@ -75,12 +77,33 @@ class ResultadosController extends Controller
                 });
 
             // Obtener todas las subcategorías para filtros secundarios
-            $subcategorias = Subcategoria::whereHas('productos', function($query) use ($moto) {
-                    $query->where('moto_id', $moto->id);
+            $subcategorias = Subcategoria::whereHas('productos.motos', function($query) use ($moto) {
+                    $query->where('motos.id', $moto->id);
                 })
                 ->pluck('nombre', 'id')
                 ->toArray();
         }
+
+        // Obtener categorías principales activas con sus subcategorías para el menú
+        $categoriasMenu = Categoria::with(['subcategorias' => function($query) {
+            $query->where('estado', 'Activo');
+        }])
+        ->where('estado', 'Activo')
+        ->get()
+        ->map(function ($categoria) {
+            return [
+                'id' => $categoria->id,
+                'nombre' => $categoria->nombre,
+                'estado' => $categoria->estado,
+                'subcategorias' => $categoria->subcategorias->map(function ($subcategoria) {
+                    return [
+                        'id' => $subcategoria->id,
+                        'nombre' => $subcategoria->nombre,
+                        'estado' => $subcategoria->estado
+                    ];
+                })
+            ];
+        });
 
         return Inertia::render('Home/Partials/Productos/Resultado', [
             'year' => $year,
@@ -94,7 +117,8 @@ class ResultadosController extends Controller
                 'marca' => $moto->marca,
                 'modelo' => $moto->modelo,
                 'year' => $year
-            ] : null
+            ] : null,
+            'categoriasMenu' => $categoriasMenu
         ]);
     }
 }

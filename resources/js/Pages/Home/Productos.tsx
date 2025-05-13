@@ -20,114 +20,34 @@ import {
   HeartIcon,
   StarIcon,
   InfoIcon,
-  TagIcon,
   ExternalLinkIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from '@inertiajs/react';
 
-const products = [
-  {
-    id: 1,
-    name: "Auriculares Premium",
-    price: "S/473.23",
-    originalPrice: "S/583.43",
-    rating: 4.8,
-    reviews: 124,
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D",
-    tag: "Más Vendido, Nuevo",
-    stock: 15,
-    description: "Auriculares inalámbricos de alta calidad con cancelación de ruido y sonido premium.",
-  },
-  {
-    id: 2,
-    name: "Smart Watch",
-    price: "S/729.37",
-    originalPrice: "S/729.37",
-    rating: 4.6,
-    reviews: 89,
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHByb2R1Y3R8ZW58MHx8MHx8fDA%3D",
-    tag: "Más Vendido, Oferta",
-    stock: 8,
-    description: "Smartwatch de última generación con seguimiento de salud e integración con smartphone.",
-  },
-  {
-    id: 3,
-    name: "Audífonos Inalámbricos",
-    price: "S/328.44",
-    originalPrice: "S/400.32",
-    rating: 4.5,
-    reviews: 76,
-    image: "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8ZWFyYnVkc3xlbnwwfHwwfHx8MA%3D%3D",
-    tag: "Más Vendido, Nuevo",
-    stock: 22,
-    description: "Audífonos inalámbricos compactos con sonido cristalino y larga duración de batería.",
-  },
-  {
-    id: 4,
-    name: "Cámara Digital",
-    price: "S/1276.84",
-    originalPrice: "S/1567.23",
-    rating: 4.7,
-    reviews: 52,
-    image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D",
-    tag: "Más Vendido, Oferta",
-    stock: 5,
-    description: "Cámara digital de grado profesional con características avanzadas para entusiastas de la fotografía.",
-  },
-  {
-    id: 5,
-    name: "Altavoz Portátil",
-    price: "S/291.67",
-    originalPrice: "S/291.67",
-    rating: 4.4,
-    reviews: 118,
-    image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cG9ydGFibGUlMjBzcGVha2VyfGVufDB8fDB8fHww",
-    tag: "Más Vendido, Nuevo",
-    stock: 18,
-    description: "Altavoz portátil resistente al agua con sonido 360° y 20 horas de duración de batería.",
-  },
-  {
-    id: 6,
-    name: "Rastreador de Fitness",
-    price: "S/218.84",
-    originalPrice: "S/255.25",
-    rating: 4.3,
-    reviews: 203,
-    image: "https://images.unsplash.com/photo-1576243345690-4e4b79b63288?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Zml0bmVzcyUyMHRyYWNrZXJ8ZW58MHx8MHx8fDA%3D",
-    tag: "Más Vendido, Oferta",
-    stock: 25,
-    description: "Rastrea tus metas de fitness con este dispositivo cómodo y elegante.",
-  },
-  {
-    id: 7,
-    name: "Teclado Mecánico",
-    price: "S/547.37",
-    originalPrice: "S/660.25",
-    rating: 4.9,
-    reviews: 67,
-    image: "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bWVjaGFuaWNhbCUyMGtleWJvYXJkfGVufDB8fDB8fHww",
-    tag: "Más Vendido, Limitado",
-    stock: 3,
-    description: "Teclado mecánico premium con iluminación RGB personalizable y switches táctiles.",
-  },
-  {
-    id: 8,
-    name: "Ratón Gaming",
-    price: "S/255.75",
-    originalPrice: "S/328.44",
-    rating: 4.6,
-    reviews: 94,
-    image: "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Z2FtaW5nJTIwbW91c2V8ZW58MHx8MHx8fDA%3D",
-    tag: "Más Vendido, Oferta",
-    stock: 12,
-    description: "Ratón de alta precisión para gaming con DPI ajustable y botones programables.",
-  },
-];
+interface Product {
+  id: number;
+  nombre: string;
+  precio: number;
+  descuento: number;
+  descripcion_corta: string;
+  imagen_principal: string;
+  stock: number;
+  destacado: boolean;
+  mas_vendido: boolean;
+  calificacion: number;
+  total_reviews: number;
+}
+
+interface ProductsProps {
+  featuredProducts: Product[];
+  bestSellingProducts: Product[];
+  allProducts: Product[];
+}
 
 interface CarouselSectionProps {
   title: string;
-  productList: typeof products;
+  productList: Product[];
 }
 
 const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList }) => {
@@ -138,6 +58,47 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
   const [cart, setCart] = useState<number[]>([]);
   const [progress, setProgress] = useState(0);
   const [autoplayInterval, setAutoplayInterval] = useState<NodeJS.Timeout | null>(null);
+
+  const formatPrice = (price: number): string => {
+    // Redondear el precio a 2 decimales
+    const roundedPrice = Math.round(price * 100) / 100;
+    // Si es un número entero, no mostrar decimales
+    if (Number.isInteger(roundedPrice)) {
+      return `S/${roundedPrice}`;
+    }
+    // Si tiene decimales, mostrar máximo 2
+    return `S/${roundedPrice.toFixed(2)}`;
+  };
+
+  // Calcular el precio final con descuento
+  const calculateFinalPrice = (price: number, descuento: number) => {
+    if (descuento > 0) {
+      return price - (price * descuento / 100);
+    }
+    return price;
+  };
+
+  // Actualizar la lógica de visualización de precios
+  const renderPrice = (product: any) => {
+    const precioFinal = formatPrice(calculateFinalPrice(product.precio, product.descuento));
+    const precioOriginal = product.descuento > 0 ? formatPrice(product.precio) : null;
+    
+    return (
+      <div className="flex items-center gap-2 mt-2">
+        <span className="font-bold text-lg">{precioFinal}</span>
+        {precioOriginal && (
+          <span className="text-sm text-muted-foreground line-through">
+            {precioOriginal}
+          </span>
+        )}
+        {product.descuento > 0 && (
+          <span className="text-sm text-red-500">
+            -{product.descuento}%
+          </span>
+        )}
+      </div>
+    );
+  };
 
   // Manejar la selección del carrusel
   useEffect(() => {
@@ -210,12 +171,12 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
       // Mostrar notificación toast
       if (newFavorites.includes(productId)) {
         toast.success("Añadido a favoritos", {
-          description: `${products.find(p => p.id === productId)?.name} ha sido añadido a tus favoritos.`,
+          description: `${productList.find(p => p.id === productId)?.nombre} ha sido añadido a tus favoritos.`,
           duration: 3000,
         });
       } else {
         toast("Eliminado de favoritos", {
-          description: `${products.find(p => p.id === productId)?.name} ha sido eliminado de tus favoritos.`,
+          description: `${productList.find(p => p.id === productId)?.nombre} ha sido eliminado de tus favoritos.`,
           duration: 3000,
         });
       }
@@ -230,7 +191,7 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
 
       // Mostrar notificación toast
       toast.success("Añadido al carrito", {
-        description: `${products.find(p => p.id === productId)?.name} ha sido añadido a tu carrito.`,
+        description: `${productList.find(p => p.id === productId)?.nombre} ha sido añadido a tu carrito.`,
         duration: 3000,
       });
 
@@ -240,7 +201,7 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
 
   const viewDetails = (productId: number) => {
     toast.info("Ver detalles", {
-      description: `Viendo detalles de ${products.find(p => p.id === productId)?.name}`,
+      description: `Viendo detalles de ${productList.find(p => p.id === productId)?.nombre}`,
       duration: 3000,
     });
   };
@@ -266,15 +227,11 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
   };
 
   // Calcular el porcentaje de descuento
-  const calculateDiscount = (price: string, originalPrice: string) => {
-    const currentPrice = parseFloat(price.replace('S/', ''));
-    const origPrice = parseFloat(originalPrice.replace('S/', ''));
-
-    if (origPrice > currentPrice) {
-      const discount = Math.round(((origPrice - currentPrice) / origPrice) * 100);
+  const calculateDiscount = (price: number, originalPrice?: number) => {
+    if (originalPrice && originalPrice > price) {
+      const discount = Math.round(((originalPrice - price) / originalPrice) * 100);
       return discount;
     }
-
     return 0;
   };
 
@@ -324,8 +281,6 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
         >
           <CarouselContent>
             {productList.map((product) => {
-              const discountPercentage = calculateDiscount(product.price, product.originalPrice);
-
               return (
                 <CarouselItem
                   key={product.id}
@@ -336,32 +291,20 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
                   <Card className="overflow-hidden transition-all duration-300 hover:shadow-xl border-border">
                     <CardContent className="p-0">
                       <div className="relative">
-                        {/* Etiquetas del producto */}
                         <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
-                          {product.tag &&
-                            product.tag.split(", ").map((tag, index) => (
-                              <Badge
-                                key={index}
-                                className={`${
-                                  tag === "Oferta" ? "bg-red-500 hover:bg-red-600" :
-                                  tag === "Nuevo" ? "bg-blue-500 hover:bg-blue-600" :
-                                  tag === "Más Vendido" ? "bg-amber-500 hover:bg-amber-600" :
-                                  tag === "Limitado" ? "bg-purple-500 hover:bg-purple-600" :
-                                  "bg-green-500 hover:bg-green-600"
-                                }`}
-                              >
-                                {tag}
-                              </Badge>
-                            ))}
-
-                          {discountPercentage > 0 && (
+                          {product.destacado && (
+                            <Badge className="bg-blue-500 hover:bg-blue-600">Nuevo</Badge>
+                          )}
+                          {product.mas_vendido && (
+                            <Badge className="bg-amber-500 hover:bg-amber-600">Más Vendido</Badge>
+                          )}
+                          {product.descuento > 0 && (
                             <Badge variant="destructive">
-                              {discountPercentage}% OFF
+                              {product.descuento}% OFF
                             </Badge>
                           )}
                         </div>
 
-                        {/* Botones de acción */}
                         <div className="absolute top-2 right-2 z-10 flex flex-col gap-1">
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -382,43 +325,34 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
                           </Tooltip>
                         </div>
 
-                        {/* Imagen del producto */}
                         <div className="overflow-hidden h-52 bg-muted/20">
                           <img
-                            src={product.image}
-                            alt={product.name}
+                            src={product.imagen_principal}
+                            alt={product.nombre}
                             className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                           />
                         </div>
                       </div>
 
-                      {/* Detalles del producto */}
                       <div className="p-4 space-y-2">
-                        <h3 className="font-semibold text-lg line-clamp-1">{product.name}</h3>
+                        <h3 className="font-semibold text-lg line-clamp-1">{product.nombre}</h3>
 
-                        {renderRating(product.rating, product.reviews)}
+                        {renderRating(product.calificacion, product.total_reviews)}
                         {renderStockIndicator(product.stock)}
 
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div className="flex items-center text-xs text-muted-foreground cursor-help">
                               <InfoIcon className="h-3 w-3 mr-1" />
-                              <span className="line-clamp-1">{product.description}</span>
+                              <span className="line-clamp-1">{product.descripcion_corta}</span>
                             </div>
                           </TooltipTrigger>
                           <TooltipContent className="max-w-xs">
-                            {product.description}
+                            {product.descripcion_corta}
                           </TooltipContent>
                         </Tooltip>
 
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="font-bold text-lg">{product.price}</span>
-                          {discountPercentage > 0 && (
-                            <span className="text-sm text-muted-foreground line-through">
-                              {product.originalPrice}
-                            </span>
-                          )}
-                        </div>
+                        {renderPrice(product)}
                       </div>
                     </CardContent>
 
@@ -426,9 +360,10 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
                       <Button
                         className="w-full gap-1.5"
                         onClick={() => addToCart(product.id)}
+                        disabled={product.stock <= 0}
                       >
                         <ShoppingCartIcon className="h-4 w-4" />
-                        Añadir al Carrito
+                        {product.stock > 0 ? "Añadir al Carrito" : "Sin Stock"}
                       </Button>
                       <Button
                         variant="outline"
@@ -472,18 +407,14 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
   );
 };
 
-export default function App() {
-  // Filtrar productos destacados
-  const featuredProducts = products.filter(product => product.tag.includes("Nuevo") || product.tag.includes("Oferta"));
-
-  // Filtrar productos más vendidos
-  const bestSellingProducts = products.filter(product => product.tag.includes("Más Vendido"));
-
+const Products: React.FC<ProductsProps> = ({ featuredProducts, bestSellingProducts, allProducts }) => {
   return (
     <div className="container mx-auto px-4">
       <CarouselSection title="Productos Destacados" productList={featuredProducts} />
       <CarouselSection title="Lo Más Vendido" productList={bestSellingProducts} />
-      <CarouselSection title="Todos los Productos" productList={products} />
+      <CarouselSection title="Todos los Productos" productList={allProducts} />
     </div>
   );
-}
+};
+
+export default Products;

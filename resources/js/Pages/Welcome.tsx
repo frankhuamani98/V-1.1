@@ -6,19 +6,55 @@ import CompleteCarousel from "./Home/CompleteCarousel";
 import Products from "./Home/Productos";
 import Opiniones from "./Home/Opiniones";
 import Footer from "./Home/Footer";
-import WhatsAppButton from "@/Components/WhatsAppButton"; // Update the path to the correct location
+import WhatsAppButton from "@/Components/WhatsAppButton";
 
 interface WelcomeProps extends PageProps {
-    featuredProducts: any[];
-    bestSellingProducts: any[];
-    allProducts: any[];
+    featuredProducts: Array<{
+        id: number;
+        nombre: string;
+        precio: number;
+        descuento: number;
+        precio_final: number;
+        descripcion_corta: string;
+        imagen_principal: string;
+        stock: number;
+        destacado: boolean;
+        mas_vendido: boolean;
+        calificacion: number;
+        total_reviews: number;
+    }>;
+    bestSellingProducts: Array<{
+        id: number;
+        nombre: string;
+        precio: number;
+        descuento: number;
+        precio_final: number;
+        descripcion_corta: string;
+        imagen_principal: string;
+        stock: number;
+        destacado: boolean;
+        mas_vendido: boolean;
+        calificacion: number;
+        total_reviews: number;
+    }>;
+    allProducts: Array<{
+        id: number;
+        nombre: string;
+        precio: number;
+        descuento: number;
+        precio_final: number;
+        descripcion_corta: string;
+        imagen_principal: string;
+        stock: number;
+        destacado: boolean;
+        mas_vendido: boolean;
+        calificacion: number;
+        total_reviews: number;
+    }>;
     motoData: {
         years: number[];
-        brands: string[];
-        models: Array<{
-            modelo: string;
-            marca: string;
-        }>;
+        brandsByYear: Record<number, string[]>;
+        modelsByYearAndBrand: Record<number, Record<string, string[]>>;
     };
     opiniones: {
         lista: Array<{
@@ -73,7 +109,11 @@ export default function Welcome({
             <MotorcycleSearch motoData={motoData} />
             <CompleteCarousel />
 
-            <Products />
+            <Products 
+              featuredProducts={featuredProducts} 
+              bestSellingProducts={bestSellingProducts} 
+              allProducts={allProducts} 
+            />
 
             <Opiniones opiniones={opiniones} auth={auth} />
 

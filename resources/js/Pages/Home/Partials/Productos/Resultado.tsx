@@ -4,8 +4,8 @@ import { Separator } from "@/Components/ui/separator";
 import { Button } from "@/Components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
 import { Badge } from "@/Components/ui/badge";
-import Header from '../Header';
-import Footer from '../Footer';
+import Header from '../../Header';
+import Footer from '../../Footer';
 import {
   StarIcon,
   ShoppingCartIcon,
@@ -74,12 +74,14 @@ interface ResultadoProps {
 }
 
 const formatPrice = (price: number): string => {
-    return new Intl.NumberFormat('es-PE', {
-        style: 'currency',
-        currency: 'PEN',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    }).format(price);
+    // Redondear el precio a 2 decimales
+    const roundedPrice = Math.round(price * 100) / 100;
+    // Si es un número entero, no mostrar decimales
+    if (Number.isInteger(roundedPrice)) {
+        return `S/${roundedPrice}`;
+    }
+    // Si tiene decimales, mostrar máximo 2
+    return `S/${roundedPrice.toFixed(2)}`;
 };
 
 const ProductCard = ({ product }: { product: Producto }) => {

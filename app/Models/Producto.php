@@ -61,9 +61,10 @@ class Producto extends Model
         return $this->belongsTo(Subcategoria::class);
     }
 
+    // Relación muchos a muchos con motos
     public function motos()
     {
-        return $this->belongsToMany(Moto::class);
+        return $this->belongsToMany(Moto::class, 'moto_producto');
     }
 
     public function getPrecioConDescuentoAttribute()

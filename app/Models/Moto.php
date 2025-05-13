@@ -21,7 +21,13 @@ class Moto extends Model
     const ESTADO_INACTIVO = 'Inactivo';
     const ESTADO_DESCONTINUADO = 'Descontinuado';
 
-
+    /**
+     * Relación muchos a muchos con productos
+     */
+    public function productos()
+    {
+        return $this->belongsToMany(Producto::class, 'moto_producto');
+    }
 
     // Accesor para mostrar nombre completo
     public function getNombreCompletoAttribute()

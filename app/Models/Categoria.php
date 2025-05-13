@@ -24,12 +24,12 @@ class Categoria extends Model
     public function productos()
     {
         return $this->hasManyThrough(
-
-            Subcategoria::class,  // Modelo intermedio (Subcategoria)
-            'categoria_id',       // FK en Subcategoria (referencia a Categoria)
-            'subcategoria_id',   // FK en Producto (referencia a Subcategoria)
-            'id',                 // PK de Categoria (local key)
-            'id'                  // PK de Subcategoria (local key)
+            Producto::class,      // The final model we want to access
+            Subcategoria::class,  // The intermediate model
+            'categoria_id',       // Foreign key on the subcategorias table
+            'subcategoria_id',    // Foreign key on the productos table
+            'id',                 // Local key on the categorias table
+            'id'                  // Local key on the subcategorias table
         );
     }
 }

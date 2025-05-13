@@ -7,8 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
 import { HeartIcon, StarIcon } from "lucide-react";
 import { toast } from "sonner";
 import RelatedProductsCarousel from './RelatedProductsCarousel';
-import Header from '../Header';
-import Footer from '../Footer';
+import Header from '../../Header';
+import Footer from '../../Footer';
 
 function App() {
   const [selectedColor, setSelectedColor] = useState('Negro');
