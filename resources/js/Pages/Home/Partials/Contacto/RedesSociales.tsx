@@ -42,7 +42,7 @@ const RedesSociales = () => {
 
             <div className="w-full flex justify-center">
               <a
-                href="https://facebook.com/rodoftmotors"
+                href="https://www.facebook.com/share/1CJtYs47j3/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 bg-[#1877F2] text-white text-sm px-3 py-1 rounded"
@@ -162,7 +162,7 @@ const RedesSociales = () => {
 
             <div className="w-full flex justify-center">
               <a
-                href="https://tiktok.com/@rodoftmotors"
+                href="https://www.tiktok.com/@rudolf_motors?_t=8s9j0KmESjV&_r=1"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 bg-gradient-to-r from-[#00f2ea] to-[#ff0050] text-white text-sm px-3 py-1 rounded"
