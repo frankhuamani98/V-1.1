@@ -62,8 +62,12 @@ interface Props extends PageProps {
 }
 
 export default function Details({ producto, productosRelacionados }: Props) {
+  const handleImageUrl = (image: string): string => {
+    return image.startsWith('http') ? image : `/storage/${image}`;
+  };
+
   const [selectedColor, setSelectedColor] = useState('Negro');
-  const [currentImage, setCurrentImage] = useState(producto.imagen_principal);
+  const [currentImage, setCurrentImage] = useState(handleImageUrl(producto.imagen_principal));
   const [quantity, setQuantity] = useState(1);
   const [expandedSection, setExpandedSection] = useState<string | null>("descripcion");
   const [isMobile, setIsMobile] = useState(false);
@@ -228,19 +232,19 @@ export default function Details({ producto, productosRelacionados }: Props) {
             <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-2">
               <div className="col-span-1">
                 <img
-                  src={producto.imagen_principal}
-                  className={`thumbnail w-full h-[80px] md:h-[120px] object-cover rounded-lg cursor-pointer transition-all duration-300 ${currentImage === producto.imagen_principal ? 'border-2 border-gray-800 dark:border-gray-200' : 'border-2 border-transparent'}`}
+                  src={handleImageUrl(producto.imagen_principal)}
+                  className={`thumbnail w-full h-[80px] md:h-[120px] object-cover rounded-lg cursor-pointer transition-all duration-300 ${currentImage === handleImageUrl(producto.imagen_principal) ? 'border-2 border-gray-800 dark:border-gray-200' : 'border-2 border-transparent'}`}
                   alt="Vista principal"
-                  onClick={() => handleImageChange(producto.imagen_principal)}
+                  onClick={() => handleImageChange(handleImageUrl(producto.imagen_principal))}
                 />
               </div>
               {producto.imagenes_adicionales.map((image, index) => (
                 <div key={index} className="col-span-1">
                   <img
-                    src={image.url}
-                    className={`thumbnail w-full h-[80px] md:h-[120px] object-cover rounded-lg cursor-pointer transition-all duration-300 ${currentImage === image.url ? 'border-2 border-gray-800 dark:border-gray-200' : 'border-2 border-transparent'}`}
+                    src={handleImageUrl(image.url)}
+                    className={`thumbnail w-full h-[80px] md:h-[120px] object-cover rounded-lg cursor-pointer transition-all duration-300 ${currentImage === handleImageUrl(image.url) ? 'border-2 border-gray-800 dark:border-gray-200' : 'border-2 border-transparent'}`}
                     alt={`Vista ${index + 1}`}
-                    onClick={() => handleImageChange(image.url)}
+                    onClick={() => handleImageChange(handleImageUrl(image.url))}
                   />
                 </div>
               ))}
@@ -304,14 +308,14 @@ export default function Details({ producto, productosRelacionados }: Props) {
                 <div className="flex flex-wrap gap-4 items-center">
                   <div className="text-center">
                     <div
-                      className={`w-16 h-16 rounded-lg cursor-pointer transition-all duration-300 border-2 overflow-hidden ${currentImage === producto.imagen_principal ? 'border-blue-600 dark:border-blue-500' : 'border-transparent'}`}
+                      className={`w-16 h-16 rounded-lg cursor-pointer transition-all duration-300 border-2 overflow-hidden ${currentImage === handleImageUrl(producto.imagen_principal) ? 'border-blue-600 dark:border-blue-500' : 'border-transparent'}`}
                       onClick={() => {
                         handleColorSelect('Principal');
-                        handleImageChange(producto.imagen_principal);
+                        handleImageChange(handleImageUrl(producto.imagen_principal));
                       }}
                     >
                       <img 
-                        src={producto.imagen_principal} 
+                        src={handleImageUrl(producto.imagen_principal)} 
                         alt="Variante Principal"
                         className="w-full h-full object-cover"
                       />
@@ -321,14 +325,14 @@ export default function Details({ producto, productosRelacionados }: Props) {
                   {producto.imagenes_adicionales.map((imagen, index) => (
                     <div key={index} className="text-center">
                       <div
-                        className={`w-16 h-16 rounded-lg cursor-pointer transition-all duration-300 border-2 overflow-hidden ${currentImage === imagen.url ? 'border-blue-600 dark:border-blue-500' : 'border-transparent'}`}
+                        className={`w-16 h-16 rounded-lg cursor-pointer transition-all duration-300 border-2 overflow-hidden ${currentImage === handleImageUrl(imagen.url) ? 'border-blue-600 dark:border-blue-500' : 'border-transparent'}`}
                         onClick={() => {
                           handleColorSelect(imagen.estilo || `Variante ${index + 1}`);
-                          handleImageChange(imagen.url);
+                          handleImageChange(handleImageUrl(imagen.url));
                         }}
                       >
                         <img 
-                          src={imagen.url} 
+                          src={handleImageUrl(imagen.url)} 
                           alt={imagen.estilo || `Variante ${index + 1}`}
                           className="w-full h-full object-cover"
                         />
