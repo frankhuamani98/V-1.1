@@ -21,6 +21,9 @@ import {
   StarIcon,
   InfoIcon,
   ExternalLinkIcon,
+  ZapIcon,
+  TrendingUpIcon,
+  PercentIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from '@inertiajs/react';
@@ -242,6 +245,108 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
     );
   };
 
+  const sortProducts = (products: Product[]): Product[] => {
+    if (title === "Productos Destacados") {
+      return [...products].sort((a, b) => {
+        if (b.destacado !== a.destacado) return b.destacado ? 1 : -1;
+        if (b.mas_vendido !== a.mas_vendido) return b.mas_vendido ? 1 : -1;
+        return b.descuento - a.descuento;
+      });
+    } else if (title === "Lo Más Vendido") {
+      return [...products].sort((a, b) => {
+        if (b.mas_vendido !== a.mas_vendido) return b.mas_vendido ? 1 : -1;
+        if (b.destacado !== a.destacado) return b.destacado ? 1 : -1;
+        return b.descuento - a.descuento;
+      });
+    }
+    return products;
+  };
+
+  const renderLabels = (product: Product) => {
+    const labels: JSX.Element[] = [];
+
+    if (title === "Productos Destacados") {
+      if (product.destacado) {
+        labels.push(
+          <div key="destacado" className="flex items-center gap-1 bg-yellow-500 text-white px-2 py-0.5 rounded shadow-sm">
+            <ZapIcon className="h-3 w-3" />
+            <span className="text-[10px] font-semibold uppercase">Destacado</span>
+          </div>
+        );
+      }
+      if (product.mas_vendido) {
+        labels.push(
+          <div key="mas_vendido" className="flex items-center gap-1 bg-green-500 text-white px-2 py-0.5 rounded shadow-sm">
+            <TrendingUpIcon className="h-3 w-3" />
+            <span className="text-[10px] font-semibold uppercase">Más Vendido</span>
+          </div>
+        );
+      }
+      if (product.descuento > 0) {
+        labels.push(
+          <div key="descuento" className="flex items-center gap-1 bg-red-500 text-white px-2 py-0.5 rounded shadow-sm">
+            <PercentIcon className="h-3 w-3" />
+            <span className="text-[10px] font-semibold uppercase">-{product.descuento}%</span>
+          </div>
+        );
+      }
+    } else if (title === "Lo Más Vendido") {
+      if (product.mas_vendido) {
+        labels.push(
+          <div key="mas_vendido" className="flex items-center gap-1 bg-green-500 text-white px-2 py-0.5 rounded shadow-sm">
+            <TrendingUpIcon className="h-3 w-3" />
+            <span className="text-[10px] font-semibold uppercase">Más Vendido</span>
+          </div>
+        );
+      }
+      if (product.destacado) {
+        labels.push(
+          <div key="destacado" className="flex items-center gap-1 bg-yellow-500 text-white px-2 py-0.5 rounded shadow-sm">
+            <ZapIcon className="h-3 w-3" />
+            <span className="text-[10px] font-semibold uppercase">Destacado</span>
+          </div>
+        );
+      }
+      if (product.descuento > 0) {
+        labels.push(
+          <div key="descuento" className="flex items-center gap-1 bg-red-500 text-white px-2 py-0.5 rounded shadow-sm">
+            <PercentIcon className="h-3 w-3" />
+            <span className="text-[10px] font-semibold uppercase">-{product.descuento}%</span>
+          </div>
+        );
+      }
+    } else if (title === "Todos los Productos") {
+      if (product.destacado) {
+        labels.push(
+          <div key="destacado" className="flex items-center gap-1 bg-yellow-500 text-white px-2 py-0.5 rounded shadow-sm">
+            <ZapIcon className="h-3 w-3" />
+            <span className="text-[10px] font-semibold uppercase">Destacado</span>
+          </div>
+        );
+      }
+      if (product.mas_vendido) {
+        labels.push(
+          <div key="mas_vendido" className="flex items-center gap-1 bg-green-500 text-white px-2 py-0.5 rounded shadow-sm">
+            <TrendingUpIcon className="h-3 w-3" />
+            <span className="text-[10px] font-semibold uppercase">Más Vendido</span>
+          </div>
+        );
+      }
+      if (product.descuento > 0) {
+        labels.push(
+          <div key="descuento" className="flex items-center gap-1 bg-red-500 text-white px-2 py-0.5 rounded shadow-sm">
+            <PercentIcon className="h-3 w-3" />
+            <span className="text-[10px] font-semibold uppercase">-{product.descuento}%</span>
+          </div>
+        );
+      }
+    }
+
+    return labels;
+  };
+
+  const sortedProductList = sortProducts(productList);
+
   return (
     <div className="space-y-4 py-6">
       <div className="flex items-center justify-between px-4">
@@ -266,7 +371,7 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
           }}
         >
           <CarouselContent>
-            {productList.map((product) => {
+            {sortedProductList.map((product) => {
               return (
                 <CarouselItem
                   key={product.id}
@@ -278,17 +383,7 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
                     <CardContent className="p-0">
                       <div className="relative">
                         <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
-                          {product.destacado && (
-                            <Badge className="bg-blue-500 hover:bg-blue-600">Nuevo</Badge>
-                          )}
-                          {product.mas_vendido && (
-                            <Badge className="bg-amber-500 hover:bg-amber-600">Más Vendido</Badge>
-                          )}
-                          {product.descuento > 0 && (
-                            <Badge variant="destructive">
-                              {product.descuento}% OFF
-                            </Badge>
-                          )}
+                          {renderLabels(product)}
                         </div>
 
                         <div className="absolute top-2 right-2 z-10 flex flex-col gap-1">

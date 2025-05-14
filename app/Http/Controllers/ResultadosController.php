@@ -46,7 +46,9 @@ class ResultadosController extends Controller
                         'stock' => (int)$producto->stock,
                         'categoria' => $producto->categoria->nombre,
                         'subcategoria' => $producto->subcategoria->nombre,
-                        'compatibility' => '100% Compatible'
+                        'compatibility' => '100% Compatible',
+                        'destacado' => $producto->destacado,
+                        'mas_vendido' => $producto->mas_vendido
                     ];
                 });
 
