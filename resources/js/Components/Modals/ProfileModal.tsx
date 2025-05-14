@@ -71,8 +71,6 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
   const usernameCheckTimeout = useRef<NodeJS.Timeout>();
   const [editableFields, setEditableFields] = useState<{ [key: string]: EditableField }>({
     username: { key: "username", value: user?.username || "", isEditing: false },
-    first_name: { key: "first_name", value: user?.first_name || "", isEditing: false },
-    last_name: { key: "last_name", value: user?.last_name || "", isEditing: false },
     phone: { key: "phone", value: user?.phone || "", isEditing: false },
     address: { key: "address", value: user?.address || "", isEditing: false },
   });
@@ -432,7 +430,7 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
                   {user?.first_name} {user?.last_name}
                 </DialogTitle>
                 <p className="text-sm text-muted-foreground mb-4">{user?.email}</p>
-                <Badge variant="outline" className="mb-6">
+                <Badge variant="outline" className="mb-6 bg-black text-white">
                   Usuario Registrado
                 </Badge>
                 
@@ -460,18 +458,23 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
             <div className="flex-1 overflow-y-auto">
               <DialogHeader className="p-6 bg-white dark:bg-gray-800 border-b sticky top-0 z-10">
                 <div className="flex items-center justify-between">
-                  <DialogTitle className="text-2xl font-semibold">Mi Perfil</DialogTitle>
-                  <Button variant="outline" onClick={onClose}>Cerrar</Button>
+                  <DialogTitle className="text-2xl font-semibold flex items-center gap-2">
+                  <User className="w-6 h-6" />
+                    Mi Perfil
+                    </DialogTitle>
+                  <Button variant="outline" onClick={onClose} className="border-gray-300 text-gray-700 hover:bg-red-500 hover:text-white">Cerrar</Button>
                 </div>
               </DialogHeader>
 
               <div className="p-6">
                 <Tabs defaultValue="personal" className="w-full">
                   <TabsList className="w-full justify-start border-b pb-px mb-6">
-                    <TabsTrigger value="personal" className="data-[state=active]:bg-background">
+                    <TabsTrigger value="personal" className="data-[state=active]:bg-background flex items-center gap-2">
+                    <User className="w-4 h-4" />
                       Información Personal
                     </TabsTrigger>
-                    <TabsTrigger value="security" className="data-[state=active]:bg-background">
+                    <TabsTrigger value="security" className="data-[state=active]:bg-background flex items-center gap-2">
+                    <Shield className="w-4 h-4" />
                       Seguridad
                     </TabsTrigger>
                     <TabsTrigger value="preferences" className="data-[state=active]:bg-background">
@@ -482,9 +485,7 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
                   <TabsContent value="personal" className="focus:outline-none">
                     <div className="space-y-1">
                       <h3 className="text-lg font-semibold">Información Básica</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Actualiza tu información personal y de contacto.
-                      </p>
+                      
                     </div>
                     
                     <div className="mt-6 space-y-1">
@@ -493,14 +494,14 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
                         label="Nombre de Usuario"
                         icon={<User className="h-5 w-5 text-primary/60" />}
                       />
-                      <EditableField
-                        field="first_name"
+                      <NonEditableField
                         label="Nombre"
+                        value={user?.first_name || ""}
                         icon={<User className="h-5 w-5 text-primary/60" />}
                       />
-                      <EditableField
-                        field="last_name"
+                      <NonEditableField
                         label="Apellido"
+                        value={user?.last_name || ""}
                         icon={<User className="h-5 w-5 text-primary/60" />}
                       />
                       <NonEditableField
@@ -658,7 +659,7 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
                       </div>
                     </div>
                   </TabsContent>
-
+                  
                   <TabsContent value="preferences" className="space-y-6">
                     <div>
                       <h3 className="text-lg font-semibold mb-4 flex items-center">
@@ -668,6 +669,7 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
                       <p className="text-muted-foreground text-sm">
                         Las preferencias de usuario estarán disponibles próximamente.
                       </p>
+                      
                     </div>
                   </TabsContent>
                 </Tabs>
