@@ -2,7 +2,6 @@ import React from 'react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import HistorialFacturas from '@/Layouts/Partials/Facturacion/HistorialFacturas';
 
-// Definir las props que recibe el componente
 interface HistorialFacturasPageProps {
     auth: {
         user: {

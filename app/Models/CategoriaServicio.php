@@ -39,9 +39,6 @@ class CategoriaServicio extends Model
         'orden' => 'integer'
     ];
 
-    /**
-     * Obtiene los servicios relacionados con esta categoría.
-     */
     public function servicios(): HasMany
     {
         return $this->hasMany(Servicio::class, 'categoria_servicio_id');

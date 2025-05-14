@@ -13,9 +13,6 @@ use Illuminate\Support\Facades\Auth;
 
 class DashboardReservaController extends Controller
 {
-    /**
-     * Muestra todas las reservas para el administrador
-     */
     public function index()
     {
         $reservas = Reserva::with(['user', 'servicio', 'horario', 'moto'])
@@ -54,9 +51,6 @@ class DashboardReservaController extends Controller
         ]);
     }
 
-    /**
-     * Muestra las reservas confirmadas
-     */
     public function confirmadas()
     {
         $reservas = Reserva::with(['user', 'servicio', 'horario', 'moto'])
@@ -96,17 +90,11 @@ class DashboardReservaController extends Controller
         ]);
     }
 
-    /**
-     * Muestra el horario de atención para el administrador
-     */
     public function horarioAtencion()
     {
         return redirect()->route('dashboard.reservas.horario.index');
     }
 
-    /**
-     * Cambia el estado de una reserva
-     */
     public function actualizarEstado(Request $request, Reserva $reserva)
     {
         $validated = $request->validate([
@@ -119,12 +107,9 @@ class DashboardReservaController extends Controller
         return back()->with('success', 'Estado de la reserva actualizado correctamente.');
     }
 
-    /**
-     * Muestra el detalle de una reserva específica
-     */
+    
     public function show(Reserva $reserva)
     {
-        // Carga las relaciones
         $reserva->load(['user', 'servicio', 'horario', 'moto']);
         
         $reservaFormateada = [

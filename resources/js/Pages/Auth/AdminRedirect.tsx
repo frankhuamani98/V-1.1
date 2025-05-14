@@ -13,16 +13,16 @@ export default function AdminRedirect({ user }: AdminRedirectProps) {
     const [isOpen, setIsOpen] = useState<boolean>(true);
 
     const goToDashboard = () => {
-        setIsOpen(false); // Cierra el diálogo
+        setIsOpen(false);
         router.visit('/dashboard', {
-            onFinish: () => setIsOpen(false), // Asegúrate de que el diálogo se cierre después de la redirección
+            onFinish: () => setIsOpen(false),
         });
     };
 
     const goToHome = () => {
-        setIsOpen(false); // Cierra el diálogo
+        setIsOpen(false);
         router.visit('/', {
-            onFinish: () => setIsOpen(false), // Asegúrate de que el diálogo se cierre después de la redirección
+            onFinish: () => setIsOpen(false),
         });
     };
 

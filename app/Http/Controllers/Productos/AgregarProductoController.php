@@ -50,7 +50,6 @@ class AgregarProductoController extends Controller
 
         DB::beginTransaction();
         try {
-            // Procesar imagen principal
             $imagenPrincipalPath = null;
             if ($request->hasFile('imagen_principal_file')) {
                 $imagenPrincipalPath = $request->file('imagen_principal_file')->store('productos', 'public');
@@ -58,7 +57,6 @@ class AgregarProductoController extends Controller
                 $imagenPrincipalPath = $request->imagen_principal;
             }
 
-            // Procesar imágenes adicionales
             $imagenesAdicionales = [];
             if ($request->imagenes_adicionales) {
                 $imagenesAdicionalesData = json_decode($request->imagenes_adicionales, true);
@@ -84,7 +82,7 @@ class AgregarProductoController extends Controller
                             
                             $fileName = 'productos/adicionales/' . Str::uuid() . '.' . $extension;
                             Storage::disk('public')->put($fileName, $fileContent);
-                            $imagenInfo['url'] = $fileName; // Guardamos solo la ruta relativa
+                            $imagenInfo['url'] = $fileName;
                         }
                     } elseif (isset($imagenData['url']) && filter_var($imagenData['url'], FILTER_VALIDATE_URL)) {
                         $imagenInfo['url'] = $imagenData['url'];
@@ -96,7 +94,6 @@ class AgregarProductoController extends Controller
                 }
             }
 
-            // Crear el producto
             $producto = Producto::create([
                 'codigo' => $request->codigo,
                 'nombre' => $request->nombre,
@@ -116,7 +113,6 @@ class AgregarProductoController extends Controller
                 'estado' => Producto::ESTADO_ACTIVO,
             ]);
 
-            // Asociar motos
             if ($request->moto_ids) {
                 $producto->motos()->sync($request->moto_ids);
             }

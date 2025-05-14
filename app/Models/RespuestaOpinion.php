@@ -18,13 +18,11 @@ class RespuestaOpinion extends Model
         'es_soporte'
     ];
 
-    // Relación con la opinión a la que pertenece esta respuesta
     public function opinion()
     {
         return $this->belongsTo(Opinion::class, 'opinion_id');
     }
 
-    // Relación con el usuario que creó la respuesta
     public function usuario()
     {
         return $this->belongsTo(User::class, 'user_id');

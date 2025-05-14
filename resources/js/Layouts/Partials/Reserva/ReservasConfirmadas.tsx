@@ -62,7 +62,6 @@ const ReservasConfirmadas = ({ reservas: initialReservas }: ReservasConfirmadasP
     };
 
     const formatFecha = (fecha: string) => {
-        // Convierte YYYY-MM-DD a DD/MM/YYYY
         const [year, month, day] = fecha.split('-');
         return `${day}/${month}/${year}`;
     };
@@ -110,7 +109,6 @@ const ReservasConfirmadas = ({ reservas: initialReservas }: ReservasConfirmadasP
                                 <TableBody>
                                     {reservas.map((reserva) => (
                                         <React.Fragment key={reserva.id}>
-                                            {/* Vista de escritorio */}
                                             <TableRow className="hidden sm:table-row hover:bg-gray-50 transition-colors">
                                                 <TableCell className="px-4 py-4 font-medium">{reserva.usuario}</TableCell>
                                                 <TableCell className="px-4 py-4">{`${reserva.moto.marca} ${reserva.moto.modelo} ${reserva.moto.año}`} - {reserva.placa}</TableCell>
@@ -151,7 +149,6 @@ const ReservasConfirmadas = ({ reservas: initialReservas }: ReservasConfirmadasP
                                                 </TableCell>
                                             </TableRow>
 
-                                            {/* Vista móvil */}
                                             <div className="sm:hidden bg-white rounded-lg shadow-sm p-4 mb-3 border border-gray-100">
                                                 <div className="flex justify-between items-center">
                                                     <div className="flex-1 min-w-0">

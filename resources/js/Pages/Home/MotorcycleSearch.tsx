@@ -71,7 +71,6 @@ export default function MotorcycleSearch({ motoData }: Props) {
     }
   }, [])
 
-  // Actualizar marcas disponibles cuando cambia el año
   const handleYearChange = (selectedYear: string) => {
     setYear(selectedYear)
     setBrand("")
@@ -82,7 +81,6 @@ export default function MotorcycleSearch({ motoData }: Props) {
     setAvailableModels([])
   }
 
-  // Actualizar modelos disponibles cuando cambia la marca
   const handleBrandChange = (selectedBrand: string) => {
     setBrand(selectedBrand)
     setModel("")
@@ -151,12 +149,9 @@ export default function MotorcycleSearch({ motoData }: Props) {
 
   return (
     <div className="w-full bg-background min-h-screen">
-      {/* Hero Section */}
       <div className="relative overflow-hidden">
-        {/* Enhanced gradient background */}
         <div className="absolute inset-0 bg-gradient-to-r from-cyan-900 via-slate-800 to-slate-900"></div>
-
-        {/* Decorative pattern */}
+        
         <div className="absolute inset-0 opacity-10">
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
             <defs>
@@ -168,7 +163,6 @@ export default function MotorcycleSearch({ motoData }: Props) {
           </svg>
         </div>
 
-        {/* Animated decorative shapes */}
         <div className="absolute -top-20 -left-20 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-pulse"></div>
         <div
           className="absolute -bottom-20 -right-20 w-96 h-96 bg-cyan-600 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-pulse"
@@ -176,7 +170,6 @@ export default function MotorcycleSearch({ motoData }: Props) {
         ></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-6xl max-h-96 bg-gradient-to-tr from-cyan-400 to-slate-500 rounded-full mix-blend-multiply filter blur-3xl opacity-15"></div>
 
-        {/* Floating particles */}
         <div className="absolute inset-0 overflow-hidden">
           {Array.from({ length: 20 }).map((_, i) => (
             <div
@@ -272,7 +265,6 @@ export default function MotorcycleSearch({ motoData }: Props) {
               </Button>
             </motion.div>
 
-            {/* Scroll indicator */}
             <motion.div
               className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center"
               initial={{ opacity: 0 }}
@@ -298,7 +290,6 @@ export default function MotorcycleSearch({ motoData }: Props) {
         </div>
       </div>
 
-      {/* Search component */}
       <div className="container mx-auto px-4 py-12" id="motorcycle-finder">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

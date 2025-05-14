@@ -69,7 +69,6 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
             estado: moto.estado,
         });
         setIsEditing(true);
-        // Scroll to form
         document.getElementById('registro-form')?.scrollIntoView({ behavior: 'smooth' });
     };
 
@@ -111,7 +110,6 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
                     <p className="text-gray-600 mt-2">Administre su inventario de motocicletas de manera eficiente</p>
                 </div>
                 
-                {/* Form Card */}
                 <Card id="registro-form" className="shadow-xl border-t-4 border-t-blue-600 mb-10 transition-all duration-300 hover:shadow-2xl">
                     <CardHeader className="bg-white rounded-t-lg border-b bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
                         <div className="flex items-center space-x-3">
@@ -230,7 +228,6 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
                     </CardContent>
                 </Card>
 
-                {/* Lista de motos mejorada */}
                 <Card className="shadow-xl border-t-4 border-t-indigo-600">
                     <CardHeader className="bg-white rounded-t-lg border-b bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-6">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">

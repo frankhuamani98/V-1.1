@@ -37,19 +37,16 @@ class User extends Authenticatable
         'terms' => 'boolean',
     ];
 
-    // Mutator para normalizar el email a minúsculas al guardar
     public function setEmailAttribute($value)
     {
         $this->attributes['email'] = strtolower($value);
     }
 
-    // Accessor para obtener el nombre completo del usuario
     public function getNameAttribute()
     {
         return $this->first_name . ' ' . $this->last_name;
     }
 
-    // Mutador para hashear la contraseña
     public function setPasswordAttribute($value)
     {
         if (!empty($value) && !str_starts_with($value, '$2y$')) {
@@ -58,20 +55,16 @@ class User extends Authenticatable
             $this->attributes['password'] = $value;
         }
     }
-
-    // Relación con las opiniones del usuario
     public function opiniones()
     {
         return $this->hasMany(Opinion::class, 'user_id');
     }
 
-    // Relación con las respuestas del usuario
     public function respuestasOpiniones()
     {
         return $this->hasMany(RespuestaOpinion::class, 'user_id');
     }
 
-    // Relación con las reservas del usuario
     public function reservas()
     {
         return $this->hasMany(Reserva::class);

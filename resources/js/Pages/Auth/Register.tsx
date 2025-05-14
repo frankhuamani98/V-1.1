@@ -37,65 +37,54 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Función para validar el correo electrónico
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  // Función para validar la fortaleza de la contraseña
   const isStrongPassword = (password: string) => {
     const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.,;:+=(){}[\]<>^~`|\\/"'#])[A-Za-z\d@$!%*?&.,;:+=(){}[\]<>^~`|\\/"'#]{8,}$/;
     return strongPasswordRegex.test(password);
   };
 
-  // Función para validar el número de teléfono
   const isValidPhone = (phone: string) => {
     const phoneRegex = /^\d{9}$/;
     return phoneRegex.test(phone);
   };
 
-  // Función para manejar el envío del formulario
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validación del DNI (8 dígitos)
     if (data.dni.length !== 8 || !/^\d+$/.test(data.dni)) {
       toast.error('El DNI debe tener exactamente 8 dígitos');
       return;
     }
 
-    // Validación del correo electrónico
     if (!isValidEmail(data.email)) {
       toast.error('Por favor, ingrese un correo electrónico válido');
       return;
     }
 
-    // Validación del número de teléfono
     if (!isValidPhone(data.phone)) {
       toast.error('El número de teléfono debe tener 9 dígitos');
       return;
     }
 
-    // Validación de fortaleza de la contraseña
     if (!isStrongPassword(data.password)) {
       toast.error('La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.');
       return;
     }
 
-    // Validación manual de contraseñas
     if (data.password !== data.password_confirmation) {
       toast.error('Las contraseñas no coinciden');
       return;
     }
 
-    // Validación de términos y condiciones
     if (!data.terms) {
       toast.error('Debe aceptar los términos y condiciones');
       return;
     }
 
-    // Envía el formulario usando Inertia
     post('/register', {
       onSuccess: () => {
         toast.success('Registro exitoso!', {
@@ -127,7 +116,6 @@ export default function Register() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Campo: Usuario */}
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
                 Usuario
@@ -146,7 +134,6 @@ export default function Register() {
               {errors.username && <p className="text-sm text-red-500">{errors.username}</p>}
             </div>
 
-            {/* Campo: Nombres */}
             <div>
               <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
                 Nombres
@@ -165,7 +152,6 @@ export default function Register() {
               {errors.firstName && <p className="text-sm text-red-500">{errors.firstName}</p>}
             </div>
 
-            {/* Campo: Apellidos */}
             <div>
               <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
                 Apellidos
@@ -184,7 +170,6 @@ export default function Register() {
               {errors.lastName && <p className="text-sm text-red-500">{errors.lastName}</p>}
             </div>
 
-            {/* Campo: DNI */}
             <div>
               <label htmlFor="dni" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
                 DNI
@@ -204,7 +189,6 @@ export default function Register() {
               {errors.dni && <p className="text-sm text-red-500">{errors.dni}</p>}
             </div>
 
-            {/* Campo: Sexo */}
             <div>
               <label htmlFor="sexo" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
                 Sexo
@@ -226,7 +210,6 @@ export default function Register() {
               {errors.sexo && <p className="text-sm text-red-500">{errors.sexo}</p>}
             </div>
 
-            {/* Campo: Correo electrónico (con normalización a minúsculas) */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
                 Correo electrónico
@@ -245,7 +228,6 @@ export default function Register() {
               {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
             </div>
 
-            {/* Campo: Celular */}
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
                 Celular
@@ -264,7 +246,6 @@ export default function Register() {
               {errors.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
             </div>
 
-            {/* Campo: Dirección (opcional) */}
             <div>
               <label htmlFor="address" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
                 Dirección (opcional)
@@ -283,7 +264,6 @@ export default function Register() {
               {errors.address && <p className="text-sm text-red-500">{errors.address}</p>}
             </div>
 
-            {/* Campo: Contraseña */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
                 Contraseña
@@ -311,7 +291,6 @@ export default function Register() {
               {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
             </div>
 
-            {/* Campo: Confirmar Contraseña */}
             <div>
               <label htmlFor="password_confirmation" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
                 Confirmar Contraseña
@@ -339,7 +318,6 @@ export default function Register() {
               {errors.password_confirmation && <p className="text-sm text-red-500">{errors.password_confirmation}</p>}
             </div>
 
-            {/* Campo: Términos y condiciones */}
             <div className="md:col-span-2 flex flex-row items-start space-x-3 space-y-0 rounded-md p-4 border">
               <Checkbox
                 id="terms"
@@ -359,7 +337,6 @@ export default function Register() {
               {errors.terms && <p className="text-sm text-red-500">{errors.terms}</p>}
             </div>
 
-            {/* Botón de envío */}
             <Button type="submit" className="md:col-span-2 w-full" disabled={processing}>
               {processing ? 'Registrando...' : 'Registrarse'}
             </Button>

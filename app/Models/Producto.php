@@ -34,8 +34,8 @@ class Producto extends Model
         'incluye_igv' => 'boolean',
         'destacado' => 'boolean',
         'mas_vendido' => 'boolean',
-        'precio' => 'float',  // Cambiado a float para mejor manejo
-        'descuento' => 'float' // Cambiado a float para mejor manejo
+        'precio' => 'float',
+        'descuento' => 'float'
     ];
 
     const ESTADO_ACTIVO = 'Activo';

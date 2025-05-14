@@ -97,7 +97,6 @@ const Administradores = ({ admins: initialAdmins }: AdministradoresProps) => {
                                 <TableBody>
                                     {admins.map((admin) => (
                                         <React.Fragment key={admin.id}>
-                                            {/* Vista de escritorio */}
                                             <TableRow className="hidden sm:table-row hover:bg-gray-50 transition-colors">
                                                 <TableCell className="px-4 py-4 font-medium">{admin.first_name}</TableCell>
                                                 <TableCell className="px-4 py-4">{admin.last_name}</TableCell>
@@ -123,7 +122,6 @@ const Administradores = ({ admins: initialAdmins }: AdministradoresProps) => {
                                                 </TableCell>
                                             </TableRow>
 
-                                            {/* Vista móvil */}
                                             <div className="sm:hidden bg-white rounded-lg shadow-sm p-4 mb-3 border border-gray-100">
                                                 <div className="flex justify-between items-center">
                                                     <div className="flex-1 min-w-0">

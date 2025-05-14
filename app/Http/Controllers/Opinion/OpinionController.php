@@ -11,9 +11,6 @@ use Inertia\Inertia;
 
 class OpinionController extends Controller
 {
-    /**
-     * Mostrar todas las opiniones
-     */
     public function index()
     {
         $opiniones = Opinion::with(['usuario', 'respuestas.usuario'])
@@ -25,9 +22,6 @@ class OpinionController extends Controller
         ]);
     }
 
-    /**
-     * Crear una nueva opinión
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -43,7 +37,6 @@ class OpinionController extends Controller
             'es_soporte' => Auth::user()->role === 'admin'
         ]);
 
-        // Cargar la relación de usuario para devolver datos completos
         $opinion->load('usuario');
 
         return redirect()->back()
@@ -67,9 +60,6 @@ class OpinionController extends Controller
             ]);
     }
 
-    /**
-     * Marcar una opinión como útil
-     */
     public function marcarUtil(Request $request, $id)
     {
         $opinion = Opinion::findOrFail($id);
@@ -81,9 +71,7 @@ class OpinionController extends Controller
             ->with('scroll', false);
     }
 
-    /**
-     * Responder a una opinión
-     */
+
     public function responder(Request $request, $id)
     {
         $request->validate([
@@ -121,9 +109,6 @@ class OpinionController extends Controller
             ]);
     }
 
-    /**
-     * Eliminar una opinión
-     */
     public function destroy($id)
     {
         $opinion = Opinion::findOrFail($id);
@@ -140,9 +125,6 @@ class OpinionController extends Controller
             ->with('message', 'Opinión eliminada correctamente');
     }
 
-    /**
-     * Eliminar una respuesta
-     */
     public function eliminarRespuesta($id)
     {
         $respuesta = RespuestaOpinion::findOrFail($id);

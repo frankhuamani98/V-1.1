@@ -14,7 +14,6 @@ class InventarioProductosController extends Controller
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($producto) {
-                // Asegurar que precio sea numérico
                 $producto->precio = (float)$producto->precio;
                 return $producto;
             });

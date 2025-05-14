@@ -9,17 +9,11 @@ use Inertia\Inertia;
 
 class CategoriaServicioController extends Controller
 {
-    /**
-     * Muestra el formulario para crear una nueva categoría de servicio.
-     */
     public function create()
     {
         return Inertia::render('Dashboard/Servicio/AgregarCategoria');
     }
 
-    /**
-     * Almacena una nueva categoría de servicio.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -35,9 +29,6 @@ class CategoriaServicioController extends Controller
             ->with('message', 'Categoría de servicio creada exitosamente');
     }
 
-    /**
-     * Muestra el formulario para editar una categoría de servicio.
-     */
     public function edit(CategoriaServicio $categoriaServicio)
     {
         return Inertia::render('Dashboard/Servicio/AgregarCategoria', [
@@ -46,9 +37,6 @@ class CategoriaServicioController extends Controller
         ]);
     }
 
-    /**
-     * Actualiza una categoría de servicio.
-     */
     public function update(Request $request, CategoriaServicio $categoriaServicio)
     {
         $validated = $request->validate([
@@ -58,11 +46,9 @@ class CategoriaServicioController extends Controller
             'orden' => 'integer'
         ]);
 
-        // Si estamos desactivando una categoría, verificar e informar sobre servicios afectados
         if ($categoriaServicio->estado && isset($validated['estado']) && !$validated['estado']) {
             $serviciosActivos = $categoriaServicio->servicios()->where('estado', true)->count();
             if ($serviciosActivos > 0) {
-                // Informar al usuario sobre los servicios afectados
                 return redirect()->back()
                     ->with('warning', "Esta categoría tiene {$serviciosActivos} servicios activos. Desactivar la categoría afectará la visibilidad de estos servicios en el catálogo público.")
                     ->withInput();
@@ -75,17 +61,12 @@ class CategoriaServicioController extends Controller
             ->with('message', 'Categoría de servicio actualizada exitosamente');
     }
 
-    /**
-     * Elimina una categoría de servicio.
-     */
     public function destroy(CategoriaServicio $categoriaServicio)
     {
-        // Verificar si tiene servicios asociados
         $cantidadServicios = $categoriaServicio->servicios()->count();
         if ($cantidadServicios > 0) {
             $mensaje = "No se puede eliminar la categoría '{$categoriaServicio->nombre}' porque tiene {$cantidadServicios} servicio(s) asociado(s). Debe eliminar primero todos los servicios de esta categoría.";
             
-            // Inertia maneja los errores de manera especial
             return back()->withErrors([
                 'message' => $mensaje
             ]);
@@ -97,9 +78,6 @@ class CategoriaServicioController extends Controller
             ->with('message', 'Categoría de servicio eliminada exitosamente');
     }
 
-    /**
-     * Obtiene todas las categorías de servicio para listas desplegables.
-     */
     public function getAll()
     {
         $categorias = CategoriaServicio::where('estado', true)

@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{DashboardController, WelcomeController, ResultadosController};
 use App\Http\Controllers\Usuarios\{ListaUsuariosController, AdministradoresController};
-use App\Http\Controllers\Productos\{AgregarProductoController, InventarioProductosController};
+use App\Http\Controllers\Productos\{AgregarProductoController, InventarioProductosController, DetalleProductoController};
 use App\Http\Controllers\Servicio\{CategoriaServicioController, ServicioController};
 use App\Http\Controllers\Reserva\{DashboardHorarioController, ReservaController, DashboardReservaController, HorarioController};
 use App\Http\Controllers\Moto\RegistroMotosController;
@@ -14,10 +14,12 @@ use App\Http\Controllers\Banners\{SubirBannersController, HistorialBannersContro
 use App\Http\Controllers\Pedidos\{EstadoPedidosController, NuevosPedidosController, PedidosFinalizadosController, HistorialPedidosController};
 use App\Http\Controllers\Categorias\{CategoriasPrincipalesController, SubcategoriasController, ListaCategoriasController};
 use App\Http\Controllers\Contacto\ContactoController;
+use App\Http\Controllers\Auth\ProfileController;
 
 // Rutas Públicas
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
 Route::get('/resultados', [ResultadosController::class, 'index'])->name('resultados');
+Route::get('/details/{id}', [DetalleProductoController::class, 'show'])->name('productos.detalles');
 
 // Rutas para servicios públicos
 Route::prefix('servicios')->name('servicios.publico.')->group(function () {
@@ -197,9 +199,9 @@ Route::middleware('auth')->group(function () {
 
     // Rutas de perfil
     Route::middleware('auth')->group(function () {
-        Route::patch('/api/profile', [App\Http\Controllers\Auth\ProfileController::class, 'updateProfile']);
-        Route::post('/profile/update-password', [App\Http\Controllers\Auth\ProfileController::class, 'updatePassword']);
-        Route::post('/api/check-username', [App\Http\Controllers\Auth\ProfileController::class, 'checkUsername']);
+        Route::patch('/api/profile', [ProfileController::class, 'updateProfile']);
+        Route::post('/profile/update-password', [ProfileController::class, 'updatePassword']);
+        Route::post('/api/check-username', [ProfileController::class, 'checkUsername']);
     });
 
     // Pedidos

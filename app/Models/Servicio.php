@@ -31,9 +31,6 @@ class Servicio extends Model
         'estado' => 'boolean'
     ];
 
-    /**
-     * Obtiene la categoría a la que pertenece este servicio.
-     */
     public function categoriaServicio(): BelongsTo
     {
         return $this->belongsTo(CategoriaServicio::class, 'categoria_servicio_id');

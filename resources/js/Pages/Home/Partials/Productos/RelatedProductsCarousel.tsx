@@ -8,6 +8,7 @@ import { Progress } from "@/Components/ui/progress";
 import { PauseIcon, PlayIcon, ShoppingCartIcon, HeartIcon, StarIcon, InfoIcon, ExternalLinkIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Separator } from "@/Components/ui/separator";
+import { Link } from '@inertiajs/react';
 
 interface RelatedProductsCarouselProps {
   products: Array<{
@@ -318,9 +319,12 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
                       <Button
                         variant="outline"
                         className="w-full gap-1.5"
+                        asChild
                       >
-                        <ExternalLinkIcon className="h-4 w-4" />
-                        Ver Detalles
+                        <Link href={`/details/${product.id}`}>
+                          <ExternalLinkIcon className="h-4 w-4" />
+                          Ver Detalles
+                        </Link>
                       </Button>
                     </CardFooter>
                   </Card>

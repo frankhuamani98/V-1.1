@@ -32,7 +32,6 @@ export default function Login({ errors: serverErrors }: Props) {
         return emailRegex.test(email);
     };
 
-    // Función para normalizar el identificador (email a minúsculas, otros campos sin cambios)
     const normalizeIdentifier = (value: string): string => {
         const trimmedValue = value.trim();
         return isValidEmail(trimmedValue) ? trimmedValue.toLowerCase() : trimmedValue;
@@ -46,25 +45,21 @@ export default function Login({ errors: serverErrors }: Props) {
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        // Validación del campo de identificación
         if (!data.identifier.trim()) {
             toast.error('Por favor, ingrese su DNI, correo electrónico o usuario');
             return;
         }
 
-        // Validación de la contraseña
         if (!data.password) {
             toast.error('Por favor, ingrese su contraseña');
             return;
         }
 
-        // Normalizar el identificador antes de enviar
         const normalizedData = {
             ...data,
             identifier: normalizeIdentifier(data.identifier)
         };
 
-        // Envía el formulario usando Inertia
         post('/login', {
             ...normalizedData,
             onSuccess: () => {
@@ -111,7 +106,6 @@ export default function Login({ errors: serverErrors }: Props) {
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        {/* Campo: Identificador */}
                         <div>
                             <label htmlFor="identifier" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
                                 DNI, Correo electrónico o Usuario
@@ -131,7 +125,6 @@ export default function Login({ errors: serverErrors }: Props) {
                             {errors.identifier && <p className="mt-1 text-sm text-red-500">{errors.identifier}</p>}
                         </div>
 
-                        {/* Campo: Contraseña */}
                         <div>
                             <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
                                 Contraseña
@@ -165,7 +158,6 @@ export default function Login({ errors: serverErrors }: Props) {
                             {errors.password && <p className="mt-1 text-sm text-red-500">{errors.password}</p>}
                         </div>
 
-                        {/* Enlace para recuperar acceso */}
                         <div className="text-right">
                             <a
                                 href="/forgot-password"
@@ -175,7 +167,6 @@ export default function Login({ errors: serverErrors }: Props) {
                             </a>
                         </div>
 
-                        {/* Botón de envío */}
                         <Button
                             type="submit"
                             className="w-full"

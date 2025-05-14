@@ -22,7 +22,7 @@ class SubirBannersController extends Controller
             'subtitulo' => 'nullable|string|max:255',
             'imagen_principal' => $request->tipo_imagen === 'url' 
                 ? 'required|url|max:255'
-                : 'required|image|max:5120', // 5MB max
+                : 'required|image|max:5120',
             'tipo_imagen' => 'required|in:url,local',
             'fecha_inicio' => 'nullable|date',
             'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',

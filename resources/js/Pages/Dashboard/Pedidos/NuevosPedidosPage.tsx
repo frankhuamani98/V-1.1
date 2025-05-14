@@ -1,4 +1,3 @@
-// src/pages/NuevosPedidosPage.tsx
 import React from 'react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import NuevosPedidos from '@/Layouts/Partials/Pedidos/NuevosPedidos';

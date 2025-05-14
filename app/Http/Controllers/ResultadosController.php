@@ -16,18 +16,15 @@ class ResultadosController extends Controller
         $brand = request('brand');
         $model = request('model');
 
-        // Buscar la moto en la base de datos
         $moto = Moto::where('marca', $brand)
                     ->where('modelo', $model)
                     ->first();
 
-        // Obtener productos relacionados
         $productos = [];
         $categorias = [];
         $subcategorias = [];
 
         if ($moto) {
-            // Productos específicos para esta moto con relaciones cargadas
             $productos = Producto::with(['categoria', 'subcategoria', 'motos'])
                 ->whereHas('motos', function($query) use ($moto) {
                     $query->where('motos.id', $moto->id);
@@ -53,7 +50,6 @@ class ResultadosController extends Controller
                     ];
                 });
 
-            // Obtener categorías únicas para los filtros
             $categorias = Categoria::whereHas('productos.motos', function($query) use ($moto) {
                     $query->where('motos.id', $moto->id);
                 })
@@ -76,7 +72,6 @@ class ResultadosController extends Controller
                     ];
                 });
 
-            // Obtener todas las subcategorías para filtros secundarios
             $subcategorias = Subcategoria::whereHas('productos.motos', function($query) use ($moto) {
                     $query->where('motos.id', $moto->id);
                 })
@@ -84,7 +79,6 @@ class ResultadosController extends Controller
                 ->toArray();
         }
 
-        // Obtener categorías principales activas con sus subcategorías para el menú
         $categoriasMenu = Categoria::with(['subcategorias' => function($query) {
             $query->where('estado', 'Activo');
         }])

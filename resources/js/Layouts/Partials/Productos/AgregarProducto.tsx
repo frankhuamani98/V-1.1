@@ -28,7 +28,7 @@ interface Moto {
 interface ImagenAdicional {
   url: string;
   estilo: string;
-  file?: string; // Cambiado a string para base64
+  file?: string;
   previewUrl?: string;
 }
 
@@ -122,12 +122,11 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
       };
 
       if (nuevaImagen.file) {
-        // Convertir el archivo a base64
         const reader = new FileReader();
         reader.onload = (e) => {
           if (e.target?.result) {
             newImagen.file = e.target.result as string;
-            newImagen.url = ''; // Asegurarse de que no haya URL si hay archivo
+            newImagen.url = '';
             
             setData('imagenes_adicionales', JSON.stringify([...imagenesActuales, newImagen as ImagenAdicional]));
             setNuevaImagen({ url: '', estilo: '', file: null });
@@ -202,7 +201,6 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
       )}
 
       <form onSubmit={handleSubmit} className="bg-white shadow rounded-lg p-6">
-        {/* Navegación por tabs */}
         <div className="flex border-b border-gray-200 mb-6">
           <button
             type="button"
@@ -233,8 +231,6 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
             Categorías
           </button>
         </div>
-
-        {/* Contenido de cada tab */}
         {activeTab === 'informacion' && (
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-900">Información Básica</h2>

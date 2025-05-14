@@ -74,7 +74,6 @@ const CalendarioHorarios: React.FC<{
     const monthEnd = endOfMonth(currentDate);
     let calendarDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
     
-    // Añadir días al inicio para completar la semana
     const startDay = monthStart.getDay();
     if (startDay !== 1) {
         const daysToAdd = startDay === 0 ? 6 : startDay - 1;
@@ -82,7 +81,6 @@ const CalendarioHorarios: React.FC<{
         calendarDays = eachDayOfInterval({ start: newStart, end: monthEnd });
     }
     
-    // Añadir días al final para completar la semana
     const endDay = monthEnd.getDay();
     if (endDay !== 0) {
         const daysToAdd = 7 - endDay;
@@ -352,7 +350,6 @@ const HorarioAtencion = ({ horariosRecurrentes, excepciones }: HorarioAtencionPr
         },
     });
 
-    // Get current date in YYYY-MM-DD format without timezone issues
     const today = new Date();
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');
@@ -421,8 +418,6 @@ const HorarioAtencion = ({ horariosRecurrentes, excepciones }: HorarioAtencionPr
     };
 
     const onSubmitExcepcion = (data: FormExcepcionType) => {
-        // Usar la fecha tal como viene del input sin crear un nuevo objeto Date
-        // ya que esto puede causar problemas con zonas horarias
         const fechaFormateada = data.fecha;
         
         if (editingHorario && editingHorario.id) {
@@ -724,7 +719,6 @@ const HorarioAtencion = ({ horariosRecurrentes, excepciones }: HorarioAtencionPr
                 </CardContent>
             </Card>
 
-            {/* Modal para crear/editar horario */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="sm:max-w-[425px] w-[95%] max-h-[90vh] overflow-y-auto">
                     {activeTab === 'semanal' ? (
@@ -895,7 +889,6 @@ const HorarioAtencion = ({ horariosRecurrentes, excepciones }: HorarioAtencionPr
                 </DialogContent>
             </Dialog>
 
-            {/* Modal de confirmación de eliminación */}
             <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                 <DialogContent className="w-[95%] sm:max-w-[425px]">
                     <DialogHeader>

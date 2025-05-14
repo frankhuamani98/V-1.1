@@ -16,28 +16,20 @@ class Moto extends Model
         'estado'
     ];
 
-    // Estados disponibles
     const ESTADO_ACTIVO = 'Activo';
     const ESTADO_INACTIVO = 'Inactivo';
     const ESTADO_DESCONTINUADO = 'Descontinuado';
 
-    /**
-     * Relación muchos a muchos con productos
-     */
     public function productos()
     {
         return $this->belongsToMany(Producto::class, 'moto_producto');
     }
 
-    // Accesor para mostrar nombre completo
     public function getNombreCompletoAttribute()
     {
         return "{$this->marca} {$this->modelo} ({$this->año})";
     }
 
-    /**
-     * Obtener los estados disponibles para una moto
-     */
     public static function getEstadosDisponibles(): array
     {
         return [
@@ -47,9 +39,6 @@ class Moto extends Model
         ];
     }
 
-    /**
-     * Scope para motos activas
-     */
     public function scopeActivas($query)
     {
         return $query->where('estado', self::ESTADO_ACTIVO);

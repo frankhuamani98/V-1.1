@@ -15,7 +15,6 @@ class WelcomeController extends Controller
 {
     public function index()
     {
-        // Obtener todos los datos de motos activas
         $motos = Moto::where('estado', 'Activo')
             ->select('año', 'marca', 'modelo')
             ->orderBy('año', 'desc')
@@ -23,23 +22,18 @@ class WelcomeController extends Controller
             ->orderBy('modelo')
             ->get();
 
-        // Obtener años únicos
         $years = $motos->pluck('año')->unique()->values();
 
-        // Agrupar marcas y modelos por año
         $marcasPorAño = $motos->groupBy('año')->map(function($motosPorAño) {
             return $motosPorAño->pluck('marca')->unique()->values();
         });
 
-        // Agrupar modelos por año y marca
         $modelosPorAñoMarca = $motos->groupBy('año')->map(function($motosPorAño) {
             return $motosPorAño->groupBy('marca')->map(function($motosPorMarca) {
                 return $motosPorMarca->pluck('modelo')->values();
             });
         });
 
-
-        // Obtener todos los banners activos
         $banners = Banner::where('activo', true)
             ->orderBy('created_at', 'desc')
             ->get()
@@ -57,7 +51,6 @@ class WelcomeController extends Controller
                 ];
             });
 
-        // Obtener categorías principales activas con sus subcategorías para el menú
         $categoriasMenu = Categoria::with(['subcategorias' => function($query) {
             $query->where('estado', 'Activo');
         }])
@@ -79,7 +72,6 @@ class WelcomeController extends Controller
             ];
         });
 
-        // Obtener opiniones con sus respuestas y usuarios
         $opiniones = Opinion::with(['usuario', 'respuestas.usuario'])
             ->orderBy('created_at', 'desc')
             ->get()
@@ -116,11 +108,9 @@ class WelcomeController extends Controller
                 ];
             });
 
-        // Calcular promedio de calificaciones
         $promedioCalificacion = $opiniones->count() > 0 ? $opiniones->avg('calificacion') : 0;
         $totalOpiniones = $opiniones->count();
         
-        // Contar opiniones por calificación
         $conteoCalificaciones = [
             5 => $opiniones->where('calificacion', 5)->count(),
             4 => $opiniones->where('calificacion', 4)->count(),
@@ -129,7 +119,6 @@ class WelcomeController extends Controller
             1 => $opiniones->where('calificacion', 1)->count(),
         ];
 
-        // Obtener categorías de servicios y servicios para el menú
         $categoriasServicio = CategoriaServicio::where('estado', true)
             ->orderBy('orden')
             ->orderBy('nombre')
@@ -157,7 +146,6 @@ class WelcomeController extends Controller
                 ];
             });
 
-        // Obtener productos destacados, más vendidos y todos los productos
         $featuredProducts = Producto::where('estado', 'Activo')
             ->where('destacado', true)
             ->orderBy('created_at', 'desc')
