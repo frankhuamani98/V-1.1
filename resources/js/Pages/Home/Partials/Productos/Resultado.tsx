@@ -80,6 +80,10 @@ const formatPrice = (price: number): string => {
     return `S/${roundedPrice.toFixed(2)}`;
 };
 
+const handleImageUrl = (image: string): string => {
+  return image.startsWith('http') ? image : `/storage/${image}`;
+};
+
 const ProductCard = ({ product }: { product: Producto }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -141,9 +145,11 @@ const ProductCard = ({ product }: { product: Producto }) => {
   const getDiscountBadge = (discount: number) => {
     if (discount > 0) {
       return (
-        <Badge className="absolute top-2 left-2 z-10 bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white">
-          {discount}% OFF
-        </Badge>
+        <div className="absolute top-2 left-2 z-10">
+          <span className="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white px-2 py-1 rounded">
+            {discount}% OFF
+          </span>
+        </div>
       );
     }
     return null;
@@ -156,12 +162,11 @@ const ProductCard = ({ product }: { product: Producto }) => {
     if (product.descuento > 0) tags.push({ label: "Descuento", color: "bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700" });
 
     return tags.map((tag, index) => (
-      <Badge
-        key={index}
-        className={`absolute ${index === 0 ? 'top-2' : 'top-11'} left-2 z-10 ${tag.color} text-white`}
-      >
-        {tag.label}
-      </Badge>
+      <div key={index} className={`absolute ${index === 0 ? 'top-2' : 'top-11'} left-2 z-10`}>
+        <span className={`${tag.color} text-white px-2 py-1 rounded`}>
+          {tag.label}
+        </span>
+      </div>
     ));
   };
 
@@ -183,7 +188,7 @@ const ProductCard = ({ product }: { product: Producto }) => {
         {getDiscountBadge(product.descuento)}
         
         <img
-          src={imageError ? '/images/placeholder-product.png' : product.imagen_principal}
+          src={imageError ? '/images/placeholder-product.png' : handleImageUrl(product.imagen_principal)}
           alt={product.nombre}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           onError={() => setImageError(true)}

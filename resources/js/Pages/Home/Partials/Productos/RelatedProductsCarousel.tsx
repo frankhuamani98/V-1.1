@@ -37,6 +37,10 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
   const [progress, setProgress] = useState(0);
   const [autoplayInterval, setAutoplayInterval] = useState<NodeJS.Timeout | null>(null);
 
+  const handleImageUrl = (image: string): string => {
+    return image.startsWith('http') ? image : `/storage/${image}`;
+  };
+
   useEffect(() => {
     if (!api) return;
 
@@ -272,7 +276,7 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
 
                         <div className="overflow-hidden h-52 bg-muted/20">
                           <img
-                            src={product.image}
+                            src={handleImageUrl(product.image)}
                             alt={product.name}
                             className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                           />
