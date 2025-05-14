@@ -1,6 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useForm, usePage } from '@inertiajs/react';
 import { PageProps } from '@/types';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Minus,
+  Plus,
+  Trash2,
+  Image as ImageIcon,
+  Upload,
+  Star,
+  Check,
+} from 'lucide-react';
 
 interface FlashMessage {
   message?: string;
@@ -81,10 +92,10 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
   }, [data.categoria_id, categorias]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const { name, value, type } = e.target as HTMLInputElement;
-      const checked = type === 'checkbox' ? (e.target as HTMLInputElement).checked : undefined;
-  
-      setData(name as keyof typeof data, type === 'checkbox' ? checked ?? false : value);
+    const { name, value, type } = e.target as HTMLInputElement;
+    const checked = type === 'checkbox' ? (e.target as HTMLInputElement).checked : undefined;
+
+    setData(name as keyof typeof data, type === 'checkbox' ? checked ?? false : value);
   };
 
   const handlePrecioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,7 +126,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
 
   const agregarImagenAdicional = () => {
     const imagenesActuales = JSON.parse(data.imagenes_adicionales) as ImagenAdicional[];
-    
+
     if ((nuevaImagen.url || nuevaImagen.file) && imagenesActuales.length < 6) {
       const newImagen: Partial<ImagenAdicional> = {
         estilo: nuevaImagen.estilo,
@@ -127,7 +138,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
           if (e.target?.result) {
             newImagen.file = e.target.result as string;
             newImagen.url = '';
-            
+
             setData('imagenes_adicionales', JSON.stringify([...imagenesActuales, newImagen as ImagenAdicional]));
             setNuevaImagen({ url: '', estilo: '', file: null });
           }
@@ -151,7 +162,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
     const newMotoIds = data.moto_ids.includes(motoId)
       ? data.moto_ids.filter(id => id !== motoId)
       : [...data.moto_ids, motoId];
-    
+
     setSelectAllMotos(newMotoIds.length === motos.length);
     setData('moto_ids', newMotoIds);
   };
@@ -181,7 +192,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setProcessing(true);
-    
+
     post(route('productos.store'), {
       onSuccess: () => {
         resetForm();
@@ -195,46 +206,64 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
   return (
     <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
       {flash?.message && (
-        <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+        <div className="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded shadow">
           {flash?.message}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-white shadow rounded-lg p-6">
-        <div className="flex border-b border-gray-200 mb-6">
+      <form onSubmit={handleSubmit} className="bg-white shadow-lg rounded-lg p-6">
+        <div className="flex border-b border-gray-200 mb-6 bg-gray-100 rounded-lg p-1">
           <button
             type="button"
             onClick={() => setActiveTab('informacion')}
-            className={`py-2 px-4 font-medium text-sm ${activeTab === 'informacion' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+            className={`py-2 px-4 font-medium text-sm ${activeTab === 'informacion' ? 'text-blue-600 border-b-2 border-blue-600 bg-white rounded-lg' : 'text-gray-500 hover:text-gray-700 bg-gray-100 rounded-lg'}`}
           >
-            Información
+            <div className="flex items-center">
+              <svg className="h-5 w-5 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Información
+            </div>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('precios')}
-            className={`py-2 px-4 font-medium text-sm ${activeTab === 'precios' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+            className={`py-2 px-4 font-medium text-sm ${activeTab === 'precios' ? 'text-blue-600 border-b-2 border-blue-600 bg-white rounded-lg' : 'text-gray-500 hover:text-gray-700 bg-gray-100 rounded-lg'}`}
           >
-            Precios
+            <div className="flex items-center">
+              <svg className="h-5 w-5 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c1.654 0 3-1.346 3-3s-1.346-3-3-3-3 1.346-3 3 1.346 3 3 3zm0 2c-2.21 0-4 1.79-4 4v1h8v-1c0-2.21-1.79-4-4-4zm0 8c-2.21 0-4 1.79-4 4h8c0-2.21-1.79-4-4-4z" />
+              </svg>
+              Precios
+            </div>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('imagenes')}
-            className={`py-2 px-4 font-medium text-sm ${activeTab === 'imagenes' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+            className={`py-2 px-4 font-medium text-sm ${activeTab === 'imagenes' ? 'text-blue-600 border-b-2 border-blue-600 bg-white rounded-lg' : 'text-gray-500 hover:text-gray-700 bg-gray-100 rounded-lg'}`}
           >
-            Imágenes
+            <div className="flex items-center">
+              <ImageIcon className="h-5 w-5 mr-1" />
+              Imágenes
+            </div>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('categorias')}
-            className={`py-2 px-4 font-medium text-sm ${activeTab === 'categorias' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+            className={`py-2 px-4 font-medium text-sm ${activeTab === 'categorias' ? 'text-blue-600 border-b-2 border-blue-600 bg-white rounded-lg' : 'text-gray-500 hover:text-gray-700 bg-gray-100 rounded-lg'}`}
           >
-            Categorías
+            <div className="flex items-center">
+              <svg className="h-5 w-5 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              Categorías
+            </div>
           </button>
         </div>
         {activeTab === 'informacion' && (
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-900">Información Básica</h2>
-            
+
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Código del Producto*</label>
@@ -242,7 +271,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                   name="codigo"
                   value={data.codigo}
                   onChange={handleInputChange}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
                   required
                 />
                 {errors.codigo && <p className="mt-1 text-sm text-red-600">{errors.codigo}</p>}
@@ -254,7 +283,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                   name="nombre"
                   value={data.nombre}
                   onChange={handleInputChange}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
                   required
                 />
                 {errors.nombre && <p className="mt-1 text-sm text-red-600">{errors.nombre}</p>}
@@ -268,7 +297,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                 value={data.descripcion_corta}
                 onChange={handleInputChange}
                 maxLength={150}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
                 rows={3}
                 required
               />
@@ -284,7 +313,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                 name="detalles"
                 value={data.detalles}
                 onChange={handleInputChange}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
                 rows={5}
               />
               {errors.detalles && <p className="mt-1 text-sm text-red-600">{errors.detalles}</p>}
@@ -295,13 +324,17 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Calificación</label>
                 <div className="flex">
                   {[1, 2, 3, 4, 5].map((star) => (
-                    <button 
-                      key={star} 
+                    <button
+                      key={star}
                       type="button"
                       onClick={() => setData('calificacion', star)}
                       className="text-2xl focus:outline-none"
                     >
-                      {star <= data.calificacion ? '★' : '☆'}
+                      {star <= data.calificacion ? (
+                        <Star className="h-6 w-6 text-yellow-400 fill-current" />
+                      ) : (
+                        <Star className="h-6 w-6 text-gray-300" />
+                      )}
                     </button>
                   ))}
                 </div>
@@ -337,6 +370,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Siguiente
+                <ChevronRight className="h-5 w-5 ml-1" />
               </button>
             </div>
           </div>
@@ -345,7 +379,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
         {activeTab === 'precios' && (
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-900">Precios y Stock</h2>
-            
+
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Precio (S/.)*</label>
@@ -357,7 +391,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                     name="precio"
                     value={data.precio}
                     onChange={handlePrecioChange}
-                    className="block w-full pl-10 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    className="block w-full pl-10 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
                     required
                   />
                 </div>
@@ -373,7 +407,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                   onChange={handleInputChange}
                   min="0"
                   max="100"
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
                 />
                 {errors.descuento && <p className="mt-1 text-sm text-red-600">{errors.descuento}</p>}
               </div>
@@ -397,21 +431,17 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                 <button
                   type="button"
                   onClick={() => setData('stock', Math.max(0, data.stock - 1))}
-                  className="inline-flex items-center p-1 border border-gray-300 rounded-full shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="inline-flex items-center p-2 border border-gray-300 rounded-full shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
-                  <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
-                  </svg>
+                  <Minus className="h-5 w-5" />
                 </button>
                 <span className="text-lg font-medium">{data.stock}</span>
                 <button
                   type="button"
                   onClick={() => setData('stock', data.stock + 1)}
-                  className="inline-flex items-center p-1 border border-gray-300 rounded-full shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="inline-flex items-center p-2 border border-gray-300 rounded-full shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
-                  <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                  </svg>
+                  <Plus className="h-5 w-5" />
                 </button>
               </div>
               {errors.stock && <p className="mt-1 text-sm text-red-600">{errors.stock}</p>}
@@ -423,6 +453,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                 onClick={prevStep}
                 className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
+                <ChevronLeft className="h-5 w-5 mr-1" />
                 Anterior
               </button>
               <button
@@ -431,6 +462,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Siguiente
+                <ChevronRight className="h-5 w-5 ml-1" />
               </button>
             </div>
           </div>
@@ -439,10 +471,10 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
         {activeTab === 'imagenes' && (
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-900">Imágenes del Producto</h2>
-            
+
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900">Imagen Principal*</h3>
-              
+
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Subir por URL:</label>
@@ -451,11 +483,11 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                     value={data.imagen_principal}
                     onChange={(e) => setData('imagen_principal', e.target.value)}
                     placeholder="https://ejemplo.com/imagen.jpg"
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
                   />
                   {errors.imagen_principal && <p className="mt-1 text-sm text-red-600">{errors.imagen_principal}</p>}
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Subir archivo:</label>
                   <input
@@ -475,7 +507,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
 
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900">Imágenes Adicionales (Máx. 6)</h3>
-              
+
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Subir por URL:</label>
@@ -484,10 +516,10 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                     value={nuevaImagen.url}
                     onChange={(e) => setNuevaImagen(prev => ({ ...prev, url: e.target.value }))}
                     placeholder="https://ejemplo.com/imagen.jpg"
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Subir archivo:</label>
                   <input
@@ -501,7 +533,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                     className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Estilo/Variante (opcional)</label>
                   <input
@@ -509,17 +541,18 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                     value={nuevaImagen.estilo}
                     onChange={(e) => setNuevaImagen(prev => ({ ...prev, estilo: e.target.value }))}
                     placeholder="Ej: Color Rojo"
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
                   />
                 </div>
               </div>
-              
-              <button 
-                type="button" 
+
+              <button
+                type="button"
                 onClick={agregarImagenAdicional}
                 disabled={!nuevaImagen.url && !nuevaImagen.file}
                 className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
+                <Upload className="h-5 w-5 mr-1" />
                 Agregar Imagen
               </button>
             </div>
@@ -528,7 +561,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
               <h4 className="text-md font-medium text-gray-900">Imágenes Agregadas:</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 {JSON.parse(data.imagenes_adicionales).map((img: ImagenAdicional, index: number) => (
-                  <div key={index} className="flex items-center justify-between p-2 border rounded-md">
+                  <div key={index} className="flex items-center justify-between p-2 border rounded-md bg-gray-50">
                     <div className="truncate">
                       <span className="text-sm">{img.url || (img.file ? 'Imagen subida' : 'Imagen')}</span>
                       {img.estilo && <span className="text-xs text-gray-500"> - {img.estilo}</span>}
@@ -538,9 +571,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                       onClick={() => eliminarImagenAdicional(index)}
                       className="ml-2 text-red-600 hover:text-red-800"
                     >
-                      <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                      </svg>
+                      <Trash2 className="h-5 w-5" />
                     </button>
                   </div>
                 ))}
@@ -557,6 +588,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                 onClick={prevStep}
                 className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
+                <ChevronLeft className="h-5 w-5 mr-1" />
                 Anterior
               </button>
               <button
@@ -565,6 +597,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Siguiente
+                <ChevronRight className="h-5 w-5 ml-1" />
               </button>
             </div>
           </div>
@@ -573,14 +606,14 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
         {activeTab === 'categorias' && (
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-900">Categorías y Motos Compatibles</h2>
-            
+
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Categoría*</label>
                 <select
                   value={data.categoria_id}
                   onChange={(e) => setData('categoria_id', e.target.value)}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
                   required
                 >
                   <option value="">Seleccione una categoría</option>
@@ -597,7 +630,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                   value={data.subcategoria_id}
                   onChange={(e) => setData('subcategoria_id', e.target.value)}
                   disabled={!data.categoria_id}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 disabled:bg-gray-50 disabled:text-gray-500"
                   required
                 >
                   <option value="">Seleccione una subcategoría</option>
@@ -611,7 +644,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
 
             <div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">Motos Compatibles</h3>
-              
+
               <div className="mb-4">
                 <label className="inline-flex items-center">
                   <input
@@ -623,10 +656,10 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                   <span className="ml-2 text-sm text-gray-700">Seleccionar todas las motos</span>
                 </label>
               </div>
-              
-              <div className="max-h-60 overflow-y-auto border rounded-md p-2">
+
+              <div className="max-h-60 overflow-y-auto border rounded-md p-2 bg-gray-50">
                 {motos.map(moto => (
-                  <div key={moto.id} className="flex items-center p-1 hover:bg-gray-50">
+                  <div key={moto.id} className="flex items-center p-1 hover:bg-gray-100">
                     <input
                       type="checkbox"
                       id={`moto-${moto.id}`}
@@ -650,6 +683,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                 onClick={prevStep}
                 className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
+                <ChevronLeft className="h-5 w-5 mr-1" />
                 Anterior
               </button>
               <button
@@ -665,7 +699,12 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                     </svg>
                     Guardando...
                   </>
-                ) : 'Guardar Producto'}
+                ) : (
+                  <>
+                    <Check className="h-5 w-5 mr-1" />
+                    Guardar Producto
+                  </>
+                )}
               </button>
             </div>
           </div>

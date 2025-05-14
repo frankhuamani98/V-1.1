@@ -141,8 +141,8 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
   const handleCancel = (field: string) => {
     setEditableFields(prev => ({
       ...prev,
-      [field]: { 
-        ...prev[field], 
+      [field]: {
+        ...prev[field],
         isEditing: false,
         value: user?.[field as keyof typeof user] || ""
       }
@@ -163,12 +163,12 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
       const response = await axios.patch('/api/profile', {
         [field]: editableFields[field].value
       });
-      
+
       setEditableFields(prev => ({
         ...prev,
         [field]: { ...prev[field], isEditing: false }
       }));
-      
+
       toast.success("Información actualizada correctamente");
     } catch (error: any) {
       if (error.response?.data?.errors?.username) {
@@ -201,7 +201,7 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
     const newValue = e.target.value;
     setNewPassword(newValue);
     validatePassword(newValue);
-    
+
     if (confirmPassword) {
       setConfirmPasswordError(
         newValue !== confirmPassword ? "Las contraseñas no coinciden" : ""
@@ -257,7 +257,7 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
         new_password: newPassword,
         new_password_confirmation: confirmPassword
       });
-      
+
       toast.success("¡Contraseña actualizada!", {
         description: "Tu contraseña ha sido actualizada exitosamente. Los cambios se aplicarán en tu próximo inicio de sesión.",
         duration: 5000,
@@ -266,7 +266,7 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
           onClick: () => {}
         }
       });
-      
+
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
@@ -311,7 +311,19 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
 
   const EditableField = ({ field, label, icon }: { field: string; label: string; icon: React.ReactNode }) => {
     const fieldData = editableFields[field];
-    
+
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value;
+      // Solo permite números
+      if (field === 'phone' && !/^\d*$/.test(newValue)) {
+        return;
+      }
+      setEditableFields(prev => ({
+        ...prev,
+        [field]: { ...prev[field], value: newValue }
+      }));
+    };
+
     return (
       <div className="group relative flex items-start space-x-4 py-4 hover:bg-gray-50 rounded-lg px-4 -mx-4 transition-colors">
         <div className="flex-shrink-0 mt-1">
@@ -338,12 +350,13 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
               <div className="flex items-center space-x-2">
                 <Input
                   value={fieldData.value}
-                  onChange={field === 'username' ? handleUsernameChange : (e) => setEditableFields(prev => ({
+                  onChange={field === 'username' ? handleUsernameChange : field === 'phone' ? handlePhoneChange : (e) => setEditableFields(prev => ({
                     ...prev,
                     [field]: { ...prev[field], value: e.target.value }
                   }))}
                   className={`flex-1 ${usernameError && field === 'username' ? 'border-red-500 focus:ring-red-500' : ''}`}
                   autoFocus
+                  type={field === 'phone' ? 'tel' : 'text'}
                 />
                 <div className="flex items-center space-x-1">
                   <Button
@@ -433,7 +446,7 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
                 <Badge variant="outline" className="mb-6 bg-black text-white">
                   Usuario Registrado
                 </Badge>
-                
+
                 <div className="w-full space-y-4">
                   <div className="flex items-center text-sm">
                     <User className="w-4 h-4 mr-3 text-muted-foreground" />
@@ -455,6 +468,7 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
               </div>
             </div>
 
+            {/* Main content */}
             <div className="flex-1 overflow-y-auto">
               <DialogHeader className="p-6 bg-white dark:bg-gray-800 border-b sticky top-0 z-10">
                 <div className="flex items-center justify-between">
@@ -485,9 +499,9 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
                   <TabsContent value="personal" className="focus:outline-none">
                     <div className="space-y-1">
                       <h3 className="text-lg font-semibold">Información Básica</h3>
-                      
+
                     </div>
-                    
+
                     <div className="mt-6 space-y-1">
                       <EditableField
                         field="username"
@@ -514,9 +528,9 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
                         value={user?.email || ""}
                         icon={<Mail className="h-5 w-5 text-primary/60" />}
                       />
-                      
+
                       <Separator className="my-6" />
-                      
+
                       <div className="space-y-1 mb-6">
                         <h3 className="text-lg font-semibold">Información de Contacto</h3>
                         <p className="text-sm text-muted-foreground">
@@ -638,9 +652,9 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
                         <Button
                           onClick={handlePasswordChange}
                           disabled={
-                            isChangingPassword || 
-                            !currentPassword || 
-                            !newPassword || 
+                            isChangingPassword ||
+                            !currentPassword ||
+                            !newPassword ||
                             !confirmPassword ||
                             !!confirmPasswordError ||
                             !Object.values(passwordValidation).every(Boolean)
@@ -659,7 +673,7 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
                       </div>
                     </div>
                   </TabsContent>
-                  
+
                   <TabsContent value="preferences" className="space-y-6">
                     <div>
                       <h3 className="text-lg font-semibold mb-4 flex items-center">
@@ -669,7 +683,7 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
                       <p className="text-muted-foreground text-sm">
                         Las preferencias de usuario estarán disponibles próximamente.
                       </p>
-                      
+
                     </div>
                   </TabsContent>
                 </Tabs>
