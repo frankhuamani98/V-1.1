@@ -12,7 +12,7 @@ use App\Http\Controllers\Soporte\{ManualUsuarioController, SoporteTecnicoControl
 use App\Http\Controllers\Opinion\{OpinionController, DashboardOpinionController};
 use App\Http\Controllers\Banners\{SubirBannersController, HistorialBannersController};
 use App\Http\Controllers\Pedidos\{EstadoPedidosController, NuevosPedidosController, PedidosFinalizadosController, HistorialPedidosController};
-use App\Http\Controllers\Categorias\{CategoriasPrincipalesController, SubcategoriasController, ListaCategoriasController};
+use App\Http\Controllers\Categorias\{CategoriasPrincipalesController, SubcategoriasController, ListaCategoriasController, CategoriaPublicaController};
 use App\Http\Controllers\Contacto\ContactoController;
 use App\Http\Controllers\Auth\ProfileController;
 
@@ -20,6 +20,12 @@ use App\Http\Controllers\Auth\ProfileController;
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
 Route::get('/resultados', [ResultadosController::class, 'index'])->name('resultados');
 Route::get('/details/{id}', [DetalleProductoController::class, 'show'])->name('productos.detalles');
+
+// Rutas para categorias públicas
+Route::get('/categorias', [CategoriaPublicaController::class, 'index'])->name('categorias.index');
+Route::get('/categorias/{categoria}', [CategoriaPublicaController::class, 'show'])
+    ->name('categorias.show')
+    ->where('categoria', '[0-9]+');
 
 // Rutas para servicios públicos
 Route::prefix('servicios')->name('servicios.publico.')->group(function () {

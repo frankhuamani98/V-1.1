@@ -277,9 +277,9 @@ export default function Header() {
   }
 
   const productosCategory: Category = {
-    title: "Productos",
-    href: "#",
-    description: "Estos son nuestros productos más relevantes",
+    title: "Categorías",
+    href: "/categorias",
+    description: "Explora nuestros productos y accesorios para motos",
     icon: <PackageIcon className="mr-2 h-4 w-4" />,
     subcategories: [
       ...(Array.isArray(categoriasMenu)
@@ -287,10 +287,10 @@ export default function Header() {
             .slice(0, 6)
             .map((categoria: { nombre: string; id: number }) => ({
               name: categoria.nombre,
-              href: `/productos/categoria/${categoria.id}`,
+              href: `/categorias/${categoria.id}`,
             }))
         : []),
-      { name: "Ver más", href: "/productos" }
+      { name: "Ver todas las categorías", href: "/categorias" }
     ]
   };
 
