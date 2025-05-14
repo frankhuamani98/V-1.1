@@ -5,6 +5,16 @@ import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/Components/ui/alert-dialog';
 import { 
   Bike as Motorcycle, 
   BadgeCheck, 
@@ -16,7 +26,11 @@ import {
   Search,
   Edit,
   Trash,
-  CalendarClock
+  CalendarClock,
+  Filter,
+  X,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 interface Moto {
@@ -42,6 +56,13 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
 
     const [isEditing, setIsEditing] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [showForm, setShowForm] = useState(false);
+    const [filterEstado, setFilterEstado] = useState<string | null>(null);
+    const [page, setPage] = useState(1);
+    const itemsPerPage = 12;
+    
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [motoToDelete, setMotoToDelete] = useState<number | null>(null);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -49,12 +70,14 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
             put(`/motos/registro/${data.id}`, {
                 onSuccess: () => {
                     resetForm();
+                    setShowForm(false);
                 },
             });
         } else {
             post('/motos/registro', {
                 onSuccess: () => {
                     resetForm();
+                    setShowForm(false);
                 },
             });
         }
@@ -69,14 +92,22 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
             estado: moto.estado,
         });
         setIsEditing(true);
+        setShowForm(true);
         document.getElementById('registro-form')?.scrollIntoView({ behavior: 'smooth' });
     };
 
     const handleDelete = (id: number) => {
-        if (confirm('¿Estás seguro de que deseas eliminar esta moto?')) {
-            destroy(`/motos/registro/${id}`, {
+        setMotoToDelete(id);
+        setDeleteDialogOpen(true);
+    };
+    
+    const confirmDelete = () => {
+        if (motoToDelete) {
+            destroy(`/motos/registro/${motoToDelete}`, {
                 onSuccess: () => {
                     resetForm();
+                    setDeleteDialogOpen(false);
+                    setMotoToDelete(null);
                 },
             });
         }
@@ -93,247 +124,398 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
         setIsEditing(false);
     };
 
-    const filteredMotos = motos.filter(moto => 
-        moto.marca.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        moto.modelo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        moto.año.toString().includes(searchTerm)
-    );
+    const filteredMotos = motos.filter(moto => {
+        const matchesSearch = 
+            moto.marca.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            moto.modelo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            moto.año.toString().includes(searchTerm);
+            
+        const matchesEstado = filterEstado ? moto.estado === filterEstado : true;
+        
+        return matchesSearch && matchesEstado;
+    });
+
+    const totalPages = Math.ceil(filteredMotos.length / itemsPerPage);
+    const startIndex = (page - 1) * itemsPerPage;
+    const paginatedMotos = filteredMotos.slice(startIndex, startIndex + itemsPerPage);
+
+    const changePage = (newPage: number) => {
+        if (newPage > 0 && newPage <= totalPages) {
+            setPage(newPage);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br to-indigo-50 p-6">
+        <div className="min-h-screen p-4 sm:p-6">
+            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <AlertDialogContent className="rounded-lg border-0 shadow-lg max-w-[95vw] sm:max-w-md">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="text-lg font-medium">Confirmar eliminación</AlertDialogTitle>
+                        <AlertDialogDescription className="text-slate-500">
+                            ¿Estás seguro de que deseas eliminar esta motocicleta? Esta acción no se puede deshacer.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="gap-2 flex-col sm:flex-row">
+                        <AlertDialogCancel 
+                            onClick={() => setMotoToDelete(null)}
+                            className="w-full sm:w-auto border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-slate-800"
+                        >
+                            Cancelar
+                        </AlertDialogCancel>
+                        <AlertDialogAction 
+                            onClick={confirmDelete}
+                            className="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white"
+                        >
+                            Eliminar
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
             <div className="max-w-7xl mx-auto">
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-800 flex items-center">
-                        <Motorcycle className="w-8 h-8 text-blue-600 mr-3" />
-                        Sistema de Gestión de Motocicletas
+                <div className="mb-6 sm:mb-8">
+                    <h1 className="text-2xl sm:text-3xl font-semibold text-slate-800 flex items-center">
+                        <Motorcycle className="w-6 h-6 sm:w-7 sm:h-7 text-indigo-500 mr-2 sm:mr-3" />
+                        Gestión de Motocicletas
                     </h1>
-                    <p className="text-gray-600 mt-2">Administre su inventario de motocicletas de manera eficiente</p>
+                    <p className="text-sm sm:text-base text-slate-500 mt-1 pl-8 sm:pl-10">Sistema de administración de inventario</p>
                 </div>
                 
-                <Card id="registro-form" className="shadow-xl border-t-4 border-t-blue-600 mb-10 transition-all duration-300 hover:shadow-2xl">
-                    <CardHeader className="bg-white rounded-t-lg border-b bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-                        <div className="flex items-center space-x-3">
-                            <div className="bg-white p-2 rounded-full">
-                                {isEditing ? (
-                                    <Edit className="w-6 h-6 text-blue-600" />
+                <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 sm:p-5 mb-6 sm:mb-8">
+                    <div className="flex flex-col sm:flex-row justify-between gap-4">
+                        <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+                            <Button 
+                                onClick={() => {
+                                    resetForm();
+                                    setShowForm(!showForm);
+                                    setIsEditing(false);
+                                }}
+                                className={`${showForm 
+                                    ? 'bg-slate-200 text-slate-700 hover:bg-slate-300 hover:text-slate-800' 
+                                    : 'bg-indigo-500 hover:bg-indigo-600 text-white'
+                                } px-3 sm:px-4 py-2 h-auto text-xs sm:text-sm rounded-lg transition-all duration-200`}
+                            >
+                                {showForm ? (
+                                    <>
+                                        <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+                                        Cerrar
+                                    </>
                                 ) : (
-                                    <Plus className="w-6 h-6 text-blue-600" />
+                                    <>
+                                        <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+                                        Nueva motocicleta
+                                    </>
                                 )}
+                            </Button>
+                            
+                            <div className="flex items-center text-xs sm:text-sm bg-slate-100 py-1.5 px-2 sm:px-3 rounded-lg">
+                                <span className="text-slate-500 mr-1 sm:mr-1.5">Total:</span>
+                                <span className="font-medium text-slate-800">{motos.length}</span>
                             </div>
-                            <CardTitle className="text-2xl font-bold">
-                                {isEditing ? 'Editar Motocicleta' : 'Registrar Nueva Motocicleta'}
-                            </CardTitle>
                         </div>
-                    </CardHeader>
-                    <CardContent className="p-8">
-                        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <Label htmlFor="año" className="text-sm font-medium text-gray-700 flex items-center">
-                                    <CalendarClock className="w-4 h-4 mr-2 text-blue-500" />
-                                    Año
-                                </Label>
-                                <Input
-                                    id="año"
-                                    type="number"
-                                    value={data.año}
-                                    onChange={(e) => setData('año', e.target.value)}
-                                    placeholder="Ingrese el año de la moto"
-                                    className="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
-                                    required
-                                />
-                                {errors.año && <p className="text-sm text-red-500">{errors.año}</p>}
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="modelo" className="text-sm font-medium text-gray-700 flex items-center">
-                                    <Tag className="w-4 h-4 mr-2 text-blue-500" />
-                                    Modelo
-                                </Label>
-                                <Input
-                                    id="modelo"
-                                    value={data.modelo}
-                                    onChange={(e) => setData('modelo', e.target.value)}
-                                    placeholder="Ingrese el modelo de la moto"
-                                    className="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
-                                    required
-                                />
-                                {errors.modelo && <p className="text-sm text-red-500">{errors.modelo}</p>}
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="marca" className="text-sm font-medium text-gray-700 flex items-center">
-                                    <BoxIcon className="w-4 h-4 mr-2 text-blue-500" />
-                                    Marca
-                                </Label>
-                                <Input
-                                    id="marca"
-                                    value={data.marca}
-                                    onChange={(e) => setData('marca', e.target.value)}
-                                    placeholder="Ingrese la marca de la moto"
-                                    className="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
-                                    required
-                                />
-                                {errors.marca && <p className="text-sm text-red-500">{errors.marca}</p>}
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="estado" className="text-sm font-medium text-gray-700 flex items-center">
-                                    <BadgeCheck className="w-4 h-4 mr-2 text-blue-500" />
-                                    Estado
-                                </Label>
-                                <Select
-                                    value={data.estado}
-                                    onValueChange={(value) => setData('estado', value)}
-                                >
-                                    <SelectTrigger className="w-full border-gray-300 rounded-lg">
-                                        <SelectValue placeholder="Seleccione un estado" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Activo">Activo</SelectItem>
-                                        <SelectItem value="Inactivo">Inactivo</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                {errors.estado && <p className="text-sm text-red-500">{errors.estado}</p>}
-                            </div>
-                            <div className="md:col-span-2 flex flex-wrap gap-3">
-                                <Button
-                                    type="submit"
-                                    disabled={processing}
-                                    className={`flex items-center space-x-2 ${isEditing ? 
-                                        'bg-amber-500 hover:bg-amber-600' : 
-                                        'bg-blue-600 hover:bg-blue-700'} 
-                                        text-white px-6 py-2 rounded-lg transition-colors duration-200`}
-                                >
-                                    {isEditing ? (
-                                        <Edit className="w-5 h-5" />
-                                    ) : (
-                                        <Plus className="w-5 h-5" />
-                                    )}
-                                    <span>
-                                    {processing ? (
-                                        isEditing ? 'Actualizando...' : 'Registrando...'
-                                    ) : (
-                                        isEditing ? 'Actualizar Motocicleta' : 'Registrar Motocicleta'
-                                    )}
-                                    </span>
-                                </Button>
-                                {isEditing && (
-                                    <Button
-                                        type="button"
-                                        onClick={resetForm}
-                                        className="flex items-center space-x-2 bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors duration-200"
-                                    >
-                                        <span>Cancelar Edición</span>
-                                    </Button>
-                                )}
-                            </div>
-                        </form>
-                    </CardContent>
-                </Card>
 
-                <Card className="shadow-xl border-t-4 border-t-indigo-600">
-                    <CardHeader className="bg-white rounded-t-lg border-b bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-6">
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div className="flex items-center space-x-3">
-                                <div className="bg-white p-2 rounded-full">
-                                    <Motorcycle className="w-6 h-6 text-indigo-600" />
-                                </div>
-                                <CardTitle className="text-2xl font-bold">
-                                    Inventario de Motocicletas
-                                </CardTitle>
-                                <div className="px-3 py-1 bg-white text-indigo-700 rounded-full font-medium text-sm">
-                                    {filteredMotos.length} {filteredMotos.length === 1 ? 'Moto' : 'Motos'}
-                                </div>
-                            </div>
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <div className="flex flex-wrap gap-2 sm:gap-3 mt-2 sm:mt-0">
+                            <div className="relative flex-1 sm:w-64 sm:flex-none">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                 <Input
                                     placeholder="Buscar motocicletas..."
-                                    className="pl-10 pr-4 py-2 bg-white text-gray-800 rounded-lg border-none w-full md:w-64"
+                                    className="pl-9 w-full bg-white text-xs sm:text-sm rounded-lg border-slate-200 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onChange={(e) => {
+                                        setSearchTerm(e.target.value);
+                                        setPage(1);
+                                    }}
                                 />
                             </div>
+                            
+                            <Select
+                                value={filterEstado || "todos"}
+                                onValueChange={(value) => {
+                                    setFilterEstado(value === "todos" ? null : value);
+                                    setPage(1);
+                                }}
+                            >
+                                <SelectTrigger className="min-w-[120px] w-auto sm:w-40 text-xs sm:text-sm bg-white rounded-lg border-slate-200 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                    <div className="flex items-center">
+                                        <Filter className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1.5 sm:mr-2 text-slate-400" />
+                                        {filterEstado || "Todos"}
+                                    </div>
+                                </SelectTrigger>
+                                <SelectContent className="rounded-lg border-slate-200 shadow-lg">
+                                    <SelectItem value="todos">Todos los estados</SelectItem>
+                                    <SelectItem value="Activo">Activo</SelectItem>
+                                    <SelectItem value="Inactivo">Inactivo</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                        {filteredMotos.length === 0 ? (
-                            <div className="text-center py-10">
-                                <Motorcycle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                                <h3 className="text-xl font-medium text-gray-500">No hay motocicletas</h3>
-                                <p className="text-gray-400 mt-2">
-                                    {searchTerm ? 'No se encontraron resultados para tu búsqueda' : 'Agrega una motocicleta para comenzar'}
-                                </p>
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {filteredMotos.map((moto) => (
-                                    <div
-                                        key={moto.id}
-                                        className="bg-white rounded-xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1"
+                    </div>
+                </div>
+                
+                {showForm && (
+                    <Card id="registro-form" className="mb-6 sm:mb-8 bg-white border-0 rounded-xl overflow-hidden shadow-sm">
+                        <CardHeader className="bg-gradient-to-r from-indigo-50 to-white border-b border-slate-100 p-4 sm:p-5">
+                            <CardTitle className="text-base sm:text-lg font-medium text-slate-800 flex items-center gap-2">
+                                {isEditing ? (
+                                    <>
+                                        <Edit className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
+                                        Editar Motocicleta
+                                    </>
+                                ) : (
+                                    <>
+                                        <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500" />
+                                        Nueva Motocicleta
+                                    </>
+                                )}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-4 sm:p-6 bg-white">
+                            <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                                <div>
+                                    <Label htmlFor="año" className="text-xs sm:text-sm font-medium text-slate-700 block mb-1 sm:mb-1.5">
+                                        Año
+                                    </Label>
+                                    <div className="relative">
+                                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                                            <CalendarClock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                        </span>
+                                        <Input
+                                            id="año"
+                                            type="number"
+                                            value={data.año}
+                                            onChange={(e) => setData('año', e.target.value)}
+                                            placeholder="Año"
+                                            className="text-xs sm:text-sm pl-9 sm:pl-10 rounded-lg border-slate-200 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                            required
+                                        />
+                                    </div>
+                                    {errors.año && <p className="text-xs text-red-500 mt-1 sm:mt-1.5">{errors.año}</p>}
+                                </div>
+                                
+                                <div>
+                                    <Label htmlFor="marca" className="text-xs sm:text-sm font-medium text-slate-700 block mb-1 sm:mb-1.5">
+                                        Marca
+                                    </Label>
+                                    <div className="relative">
+                                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                                            <BoxIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                        </span>
+                                        <Input
+                                            id="marca"
+                                            value={data.marca}
+                                            onChange={(e) => setData('marca', e.target.value)}
+                                            placeholder="Marca"
+                                            className="text-xs sm:text-sm pl-9 sm:pl-10 rounded-lg border-slate-200 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                            required
+                                        />
+                                    </div>
+                                    {errors.marca && <p className="text-xs text-red-500 mt-1 sm:mt-1.5">{errors.marca}</p>}
+                                </div>
+                                
+                                <div>
+                                    <Label htmlFor="modelo" className="text-xs sm:text-sm font-medium text-slate-700 block mb-1 sm:mb-1.5">
+                                        Modelo
+                                    </Label>
+                                    <div className="relative">
+                                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                                            <Tag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                        </span>
+                                        <Input
+                                            id="modelo"
+                                            value={data.modelo}
+                                            onChange={(e) => setData('modelo', e.target.value)}
+                                            placeholder="Modelo"
+                                            className="text-xs sm:text-sm pl-9 sm:pl-10 rounded-lg border-slate-200 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                            required
+                                        />
+                                    </div>
+                                    {errors.modelo && <p className="text-xs text-red-500 mt-1 sm:mt-1.5">{errors.modelo}</p>}
+                                </div>
+                                
+                                <div>
+                                    <Label htmlFor="estado" className="text-xs sm:text-sm font-medium text-slate-700 block mb-1 sm:mb-1.5">
+                                        Estado
+                                    </Label>
+                                    <Select
+                                        value={data.estado}
+                                        onValueChange={(value) => setData('estado', value)}
                                     >
-                                        <div className={`bg-gradient-to-r ${
-                                            moto.estado === 'Activo'
-                                                ? 'from-blue-500 to-indigo-600'
-                                                : 'from-gray-500 to-gray-600'
-                                        } p-6`}>
-                                            <div className="flex justify-between items-center">
-                                                <h3 className="text-xl font-bold text-white">{moto.marca}</h3>
-                                                <div className={`flex items-center px-3 py-1 rounded-full ${
-                                                    moto.estado === 'Activo'
-                                                        ? 'bg-green-400 text-white'
-                                                        : 'bg-gray-400 text-white'
-                                                }`}>
-                                                    {moto.estado === 'Activo' ? (
-                                                        <BadgeCheck className="w-4 h-4 mr-1" />
-                                                    ) : (
-                                                        <AlertCircle className="w-4 h-4 mr-1" />
-                                                    )}
-                                                    <span className="text-sm font-medium">{moto.estado}</span>
-                                                </div>
+                                        <SelectTrigger className="text-xs sm:text-sm w-full rounded-lg border-slate-200 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                            <SelectValue placeholder="Seleccione un estado" />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-lg border-slate-200 shadow-lg">
+                                            <SelectItem value="Activo">Activo</SelectItem>
+                                            <SelectItem value="Inactivo">Inactivo</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.estado && <p className="text-xs text-red-500 mt-1 sm:mt-1.5">{errors.estado}</p>}
+                                </div>
+                                
+                                <div className="sm:col-span-2 lg:col-span-4 flex flex-col xs:flex-row gap-3 mt-2">
+                                    <Button
+                                        type="submit"
+                                        disabled={processing}
+                                        className={`${isEditing 
+                                            ? 'bg-amber-500 hover:bg-amber-600' 
+                                            : 'bg-indigo-500 hover:bg-indigo-600'
+                                        } w-full xs:w-auto rounded-lg px-4 sm:px-6 py-2 h-auto text-xs sm:text-sm transition-colors duration-200`}
+                                    >
+                                        {processing ? (
+                                            isEditing ? 'Actualizando...' : 'Registrando...'
+                                        ) : (
+                                            isEditing ? 'Actualizar' : 'Registrar'
+                                        )}
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        onClick={() => {
+                                            resetForm();
+                                            setShowForm(false);
+                                        }}
+                                        variant="outline"
+                                        className="w-full xs:w-auto rounded-lg border-slate-200 hover:bg-slate-100 text-slate-700 px-4 sm:px-6 py-2 h-auto text-xs sm:text-sm"
+                                    >
+                                        Cancelar
+                                    </Button>
+                                </div>
+                            </form>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {filteredMotos.length === 0 ? (
+                    <Card className="border-0 border-dashed border-slate-200 bg-white p-6 sm:p-10 rounded-xl shadow-sm">
+                        <div className="text-center">
+                            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                                <Motorcycle className="w-6 h-6 sm:w-8 sm:h-8 text-slate-300" />
+                            </div>
+                            <h3 className="text-base sm:text-lg font-medium text-slate-700">No se encontraron motocicletas</h3>
+                            <p className="text-xs sm:text-sm text-slate-500 mt-1 sm:mt-2 max-w-md mx-auto">
+                                {searchTerm || filterEstado ? 'No hay resultados para los filtros aplicados' : 'Agrega una motocicleta para comenzar'}
+                            </p>
+                            
+                            {(searchTerm || filterEstado) && (
+                                <Button 
+                                    variant="outline" 
+                                    className="mt-4 sm:mt-6 text-xs sm:text-sm rounded-lg border-slate-200 hover:bg-slate-100"
+                                    onClick={() => {
+                                        setSearchTerm('');
+                                        setFilterEstado(null);
+                                    }}
+                                >
+                                    <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+                                    Limpiar filtros
+                                </Button>
+                            )}
+                        </div>
+                    </Card>
+                ) : (
+                    <>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                            {paginatedMotos.map((moto) => (
+                                <Card
+                                    key={moto.id}
+                                    className="bg-white border-0 rounded-xl overflow-hidden hover:shadow-md transition-all duration-300 transform hover:-translate-y-1"
+                                >
+                                    <div className={`h-1.5 w-full ${moto.estado === 'Activo' ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
+                                    <div className="p-4 sm:p-5">
+                                        <div className="flex justify-between items-start mb-3 sm:mb-4">
+                                            <div>
+                                                <h3 className="text-base sm:text-lg font-medium text-slate-800">{moto.marca}</h3>
+                                                <p className="text-xs sm:text-sm text-slate-500 mt-0.5">{moto.modelo} ({moto.año})</p>
                                             </div>
-                                            <div className="bg-white/10 rounded-lg p-3 mt-4">
-                                                <p className="text-white font-medium">{moto.modelo}</p>
-                                            </div>
+                                            <span className={`inline-flex items-center px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium ${
+                                                moto.estado === 'Activo'
+                                                    ? 'bg-emerald-50 text-emerald-700'
+                                                    : 'bg-slate-100 text-slate-600'
+                                            }`}>
+                                                {moto.estado === 'Activo' ? (
+                                                    <BadgeCheck className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 sm:mr-1.5" />
+                                                ) : (
+                                                    <AlertCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 sm:mr-1.5" />
+                                                )}
+                                                {moto.estado}
+                                            </span>
                                         </div>
-                                        <div className="p-6">
-                                            <div className="space-y-4">
-                                                <div className="flex items-center text-gray-700 bg-gray-50 p-3 rounded-lg">
-                                                    <CalendarClock className="w-5 h-5 mr-3 text-blue-500" />
-                                                    <span className="font-medium">Año:</span>
-                                                    <span className="ml-2 text-gray-600">{moto.año}</span>
-                                                </div>
-                                                <div className="flex items-center text-gray-700 bg-gray-50 p-3 rounded-lg">
-                                                    <Tag className="w-5 h-5 mr-3 text-blue-500" />
-                                                    <span className="font-medium">Modelo:</span>
-                                                    <span className="ml-2 text-gray-600">{moto.modelo}</span>
-                                                </div>
-                                                <div className="flex items-center text-gray-700 bg-gray-50 p-3 rounded-lg">
-                                                    <BoxIcon className="w-5 h-5 mr-3 text-blue-500" />
-                                                    <span className="font-medium">Marca:</span>
-                                                    <span className="ml-2 text-gray-600">{moto.marca}</span>
-                                                </div>
-                                            </div>
-                                            <div className="flex space-x-2 mt-6">
-                                                <Button
-                                                    onClick={() => handleEdit(moto)}
-                                                    className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 rounded-lg flex items-center justify-center gap-2"
-                                                >
-                                                    <Edit className="w-4 h-4" />
-                                                    Editar
-                                                </Button>
-                                                <Button
-                                                    onClick={() => handleDelete(moto.id)}
-                                                    className="flex-1 bg-red-500 hover:bg-red-600 text-white font-medium py-2 rounded-lg flex items-center justify-center gap-2"
-                                                >
-                                                    <Trash className="w-4 h-4" />
-                                                    Eliminar
-                                                </Button>
-                                            </div>
+                                        
+                                        <div className="mt-3 sm:mt-4 flex space-x-2">
+                                            <Button
+                                                onClick={() => handleEdit(moto)}
+                                                size="sm"
+                                                variant="outline"
+                                                className="flex-1 text-[10px] sm:text-xs rounded-lg border-amber-200 text-amber-700 hover:bg-amber-50 py-1.5 sm:py-2 h-auto"
+                                            >
+                                                <Edit className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1 sm:mr-1.5" />
+                                                Editar
+                                            </Button>
+                                            <Button
+                                                onClick={() => handleDelete(moto.id)}
+                                                size="sm"
+                                                variant="outline"
+                                                className="flex-1 text-[10px] sm:text-xs rounded-lg border-red-200 text-red-700 hover:bg-red-50 py-1.5 sm:py-2 h-auto"
+                                            >
+                                                <Trash className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1 sm:mr-1.5" />
+                                                Eliminar
+                                            </Button>
                                         </div>
                                     </div>
-                                ))}
+                                </Card>
+                            ))}
+                        </div>
+
+                        {totalPages > 1 && (
+                            <div className="flex justify-center items-center mt-8 sm:mt-10">
+                                <div className="flex flex-wrap items-center justify-center gap-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => changePage(page - 1)}
+                                        disabled={page === 1}
+                                        className="text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 h-auto rounded-lg border-slate-200 hover:bg-slate-100"
+                                    >
+                                        <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1" />
+                                        <span className="hidden xs:inline">Anterior</span>
+                                    </Button>
+                                    
+                                    <div className="flex items-center space-x-1 sm:space-x-2 mx-1 sm:mx-2">
+                                        {Array.from({ length: totalPages }, (_, i) => i + 1)
+                                            .filter(p => p === 1 || p === totalPages || (p >= page - 1 && p <= page + 1))
+                                            .map((p, i, arr) => (
+                                                <React.Fragment key={p}>
+                                                    {i > 0 && arr[i - 1] !== p - 1 && (
+                                                        <span className="text-slate-400">...</span>
+                                                    )}
+                                                    <Button
+                                                        variant={p === page ? "default" : "outline"}
+                                                        size="sm"
+                                                        onClick={() => changePage(p)}
+                                                        className={`w-8 h-8 sm:w-10 sm:h-10 p-0 text-xs sm:text-sm rounded-lg ${
+                                                            p === page 
+                                                                ? 'bg-indigo-500 hover:bg-indigo-600 text-white' 
+                                                                : 'border-slate-200 hover:bg-slate-100 text-slate-700'
+                                                        }`}
+                                                    >
+                                                        {p}
+                                                    </Button>
+                                                </React.Fragment>
+                                            ))}
+                                    </div>
+                                    
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => changePage(page + 1)}
+                                        disabled={page === totalPages}
+                                        className="text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 h-auto rounded-lg border-slate-200 hover:bg-slate-100"
+                                    >
+                                        <span className="hidden xs:inline">Siguiente</span>
+                                        <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-1" />
+                                    </Button>
+                                </div>
                             </div>
                         )}
-                    </CardContent>
-                </Card>
+                    </>
+                )}
             </div>
         </div>
     );
