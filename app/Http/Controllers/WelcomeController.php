@@ -160,7 +160,11 @@ class WelcomeController extends Controller
                         $producto->precio - ($producto->precio * $producto->descuento / 100) : 
                         $producto->precio),
                     'descripcion_corta' => $producto->descripcion_corta,
-                    'imagen_principal' => $producto->imagen_principal,
+                    'imagen_principal' => $producto->imagen_principal 
+                        ? (filter_var($producto->imagen_principal, FILTER_VALIDATE_URL) 
+                            ? $producto->imagen_principal 
+                            : asset('storage/' . $producto->imagen_principal)
+                        ) : null,
                     'stock' => $producto->stock,
                     'destacado' => (bool)$producto->destacado,
                     'mas_vendido' => (bool)$producto->mas_vendido,
@@ -183,7 +187,11 @@ class WelcomeController extends Controller
                         $producto->precio - ($producto->precio * $producto->descuento / 100) : 
                         $producto->precio),
                     'descripcion_corta' => $producto->descripcion_corta,
-                    'imagen_principal' => $producto->imagen_principal,
+                    'imagen_principal' => $producto->imagen_principal 
+                        ? (filter_var($producto->imagen_principal, FILTER_VALIDATE_URL) 
+                            ? $producto->imagen_principal 
+                            : asset('storage/' . $producto->imagen_principal)
+                        ) : null,
                     'stock' => $producto->stock,
                     'destacado' => (bool)$producto->destacado,
                     'mas_vendido' => (bool)$producto->mas_vendido,
@@ -205,7 +213,11 @@ class WelcomeController extends Controller
                         $producto->precio - ($producto->precio * $producto->descuento / 100) : 
                         $producto->precio),
                     'descripcion_corta' => $producto->descripcion_corta,
-                    'imagen_principal' => $producto->imagen_principal,
+                    'imagen_principal' => $producto->imagen_principal 
+                        ? (filter_var($producto->imagen_principal, FILTER_VALIDATE_URL) 
+                            ? $producto->imagen_principal 
+                            : asset('storage/' . $producto->imagen_principal)
+                        ) : null,
                     'stock' => $producto->stock,
                     'destacado' => (bool)$producto->destacado,
                     'mas_vendido' => (bool)$producto->mas_vendido,
@@ -233,8 +245,7 @@ class WelcomeController extends Controller
                 'total' => $totalOpiniones,
                 'conteo' => $conteoCalificaciones
             ],
-            'laravelVersion' => app()->version(),
-            'phpVersion' => phpversion(),
+
         ]);
     }
 }
