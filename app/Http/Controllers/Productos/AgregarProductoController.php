@@ -95,9 +95,16 @@ class AgregarProductoController extends Controller
             }
 
             $precioBase = (float)$request->precio;
-            $precioConIGV = $request->incluye_igv ? $precioBase : $precioBase * 1.18;
-            $descuento = $precioConIGV * ((float)($request->descuento ?? 0) / 100);
-            $precioFinal = $precioConIGV - $descuento;
+            $incluyeIgv = $request->has('incluye_igv') && $request->incluye_igv;
+
+            if ($incluyeIgv) {
+                // Si incluye IGV, se calcula el precio con IGV
+                $precioConIGV = $precioBase * 1.18;
+                $precioFinal = $precioConIGV - ($precioConIGV * ((float)($request->descuento ?? 0) / 100));
+            } else {
+                // Si no incluye IGV, el precio base es el precio final
+                $precioFinal = $precioBase - ($precioBase * ((float)($request->descuento ?? 0) / 100));
+            }
 
             $producto = Producto::create([
                 'codigo' => $request->codigo,
@@ -106,17 +113,17 @@ class AgregarProductoController extends Controller
                 'detalles' => $request->detalles,
                 'categoria_id' => $request->categoria_id,
                 'subcategoria_id' => $request->subcategoria_id,
-                'precio' => (float)$request->precio,
+                'precio' => $precioBase, // Guarda el precio base ingresado
                 'descuento' => (float)($request->descuento ?? 0),
                 'imagen_principal' => $imagenPrincipalPath,
                 'imagenes_adicionales' => !empty($imagenesAdicionales) ? json_encode($imagenesAdicionales) : null,
                 'calificacion' => $request->calificacion ?? 0,
-                'incluye_igv' => $request->incluye_igv ?? false,
+                'incluye_igv' => $incluyeIgv, // Guarda el estado de IGV
                 'stock' => $request->stock ?? 0,
                 'destacado' => $request->destacado ?? false,
                 'mas_vendido' => $request->mas_vendido ?? false,
                 'estado' => Producto::ESTADO_ACTIVO,
-                'precio_final' => $precioFinal,
+                'precio_final' => $precioFinal, // Guarda el precio final calculado
             ]);
 
             if ($request->moto_ids) {

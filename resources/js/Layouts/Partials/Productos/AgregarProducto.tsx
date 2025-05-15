@@ -215,7 +215,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
 
   const calculatePrecioConIGV = (): number => {
     const precio = parseFloat(data.precio) || 0;
-    return data.incluye_igv ? precio : precio * 1.18;
+    return data.incluye_igv ? precio * 1.18 : precio; // Si incluye IGV, se aplica el 18%
   };
 
   const calculateDescuento = (): number => {
@@ -468,7 +468,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                           className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-all duration-200"
                         />
                         <span className="ml-2 text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
-                           No incluye IGV (18%)
+                          {data.incluye_igv ? "Incluye IGV (18%)" : "No incluye IGV"}
                         </span>
                       </label>
                     </div>

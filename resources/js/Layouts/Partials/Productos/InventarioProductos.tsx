@@ -224,32 +224,35 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
                                         <span className="font-medium">{producto.codigo}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-gray-500">Precio:</span>
-                                        <div className="text-right">
-                                            <span className="font-medium text-green-600">{formatPrice(producto.precio_final)}</span>
-                                            {producto.precio_final < producto.precio && (
-                                                <span className="text-xs text-red-500 line-through ml-2">
-                                                    {formatPrice(producto.precio)}
-                                                </span>
-                                            )}
-                                        </div>
+                                        <span className="text-gray-500">Precio Base:</span>
+                                        <span className="font-medium text-gray-700">{formatPrice(producto.precio)}</span>
                                     </div>
-                                    {producto.precio_final < producto.precio && (
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-500">Descuento:</span>
-                                            <span className="font-medium text-red-500">-{producto.descuento}%</span>
-                                        </div>
-                                    )}
                                     <div className="flex justify-between">
-                                        <span className="text-gray-500">Descuento aplicado:</span>
-                                        <span className="font-medium text-red-500">
-                                            -{producto.descuento}% ({formatPrice(producto.precio)} - {formatPrice(producto.precio_final)})
-                                        </span>
+                                        <span className="text-gray-500">Descuento:</span>
+                                        <span className="font-medium text-red-500">-{producto.descuento}%</span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-gray-500">Incluye IGV:</span>
                                         <span className="font-medium text-gray-700">
                                             {producto.incluye_igv ? "Sí" : "No"}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Operación:</span>
+                                        <span className="font-medium text-gray-700">
+                                            {producto.incluye_igv
+                                                ? `${formatPrice(producto.precio)} x 1.18 - (${formatPrice(producto.precio * 1.18)} x ${producto.descuento}%)`
+                                                : `${formatPrice(producto.precio)} - (${formatPrice(producto.precio)} x ${producto.descuento}%)`}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Precio Final:</span>
+                                        <span className="font-medium text-green-600">
+                                            {formatPrice(
+                                                producto.incluye_igv
+                                                    ? producto.precio * 1.18 - (producto.precio * 1.18 * producto.descuento / 100)
+                                                    : producto.precio - (producto.precio * producto.descuento / 100)
+                                            )}
                                         </span>
                                     </div>
                                     <div className="flex justify-between">
