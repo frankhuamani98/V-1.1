@@ -468,7 +468,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                           className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-all duration-200"
                         />
                         <span className="ml-2 text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
-                          Incluye IGV (18%)
+                           No incluye IGV (18%)
                         </span>
                       </label>
                     </div>
@@ -494,6 +494,13 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                       </div>
                     )}
                     
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-700">Incluye IGV:</span>
+                      <span className="text-lg font-medium text-gray-900">
+                        {data.incluye_igv ? "Sí" : "No"}
+                      </span>
+                    </div>
+
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-700">Descuento Aplicado:</span>
                       <span className="text-lg font-medium text-red-600">

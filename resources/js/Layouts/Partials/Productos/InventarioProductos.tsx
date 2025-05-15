@@ -41,6 +41,7 @@ interface Producto {
     subcategoria: Subcategoria;
     motos: Moto[];
     calificacion?: number;
+    incluye_igv?: boolean;
 }
 
 interface InventarioProductosProps {
@@ -239,6 +240,18 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
                                             <span className="font-medium text-red-500">-{producto.descuento}%</span>
                                         </div>
                                     )}
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Descuento aplicado:</span>
+                                        <span className="font-medium text-red-500">
+                                            -{producto.descuento}% ({formatPrice(producto.precio)} - {formatPrice(producto.precio_final)})
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Incluye IGV:</span>
+                                        <span className="font-medium text-gray-700">
+                                            {producto.incluye_igv ? "Sí" : "No"}
+                                        </span>
+                                    </div>
                                     <div className="flex justify-between">
                                         <span className="text-gray-500">Stock:</span>
                                         <div className="flex items-center space-x-2">
