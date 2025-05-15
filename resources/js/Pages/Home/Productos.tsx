@@ -27,6 +27,13 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from '@inertiajs/react';
+import { 
+  addToCart, 
+  addToFavorites, 
+  isInCart, 
+  isInFavorites,
+  removeFromFavorites
+} from "@/lib/cartHelpers";
 
 interface Product {
   id: number;
@@ -61,6 +68,52 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
   const [cart, setCart] = useState<number[]>([]);
   const [progress, setProgress] = useState(0);
   const [autoplayInterval, setAutoplayInterval] = useState<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const updateFavoritesFromStorage = () => {
+      if (typeof window !== 'undefined') {
+        const storedFavorites = localStorage.getItem('favorites');
+        if (storedFavorites) {
+          try {
+            const favoriteItems = JSON.parse(storedFavorites);
+            const favoriteIds = favoriteItems.map((item: any) => item.id);
+            setFavorites(favoriteIds);
+          } catch (error) {
+            console.error('Error parsing favorites from localStorage:', error);
+          }
+        } else {
+          setFavorites([]);
+        }
+      }
+    };
+    
+    const updateCartFromStorage = () => {
+      if (typeof window !== 'undefined') {
+        const storedCart = localStorage.getItem('cart');
+        if (storedCart) {
+          try {
+            const cartItems = JSON.parse(storedCart);
+            setCart(cartItems.map((item: any) => item.id));
+          } catch (error) {
+            console.error('Error parsing cart from localStorage:', error);
+          }
+        } else {
+          setCart([]);
+        }
+      }
+    };
+    
+    updateFavoritesFromStorage();
+    updateCartFromStorage();
+    
+    window.addEventListener('favorites-updated', updateFavoritesFromStorage);
+    window.addEventListener('cart-updated', updateCartFromStorage);
+    
+    return () => {
+      window.removeEventListener('favorites-updated', updateFavoritesFromStorage);
+      window.removeEventListener('cart-updated', updateCartFromStorage);
+    };
+  }, []);
 
   const formatPrice = (price: number): string => {
     const roundedPrice = Math.round(price * 100) / 100;
@@ -157,38 +210,66 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
   };
 
   const toggleFavorite = (productId: number) => {
-    setFavorites(prev => {
-      const newFavorites = prev.includes(productId)
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId];
-
-      if (newFavorites.includes(productId)) {
-        toast.success("Añadido a favoritos", {
-          description: `${productList.find(p => p.id === productId)?.nombre} ha sido añadido a tus favoritos.`,
-          duration: 3000,
-        });
-      } else {
-        toast("Eliminado de favoritos", {
-          description: `${productList.find(p => p.id === productId)?.nombre} ha sido eliminado de tus favoritos.`,
-          duration: 3000,
-        });
-      }
-
-      return newFavorites;
-    });
-  };
-
-  const addToCart = (productId: number) => {
-    setCart(prev => {
-      const newCart = [...prev, productId];
-
-      toast.success("Añadido al carrito", {
-        description: `${productList.find(p => p.id === productId)?.nombre} ha sido añadido a tu carrito.`,
+    const product = productList.find(p => p.id === productId);
+    if (!product) return;
+    
+    const isFavorited = favorites.includes(productId);
+    
+    if (isFavorited) {
+      removeFromFavorites(productId);
+      
+      setFavorites(prev => prev.filter(id => id !== productId));
+      
+      toast("Eliminado de favoritos", {
+        description: `${product.nombre} ha sido eliminado de tus favoritos.`,
         duration: 3000,
       });
+    } else {
+      const favoriteProduct = {
+        id: product.id,
+        nombre: product.nombre,
+        precio: product.precio,
+        descuento: product.descuento,
+        imagen: product.imagen_principal
+      };
+      
+      addToFavorites(favoriteProduct);
+      
+      setFavorites(prev => [...prev, productId]);
+      
+      toast.success("Añadido a favoritos", {
+        description: `${product.nombre} ha sido añadido a tus favoritos.`,
+        duration: 3000,
+      });
+    }
+  };
 
-      return newCart;
-    });
+  const handleAddToCart = (productId: number) => {
+    const product = productList.find(p => p.id === productId);
+    if (!product) return;
+    
+    if (isInCart(productId)) {
+      toast.info("Producto ya en el carrito", {
+        description: `${product.nombre} ya está en tu carrito.`,
+        duration: 3000,
+      });
+      return;
+    }
+    
+    const addedSuccessfully = addToCart(product);
+    
+    if (addedSuccessfully) {
+      setCart(prev => {
+        const newCart = [...prev, productId];
+        
+        toast.success("Añadido al carrito", {
+          description: `${product.nombre} ha sido añadido a tu carrito.`,
+          duration: 3000,
+        });
+  
+        return newCart;
+      });
+    }
   };
 
   const viewDetails = (productId: number) => {
@@ -440,7 +521,7 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
                     <CardFooter className="p-4 pt-0 flex flex-col gap-2">
                       <Button
                         className="w-full gap-1.5"
-                        onClick={() => addToCart(product.id)}
+                        onClick={() => handleAddToCart(product.id)}
                         disabled={product.stock <= 0}
                       >
                         <ShoppingCartIcon className="h-4 w-4" />

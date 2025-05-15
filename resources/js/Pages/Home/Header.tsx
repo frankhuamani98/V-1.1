@@ -62,40 +62,34 @@ import { toast } from "sonner";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { ProfileModal } from "@/Components/Modals/ProfileModal";
+import { 
+  getCartItems, 
+  getFavoriteItems, 
+  removeFromCart as removeCartItem,
+  removeFromFavorites as removeFavoriteItem,
+  calculateCartTotal,
+  getCartCount,
+  isInCart,
+  addToCart
+} from "@/lib/cartHelpers";
 
-const cartProducts = [
-  {
-    id: 1,
-    name: "Casco Integral GT-Air II",
-    price: 599.99,
-    quantity: 1,
-  },
-  {
-    id: 2,
-    name: "Chaqueta de Cuero Alpinestars",
-    price: 349.99,
-    quantity: 1,
-  },
-  {
-    id: 3,
-    name: "Guantes Touring Gore-Tex",
-    price: 89.99,
-    quantity: 1,
-  },
-];
+interface CartItem {
+  id: number;
+  nombre: string;
+  precio: number;
+  precio_original?: number;
+  descuento: number;
+  quantity: number;
+  imagen?: string;
+}
 
-const favoriteProducts = [
-  {
-    id: 4,
-    name: "Kawasaki Ninja ZX-10R",
-    price: 16999.99,
-  },
-  {
-    id: 5,
-    name: "Botas Alpinestars SMX-6 V2",
-    price: 229.99,
-  },
-];
+interface FavoriteItem {
+  id: number;
+  nombre: string;
+  precio: number;
+  descuento?: number;
+  imagen?: string;
+}
 
 const ListItem = React.forwardRef<
   React.ElementRef<"a">,
@@ -127,17 +121,31 @@ const CartItem = ({
   product,
   onRemove,
 }: {
-  product: any;
+  product: CartItem;
   onRemove: (id: number) => void;
 }) => {
   return (
     <div className="flex items-start py-3 gap-3">
+      {product.imagen && (
+        <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0">
+          <img 
+            src={product.imagen.startsWith('http') ? product.imagen : `/storage/${product.imagen}`} 
+            alt={product.nombre} 
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
       <div className="flex-1 min-w-0">
-        <h4 className="text-sm font-medium truncate">{product.name}</h4>
+        <h4 className="text-sm font-medium truncate">{product.nombre}</h4>
         <div className="flex items-center mt-1 text-sm text-muted-foreground">
           <span>
-            {product.quantity} x ${product.price.toFixed(2)}
+            {product.quantity} x S/{product.precio.toFixed(2)}
           </span>
+          {product.descuento > 0 && (
+            <span className="ml-1 text-xs text-red-500">
+              (-{product.descuento}%)
+            </span>
+          )}
         </div>
       </div>
       <Button
@@ -155,17 +163,51 @@ const CartItem = ({
 const FavoriteItem = ({
   product,
   onRemove,
+  onAddToCart,
 }: {
-  product: any;
+  product: FavoriteItem;
   onRemove: (id: number) => void;
+  onAddToCart: (product: FavoriteItem) => void;
 }) => {
+  const getDisplayPrice = () => {
+    if (product.descuento && product.descuento > 0) {
+      const discountedPrice = product.precio - (product.precio * product.descuento / 100);
+      return (
+        <div className="flex items-center">
+          <span className="font-medium">S/{discountedPrice.toFixed(2)}</span>
+          <span className="ml-2 text-xs text-muted-foreground line-through">S/{product.precio.toFixed(2)}</span>
+          <span className="ml-1 text-xs text-red-500">(-{product.descuento}%)</span>
+        </div>
+      );
+    }
+    return <span>S/{product.precio.toFixed(2)}</span>;
+  };
+
   return (
     <div className="flex items-start py-3 gap-3">
-      <div className="flex-1 min-w-0">
-        <h4 className="text-sm font-medium truncate">{product.name}</h4>
-        <div className="flex items-center mt-1 text-sm text-muted-foreground">
-          <span>${product.price.toFixed(2)}</span>
+      {product.imagen && (
+        <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0">
+          <img 
+            src={product.imagen.startsWith('http') ? product.imagen : `/storage/${product.imagen}`}
+            alt={product.nombre} 
+            className="w-full h-full object-cover"
+          />
         </div>
+      )}
+      <div className="flex-1 min-w-0">
+        <h4 className="text-sm font-medium truncate">{product.nombre}</h4>
+        <div className="flex items-center mt-1 text-sm text-muted-foreground">
+          {getDisplayPrice()}
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="mt-1 h-7 text-xs text-primary hover:text-primary"
+          onClick={() => onAddToCart(product)}
+        >
+          <ShoppingCartIcon className="h-3 w-3 mr-1" />
+          Añadir al carrito
+        </Button>
       </div>
       <Button
         variant="ghost"
@@ -198,26 +240,133 @@ export default function Header() {
   });
   const [isAuthenticated, setIsAuthenticated] = useState(!!user);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [cart, setCart] = useState(cartProducts);
-  const [favorites, setFavorites] = useState(favoriteProducts);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
   const [isCartSheetOpen, setIsCartSheetOpen] = useState(false);
   const [isFavoritesSheetOpen, setIsFavoritesSheetOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
+  useEffect(() => {
+    setCart(getCartItems());
+    setFavorites(getFavoriteItems());
+  }, []);
+
+  useEffect(() => {
+    const handleCartUpdated = () => {
+      setCart(getCartItems());
+    };
+
+    const handleFavoritesUpdated = () => {
+      setFavorites(getFavoriteItems());
+    };
+
+    const handleAddToCart = (event: CustomEvent) => {
+      const product = event.detail;
+      setCart(prevCart => {
+        const existingItem = prevCart.find(item => item.id === product.id);
+        
+        let newCart;
+        if (existingItem) {
+          newCart = prevCart.map(item => 
+            item.id === product.id 
+              ? { ...item, quantity: item.quantity + 1 } 
+              : item
+          );
+        } else {
+          newCart = [...prevCart, { ...product, quantity: 1 }];
+        }
+        
+        localStorage.setItem('cart', JSON.stringify(newCart));
+        return newCart;
+      });
+    };
+
+    const handleAddToFavorites = (event: CustomEvent) => {
+      const product = event.detail;
+      setFavorites(prevFavorites => {
+        const existingItem = prevFavorites.find(item => item.id === product.id);
+        
+        if (existingItem) {
+          return prevFavorites;
+        }
+        
+        const newFavorites = [...prevFavorites, product];
+        localStorage.setItem('favorites', JSON.stringify(newFavorites));
+        return newFavorites;
+      });
+    };
+
+    window.addEventListener('cart-updated', handleCartUpdated);
+    window.addEventListener('favorites-updated', handleFavoritesUpdated);
+    window.addEventListener('add-to-cart', handleAddToCart as EventListener);
+    window.addEventListener('add-to-favorites', handleAddToFavorites as EventListener);
+
+    return () => {
+      window.removeEventListener('cart-updated', handleCartUpdated);
+      window.removeEventListener('favorites-updated', handleFavoritesUpdated);
+      window.removeEventListener('add-to-cart', handleAddToCart as EventListener);
+      window.removeEventListener('add-to-favorites', handleAddToFavorites as EventListener);
+    };
+  }, []);
+
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
   const favoritesCount = favorites.length;
   const cartTotal = cart.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) => total + item.precio * item.quantity,
     0
   );
+  
   const removeFromCart = (id: number) => {
-    setCart(cart.filter((item) => item.id !== id));
+    const newCart = removeCartItem(id);
+    setCart(newCart);
+    toast.success("Producto eliminado del carrito", {
+      duration: 3000,
+    });
   };
+
   const removeFromFavorites = (id: number) => {
-    setFavorites(favorites.filter((item) => item.id !== id));
+    const newFavorites = removeFavoriteItem(id);
+    setFavorites(newFavorites);
+    toast.success("Producto eliminado de favoritos", {
+      duration: 3000,
+    });
+  };
+
+  const addToCartFromFavorites = (product: FavoriteItem) => {
+    const existingItem = cart.find(item => item.id === product.id);
+    if (existingItem) {
+      toast.info("Producto ya en el carrito", {
+        description: `${product.nombre} ya está en tu carrito.`,
+        duration: 3000,
+      });
+      return;
+    }
+
+    let finalPrice = product.precio;
+    if (product.descuento && product.descuento > 0) {
+      finalPrice = product.precio - (product.precio * product.descuento / 100);
+    }
+
+    const cartProduct: CartItem = {
+      id: product.id,
+      nombre: product.nombre,
+      precio: finalPrice,
+      precio_original: product.precio,
+      descuento: product.descuento || 0,
+      quantity: 1,
+      imagen: product.imagen
+    };
+    
+    const event = new CustomEvent('add-to-cart', { detail: cartProduct });
+    window.dispatchEvent(event);
+    
+    toast.success("Añadido al carrito", {
+      description: `${product.nombre} ha sido añadido a tu carrito.`,
+      duration: 3000,
+    });
   };
 
   const getInitials = (firstName: string, lastName: string) => {
@@ -550,7 +699,11 @@ export default function Header() {
                       {favorites.length > 0 ? (
                         favorites.map((product) => (
                           <div key={product.id}>
-                            <FavoriteItem product={product} onRemove={removeFromFavorites} />
+                            <FavoriteItem 
+                              product={product} 
+                              onRemove={removeFromFavorites} 
+                              onAddToCart={addToCartFromFavorites} 
+                            />
                             <DropdownMenuSeparator />
                           </div>
                         ))
@@ -563,7 +716,7 @@ export default function Header() {
                     {favorites.length > 0 && (
                       <div className="p-3">
                         <Button className="w-full" asChild>
-                          <a href="#">Ver todos los favoritos</a>
+                          <a href="/favorites">Ver todos los favoritos</a>
                         </Button>
                       </div>
                     )}
@@ -608,14 +761,14 @@ export default function Header() {
                         <div className="p-3 border-t">
                           <div className="flex justify-between mb-2">
                             <span className="font-medium">Total:</span>
-                            <span className="font-bold">${cartTotal.toFixed(2)}</span>
+                            <span className="font-bold">S/{cartTotal.toFixed(2)}</span>
                           </div>
                           <div className="flex flex-col gap-2">
                             <Button asChild>
-                              <a href="#">Finalizar Compra</a>
+                              <a href="/checkout">Finalizar Compra</a>
                             </Button>
                             <Button variant="outline" asChild>
-                              <a href="/shop">Ver Carrito</a>
+                              <a href="/cart">Ver Carrito</a>
                             </Button>
                           </div>
                         </div>
@@ -787,16 +940,18 @@ export default function Header() {
                 <div className="border-t pt-4 mt-auto">
                   <div className="flex justify-between mb-4">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span className="font-medium">${cartTotal.toFixed(2)}</span>
+                    <span className="font-medium">S/{cartTotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between mb-6">
                     <span className="font-medium">Total</span>
-                    <span className="font-bold text-lg">${cartTotal.toFixed(2)}</span>
+                    <span className="font-bold text-lg">S/{cartTotal.toFixed(2)}</span>
                   </div>
                   <div className="space-y-3">
-                    <Button className="w-full">Finalizar Compra</Button>
-                    <Button variant="outline" className="w-full">
-                      <a href="/shop">Ver Carrito</a>
+                    <Button className="w-full" asChild>
+                      <a href="/checkout">Finalizar Compra</a>
+                    </Button>
+                    <Button variant="outline" className="w-full" asChild>
+                      <a href="/cart">Ver Carrito</a>
                     </Button>
                   </div>
                 </div>
@@ -816,7 +971,11 @@ export default function Header() {
                 {favorites.length > 0 ? (
                   favorites.map((product) => (
                     <div key={product.id} className="mb-4">
-                      <FavoriteItem product={product} onRemove={removeFromFavorites} />
+                      <FavoriteItem 
+                        product={product} 
+                        onRemove={removeFromFavorites} 
+                        onAddToCart={addToCartFromFavorites} 
+                      />
                       <Separator className="mt-4" />
                     </div>
                   ))
@@ -832,8 +991,24 @@ export default function Header() {
               {favorites.length > 0 && (
                 <div className="border-t pt-4 mt-auto">
                   <div className="space-y-3">
-                    <Button className="w-full">Ver Todos los Favoritos</Button>
-                    <Button variant="outline" className="w-full">Agregar Todo al Carrito</Button>
+                    <Button className="w-full" asChild>
+                      <a href="/favorites">Ver Todos los Favoritos</a>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => {
+                        favorites.forEach(item => {
+                          const event = new CustomEvent('add-to-cart', { detail: {...item, quantity: 1} });
+                          window.dispatchEvent(event);
+                        });
+                        toast.success("Todos los favoritos añadidos al carrito", {
+                          duration: 3000,
+                        });
+                      }}
+                    >
+                      Agregar Todo al Carrito
+                    </Button>
                   </div>
                 </div>
               )}
