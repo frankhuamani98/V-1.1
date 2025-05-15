@@ -85,6 +85,18 @@ interface WelcomeProps extends PageProps {
         stock: number;
         description: string;
     }>;
+    productosRelacionadosPorSubcategoria: Record<number, Array<{
+        id: number;
+        name: string;
+        price: string;
+        originalPrice: string;
+        rating: number;
+        reviews: number;
+        image: string;
+        tag: string;
+        stock: number;
+        description: string;
+    }>>;
 }
 
 export default function Welcome({
@@ -93,7 +105,8 @@ export default function Welcome({
     auth,
     productosDestacados,
     productosMasVendidos,
-    todosProductos
+    todosProductos,
+    productosRelacionadosPorSubcategoria
 }: WelcomeProps) {
     return (
         <>
@@ -107,6 +120,7 @@ export default function Welcome({
                 productosDestacados={productosDestacados}
                 productosMasVendidos={productosMasVendidos}
                 todosProductos={todosProductos}
+                productosRelacionadosPorSubcategoria={productosRelacionadosPorSubcategoria}
             />
 
             <Opiniones opiniones={opiniones} auth={auth} />

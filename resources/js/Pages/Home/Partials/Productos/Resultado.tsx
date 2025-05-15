@@ -21,7 +21,8 @@ import {
   ChevronDownIcon,
   ZapIcon,
   TrendingUpIcon,
-  PercentIcon
+  PercentIcon,
+  ExternalLinkIcon
 } from "lucide-react";
 import {
   Tooltip,
@@ -306,10 +307,10 @@ const ProductCard = ({ product }: { product: Producto }) => {
           variant="outline"
           asChild
         >
-          <Link href={`/details/${product.id}`}>
-            <PlusIcon size={16} className="mr-2" />
-            Ver Detalles
-          </Link>
+                        <Link href={`/details/${product.id}`}>
+                          <ExternalLinkIcon className="h-4 w-4" />
+                          Ver Detalles
+                        </Link>
         </Button>
       </CardFooter>
     </Card>

@@ -65,6 +65,18 @@ interface ProductosProps {
         stock: number;
         description: string;
     }>;
+    productosRelacionadosPorSubcategoria: Record<number, Array<{
+        id: number;
+        name: string;
+        price: string;
+        originalPrice: string;
+        rating: number;
+        reviews: number;
+        image: string;
+        tag: string;
+        stock: number;
+        description: string;
+    }>>;
 }
 
 interface CarouselSectionProps {
@@ -165,7 +177,6 @@ const getTagBadges = (product: any) => {
 
 const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList }) => {
   const [api, setApi] = useState<CarouselApi | null>(null);
-  const [isPlaying, setIsPlaying] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [favorites, setFavorites] = useState<number[]>([]);
   const [cart, setCart] = useState<number[]>([]);
@@ -186,8 +197,11 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
     };
   }, [api]);
 
+  // Nuevo estado para saber si el mouse está sobre una tarjeta
+  const [isHovered, setIsHovered] = useState(false);
+
   useEffect(() => {
-    if (!api || !isPlaying) {
+    if (!api || isHovered) {
       if (autoplayInterval) {
         clearInterval(autoplayInterval);
         setAutoplayInterval(null);
@@ -224,11 +238,7 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
       clearInterval(interval);
       clearInterval(progressTimer);
     };
-  }, [api, isPlaying]);
-
-  const togglePlayPause = () => {
-    setIsPlaying(!isPlaying);
-  };
+  }, [api, isHovered]); // Cambia isPlaying por isHovered
 
   const toggleFavorite = (productId: number) => {
     setFavorites(prev => {
@@ -310,14 +320,6 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
           <p className="text-muted-foreground">Descubre nuestros productos</p>
         </div>
         <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={togglePlayPause}
-            className="rounded-full h-9 w-9"
-          >
-            {isPlaying ? <PauseIcon className="h-4 w-4" /> : <PlayIcon className="h-4 w-4" />}
-          </Button>
           <div className="flex flex-col items-end">
             <span className="text-sm font-medium">
               {currentIndex + 1} / {productList.length}
@@ -343,7 +345,13 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
               const discountPercentage = getDiscountPercentage(product);
 
               return (
-                <CarouselItem key={product.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4 pl-4">
+                <CarouselItem
+                  key={product.id}
+                  className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4 pl-4"
+                  // Detener autoplay al pasar el mouse sobre la tarjeta
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                >
                   <Card className="overflow-hidden transition-all duration-300 hover:shadow-xl border-border">
                     <CardContent className="p-0">
                       <div className="relative">
@@ -405,7 +413,7 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
                             // Parsea los precios a número para comparar correctamente
                             const parsePrice = (price: string | undefined | null) =>
                               typeof price === "string"
-                                ? Number(
+                                ? parseFloat(
                                     price
                                       .replace(/[^\d.,]/g, "")
                                       .replace(",", ".")
@@ -413,6 +421,7 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
                                 : 0;
                             const original = parsePrice(product.originalPrice);
                             const final = parsePrice(product.price);
+                            // Solo mostrar si el precio base es MAYOR al precio final
                             if (original > final) {
                               return (
                                 <span className="text-sm text-muted-foreground line-through">

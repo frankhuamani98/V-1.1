@@ -176,6 +176,12 @@ class WelcomeController extends Controller
                 return $this->formatProductData($producto);
             });
 
+        // Productos relacionados por subcategoría
+        $productosRelacionadosPorSubcategoria = [];
+        foreach ($todosProductos as $producto) {
+            $productosRelacionadosPorSubcategoria[$producto['id']] = $this->getRelatedProductsBySubcategoria($producto['id']);
+        }
+
         return Inertia::render('Welcome', [
             'banners' => $banners,
             'categoriasMenu' => $categoriasMenu, 
@@ -195,6 +201,7 @@ class WelcomeController extends Controller
             'productosDestacados' => $productosDestacados,
             'productosMasVendidos' => $productosMasVendidos,
             'todosProductos' => $todosProductos,
+            'productosRelacionadosPorSubcategoria' => $productosRelacionadosPorSubcategoria,
         ]);
     }
 
@@ -218,5 +225,56 @@ class WelcomeController extends Controller
             'description' => $producto->descripcion_corta,
             'descuento' => isset($producto->descuento) ? $producto->descuento : 0,
         ];
+    }
+
+    private function getRelatedProductsBySubcategoria($productoId)
+    {
+        $producto = Producto::find($productoId);
+        if (!$producto) {
+            return [];
+        }
+
+        $relacionados = collect();
+
+        // Primero por subcategoría (sin el producto actual)
+        if ($producto->subcategoria_id) {
+            $relacionados = Producto::where('estado', 'Activo')
+                ->where('subcategoria_id', $producto->subcategoria_id)
+                ->where('id', '!=', $productoId)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        // Luego por categoría (sin duplicados)
+        if ($producto->categoria_id) {
+            $idsYaIncluidos = $relacionados->pluck('id')->push($productoId)->all();
+
+            $relacionadosCategoria = Producto::where('estado', 'Activo')
+                ->where('categoria_id', $producto->categoria_id)
+                ->whereNotIn('id', $idsYaIncluidos)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $relacionados = $relacionados->concat($relacionadosCategoria);
+        }
+
+        // Si aún faltan, agrega productos destacados (sin duplicados)
+        if ($relacionados->count() < 8) {
+            $idsYaIncluidos = $relacionados->pluck('id')->push($productoId)->all();
+
+            $destacados = Producto::where('estado', 'Activo')
+                ->where('destacado', true)
+                ->whereNotIn('id', $idsYaIncluidos)
+                ->orderBy('created_at', 'desc')
+                ->limit(8 - $relacionados->count())
+                ->get();
+
+            $relacionados = $relacionados->concat($destacados);
+        }
+
+        // Limita a 8 productos relacionados
+        return $relacionados->take(8)->map(function ($prod) {
+            return $this->formatProductData($prod);
+        })->values();
     }
 }

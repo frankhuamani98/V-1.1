@@ -5,7 +5,7 @@ import { Button } from "@/Components/ui/button";
 import { Badge } from "@/Components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/Components/ui/tooltip";
 import { Progress } from "@/Components/ui/progress";
-import { PauseIcon, PlayIcon, ShoppingCartIcon, HeartIcon, StarIcon, InfoIcon, ExternalLinkIcon } from "lucide-react";
+import { PauseIcon, PlayIcon, ShoppingCartIcon, HeartIcon, StarIcon, InfoIcon, ExternalLinkIcon, ZapIcon, TrendingUpIcon, PercentIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Separator } from "@/Components/ui/separator";
 import { Link } from '@inertiajs/react';
@@ -26,11 +26,12 @@ interface RelatedProductsCarouselProps {
     destacado?: boolean;
   }>;
   isMobile?: boolean;
+  mainProductName?: string; // Nuevo: para mostrar el nombre del producto principal
 }
 
 const IGV_RATE = 0.18;
 
-const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ products, isMobile = false }) => {
+const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ products, isMobile = false, mainProductName }) => {
   const [api, setApi] = useState<CarouselApi | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -176,8 +177,9 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
       return parseFloat(value.replace(/[^\d.-]/g, ''));
     };
 
-    const priceWithIGV = formatPrice(price); // Usar el precio final directamente
-    return `S/ ${priceWithIGV.toFixed(2)}`;
+    const priceWithIGV = formatPrice(price);
+    // Formatea el número con separador de miles y punto decimal
+    return `S/ ${priceWithIGV.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
   const renderStockIndicator = (stock: number) => {
@@ -200,11 +202,61 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
     );
   };
 
+  const getTagBadges = (product: any, discountPercentage: number) => {
+    const tags: React.ReactNode[] = [];
+    if (product.tag) {
+      product.tag.split(", ").forEach((tag: string) => {
+        if (tag === "Destacado") {
+          tags.push(
+            <div key="destacado" className="flex items-center gap-1 bg-yellow-500 text-white px-2 py-0.5 rounded shadow-sm">
+              <ZapIcon className="h-3 w-3" />
+              <span className="text-[10px] font-semibold uppercase">Destacado</span>
+            </div>
+          );
+        }
+        if (tag === "Más Vendido") {
+          tags.push(
+            <div key="mas_vendido" className="flex items-center gap-1 bg-green-500 text-white px-2 py-0.5 rounded shadow-sm">
+              <TrendingUpIcon className="h-3 w-3" />
+              <span className="text-[10px] font-semibold uppercase">Más Vendido</span>
+            </div>
+          );
+        }
+        if (tag === "Destacados") {
+          tags.push(
+            <div key="destacados" className="flex items-center gap-1 bg-yellow-600 text-white px-2 py-0.5 rounded shadow-sm">
+              <ZapIcon className="h-3 w-3" />
+              <span className="text-[10px] font-semibold uppercase">Destacados</span>
+            </div>
+          );
+        }
+        // "Oferta" y "Nuevo" no se muestran
+      });
+    }
+    if (discountPercentage > 0) {
+      tags.push(
+        <div key="descuento" className="flex items-center gap-1 bg-red-500 text-white px-2 py-0.5 rounded shadow-sm">
+          <PercentIcon className="h-3 w-3" />
+          <span className="text-[10px] font-semibold uppercase">-{discountPercentage}%</span>
+        </div>
+      );
+    }
+    return (
+      <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
+        {tags}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-4 py-6">
       <div className="flex items-center justify-between px-4">
         <div>
-          <h2 className="text-2xl font-bold">Productos Relacionados</h2>
+          <h2 className="text-2xl font-bold">
+            {mainProductName
+              ? `Productos relacionados con "${mainProductName}"`
+              : "Productos Relacionados"}
+          </h2>
           <p className="text-muted-foreground">Descubre más productos que podrían interesarte</p>
         </div>
         <div className="flex items-center gap-3">
@@ -245,30 +297,7 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
                   <Card className="overflow-hidden transition-all duration-300 hover:shadow-xl border-border m-1">
                     <CardContent className="p-0">
                       <div className="relative">
-                        <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
-                          {product.tag &&
-                            product.tag.split(", ").map((tag, index) => (
-                              <Badge
-                                key={index}
-                                className={`${
-                                  tag === "Oferta" ? "bg-red-500 hover:bg-red-600" :
-                                  tag === "Nuevo" ? "bg-blue-500 hover:bg-blue-600" :
-                                  tag === "Más Vendido" ? "bg-amber-500 hover:bg-amber-600" :
-                                  tag === "Limitado" ? "bg-purple-500 hover:bg-purple-600" :
-                                  "bg-green-500 hover:bg-green-600"
-                                }`}
-                              >
-                                {tag}
-                              </Badge>
-                            ))}
-
-                          {discountPercentage > 0 && (
-                            <Badge variant="destructive">
-                              {discountPercentage}% OFF
-                            </Badge>
-                          )}
-                        </div>
-
+                        {getTagBadges(product, discountPercentage)}
                         <div className="absolute top-2 right-2 z-10 flex flex-col gap-1">
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -351,7 +380,7 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
               );
             })}
           </CarouselContent>
-
+          
           <div className="flex items-center justify-center mt-6 gap-4">
             <CarouselPrevious className="static transform-none mx-1 h-8 w-8" />
 
