@@ -154,8 +154,12 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
   };
 
   const calculateDiscount = (price: string, originalPrice: string) => {
-    const currentPrice = parseFloat(price.replace('$', ''));
-    const origPrice = parseFloat(originalPrice.replace('$', ''));
+    const formatPrice = (value: string): number => {
+      return parseFloat(value.replace(/[^\d.-]/g, ''));
+    };
+
+    const currentPrice = formatPrice(price);
+    const origPrice = formatPrice(originalPrice);
 
     if (origPrice > currentPrice) {
       const discount = Math.round(((origPrice - currentPrice) / origPrice) * 100);

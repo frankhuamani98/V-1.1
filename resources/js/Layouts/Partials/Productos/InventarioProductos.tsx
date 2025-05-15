@@ -31,6 +31,8 @@ interface Producto {
     codigo: string;
     nombre: string;
     precio: number;
+    precio_final: number;
+    descuento: number;
     stock: number;
     estado: string;
     imagen_principal: string | null;
@@ -44,6 +46,16 @@ interface Producto {
 interface InventarioProductosProps {
     productos: Producto[];
 }
+
+const formatPrice = (price: number): string => {
+    const formattedPrice = price.toLocaleString("es-PE", {
+        style: "currency",
+        currency: "PEN",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
+    return formattedPrice.replace("PEN", "S/");
+};
 
 const InventarioProductos = ({ productos }: InventarioProductosProps) => {
     const isUrl = (str: string) => {
@@ -219,8 +231,23 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
                                             <span className="text-gray-500 flex items-center">
                                                 <DollarSign className="h-4 w-4 mr-1" /> Precio:
                                             </span>
-                                            <span className="font-medium text-green-600">S/ {producto.precio.toFixed(2)}</span>
+                                            <div className="text-right">
+                                                <span className="font-medium text-green-600">{formatPrice(producto.precio_final)}</span>
+                                                {producto.precio_final < producto.precio && (
+                                                    <div className="text-sm text-gray-500 line-through">
+                                                        {formatPrice(producto.precio)}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
+                                        {producto.precio_final < producto.precio && (
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-gray-500 flex items-center">
+                                                    <Tag className="h-4 w-4 mr-1" /> Descuento:
+                                                </span>
+                                                <span className="font-medium text-red-500">-{producto.descuento}%</span>
+                                            </div>
+                                        )}
                                         <div className="flex justify-between items-center">
                                             <span className="text-gray-500 flex items-center">
                                                 <Package className="h-4 w-4 mr-1" /> Stock:

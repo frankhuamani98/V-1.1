@@ -91,6 +91,16 @@ interface FavoriteItem {
   imagen?: string;
 }
 
+const formatPrice = (price: number): string => {
+  const formattedPrice = price.toLocaleString("es-PE", {
+    style: "currency",
+    currency: "PEN",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return formattedPrice.replace("PEN", "S/");
+};
+
 const ListItem = React.forwardRef<
   React.ElementRef<"a">,
   React.ComponentPropsWithoutRef<"a">
@@ -139,7 +149,7 @@ const CartItem = ({
         <h4 className="text-sm font-medium truncate">{product.nombre}</h4>
         <div className="flex items-center mt-1 text-sm text-muted-foreground">
           <span>
-            {product.quantity} x S/{product.precio.toFixed(2)}
+            {product.quantity} x {formatPrice(product.precio)}
           </span>
           {product.descuento > 0 && (
             <span className="ml-1 text-xs text-red-500">
@@ -174,13 +184,13 @@ const FavoriteItem = ({
       const discountedPrice = product.precio - (product.precio * product.descuento / 100);
       return (
         <div className="flex items-center">
-          <span className="font-medium">S/{discountedPrice.toFixed(2)}</span>
-          <span className="ml-2 text-xs text-muted-foreground line-through">S/{product.precio.toFixed(2)}</span>
+          <span className="font-medium">{formatPrice(discountedPrice)}</span>
+          <span className="ml-2 text-xs text-muted-foreground line-through">{formatPrice(product.precio)}</span>
           <span className="ml-1 text-xs text-red-500">(-{product.descuento}%)</span>
         </div>
       );
     }
-    return <span>S/{product.precio.toFixed(2)}</span>;
+    return <span>{formatPrice(product.precio)}</span>;
   };
 
   return (

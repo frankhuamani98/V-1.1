@@ -76,11 +76,13 @@ interface ResultadoProps {
 }
 
 const formatPrice = (price: number): string => {
-    const roundedPrice = Math.round(price * 100) / 100;
-    if (Number.isInteger(roundedPrice)) {
-        return `S/${roundedPrice}`;
-    }
-    return `S/${roundedPrice.toFixed(2)}`;
+  const formattedPrice = price.toLocaleString("es-PE", {
+    style: "currency",
+    currency: "PEN",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return formattedPrice.replace("PEN", "S/");
 };
 
 const handleImageUrl = (image: string): string => {
