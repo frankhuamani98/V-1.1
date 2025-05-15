@@ -53,6 +53,7 @@ interface Producto {
   subcategoria_id: number;
   precio: number;
   descuento: number;
+  precio_final: number; // Nuevo campo para el precio final
   imagen_principal: string;
   imagenes_adicionales: string[];
   calificacion: number;
@@ -87,14 +88,6 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
       maximumFractionDigits: 2,
     });
     return formattedPrice.replace("PEN", "S/");
-  };
-
-  const calculateFinalPrice = (price: number, descuento: number): number => {
-    if (descuento > 0) {
-      const discountAmount = (price * descuento) / 100;
-      return price - discountAmount;
-    }
-    return price;
   };
 
   const toggleFavorite = (productId: number) => {
@@ -172,9 +165,9 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
   };
 
   const renderPrice = (product: Producto) => {
-    const precioFinal = formatPrice(calculateFinalPrice(product.precio, product.descuento));
+    const precioFinal = formatPrice(product.precio_final); // Usar el precio final directamente
     const precioOriginal = product.descuento > 0 ? formatPrice(product.precio) : null;
-    
+
     return (
       <div className="flex items-center gap-2 mt-2">
         <span className="font-bold text-lg">{precioFinal}</span>
@@ -323,9 +316,9 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
       case 'price-low':
-        return calculateFinalPrice(a.precio, a.descuento) - calculateFinalPrice(b.precio, b.descuento);
+        return a.precio_final - b.precio_final;
       case 'price-high':
-        return calculateFinalPrice(b.precio, b.descuento) - calculateFinalPrice(a.precio, a.descuento);
+        return b.precio_final - a.precio_final;
       case 'rating':
         return b.calificacion - a.calificacion;
       case 'newest':

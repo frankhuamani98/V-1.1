@@ -176,7 +176,7 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
       return parseFloat(value.replace(/[^\d.-]/g, ''));
     };
 
-    const priceWithIGV = formatPrice(price) * (1 + IGV_RATE);
+    const priceWithIGV = formatPrice(price); // Usar el precio final directamente
     return `S/ ${priceWithIGV.toFixed(2)}`;
   };
 

@@ -15,9 +15,7 @@ class InventarioProductosController extends Controller
             ->get()
             ->map(function ($producto) {
                 $producto->precio = (float)$producto->precio;
-                $producto->precio_final = $producto->descuento > 0 
-                    ? $producto->precio - ($producto->precio * $producto->descuento / 100) 
-                    : $producto->precio;
+                $producto->precio_final = $producto->precio_final; // Usar el campo directamente
                 return $producto;
             });
 

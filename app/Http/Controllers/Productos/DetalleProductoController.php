@@ -53,7 +53,8 @@ class DetalleProductoController extends Controller
                     'tag' => $this->getTags($prod),
                     'stock' => $prod->stock,
                     'masVendido' => $prod->mas_vendido ?? false,
-                    'destacado' => $prod->destacado ?? false
+                    'destacado' => $prod->destacado ?? false,
+                    'precio_final' => $prod->precio_final, // Mostrar el precio final
                 ];
             });
 

@@ -47,11 +47,6 @@ interface InventarioProductosProps {
     productos: Producto[];
 }
 
-const calculateFinalPrice = (price: number, descuento: number): number => {
-    const priceWithIgv = price * 1.18;
-    return descuento > 0 ? priceWithIgv - (priceWithIgv * descuento / 100) : priceWithIgv;
-};
-
 const formatPrice = (price: number): string => {
     return price.toLocaleString("es-PE", {
         style: "currency",
@@ -237,21 +232,8 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
                                             </span>
                                             <div className="text-right">
                                                 <span className="font-medium text-green-600">{formatPrice(producto.precio_final)}</span>
-                                                {producto.precio_final < producto.precio && (
-                                                    <div className="text-sm text-gray-500 line-through">
-                                                        {formatPrice(producto.precio)}
-                                                    </div>
-                                                )}
                                             </div>
                                         </div>
-                                        {producto.precio_final < producto.precio && (
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-gray-500 flex items-center">
-                                                    <Tag className="h-4 w-4 mr-1" /> Descuento:
-                                                </span>
-                                                <span className="font-medium text-red-500">-{producto.descuento}%</span>
-                                            </div>
-                                        )}
                                         <div className="flex justify-between items-center">
                                             <span className="text-gray-500 flex items-center">
                                                 <Package className="h-4 w-4 mr-1" /> Stock:

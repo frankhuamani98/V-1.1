@@ -83,12 +83,7 @@ export default function Details({ producto, productosRelacionados }: Props) {
     return formattedPrice.replace("PEN", "S/");
   };
 
-  const calculateFinalPrice = (price: number, descuento: number): number => {
-    const priceWithIgv = price * 1.18; // Aplica IGV del 18%
-    return descuento > 0 ? priceWithIgv - (priceWithIgv * descuento / 100) : priceWithIgv;
-  };
-
-  const precioFinal = calculateFinalPrice(producto.precio, producto.descuento);
+  const precioFinal = producto.precio_final; // Usar el precio final directamente
   const ahorro = formatPrice((producto.precio * 1.18) - precioFinal);
   const hasDiscount = producto.descuento > 0;
 

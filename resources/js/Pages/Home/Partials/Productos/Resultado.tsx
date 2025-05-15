@@ -75,11 +75,6 @@ interface ResultadoProps {
     };
 }
 
-const calculateFinalPrice = (price: number, descuento: number): number => {
-  const priceWithIgv = price * 1.18;
-  return descuento > 0 ? priceWithIgv - (priceWithIgv * descuento / 100) : priceWithIgv;
-};
-
 const formatPrice = (price: number): string => {
   return price.toLocaleString("es-PE", {
     style: "currency",

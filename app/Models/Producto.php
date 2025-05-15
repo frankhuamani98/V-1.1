@@ -26,7 +26,8 @@ class Producto extends Model
         'stock',
         'destacado',
         'mas_vendido',
-        'estado'
+        'estado',
+        'precio_final'
     ];
 
     protected $casts = [
@@ -35,7 +36,8 @@ class Producto extends Model
         'destacado' => 'boolean',
         'mas_vendido' => 'boolean',
         'precio' => 'float',
-        'descuento' => 'float'
+        'descuento' => 'float',
+        'precio_final' => 'float'
     ];
 
     const ESTADO_ACTIVO = 'Activo';
@@ -74,9 +76,10 @@ class Producto extends Model
 
     public function getPrecioFinalAttribute()
     {
+        $precioConDescuento = $this->precio * (1 - ($this->descuento / 100));
         return $this->incluye_igv 
-            ? $this->precioConDescuento 
-            : $this->precioConDescuento * 1.18;
+            ? $precioConDescuento 
+            : $precioConDescuento * 1.18; // Asegurar que incluye IGV si corresponde
     }
 
     public function scopeActivos($query)

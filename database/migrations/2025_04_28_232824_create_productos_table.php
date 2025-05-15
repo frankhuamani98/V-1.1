@@ -1,4 +1,3 @@
-
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -19,6 +18,7 @@ return new class extends Migration
             $table->foreignId('subcategoria_id')->constrained('subcategorias')->onDelete('cascade');
             $table->decimal('precio', 10, 2);
             $table->decimal('descuento', 5, 2)->default(0);
+            $table->decimal('precio_final', 10, 2);
             $table->string('imagen_principal');
             $table->json('imagenes_adicionales')->nullable();
             $table->tinyInteger('calificacion')->default(0);

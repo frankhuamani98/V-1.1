@@ -94,6 +94,11 @@ class AgregarProductoController extends Controller
                 }
             }
 
+            $precioBase = (float)$request->precio;
+            $precioConIGV = $request->incluye_igv ? $precioBase : $precioBase * 1.18;
+            $descuento = $precioConIGV * ((float)($request->descuento ?? 0) / 100);
+            $precioFinal = $precioConIGV - $descuento;
+
             $producto = Producto::create([
                 'codigo' => $request->codigo,
                 'nombre' => $request->nombre,
@@ -111,6 +116,7 @@ class AgregarProductoController extends Controller
                 'destacado' => $request->destacado ?? false,
                 'mas_vendido' => $request->mas_vendido ?? false,
                 'estado' => Producto::ESTADO_ACTIVO,
+                'precio_final' => $precioFinal,
             ]);
 
             if ($request->moto_ids) {
