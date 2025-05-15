@@ -9,48 +9,7 @@ import Footer from "./Home/Footer";
 import WhatsAppButton from "@/Components/WhatsAppButton";
 
 interface WelcomeProps extends PageProps {
-    featuredProducts: Array<{
-        id: number;
-        nombre: string;
-        precio: number;
-        descuento: number;
-        precio_final: number;
-        descripcion_corta: string;
-        imagen_principal: string;
-        stock: number;
-        destacado: boolean;
-        mas_vendido: boolean;
-        calificacion: number;
-        total_reviews: number;
-    }>;
-    bestSellingProducts: Array<{
-        id: number;
-        nombre: string;
-        precio: number;
-        descuento: number;
-        precio_final: number;
-        descripcion_corta: string;
-        imagen_principal: string;
-        stock: number;
-        destacado: boolean;
-        mas_vendido: boolean;
-        calificacion: number;
-        total_reviews: number;
-    }>;
-    allProducts: Array<{
-        id: number;
-        nombre: string;
-        precio: number;
-        descuento: number;
-        precio_final: number;
-        descripcion_corta: string;
-        imagen_principal: string;
-        stock: number;
-        destacado: boolean;
-        mas_vendido: boolean;
-        calificacion: number;
-        total_reviews: number;
-    }>;
+
     motoData: {
         years: number[];
         brandsByYear: Record<number, string[]>;
@@ -94,9 +53,7 @@ interface WelcomeProps extends PageProps {
 }
 
 export default function Welcome({
-    featuredProducts,
-    bestSellingProducts,
-    allProducts,
+
     motoData,
     opiniones,
     auth
@@ -108,12 +65,7 @@ export default function Welcome({
             <Header />
             <MotorcycleSearch motoData={motoData} />
             <CompleteCarousel />
-
-            <Products 
-              featuredProducts={featuredProducts} 
-              bestSellingProducts={bestSellingProducts} 
-              allProducts={allProducts} 
-            />
+            
 
             <Opiniones opiniones={opiniones} auth={auth} />
 

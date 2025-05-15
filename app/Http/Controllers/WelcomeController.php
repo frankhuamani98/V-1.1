@@ -146,88 +146,17 @@ class WelcomeController extends Controller
                 ];
             });
 
-        $featuredProducts = Producto::where('estado', 'Activo')
-            ->where('destacado', true)
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($producto) {
-                return [
-                    'id' => $producto->id,
-                    'nombre' => $producto->nombre,
-                    'precio' => (float)$producto->precio,
-                    'descuento' => (float)$producto->descuento,
-                    'precio_final' => (float)$producto->precio_final,
-                    'descripcion_corta' => $producto->descripcion_corta,
-                    'imagen_principal' => $producto->imagen_principal 
-                        ? (filter_var($producto->imagen_principal, FILTER_VALIDATE_URL) 
-                            ? $producto->imagen_principal 
-                            : asset('storage/' . $producto->imagen_principal)
-                        ) : null,
-                    'stock' => $producto->stock,
-                    'destacado' => (bool)$producto->destacado,
-                    'mas_vendido' => (bool)$producto->mas_vendido,
-                    'calificacion' => $producto->calificacion ?? 0,
-                    'total_reviews' => $producto->total_reviews ?? 0
-                ];
-            });
 
-        $bestSellingProducts = Producto::where('estado', 'Activo')
-            ->where('mas_vendido', true)
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($producto) {
-                return [
-                    'id' => $producto->id,
-                    'nombre' => $producto->nombre,
-                    'precio' => (float)$producto->precio,
-                    'descuento' => (float)$producto->descuento,
-                    'precio_final' => (float)$producto->precio_final,
-                    'descripcion_corta' => $producto->descripcion_corta,
-                    'imagen_principal' => $producto->imagen_principal 
-                        ? (filter_var($producto->imagen_principal, FILTER_VALIDATE_URL) 
-                            ? $producto->imagen_principal 
-                            : asset('storage/' . $producto->imagen_principal)
-                        ) : null,
-                    'stock' => $producto->stock,
-                    'destacado' => (bool)$producto->destacado,
-                    'mas_vendido' => (bool)$producto->mas_vendido,
-                    'calificacion' => $producto->calificacion ?? 0,
-                    'total_reviews' => $producto->total_reviews ?? 0
-                ];
-            });
 
-        $allProducts = Producto::where('estado', 'Activo')
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($producto) {
-                return [
-                    'id' => $producto->id,
-                    'nombre' => $producto->nombre,
-                    'precio' => (float)$producto->precio,
-                    'descuento' => (float)$producto->descuento,
-                    'precio_final' => (float)$producto->precio_final,
-                    'descripcion_corta' => $producto->descripcion_corta,
-                    'imagen_principal' => $producto->imagen_principal 
-                        ? (filter_var($producto->imagen_principal, FILTER_VALIDATE_URL) 
-                            ? $producto->imagen_principal 
-                            : asset('storage/' . $producto->imagen_principal)
-                        ) : null,
-                    'stock' => $producto->stock,
-                    'destacado' => (bool)$producto->destacado,
-                    'mas_vendido' => (bool)$producto->mas_vendido,
-                    'calificacion' => $producto->calificacion ?? 0,
-                    'total_reviews' => $producto->total_reviews ?? 0
-                ];
-            });
+
+
 
         return Inertia::render('Welcome', [
             'banners' => $banners,
             'categoriasMenu' => $categoriasMenu, 
             'categoriasServicio' => $categoriasServicio,
             'servicios' => $servicios,
-            'featuredProducts' => $featuredProducts,
-            'bestSellingProducts' => $bestSellingProducts,
-            'allProducts' => $allProducts,
+
             'motoData' => [
                 'years' => $years,
                 'brandsByYear' => $marcasPorAño,
