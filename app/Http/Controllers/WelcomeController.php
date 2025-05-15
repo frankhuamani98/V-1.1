@@ -156,9 +156,7 @@ class WelcomeController extends Controller
                     'nombre' => $producto->nombre,
                     'precio' => (float)$producto->precio,
                     'descuento' => (float)$producto->descuento,
-                    'precio_final' => (float)($producto->descuento ? 
-                        $producto->precio - ($producto->precio * $producto->descuento / 100) : 
-                        $producto->precio),
+                    'precio_final' => (float)($producto->precio * 1.18 - ($producto->precio * $producto->descuento / 100)),
                     'descripcion_corta' => $producto->descripcion_corta,
                     'imagen_principal' => $producto->imagen_principal 
                         ? (filter_var($producto->imagen_principal, FILTER_VALIDATE_URL) 
@@ -183,9 +181,7 @@ class WelcomeController extends Controller
                     'nombre' => $producto->nombre,
                     'precio' => (float)$producto->precio,
                     'descuento' => (float)$producto->descuento,
-                    'precio_final' => (float)($producto->descuento ? 
-                        $producto->precio - ($producto->precio * $producto->descuento / 100) : 
-                        $producto->precio),
+                    'precio_final' => (float)($producto->precio * 1.18 - ($producto->precio * $producto->descuento / 100)),
                     'descripcion_corta' => $producto->descripcion_corta,
                     'imagen_principal' => $producto->imagen_principal 
                         ? (filter_var($producto->imagen_principal, FILTER_VALIDATE_URL) 
@@ -209,9 +205,7 @@ class WelcomeController extends Controller
                     'nombre' => $producto->nombre,
                     'precio' => (float)$producto->precio,
                     'descuento' => (float)$producto->descuento,
-                    'precio_final' => (float)($producto->descuento ? 
-                        $producto->precio - ($producto->precio * $producto->descuento / 100) : 
-                        $producto->precio),
+                    'precio_final' => (float)($producto->precio * 1.18 - ($producto->precio * $producto->descuento / 100)),
                     'descripcion_corta' => $producto->descripcion_corta,
                     'imagen_principal' => $producto->imagen_principal 
                         ? (filter_var($producto->imagen_principal, FILTER_VALIDATE_URL) 

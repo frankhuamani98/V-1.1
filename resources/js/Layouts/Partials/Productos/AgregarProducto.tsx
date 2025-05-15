@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, usePage } from '@inertiajs/react';
 import { PageProps } from '@/types';
 import {
@@ -7,7 +7,6 @@ import {
   Minus,
   Plus,
   Trash2,
-  Image as ImageIcon,
   Upload,
   Star,
   Check,
@@ -100,6 +99,9 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
 
   const handlePrecioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+    const parts = rawValue.split('.');
+    if (parts.length > 2) return; // Only allow one decimal point
+    if (parts[1]?.length > 2) return; // Only allow 2 decimal places
     setData('precio', rawValue);
   };
 
@@ -203,513 +205,664 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
     });
   };
 
+  const formatCurrency = (value: number): string => {
+    return new Intl.NumberFormat('es-PE', {
+      style: 'currency',
+      currency: 'PEN',
+      minimumFractionDigits: 2,
+    }).format(value);
+  };
+
+  const calculatePrecioConIGV = (): number => {
+    const precio = parseFloat(data.precio) || 0;
+    return data.incluye_igv ? precio : precio * 1.18;
+  };
+
+  const calculateDescuento = (): number => {
+    const precioConIGV = calculatePrecioConIGV();
+    const descuento = parseFloat(data.descuento) || 0;
+    return (precioConIGV * descuento) / 100;
+  };
+
+  const calculatePrecioFinal = (): string => {
+    const precioConIGV = calculatePrecioConIGV();
+    const descuento = calculateDescuento();
+    return formatCurrency(precioConIGV - descuento);
+  };
+
   return (
-    <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 bg-gray-50">
       {flash?.message && (
-        <div className="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded shadow">
+        <div className="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded shadow-lg animate-fadeIn">
           {flash?.message}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-white shadow-lg rounded-lg p-6">
-        <div className="flex border-b border-gray-200 mb-6 bg-gray-100 rounded-lg p-1">
-          <button
-            type="button"
-            onClick={() => setActiveTab('informacion')}
-            className={`py-2 px-4 font-medium text-sm ${activeTab === 'informacion' ? 'text-blue-600 border-b-2 border-blue-600 bg-white rounded-lg' : 'text-gray-500 hover:text-gray-700 bg-gray-100 rounded-lg'}`}
-          >
-            <div className="flex items-center">
-              <svg className="h-5 w-5 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Información
-            </div>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('precios')}
-            className={`py-2 px-4 font-medium text-sm ${activeTab === 'precios' ? 'text-blue-600 border-b-2 border-blue-600 bg-white rounded-lg' : 'text-gray-500 hover:text-gray-700 bg-gray-100 rounded-lg'}`}
-          >
-            <div className="flex items-center">
-              <svg className="h-5 w-5 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c1.654 0 3-1.346 3-3s-1.346-3-3-3-3 1.346-3 3 1.346 3 3 3zm0 2c-2.21 0-4 1.79-4 4v1h8v-1c0-2.21-1.79-4-4-4zm0 8c-2.21 0-4 1.79-4 4h8c0-2.21-1.79-4-4-4z" />
-              </svg>
-              Precios
-            </div>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('imagenes')}
-            className={`py-2 px-4 font-medium text-sm ${activeTab === 'imagenes' ? 'text-blue-600 border-b-2 border-blue-600 bg-white rounded-lg' : 'text-gray-500 hover:text-gray-700 bg-gray-100 rounded-lg'}`}
-          >
-            <div className="flex items-center">
-              <ImageIcon className="h-5 w-5 mr-1" />
-              Imágenes
-            </div>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('categorias')}
-            className={`py-2 px-4 font-medium text-sm ${activeTab === 'categorias' ? 'text-blue-600 border-b-2 border-blue-600 bg-white rounded-lg' : 'text-gray-500 hover:text-gray-700 bg-gray-100 rounded-lg'}`}
-          >
-            <div className="flex items-center">
-              <svg className="h-5 w-5 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
-              Categorías
-            </div>
-          </button>
+      <div className="bg-white shadow-xl rounded-xl overflow-hidden border border-gray-100">
+        <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+          <h1 className="text-2xl font-bold text-gray-800">Agregar Nuevo Producto</h1>
+          <p className="text-sm text-gray-500 mt-1">Ingresa los detalles del nuevo producto para tu catálogo</p>
         </div>
-        {activeTab === 'informacion' && (
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900">Información Básica</h2>
 
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Código del Producto*</label>
-                <input
-                  name="codigo"
-                  value={data.codigo}
-                  onChange={handleInputChange}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-                  required
-                />
-                {errors.codigo && <p className="mt-1 text-sm text-red-600">{errors.codigo}</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del Producto*</label>
-                <input
-                  name="nombre"
-                  value={data.nombre}
-                  onChange={handleInputChange}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-                  required
-                />
-                {errors.nombre && <p className="mt-1 text-sm text-red-600">{errors.nombre}</p>}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Descripción Corta*</label>
-              <textarea
-                name="descripcion_corta"
-                value={data.descripcion_corta}
-                onChange={handleInputChange}
-                maxLength={150}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-                rows={3}
-                required
-              />
-              <div className="flex justify-between mt-1">
-                <span className="text-xs text-gray-500">{data.descripcion_corta.length}/150 caracteres</span>
-                {errors.descripcion_corta && <p className="text-sm text-red-600">{errors.descripcion_corta}</p>}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Detalles del Producto</label>
-              <textarea
-                name="detalles"
-                value={data.detalles}
-                onChange={handleInputChange}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-                rows={5}
-              />
-              {errors.detalles && <p className="mt-1 text-sm text-red-600">{errors.detalles}</p>}
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Calificación</label>
-                <div className="flex">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setData('calificacion', star)}
-                      className="text-2xl focus:outline-none"
-                    >
-                      {star <= data.calificacion ? (
-                        <Star className="h-6 w-6 text-yellow-400 fill-current" />
-                      ) : (
-                        <Star className="h-6 w-6 text-gray-300" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-4">
-                <label className="inline-flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={data.destacado}
-                    onChange={(e) => setData('destacado', e.target.checked)}
-                    className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Producto Destacado</span>
-                </label>
-
-                <label className="inline-flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={data.mas_vendido}
-                    onChange={(e) => setData('mas_vendido', e.target.checked)}
-                    className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Más Vendido</span>
-                </label>
-              </div>
-            </div>
-
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={nextStep}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                Siguiente
-                <ChevronRight className="h-5 w-5 ml-1" />
-              </button>
+        <form onSubmit={handleSubmit}>
+          <div className="flex overflow-x-auto border-b border-gray-200 bg-gray-50 px-4">
+            <div className="flex space-x-1 py-3">
+              {[
+                { id: 'informacion', label: 'Información' },
+                { id: 'precios', label: 'Precios' },
+                { id: 'imagenes', label: 'Imágenes' },
+                { id: 'categorias', label: 'Categorías' }
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`relative py-3 px-6 font-medium text-sm transition-all duration-200 rounded-t-lg whitespace-nowrap
+                    ${
+                      activeTab === tab.id
+                        ? 'text-blue-600 bg-white shadow-sm' 
+                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                    }
+                  `}
+                >
+                  {tab.label}
+                  {activeTab === tab.id && (
+                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transition-all duration-300"></span>
+                  )}
+                </button>
+              ))}
             </div>
           </div>
-        )}
 
-        {activeTab === 'precios' && (
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900">Precios y Stock</h2>
-
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Precio (S/.)*</label>
-                <div className="relative rounded-md shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="text-gray-500 sm:text-sm">S/</span>
+          <div className="p-6">
+            {/* Sección de Información */}
+            {activeTab === 'informacion' && (
+              <div className="space-y-8 animate-fadeIn">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 mr-2">1</span>
+                    Información Básica
+                  </h2>
+                  
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div className="group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 group-focus-within:text-blue-600 transition-colors">
+                        Código del Producto*
+                      </label>
+                      <input
+                        name="codigo"
+                        value={data.codigo}
+                        onChange={handleInputChange}
+                        className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-all duration-200 sm:text-sm p-3"
+                        required
+                      />
+                      {errors.codigo && <p className="mt-1 text-sm text-red-600">{errors.codigo}</p>}
+                    </div>
+                    <div className="group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 group-focus-within:text-blue-600 transition-colors">
+                        Nombre del Producto*
+                      </label>
+                      <input
+                        name="nombre"
+                        value={data.nombre}
+                        onChange={handleInputChange}
+                        className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-all duration-200 sm:text-sm p-3"
+                        required
+                      />
+                      {errors.nombre && <p className="mt-1 text-sm text-red-600">{errors.nombre}</p>}
+                    </div>
                   </div>
-                  <input
-                    name="precio"
-                    value={data.precio}
-                    onChange={handlePrecioChange}
-                    className="block w-full pl-10 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-                    required
-                  />
-                </div>
-                {errors.precio && <p className="mt-1 text-sm text-red-600">{errors.precio}</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Descuento (%)</label>
-                <input
-                  name="descuento"
-                  type="number"
-                  value={data.descuento}
-                  onChange={handleInputChange}
-                  min="0"
-                  max="100"
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-                />
-                {errors.descuento && <p className="mt-1 text-sm text-red-600">{errors.descuento}</p>}
-              </div>
-
-              <div className="flex items-end">
-                <label className="inline-flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={data.incluye_igv}
-                    onChange={(e) => setData('incluye_igv', e.target.checked)}
-                    className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Incluye IGV (18%)</span>
-                </label>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Stock Disponible</label>
-              <div className="flex items-center space-x-4">
-                <button
-                  type="button"
-                  onClick={() => setData('stock', Math.max(0, data.stock - 1))}
-                  className="inline-flex items-center p-2 border border-gray-300 rounded-full shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  <Minus className="h-5 w-5" />
-                </button>
-                <span className="text-lg font-medium">{data.stock}</span>
-                <button
-                  type="button"
-                  onClick={() => setData('stock', data.stock + 1)}
-                  className="inline-flex items-center p-2 border border-gray-300 rounded-full shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  <Plus className="h-5 w-5" />
-                </button>
-              </div>
-              {errors.stock && <p className="mt-1 text-sm text-red-600">{errors.stock}</p>}
-            </div>
-
-            <div className="flex justify-between">
-              <button
-                type="button"
-                onClick={prevStep}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <ChevronLeft className="h-5 w-5 mr-1" />
-                Anterior
-              </button>
-              <button
-                type="button"
-                onClick={nextStep}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                Siguiente
-                <ChevronRight className="h-5 w-5 ml-1" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'imagenes' && (
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900">Imágenes del Producto</h2>
-
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Imagen Principal*</h3>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Subir por URL:</label>
-                  <input
-                    type="text"
-                    value={data.imagen_principal}
-                    onChange={(e) => setData('imagen_principal', e.target.value)}
-                    placeholder="https://ejemplo.com/imagen.jpg"
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-                  />
-                  {errors.imagen_principal && <p className="mt-1 text-sm text-red-600">{errors.imagen_principal}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Subir archivo:</label>
-                  <input
-                    type="file"
-                    onChange={(e) => {
-                      if (e.target.files && e.target.files[0] && isValidImageFile(e.target.files[0])) {
-                        handleMainImageFileChange(e.target.files[0]);
-                      }
-                    }}
-                    accept="image/*"
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                  />
-                  {errors.imagen_principal_file && <p className="mt-1 text-sm text-red-600">{errors.imagen_principal_file}</p>}
+                  <div className="group">
+                    <label className="block text-sm font-medium text-gray-700 mb-2 group-focus-within:text-blue-600 transition-colors">
+                      Descripción Corta*
+                    </label>
+                    <textarea
+                      name="descripcion_corta"
+                      value={data.descripcion_corta}
+                      onChange={handleInputChange}
+                      maxLength={150}
+                      className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-all duration-200 sm:text-sm p-3"
+                      rows={3}
+                      required
+                    />
+                    <div className="flex justify-between mt-1">
+                      <span className="text-xs text-gray-500">
+                        {data.descripcion_corta.length}/150 caracteres
+                      </span>
+                      {errors.descripcion_corta && <p className="text-sm text-red-600">{errors.descripcion_corta}</p>}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="group">
+                    <label className="block text-sm font-medium text-gray-700 mb-2 group-focus-within:text-blue-600 transition-colors">
+                      Detalles del Producto
+                    </label>
+                    <textarea
+                      name="detalles"
+                      value={data.detalles}
+                      onChange={handleInputChange}
+                      className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-all duration-200 sm:text-sm p-3"
+                      rows={5}
+                    />
+                    {errors.detalles && <p className="mt-1 text-sm text-red-600">{errors.detalles}</p>}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <label className="block text-sm font-medium text-gray-700 mb-3">Calificación del Producto</label>
+                    <div className="flex">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setData('calificacion', star)}
+                          className="text-2xl focus:outline-none transition-transform hover:scale-110"
+                        >
+                          {star <= data.calificacion ? (
+                            <Star className="h-7 w-7 text-yellow-400 fill-current" />
+                          ) : (
+                            <Star className="h-7 w-7 text-gray-300" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <label className="block text-sm font-medium text-gray-700 mb-3">Características Destacadas</label>
+                    <div className="space-y-3">
+                      <label className="inline-flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={data.destacado}
+                          onChange={(e) => setData('destacado', e.target.checked)}
+                          className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-all duration-200"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">Producto Destacado</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={data.mas_vendido}
+                          onChange={(e) => setData('mas_vendido', e.target.checked)}
+                          className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-all duration-200"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">Más Vendido</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end pt-4">
+                  <button
+                    type="button"
+                    onClick={nextStep}
+                    className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                  >
+                    Siguiente
+                    <ChevronRight className="h-5 w-5 ml-2" />
+                  </button>
                 </div>
               </div>
-            </div>
+            )}
 
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Imágenes Adicionales (Máx. 6)</h3>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {/* Sección de Precios */}
+            {activeTab === 'precios' && (
+              <div className="space-y-8 animate-fadeIn">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Subir por URL:</label>
-                  <input
-                    type="text"
-                    value={nuevaImagen.url}
-                    onChange={(e) => setNuevaImagen(prev => ({ ...prev, url: e.target.value }))}
-                    placeholder="https://ejemplo.com/imagen.jpg"
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-                  />
+                  <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 mr-2">2</span>
+                    Precios y Stock
+                  </h2>
+                  
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                    <div className="group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 group-focus-within:text-blue-600 transition-colors">
+                        Precio Base (S/.)*
+                      </label>
+                      <div className="relative rounded-lg shadow-sm">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <span className="text-gray-500 sm:text-sm">S/</span>
+                        </div>
+                        <input
+                          name="precio"
+                          value={data.precio}
+                          onChange={handlePrecioChange}
+                          className="block w-full pl-10 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-all duration-200 sm:text-sm p-3"
+                          placeholder="Ingrese el precio base"
+                          required
+                        />
+                      </div>
+                      {errors.precio && <p className="mt-1 text-sm text-red-600">{errors.precio}</p>}
+                    </div>
+                    
+                    <div className="group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 group-focus-within:text-blue-600 transition-colors">
+                        Descuento (%)
+                      </label>
+                      <input
+                        name="descuento"
+                        type="number"
+                        value={data.descuento}
+                        onChange={handleInputChange}
+                        min="0"
+                        max="100"
+                        className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-all duration-200 sm:text-sm p-3"
+                        placeholder="Ingrese el descuento"
+                      />
+                      {errors.descuento && <p className="mt-1 text-sm text-red-600">{errors.descuento}</p>}
+                    </div>
+                    
+                    <div className="flex items-end">
+                      <label className="inline-flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group">
+                        <input
+                          type="checkbox"
+                          checked={data.incluye_igv}
+                          onChange={(e) => setData('incluye_igv', e.target.checked)}
+                          className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-all duration-200"
+                        />
+                        <span className="ml-2 text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
+                          Incluye IGV (18%)
+                        </span>
+                      </label>
+                    </div>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Subir archivo:</label>
-                  <input
-                    type="file"
-                    onChange={(e) => {
-                      if (e.target.files && e.target.files[0] && isValidImageFile(e.target.files[0])) {
-                        handleAdditionalImageFileChange(e.target.files[0]);
-                      }
-                    }}
-                    accept="image/*"
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                  />
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg shadow-sm border border-blue-100">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">Resumen de Precios</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-700">Precio Base:</span>
+                      <span className="text-lg font-medium text-gray-900">
+                        {formatCurrency(parseFloat(data.precio || '0'))}
+                      </span>
+                    </div>
+                    
+                    {data.incluye_igv && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-700">IGV (18%):</span>
+                        <span className="text-lg font-medium text-gray-900">
+                          {formatCurrency(calculatePrecioConIGV() - parseFloat(data.precio || '0'))}
+                        </span>
+                      </div>
+                    )}
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-700">Descuento Aplicado:</span>
+                      <span className="text-lg font-medium text-red-600">
+                        - {formatCurrency(calculateDescuento())}
+                      </span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center border-t pt-3 mt-2">
+                      <span className="text-base font-semibold text-gray-700">Precio Final:</span>
+                      <span className="text-xl font-bold text-green-600">{calculatePrecioFinal()}</span>
+                    </div>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Estilo/Variante (opcional)</label>
-                  <input
-                    type="text"
-                    value={nuevaImagen.estilo}
-                    onChange={(e) => setNuevaImagen(prev => ({ ...prev, estilo: e.target.value }))}
-                    placeholder="Ej: Color Rojo"
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-                  />
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={agregarImagenAdicional}
-                disabled={!nuevaImagen.url && !nuevaImagen.file}
-                className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Upload className="h-5 w-5 mr-1" />
-                Agregar Imagen
-              </button>
-            </div>
-
-            <div className="space-y-2">
-              <h4 className="text-md font-medium text-gray-900">Imágenes Agregadas:</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                {JSON.parse(data.imagenes_adicionales).map((img: ImagenAdicional, index: number) => (
-                  <div key={index} className="flex items-center justify-between p-2 border rounded-md bg-gray-50">
-                    <div className="truncate">
-                      <span className="text-sm">{img.url || (img.file ? 'Imagen subida' : 'Imagen')}</span>
-                      {img.estilo && <span className="text-xs text-gray-500"> - {img.estilo}</span>}
+                <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Stock Disponible</label>
+                  <div className="flex items-center space-x-4">
+                    <button
+                      type="button"
+                      onClick={() => setData('stock', Math.max(0, data.stock - 1))}
+                      className="inline-flex items-center justify-center p-2 w-10 h-10 border border-gray-300 rounded-full shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+                    >
+                      <Minus className="h-5 w-5" />
+                    </button>
+                    <div className="text-lg font-medium bg-gray-50 px-5 py-2 rounded-lg min-w-[60px] text-center">
+                      {data.stock}
                     </div>
                     <button
                       type="button"
-                      onClick={() => eliminarImagenAdicional(index)}
-                      className="ml-2 text-red-600 hover:text-red-800"
+                      onClick={() => setData('stock', data.stock + 1)}
+                      className="inline-flex items-center justify-center p-2 w-10 h-10 border border-gray-300 rounded-full shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
                     >
-                      <Trash2 className="h-5 w-5" />
+                      <Plus className="h-5 w-5" />
                     </button>
                   </div>
-                ))}
+                  {errors.stock && <p className="mt-1 text-sm text-red-600">{errors.stock}</p>}
+                </div>
+
+                <div className="flex justify-between pt-4">
+                  <button
+                    type="button"
+                    onClick={prevStep}
+                    className="inline-flex items-center px-6 py-3 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                  >
+                    <ChevronLeft className="h-5 w-5 mr-2" />
+                    Anterior
+                  </button>
+                  <button
+                    type="button"
+                    onClick={nextStep}
+                    className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                  >
+                    Siguiente
+                    <ChevronRight className="h-5 w-5 ml-2" />
+                  </button>
+                </div>
               </div>
-              <p className="text-sm text-gray-500">
-                {JSON.parse(data.imagenes_adicionales).length}/6 imágenes
-              </p>
-              {errors.imagenes_adicionales && <p className="text-sm text-red-600">{errors.imagenes_adicionales}</p>}
-            </div>
+            )}
 
-            <div className="flex justify-between">
-              <button
-                type="button"
-                onClick={prevStep}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <ChevronLeft className="h-5 w-5 mr-1" />
-                Anterior
-              </button>
-              <button
-                type="button"
-                onClick={nextStep}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                Siguiente
-                <ChevronRight className="h-5 w-5 ml-1" />
-              </button>
-            </div>
-          </div>
-        )}
+            {/* Sección de Imágenes */}
+            {activeTab === 'imagenes' && (
+              <div className="space-y-8 animate-fadeIn">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 mr-2">3</span>
+                    Imágenes del Producto
+                  </h2>
+                  
+                  <div className="space-y-6">
+                    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                      <h3 className="text-lg font-medium text-gray-800 mb-4">Imagen Principal*</h3>
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div className="group">
+                          <label className="block text-sm font-medium text-gray-700 mb-2 group-focus-within:text-blue-600 transition-colors">
+                            Subir por URL:
+                          </label>
+                          <input
+                            type="text"
+                            value={data.imagen_principal}
+                            onChange={(e) => setData('imagen_principal', e.target.value)}
+                            placeholder="https://ejemplo.com/imagen.jpg"
+                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-all duration-200 sm:text-sm p-3"
+                          />
+                          {errors.imagen_principal && <p className="mt-1 text-sm text-red-600">{errors.imagen_principal}</p>}
+                        </div>
+                        
+                        <div className="group">
+                          <label className="block text-sm font-medium text-gray-700 mb-2 group-focus-within:text-blue-600 transition-colors">
+                            Subir archivo:
+                          </label>
+                          <input
+                            type="file"
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0] && isValidImageFile(e.target.files[0])) {
+                                handleMainImageFileChange(e.target.files[0]);
+                              }
+                            }}
+                            accept="image/*"
+                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-colors"
+                          />
+                          {errors.imagen_principal_file && (
+                            <p className="mt-1 text-sm text-red-600">{errors.imagen_principal_file}</p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {(data.imagen_principal || data.imagen_principal_file) && (
+                        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                          <p className="text-sm text-green-600 flex items-center">
+                            <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+                            Imagen principal seleccionada
+                          </p>
+                        </div>
+                      )}
+                    </div>
 
-        {activeTab === 'categorias' && (
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900">Categorías y Motos Compatibles</h2>
+                    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                      <h3 className="text-lg font-medium text-gray-800 mb-4">Imágenes Adicionales (Máx. 6)</h3>
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                        <div className="group">
+                          <label className="block text-sm font-medium text-gray-700 mb-2 group-focus-within:text-blue-600  transition-colors">
+                            Subir por URL:
+                          </label>
+                          <input
+                            type="text"
+                            value={nuevaImagen.url}
+                            onChange={(e) => setNuevaImagen(prev => ({ ...prev, url: e.target.value }))}
+                            placeholder="https://ejemplo.com/imagen.jpg"
+                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-all duration-200 sm:text-sm p-3"
+                          />
+                        </div>
+                        
+                        <div className="group">
+                          <label className="block text-sm font-medium text-gray-700 mb-2 group-focus-within:text-blue-600 transition-colors">
+                            Subir archivo:
+                          </label>
+                          <input
+                            type="file"
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0] && isValidImageFile(e.target.files[0])) {
+                                handleAdditionalImageFileChange(e.target.files[0]);
+                              }
+                            }}
+                            accept="image/*"
+                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-colors"
+                          />
+                        </div>
+                        
+                        <div className="group">
+                          <label className="block text-sm font-medium text-gray-700 mb-2 group-focus-within:text-blue-600 transition-colors">
+                            Estilo/Variante (opcional)
+                          </label>
+                          <input
+                            type="text"
+                            value={nuevaImagen.estilo}
+                            onChange={(e) => setNuevaImagen(prev => ({ ...prev, estilo: e.target.value }))}
+                            placeholder="Ej: Color Rojo"
+                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-all duration-200 sm:text-sm p-3"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="mt-4">
+                        <button
+                          type="button"
+                          onClick={agregarImagenAdicional}
+                          disabled={!nuevaImagen.url && !nuevaImagen.file}
+                          className="inline-flex items-center px-4 py-2 border border-blue-300 shadow-sm text-sm font-medium rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                        >
+                          <Upload className="h-5 w-5 mr-2" />
+                          Agregar Imagen
+                        </button>
+                      </div>
+                    </div>
 
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Categoría*</label>
-                <select
-                  value={data.categoria_id}
-                  onChange={(e) => setData('categoria_id', e.target.value)}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-                  required
-                >
-                  <option value="">Seleccione una categoría</option>
-                  {categorias.map(cat => (
-                    <option key={cat.id} value={cat.id}>{cat.nombre}</option>
-                  ))}
-                </select>
-                {errors.categoria_id && <p className="mt-1 text-sm text-red-600">{errors.categoria_id}</p>}
+                    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                      <h4 className="text-md font-medium text-gray-800 mb-3">Imágenes Agregadas:</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        {JSON.parse(data.imagenes_adicionales).map((img: ImagenAdicional, index: number) => (
+                          <div key={index} className="flex items-center justify-between p-3 border rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                            <div className="truncate flex-1">
+                              <span className="text-sm font-medium">{img.url || (img.file ? 'Imagen subida' : 'Imagen')}</span>
+                              {img.estilo && <span className="text-xs text-gray-500 block"> - {img.estilo}</span>}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => eliminarImagenAdicional(index)}
+                              className="ml-2 text-gray-400 hover:text-red-600 transition-colors p-1 rounded-full hover:bg-red-50"
+                            >
+                              <Trash2 className="h-5 w-5" />
+                            </button>
+                          </div>
+                        ))}
+                        
+                        {JSON.parse(data.imagenes_adicionales).length === 0 && (
+                          <div className="col-span-full py-4 text-center text-gray-500 italic bg-gray-50 rounded-lg">
+                            No hay imágenes adicionales
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-500 mt-2 flex items-center">
+                        <span className={`inline-block w-2 h-2 rounded-full mr-2 ${
+                          JSON.parse(data.imagenes_adicionales).length === 6 ? 'bg-orange-500' : 'bg-blue-500'
+                        }`}></span>
+                        {JSON.parse(data.imagenes_adicionales).length}/6 imágenes
+                      </p>
+                      {errors.imagenes_adicionales && <p className="text-sm text-red-600">{errors.imagenes_adicionales}</p>}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-between pt-4">
+                  <button
+                    type="button"
+                    onClick={prevStep}
+                    className="inline-flex items-center px-6 py-3 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                  >
+                    <ChevronLeft className="h-5 w-5 mr-2" />
+                    Anterior
+                  </button>
+                  <button
+                    type="button"
+                    onClick={nextStep}
+                    className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                  >
+                    Siguiente
+                    <ChevronRight className="h-5 w-5 ml-2" />
+                  </button>
+                </div>
               </div>
+            )}
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Subcategoría*</label>
-                <select
-                  value={data.subcategoria_id}
-                  onChange={(e) => setData('subcategoria_id', e.target.value)}
-                  disabled={!data.categoria_id}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 disabled:bg-gray-50 disabled:text-gray-500"
-                  required
-                >
-                  <option value="">Seleccione una subcategoría</option>
-                  {subcategorias.map(sub => (
-                    <option key={sub.id} value={sub.id}>{sub.nombre}</option>
-                  ))}
-                </select>
-                {errors.subcategoria_id && <p className="mt-1 text-sm text-red-600">{errors.subcategoria_id}</p>}
-              </div>
-            </div>
+            {/* Sección de Categorías */}
+            {activeTab === 'categorias' && (
+              <div className="space-y-8 animate-fadeIn">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 mr-2">4</span>
+                    Categorías y Motos Compatibles
+                  </h2>
+                  
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div className="group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 group-focus-within:text-blue-600 transition-colors">
+                        Categoría*
+                      </label>
+                      <select
+                        value={data.categoria_id}
+                        onChange={(e) => setData('categoria_id', e.target.value)}
+                        className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-all duration-200 sm:text-sm p-3"
+                        required
+                      >
+                        <option value="">Seleccione una categoría</option>
+                        {categorias.map(cat => (
+                          <option key={cat.id} value={cat.id}>{cat.nombre}</option>
+                        ))}
+                      </select>
+                      {errors.categoria_id && <p className="mt-1 text-sm text-red-600">{errors.categoria_id}</p>}
+                    </div>
+                    
+                    <div className="group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 group-focus-within:text-blue-600 transition-colors">
+                        Subcategoría*
+                      </label>
+                      <select
+                        value={data.subcategoria_id}
+                        onChange={(e) => setData('subcategoria_id', e.target.value)}
+                        disabled={!data.categoria_id}
+                        className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-all duration-200 sm:text-sm p-3 disabled:bg-gray-50 disabled:text-gray-500"
+                        required
+                      >
+                        <option value="">Seleccione una subcategoría</option>
+                        {subcategorias.map(sub => (
+                          <option key={sub.id} value={sub.id}>{sub.nombre}</option>
+                        ))}
+                      </select>
+                      {errors.subcategoria_id && <p className="mt-1 text-sm text-red-600">{errors.subcategoria_id}</p>}
+                    </div>
+                  </div>
+                </div>
 
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Motos Compatibles</h3>
-
-              <div className="mb-4">
-                <label className="inline-flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={selectAllMotos}
-                    onChange={handleSelectAllMotos}
-                    className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Seleccionar todas las motos</span>
-                </label>
-              </div>
-
-              <div className="max-h-60 overflow-y-auto border rounded-md p-2 bg-gray-50">
-                {motos.map(moto => (
-                  <div key={moto.id} className="flex items-center p-1 hover:bg-gray-100">
-                    <input
-                      type="checkbox"
-                      id={`moto-${moto.id}`}
-                      checked={data.moto_ids.includes(moto.id.toString())}
-                      onChange={() => handleMotoSelection(moto.id.toString())}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <label htmlFor={`moto-${moto.id}`} className="ml-2 text-sm text-gray-700">
-                      {`${moto.marca} ${moto.modelo} (${moto.año})`}
+                <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                  <h3 className="text-lg font-medium text-gray-800 mb-4">Motos Compatibles</h3>
+                  <div className="mb-4">
+                    <label className="inline-flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectAllMotos}
+                        onChange={handleSelectAllMotos}
+                        className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-all duration-200"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">Seleccionar todas las motos</span>
                     </label>
                   </div>
-                ))}
-              </div>
-              <p className="text-sm text-gray-500 mt-1">{data.moto_ids.length} motos seleccionadas</p>
-              {errors.moto_ids && <p className="text-sm text-red-600">{errors.moto_ids}</p>}
-            </div>
+                  
+                  <div className="max-h-60 overflow-y-auto border rounded-lg p-3 bg-gray-50">
+                    {motos.length === 0 ? (
+                      <p className="text-center text-gray-500 py-4">No hay motos disponibles</p>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                        {motos.map(moto => (
+                          <div key={moto.id} className="flex items-center p-2 hover:bg-blue-50 rounded-lg transition-colors">
+                            <input
+                              type="checkbox"
+                              id={`moto-${moto.id}`}
+                              checked={data.moto_ids.includes(moto.id.toString())}
+                              onChange={() => handleMotoSelection(moto.id.toString())}
+                              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
+                            />
+                            <label htmlFor={`moto-${moto.id}`} className="ml-2 text-sm text-gray-700 flex-1 cursor-pointer">
+                              {`${moto.marca} ${moto.modelo} (${moto.año})`}
+                              <span className="ml-2 inline-block text-xs px-2 py-0.5 rounded-full bg-gray-200 text-gray-700">
+                                {moto.estado}
+                              </span>
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="mt-2 flex justify-between items-center">
+                    <p className="text-sm text-gray-500">
+                      {data.moto_ids.length} {data.moto_ids.length === 1 ? 'moto seleccionada' : 'motos seleccionadas'}
+                    </p>
+                    {data.moto_ids.length > 0 && (
+                      <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">
+                        {Math.round((data.moto_ids.length / motos.length) * 100)}% del total
+                      </span>
+                    )}
+                  </div>
+                  {errors.moto_ids && <p className="text-sm text-red-600 mt-1">{errors.moto_ids}</p>}
+                </div>
 
-            <div className="flex justify-between">
-              <button
-                type="button"
-                onClick={prevStep}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <ChevronLeft className="h-5 w-5 mr-1" />
-                Anterior
-              </button>
-              <button
-                type="submit"
-                disabled={processing}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {processing ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Guardando...
-                  </>
-                ) : (
-                  <>
-                    <Check className="h-5 w-5 mr-1" />
-                    Guardar Producto
-                  </>
-                )}
-              </button>
-            </div>
+                <div className="flex justify-between pt-4">
+                  <button
+                    type="button"
+                    onClick={prevStep}
+                    className="inline-flex items-center px-6 py-3 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                  >
+                    <ChevronLeft className="h-5 w-5 mr-2" />
+                    Anterior
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={processing}
+                    className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg shadow-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                  >
+                    {processing ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Guardando...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="h-5 w-5 mr-2" />
+                        Guardar Producto
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </form>
+        </form>
+      </div>
     </div>
   );
 };

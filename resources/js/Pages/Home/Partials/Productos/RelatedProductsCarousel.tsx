@@ -28,6 +28,8 @@ interface RelatedProductsCarouselProps {
   isMobile?: boolean;
 }
 
+const IGV_RATE = 0.18;
+
 const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ products, isMobile = false }) => {
   const [api, setApi] = useState<CarouselApi | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -158,8 +160,8 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
       return parseFloat(value.replace(/[^\d.-]/g, ''));
     };
 
-    const currentPrice = formatPrice(price);
-    const origPrice = formatPrice(originalPrice);
+    const currentPrice = formatPrice(price) * (1 + IGV_RATE); // Añadir IGV al precio actual
+    const origPrice = formatPrice(originalPrice) * (1 + IGV_RATE); // Añadir IGV al precio original
 
     if (origPrice > currentPrice) {
       const discount = Math.round(((origPrice - currentPrice) / origPrice) * 100);
@@ -167,6 +169,15 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
     }
 
     return 0;
+  };
+
+  const renderPriceWithIGV = (price: string): string => {
+    const formatPrice = (value: string): number => {
+      return parseFloat(value.replace(/[^\d.-]/g, ''));
+    };
+
+    const priceWithIGV = formatPrice(price) * (1 + IGV_RATE);
+    return `S/ ${priceWithIGV.toFixed(2)}`;
   };
 
   const renderStockIndicator = (stock: number) => {
@@ -306,10 +317,10 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
                         </Tooltip>
 
                         <div className="flex items-center gap-2 mt-2">
-                          <span className="font-bold text-lg">{product.price}</span>
+                          <span className="font-bold text-lg">{renderPriceWithIGV(product.price)}</span>
                           {discountPercentage > 0 && (
                             <span className="text-sm text-muted-foreground line-through">
-                              {product.originalPrice}
+                              {renderPriceWithIGV(product.originalPrice)}
                             </span>
                           )}
                         </div>

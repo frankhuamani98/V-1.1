@@ -38,9 +38,7 @@ class ResultadosController extends Controller
                         'descripcion_corta' => $producto->descripcion_corta,
                         'precio' => $producto->precio,
                         'descuento' => $producto->descuento,
-                        'precio_final' => (float)($producto->descuento ? 
-                            $producto->precio - ($producto->precio * $producto->descuento / 100) : 
-                            $producto->precio),
+                        'precio_final' => (float)($producto->precio * 1.18 - ($producto->precio * $producto->descuento / 100)),
                         'imagen_principal' => $producto->imagen_principal,
                         'calificacion' => $producto->calificacion,
                         'stock' => (int)$producto->stock,

@@ -47,14 +47,18 @@ interface InventarioProductosProps {
     productos: Producto[];
 }
 
+const calculateFinalPrice = (price: number, descuento: number): number => {
+    const priceWithIgv = price * 1.18;
+    return descuento > 0 ? priceWithIgv - (priceWithIgv * descuento / 100) : priceWithIgv;
+};
+
 const formatPrice = (price: number): string => {
-    const formattedPrice = price.toLocaleString("es-PE", {
+    return price.toLocaleString("es-PE", {
         style: "currency",
         currency: "PEN",
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-    });
-    return formattedPrice.replace("PEN", "S/");
+    }).replace("PEN", "S/");
 };
 
 const InventarioProductos = ({ productos }: InventarioProductosProps) => {

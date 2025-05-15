@@ -125,29 +125,24 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
     return formattedPrice.replace("PEN", "S/");
   };
 
-  const calculateFinalPrice = (price: number, descuento: number) => {
-    if (descuento > 0) {
-      return price - (price * descuento / 100);
-    }
-    return price;
+  const calculateFinalPrice = (price: number, descuento: number): number => {
+    const priceWithIgv = price * 1.18; // Aplica IGV del 18%
+    return descuento > 0 ? priceWithIgv - (priceWithIgv * descuento / 100) : priceWithIgv;
   };
 
-  const renderPrice = (product: any) => {
+  const renderPrice = (product: Product) => {
+    const precioBase = formatPrice(product.precio);
     const precioFinal = formatPrice(calculateFinalPrice(product.precio, product.descuento));
-    const precioOriginal = product.descuento > 0 ? formatPrice(product.precio) : null;
-    
+    const descuento = product.descuento > 0 ? `-${product.descuento}%` : null;
+
     return (
       <div className="flex items-center gap-2 mt-2">
         <span className="font-bold text-lg">{precioFinal}</span>
-        {precioOriginal && (
-          <span className="text-sm text-muted-foreground line-through">
-            {precioOriginal}
-          </span>
-        )}
         {product.descuento > 0 && (
-          <span className="text-sm text-red-500">
-            -{product.descuento}%
-          </span>
+          <>
+            <span className="text-sm text-muted-foreground line-through">{precioBase}</span>
+            <span className="text-sm text-red-500">{descuento}</span>
+          </>
         )}
       </div>
     );

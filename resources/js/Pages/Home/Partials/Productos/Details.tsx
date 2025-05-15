@@ -84,15 +84,12 @@ export default function Details({ producto, productosRelacionados }: Props) {
   };
 
   const calculateFinalPrice = (price: number, descuento: number): number => {
-    if (descuento > 0) {
-      const discountAmount = (price * descuento) / 100;
-      return price - discountAmount;
-    }
-    return price;
+    const priceWithIgv = price * 1.18; // Aplica IGV del 18%
+    return descuento > 0 ? priceWithIgv - (priceWithIgv * descuento / 100) : priceWithIgv;
   };
 
   const precioFinal = calculateFinalPrice(producto.precio, producto.descuento);
-  const calculatedSavings = producto.precio - precioFinal;
+  const ahorro = formatPrice((producto.precio * 1.18) - precioFinal);
   const hasDiscount = producto.descuento > 0;
 
   useEffect(() => {
@@ -274,7 +271,7 @@ export default function Details({ producto, productosRelacionados }: Props) {
                   {hasDiscount && (
                     <>
                       <span className="text-lg text-gray-500 dark:text-gray-400 line-through">
-                        {formatPrice(producto.precio)}
+                        {formatPrice(producto.precio * 1.18)}
                       </span>
                       <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50 ml-2">
                         -{producto.descuento}% OFF
@@ -286,7 +283,7 @@ export default function Details({ producto, productosRelacionados }: Props) {
                   <div className="flex flex-col sm:flex-row gap-2 mt-2">
                     <div className="flex items-center">
                       <Badge variant="destructive" className="text-sm">
-                        Ahorras {formatPrice(calculatedSavings)}
+                        Ahorras {ahorro}
                       </Badge>
                     </div>
                     <p className="text-sm text-green-600 dark:text-green-400 flex items-center">
