@@ -66,6 +66,8 @@ export default function Welcome({
             <MotorcycleSearch motoData={motoData} />
             <CompleteCarousel />
             
+                  <Products />
+
 
             <Opiniones opiniones={opiniones} auth={auth} />
 
