@@ -146,17 +146,41 @@ class WelcomeController extends Controller
                 ];
             });
 
+        // Obtener productos para la página principal
+        $productosDestacados = Producto::with(['categoria', 'subcategoria', 'motos'])
+            ->where('estado', 'Activo')
+            ->where('destacado', true)
+            ->orderBy('created_at', 'desc')
+            ->limit(8)
+            ->get()
+            ->map(function ($producto) {
+                return $this->formatProductData($producto);
+            });
 
+        $productosMasVendidos = Producto::with(['categoria', 'subcategoria', 'motos'])
+            ->where('estado', 'Activo')
+            ->where('mas_vendido', true)
+            ->orderBy('created_at', 'desc')
+            ->limit(8)
+            ->get()
+            ->map(function ($producto) {
+                return $this->formatProductData($producto);
+            });
 
-
-
+        $todosProductos = Producto::with(['categoria', 'subcategoria', 'motos'])
+            ->where('estado', 'Activo')
+            ->orderBy('created_at', 'desc')
+            ->limit(12)
+            ->get()
+            ->map(function ($producto) {
+                return $this->formatProductData($producto);
+            });
 
         return Inertia::render('Welcome', [
             'banners' => $banners,
             'categoriasMenu' => $categoriasMenu, 
             'categoriasServicio' => $categoriasServicio,
             'servicios' => $servicios,
-
             'motoData' => [
                 'years' => $years,
                 'brandsByYear' => $marcasPorAño,
@@ -168,7 +192,31 @@ class WelcomeController extends Controller
                 'total' => $totalOpiniones,
                 'conteo' => $conteoCalificaciones
             ],
-
+            'productosDestacados' => $productosDestacados,
+            'productosMasVendidos' => $productosMasVendidos,
+            'todosProductos' => $todosProductos,
         ]);
+    }
+
+    private function formatProductData($producto)
+    {
+        return [
+            'id' => $producto->id,
+            'name' => $producto->nombre,
+            'price' => 'S/ ' . number_format($producto->precio_final, 2, '.', ','),
+            'originalPrice' => 'S/ ' . number_format($producto->precio, 2, '.', ','),
+            'rating' => $producto->calificacion ?? 4.5,
+            'reviews' => rand(10, 100),
+            'image' => $producto->imagen_principal ? 
+                     (str_starts_with($producto->imagen_principal, 'http') ? 
+                      $producto->imagen_principal : 
+                      asset('storage/' . ltrim($producto->imagen_principal, '/'))) :
+                     'https://via.placeholder.com/300',
+            'tag' => ($producto->destacado ? 'Destacado' : '') . 
+                    ($producto->mas_vendido ? ($producto->destacado ? ', Más Vendido' : 'Más Vendido') : ''),
+            'stock' => $producto->stock,
+            'description' => $producto->descripcion_corta,
+            'descuento' => isset($producto->descuento) ? $producto->descuento : 0,
+        ];
     }
 }

@@ -15,9 +15,7 @@ class InventarioProductosController extends Controller
             ->get()
             ->map(function ($producto) {
                 $producto->precio = (float)$producto->precio;
-                $producto->precio_final = $producto->incluye_igv 
-                    ? $producto->precio * 1.18 - ($producto->precio * 1.18 * ($producto->descuento / 100))
-                    : $producto->precio - ($producto->precio * ($producto->descuento / 100));
+                $producto->precio_final = (float)$producto->precio_final;
                 return $producto;
             });
 

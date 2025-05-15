@@ -10,6 +10,10 @@ class Producto extends Model
 {
     use HasFactory, SoftDeletes;
 
+    const ESTADO_ACTIVO = 'Activo';
+    const ESTADO_INACTIVO = 'Inactivo';
+    const ESTADO_DESCONTINUADO = 'Descontinuado';
+
     protected $fillable = [
         'codigo',
         'nombre',
@@ -40,10 +44,6 @@ class Producto extends Model
         'precio_final' => 'float'
     ];
 
-    const ESTADO_ACTIVO = 'Activo';
-    const ESTADO_INACTIVO = 'Inactivo';
-    const ESTADO_DESCONTINUADO = 'Descontinuado';
-
     public static function getEstadosDisponibles(): array
     {
         return [
@@ -63,23 +63,9 @@ class Producto extends Model
         return $this->belongsTo(Subcategoria::class);
     }
 
-    // Relación muchos a muchos con motos
     public function motos()
     {
         return $this->belongsToMany(Moto::class, 'moto_producto');
-    }
-
-    public function getPrecioConDescuentoAttribute()
-    {
-        return $this->precio * (1 - ($this->descuento / 100));
-    }
-
-    public function getPrecioFinalAttribute()
-    {
-        $precioConDescuento = $this->precio * (1 - ($this->descuento / 100));
-        return $this->incluye_igv 
-            ? $precioConDescuento 
-            : $precioConDescuento * 1.18; // Asegurar que incluye IGV si corresponde
     }
 
     public function scopeActivos($query)

@@ -9,7 +9,6 @@ import Footer from "./Home/Footer";
 import WhatsAppButton from "@/Components/WhatsAppButton";
 
 interface WelcomeProps extends PageProps {
-
     motoData: {
         years: number[];
         brandsByYear: Record<number, string[]>;
@@ -50,13 +49,51 @@ interface WelcomeProps extends PageProps {
             5: number;
         };
     };
+    productosDestacados: Array<{
+        id: number;
+        name: string;
+        price: string;
+        originalPrice: string;
+        rating: number;
+        reviews: number;
+        image: string;
+        tag: string;
+        stock: number;
+        description: string;
+    }>;
+    productosMasVendidos: Array<{
+        id: number;
+        name: string;
+        price: string;
+        originalPrice: string;
+        rating: number;
+        reviews: number;
+        image: string;
+        tag: string;
+        stock: number;
+        description: string;
+    }>;
+    todosProductos: Array<{
+        id: number;
+        name: string;
+        price: string;
+        originalPrice: string;
+        rating: number;
+        reviews: number;
+        image: string;
+        tag: string;
+        stock: number;
+        description: string;
+    }>;
 }
 
 export default function Welcome({
-
     motoData,
     opiniones,
-    auth
+    auth,
+    productosDestacados,
+    productosMasVendidos,
+    todosProductos
 }: WelcomeProps) {
     return (
         <>
@@ -66,8 +103,11 @@ export default function Welcome({
             <MotorcycleSearch motoData={motoData} />
             <CompleteCarousel />
             
-                  <Products />
-
+            <Products 
+                productosDestacados={productosDestacados}
+                productosMasVendidos={productosMasVendidos}
+                todosProductos={todosProductos}
+            />
 
             <Opiniones opiniones={opiniones} auth={auth} />
 
