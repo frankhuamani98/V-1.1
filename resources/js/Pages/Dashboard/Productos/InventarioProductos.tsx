@@ -8,6 +8,8 @@ interface InventarioProductosPageProps {
         codigo: string;
         nombre: string;
         precio: number;
+        precio_final: number;
+        descuento: number;
         stock: number;
         estado: string;
         imagen_principal: string | null;

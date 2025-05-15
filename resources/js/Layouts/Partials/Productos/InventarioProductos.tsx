@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "@inertiajs/react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/Components/ui/popover";
 import { Badge } from "@/Components/ui/badge";
 import { Button } from "@/Components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Card } from "@/Components/ui/card";
 import { Separator } from "@/Components/ui/separator";
-import { Star, ShoppingCart, Heart, Eye, Tag, Box, DollarSign, Package } from "lucide-react";
+import { Star, Tag, DollarSign, Package, Box } from "lucide-react";
 
 interface ImagenAdicional {
     url: string;
@@ -47,6 +47,11 @@ interface InventarioProductosProps {
     productos: Producto[];
 }
 
+const calculateFinalPrice = (price: number, descuento: number): number => {
+    const priceWithIgv = price * 1.18;
+    return descuento > 0 ? priceWithIgv - (priceWithIgv * descuento / 100) : priceWithIgv;
+};
+
 const formatPrice = (price: number): string => {
     return price.toLocaleString("es-PE", {
         style: "currency",
@@ -57,6 +62,8 @@ const formatPrice = (price: number): string => {
 };
 
 const InventarioProductos = ({ productos }: InventarioProductosProps) => {
+    const [searchTerm, setSearchTerm] = useState("");
+
     const isUrl = (str: string) => {
         try {
             new URL(str);
@@ -123,172 +130,148 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
         return <div className="flex">{stars}</div>;
     };
 
+    const filteredProductos = productos.filter((producto) =>
+        producto.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
-        <div className="container mx-auto py-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {productos.map((producto) => {
+        <div className="container mx-auto py-8 px-4 lg:px-8">
+            <h1 className="text-3xl font-extrabold text-gray-800 mb-8 text-center">Inventario de Productos</h1>
+
+            {/* Buscador */}
+            <div className="mb-8">
+                <input
+                    type="text"
+                    placeholder="Buscar productos..."
+                    className="w-full p-4 border border-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+
+            <div className="space-y-6">
+                {filteredProductos.map((producto) => {
                     const mainImageUrl = getImageUrl(producto.imagen_principal);
                     const additionalImages = safeAdditionalImages(producto.imagenes_adicionales);
 
                     return (
-                        <Card key={producto.id} className="hover:shadow-lg transition-shadow duration-300">
-                            <CardHeader className="p-4">
+                        <Card
+                            key={producto.id}
+                            className="flex flex-col md:flex-row items-center p-6 border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
+                        >
+                            {/* Imagen Principal y Adicionales */}
+                            <div className="w-full md:w-1/3 flex-shrink-0 relative">
+                                <div className="relative group">
+                                    <img
+                                        src={mainImageUrl}
+                                        alt={producto.nombre}
+                                        className="h-48 w-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-110"
+                                        loading="lazy"
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).src = "/images/placeholder-product.png";
+                                            (e.target as HTMLImageElement).classList.add("bg-gray-100");
+                                        }}
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                </div>
+
+                                {/* Carrusel de Imágenes Adicionales */}
+                                {additionalImages.length > 0 && (
+                                    <div className="mt-4 flex space-x-3 overflow-x-auto">
+                                        {additionalImages.map((img, index) => {
+                                            const imageUrl = getImageUrl(img.url);
+                                            return (
+                                                <Popover key={index}>
+                                                    <PopoverTrigger asChild>
+                                                        <img
+                                                            src={imageUrl}
+                                                            alt={`Imagen adicional ${index + 1}`}
+                                                            className="h-16 w-16 object-cover rounded-lg cursor-pointer border border-gray-300 shadow-sm transition-transform duration-300 hover:scale-110"
+                                                            loading="lazy"
+                                                            onError={(e) => {
+                                                                (e.target as HTMLImageElement).src = "/images/placeholder-additional.png";
+                                                                (e.target as HTMLImageElement).classList.add("bg-gray-100");
+                                                            }}
+                                                        />
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-auto p-0">
+                                                        <img
+                                                            src={imageUrl}
+                                                            alt={`Imagen adicional ${index + 1}`}
+                                                            className="max-h-96 max-w-full rounded-lg"
+                                                        />
+                                                    </PopoverContent>
+                                                </Popover>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Información del Producto */}
+                            <div className="w-full md:w-2/3 md:pl-6 mt-6 md:mt-0">
                                 <div className="flex justify-between items-start">
-                                    <CardTitle className="text-lg font-semibold truncate">{producto.nombre}</CardTitle>
-                                    <Badge variant="secondary" className={`${getEstadoColor(producto.estado)} text-white`}>
+                                    <h2 className="text-xl font-bold text-gray-800 truncate">{producto.nombre}</h2>
+                                    <Badge className={`${getEstadoColor(producto.estado)} text-white px-3 py-1 rounded-full`}>
                                         {producto.estado}
                                     </Badge>
                                 </div>
                                 {renderStars(producto.calificacion)}
-                            </CardHeader>
-                            <CardContent className="p-4">
-                                <div className="flex flex-col space-y-4">
-                                    {/* Imagen Principal */}
-                                    {mainImageUrl ? (
-                                        <Popover>
-                                            <PopoverTrigger>
-                                                <div className="relative">
-                                                    <img
-                                                        src={mainImageUrl}
-                                                        alt="Imagen principal"
-                                                        className="h-48 w-full rounded-md object-cover cursor-pointer"
-                                                        loading="lazy"
-                                                        onError={(e) => {
-                                                            (e.target as HTMLImageElement).src = "/images/placeholder-product.png";
-                                                            (e.target as HTMLImageElement).classList.add("bg-gray-100");
-                                                        }}
-                                                    />
-                                                    <div className="absolute top-2 right-2 flex space-x-2">
-                                                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                                                            <Heart className="h-4 w-4" />
-                                                        </Button>
-                                                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                                                            <ShoppingCart className="h-4 w-4" />
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0">
-                                                <img
-                                                    src={mainImageUrl}
-                                                    alt="Imagen principal"
-                                                    className="max-h-96 max-w-full rounded-md"
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
-                                    ) : (
-                                        <div className="h-48 w-full rounded-md bg-gray-200 flex items-center justify-center">
-                                            <span className="text-sm text-gray-500">Sin imagen principal</span>
-                                        </div>
-                                    )}
-
-                                    {/* Imágenes Adicionales */}
-                                    <div className="flex flex-wrap justify-center gap-2">
-                                        {additionalImages.length > 0 ? (
-                                            additionalImages.map((img, index) => {
-                                                const imageUrl = getImageUrl(img.url);
-                                                return imageUrl ? (
-                                                    <Popover key={index}>
-                                                        <PopoverTrigger>
-                                                            <img
-                                                                src={imageUrl}
-                                                                alt={`Imagen adicional ${index + 1}`}
-                                                                className="h-16 w-16 object-cover rounded-md cursor-pointer"
-                                                                loading="lazy"
-                                                                onError={(e) => {
-                                                                    (e.target as HTMLImageElement).src = "/images/placeholder-additional.png";
-                                                                    (e.target as HTMLImageElement).classList.add("bg-gray-100");
-                                                                }}
-                                                            />
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="w-auto p-0">
-                                                            <img
-                                                                src={imageUrl}
-                                                                alt={`Imagen adicional ${index + 1}`}
-                                                                className="max-h-60 max-w-full rounded-md"
-                                                            />
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                ) : null;
-                                            })
-                                        ) : (
-                                            <div className="h-16 w-16 rounded-md bg-gray-100 flex items-center justify-center border border-dashed border-gray-300">
-                                                <span className="text-xs text-gray-500">Sin adicionales</span>
-                                            </div>
-                                        )}
+                                <div className="text-sm mt-4 space-y-2">
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Código:</span>
+                                        <span className="font-medium">{producto.codigo}</span>
                                     </div>
-
-                                    {/* Información del Producto */}
-                                    <div className="text-sm space-y-2">
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-500 flex items-center">
-                                                <Tag className="h-4 w-4 mr-1" /> Código:
-                                            </span>
-                                            <span className="font-medium">{producto.codigo}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-500 flex items-center">
-                                                <DollarSign className="h-4 w-4 mr-1" /> Precio:
-                                            </span>
-                                            <div className="text-right">
-                                                <span className="font-medium text-green-600">{formatPrice(producto.precio_final)}</span>
-                                            </div>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-500 flex items-center">
-                                                <Package className="h-4 w-4 mr-1" /> Stock:
-                                            </span>
-                                            <div className="flex items-center space-x-2">
-                                                <span className="font-medium">{producto.stock} unidades</span>
-                                                <Badge className={`${getStockColor(producto.stock)} text-white`}>
-                                                    {producto.stock === 0 ? "Agotado" : producto.stock < 5 ? "Poco stock" : "Disponible"}
-                                                </Badge>
-                                            </div>
-                                        </div>
-                                        <Separator className="my-2" />
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-500 flex items-center">
-                                                <Box className="h-4 w-4 mr-1" /> Categoría:
-                                            </span>
-                                            <span className="font-medium">{producto.categoria?.nombre || "Sin categoría"}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-500 flex items-center">
-                                                <Box className="h-4 w-4 mr-1" /> Subcategoría:
-                                            </span>
-                                            <span className="font-medium">{producto.subcategoria?.nombre || "Sin subcategoría"}</span>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Precio:</span>
+                                        <div className="text-right">
+                                            <span className="font-medium text-green-600">{formatPrice(producto.precio_final)}</span>
+                                            {producto.precio_final < producto.precio && (
+                                                <span className="text-xs text-red-500 line-through ml-2">
+                                                    {formatPrice(producto.precio)}
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
-
-                                    {/* Motos Compatibles */}
-                                    {producto.motos.length > 0 && (
-                                        <div className="mt-4">
-                                            <h4 className="font-medium text-gray-700 mb-2 flex items-center">
-                                                <Box className="h-4 w-4 mr-1" /> Motos Compatibles:
-                                            </h4>
-                                            <div className="flex flex-wrap gap-2">
-                                                {producto.motos.map((moto, index) => (
-                                                    <Badge key={index} variant="outline" className="text-xs">
-                                                        {moto.marca} {moto.modelo} ({moto.año})
-                                                    </Badge>
-                                                ))}
-                                            </div>
+                                    {producto.precio_final < producto.precio && (
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-500">Descuento:</span>
+                                            <span className="font-medium text-red-500">-{producto.descuento}%</span>
                                         </div>
                                     )}
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Stock:</span>
+                                        <div className="flex items-center space-x-2">
+                                            <span className="font-medium">{producto.stock} unidades</span>
+                                            <Badge className={`${getStockColor(producto.stock)} text-white px-3 py-1 rounded-full`}>
+                                                {producto.stock === 0 ? "Agotado" : producto.stock < 5 ? "Poco stock" : "Disponible"}
+                                            </Badge>
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Categoría:</span>
+                                        <span className="font-medium">{producto.categoria?.nombre || "Sin categoría"}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Subcategoría:</span>
+                                        <span className="font-medium">{producto.subcategoria?.nombre || "Sin subcategoría"}</span>
+                                    </div>
                                 </div>
-                            </CardContent>
-                            <CardFooter className="p-4 flex flex-col sm:flex-row justify-between space-y-2 sm:space-y-0">
-                                <Button asChild variant="outline" className="w-full sm:w-auto">
-                                    <Link href={`/dashboard/productos/detalle/${producto.id}`} className="flex items-center justify-center">
-                                        Ver Detalle
-                                    </Link>
-                                </Button>
-                                <Button asChild className="w-full sm:w-auto">
-                                    <Link href={`/dashboard/productos/editar/${producto.id}`}>
-                                        Editar Producto
-                                    </Link>
-                                </Button>
-                            </CardFooter>
+
+                                {/* Motos Compatibles */}
+                                {producto.motos.length > 0 && (
+                                    <div className="mt-6">
+                                        <h4 className="font-medium text-gray-700 mb-2">Motos Compatibles:</h4>
+                                        <div className="flex flex-wrap gap-2">
+                                            {producto.motos.map((moto, index) => (
+                                                <Badge key={index} variant="outline" className="text-xs">
+                                                    {moto.marca} {moto.modelo} ({moto.año})
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </Card>
                     );
                 })}
