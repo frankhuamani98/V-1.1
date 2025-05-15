@@ -40,6 +40,13 @@ Route::prefix('servicios')->name('servicios.publico.')->group(function () {
         ->where('servicio', '[0-9]+');
 });
 
+// Rutas de Contacto (públicas)
+Route::prefix('contacto')->group(function () {
+    Route::get('/ubicacion', [ContactoController::class, 'ubicacion'])->name('contacto.ubicacion');
+    Route::get('/contactanos', [ContactoController::class, 'contactanos'])->name('contacto.contactanos');
+    Route::get('/redes-sociales', [ContactoController::class, 'redesSociales'])->name('contacto.redes-sociales');
+});
+
 // Autenticación
 require __DIR__.'/auth.php';
 
@@ -268,12 +275,5 @@ Route::middleware('auth')->group(function () {
     Route::prefix('soporte')->group(function () {
         Route::get('/manual', [ManualUsuarioController::class, 'index'])->name('soporte.manual');
         Route::get('/tecnico', [SoporteTecnicoController::class, 'index'])->name('soporte.tecnico');
-    });
-
-    // Rutas de Contacto
-    Route::prefix('contacto')->group(function () {
-        Route::get('/ubicacion', [ContactoController::class, 'ubicacion'])->name('contacto.ubicacion');
-        Route::get('/contactanos', [ContactoController::class, 'contactanos'])->name('contacto.contactanos');
-        Route::get('/redes-sociales', [ContactoController::class, 'redesSociales'])->name('contacto.redes-sociales');
     });
 });
