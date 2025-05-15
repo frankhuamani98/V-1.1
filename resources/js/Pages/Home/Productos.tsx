@@ -84,18 +84,21 @@ interface CarouselSectionProps {
 }
 
 // Cambia la función getDiscountPercentage para que use el campo 'descuento' si existe en el producto
+// Corrige el error cuando product.originalPrice o product.price es undefined o null
 const getDiscountPercentage = (product: any) => {
   // Si el producto tiene el campo 'descuento' y es mayor a 0, úsalo directamente
   if (typeof product.descuento === "number" && product.descuento > 0) {
     return product.descuento;
   }
   // Si no, calcula el descuento a partir de los precios
-  const parsePrice = (price: string) =>
-    Number(
-      price
-        .replace(/[^\d.,]/g, "")
-        .replace(",", ".")
-    );
+  const parsePrice = (price: string | undefined | null) =>
+    typeof price === "string"
+      ? Number(
+          price
+            .replace(/[^\d.,]/g, "")
+            .replace(",", ".")
+        )
+      : 0;
   const original = parsePrice(product.originalPrice);
   const final = parsePrice(product.price);
 
@@ -397,13 +400,28 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
 
                         <div className="flex items-center gap-2 mt-2">
                           <span className="font-bold text-lg">{product.price}</span>
-                          {/* Mostrar siempre el precio original y el porcentaje de descuento, aunque no haya descuento */}
-                          <span className={`text-sm text-muted-foreground${getDiscountPercentage(product) > 0 ? " line-through" : ""}`}>
-                            {product.originalPrice}
-                          </span>
-                          <span className={`text-xs font-semibold ml-1 ${getDiscountPercentage(product) > 0 ? "text-red-500" : "text-muted-foreground"}`}>
-                            -{getDiscountPercentage(product)}%
-                          </span>
+                          {/* Mostrar el precio base tachado solo si es mayor al precio final */}
+                          {(() => {
+                            // Parsea los precios a número para comparar correctamente
+                            const parsePrice = (price: string | undefined | null) =>
+                              typeof price === "string"
+                                ? Number(
+                                    price
+                                      .replace(/[^\d.,]/g, "")
+                                      .replace(",", ".")
+                                  )
+                                : 0;
+                            const original = parsePrice(product.originalPrice);
+                            const final = parsePrice(product.price);
+                            if (original > final) {
+                              return (
+                                <span className="text-sm text-muted-foreground line-through">
+                                  {product.originalPrice}
+                                </span>
+                              );
+                            }
+                            return null;
+                          })()}
                         </div>
                       </div>
                     </CardContent>
@@ -421,7 +439,7 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
                         className="w-full gap-1.5"
                         asChild
                       >
-                        <Link href={`/productos/${product.id}`}>
+                        <Link href={`/details/${product.id}`}>
                           <ExternalLinkIcon className="h-4 w-4" />
                           Ver Detalles
                         </Link>

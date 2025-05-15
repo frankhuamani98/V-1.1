@@ -229,8 +229,9 @@ const ProductCard = ({ product }: { product: Producto }) => {
     return stock > 0 ? 'Disponible' : 'Agotado';
   };
 
+  // Solo mostrar el precio base tachado si es mayor al precio final
   const precioFormateado = formatPrice(product.precio_final);
-  const precioOriginalFormateado = product.descuento > 0 ? formatPrice(product.precio) : null;
+  const mostrarPrecioBaseTachado = product.precio > product.precio_final;
 
   return (
     <Card
@@ -281,13 +282,11 @@ const ProductCard = ({ product }: { product: Producto }) => {
             <p className="text-lg sm:text-xl font-bold dark:text-white">
               {precioFormateado}
             </p>
-            {product.descuento > 0 && (
+            {/* Solo mostrar el precio base tachado si es mayor al precio final */}
+            {mostrarPrecioBaseTachado && (
               <div className="flex items-center gap-1">
                 <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 line-through">
-                  {precioOriginalFormateado}
-                </p>
-                <p className="text-xs sm:text-sm text-red-500 dark:text-red-400">
-                  -{product.descuento}%
+                  {formatPrice(product.precio)}
                 </p>
               </div>
             )}
