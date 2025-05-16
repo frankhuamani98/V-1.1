@@ -13,3 +13,29 @@ const ManualUsuario = () => {
 };
 
 export default ManualUsuario;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
