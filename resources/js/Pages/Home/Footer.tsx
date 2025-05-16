@@ -153,19 +153,56 @@ const Footer = () => {
             </ul>
           </div>
 
-          <div className="text-center sm:text-left">
+            <div className="text-center sm:text-left">
             <h3 className="text-xl font-bold mb-4 flex justify-center sm:justify-start">Menú Principal</h3>
             <ul className="space-y-3">
-              {["Inicio", "Productos", "Servicios", "Nosotros", "Contacto"].map((item) => (
-                <li key={item}>
-                  <a href="#" className="text-neutral-400 text-sm hover:text-neutral-200 transition-colors flex items-center justify-center sm:justify-start group">
-                    <ChevronRightIcon className="h-4 w-4 mr-2 text-neutral-200 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    {item}
-                  </a>
-                </li>
-              ))}
+              <li>
+              <a
+                href="/"
+                className="text-neutral-400 text-sm hover:text-neutral-200 transition-colors flex items-center justify-center sm:justify-start group"
+              >
+                <ChevronRightIcon className="h-4 w-4 mr-2 text-neutral-200 opacity-0 group-hover:opacity-100 transition-opacity" />
+                Inicio
+              </a>
+              </li>
+              <li>
+              <a
+                href="/categorias"
+                className="text-neutral-400 text-sm hover:text-neutral-200 transition-colors flex items-center justify-center sm:justify-start group"
+              >
+                <ChevronRightIcon className="h-4 w-4 mr-2 text-neutral-200 opacity-0 group-hover:opacity-100 transition-opacity" />
+                Productos
+              </a>
+              </li>
+              <li>
+              <a
+                href=""
+                className="text-neutral-400 text-sm hover:text-neutral-200 transition-colors flex items-center justify-center sm:justify-start group"
+              >
+                <ChevronRightIcon className="h-4 w-4 mr-2 text-neutral-200 opacity-0 group-hover:opacity-100 transition-opacity" />
+                Servicios
+              </a>
+              </li>
+              <li>
+              <a
+                href="/nosotros"
+                className="text-neutral-400 text-sm hover:text-neutral-200 transition-colors flex items-center justify-center sm:justify-start group"
+              >
+                <ChevronRightIcon className="h-4 w-4 mr-2 text-neutral-200 opacity-0 group-hover:opacity-100 transition-opacity" />
+                Nosotros
+              </a>
+              </li>
+              <li>
+              <a
+                href="/contacto/contactanos"
+                className="text-neutral-400 text-sm hover:text-neutral-200 transition-colors flex items-center justify-center sm:justify-start group"
+              >
+                <ChevronRightIcon className="h-4 w-4 mr-2 text-neutral-200 opacity-0 group-hover:opacity-100 transition-opacity" />
+                Contacto
+              </a>
+              </li>
             </ul>
-          </div>
+            </div>
 
           <div className="text-center sm:text-left">
             <h3 className="text-xl font-bold mb-4">Categorías</h3>
