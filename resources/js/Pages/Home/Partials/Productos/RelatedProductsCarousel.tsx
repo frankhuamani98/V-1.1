@@ -248,6 +248,9 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
     );
   };
 
+  // Mostrar todos los productos, sin límite
+  const visibleProducts = products;
+
   return (
     <div className="space-y-4 py-6">
       <div className="flex items-center justify-between px-4">
@@ -270,7 +273,7 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
           </Button>
           <div className="flex flex-col items-end">
             <span className="text-sm font-medium">
-              {currentIndex + 1} / {products.length}
+              {currentIndex + 1} / {visibleProducts.length}
             </span>
             <Progress value={progress} className="w-20 h-1.5" />
           </div>
@@ -289,7 +292,7 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
           }}
         >
           <CarouselContent>
-            {products.map((product) => {
+            {visibleProducts.map((product) => {
               const discountPercentage = calculateDiscount(product.price, product.originalPrice);
 
               return (
@@ -380,12 +383,10 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
               );
             })}
           </CarouselContent>
-          
           <div className="flex items-center justify-center mt-6 gap-4">
             <CarouselPrevious className="static transform-none mx-1 h-8 w-8" />
-
             <div className="flex gap-1.5">
-              {products.map((_, index) => (
+              {visibleProducts.map((_, index) => (
                 <Button
                   key={index}
                   variant="ghost"
@@ -397,7 +398,6 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
                 />
               ))}
             </div>
-
             <CarouselNext className="static transform-none mx-1 h-8 w-8" />
           </div>
         </Carousel>
