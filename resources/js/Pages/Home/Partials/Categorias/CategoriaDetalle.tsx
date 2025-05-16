@@ -18,7 +18,11 @@ import {
   ChevronRightIcon,
   FilterIcon,
   GridIcon,
-  ListIcon
+  ListIcon,
+  ExternalLinkIcon,
+  ZapIcon,
+  TrendingUpIcon,
+  PercentIcon,
 } from "lucide-react";
 import { Separator } from "@/Components/ui/separator";
 import { 
@@ -185,18 +189,41 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
     );
   };
 
-  const renderLabels = (product: Producto) => {
+  // Nueva función para mostrar etiquetas igual que en Productos.tsx
+  const getTagBadges = (product: Producto) => {
+    const tags: React.ReactNode[] = [];
+    // Etiquetas personalizadas
+    if (product.destacado) {
+      tags.push(
+        <div key="destacado" className="flex items-center gap-1 bg-yellow-500 text-white px-2 py-0.5 rounded shadow-sm">
+          <ZapIcon className="h-3 w-3" />
+          <span className="text-[10px] font-semibold uppercase">Destacado</span>
+        </div>
+      );
+    }
+    if (product.mas_vendido) {
+      tags.push(
+        <div key="mas_vendido" className="flex items-center gap-1 bg-green-500 text-white px-2 py-0.5 rounded shadow-sm">
+          <TrendingUpIcon className="h-3 w-3" />
+          <span className="text-[10px] font-semibold uppercase">Más Vendido</span>
+        </div>
+      );
+    }
+    // Si el producto tiene descuento
+    if (product.descuento > 0) {
+      tags.push(
+        <div key="descuento" className="flex items-center gap-1 bg-red-500 text-white px-2 py-0.5 rounded shadow-sm">
+          <PercentIcon className="h-3 w-3" />
+          <span className="text-[10px] font-semibold uppercase">-{product.descuento}%</span>
+        </div>
+      );
+    }
+    // Si quieres agregar "Nuevo" u "Oferta", puedes hacerlo aquí según tu lógica
+    // Ejemplo:
+    // if (product.nuevo) { ... }
     return (
-      <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
-        {product.destacado && (
-          <Badge className="bg-blue-500">Destacado</Badge>
-        )}
-        {product.mas_vendido && (
-          <Badge className="bg-purple-500">Más Vendido</Badge>
-        )}
-        {product.descuento > 0 && (
-          <Badge className="bg-red-500">-{product.descuento}%</Badge>
-        )}
+      <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
+        {tags}
       </div>
     );
   };
@@ -207,7 +234,7 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
         {filteredProducts.map((product) => (
           <Card key={product.id} className="overflow-hidden group">
             <div className="relative">
-              {renderLabels(product)}
+              {getTagBadges(product)}
               <div className="absolute top-2 right-2 z-10">
                 <Button
                   variant="ghost"
@@ -238,12 +265,23 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
                 {renderPrice(product)}
               </Link>
             </CardContent>
-            <CardFooter className="pt-0 px-4 pb-4">
-              <Button 
-                className="w-full" 
+            <CardFooter className="pt-0 px-4 pb-4 flex flex-col gap-2">
+              <Button
+                className="w-full gap-1.5"
                 onClick={() => addToCart(product.id)}
               >
-                <ShoppingCartIcon className="mr-2 h-4 w-4" /> Añadir
+                <ShoppingCartIcon className="h-4 w-4" />
+                Añadir al Carrito
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full gap-1.5"
+                asChild
+              >
+                <Link href={`/details/${product.id}`}>
+                  <ExternalLinkIcon className="h-4 w-4" />
+                  Ver Detalles
+                </Link>
               </Button>
             </CardFooter>
           </Card>
@@ -259,7 +297,7 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
           <Card key={product.id} className="overflow-hidden">
             <div className="flex flex-col sm:flex-row">
               <div className="relative w-full sm:w-1/4">
-                {renderLabels(product)}
+                {getTagBadges(product)}
                 <Link href={`/details/${product.id}`}>
                   <div className="h-48 sm:h-full overflow-hidden">
                     <img
@@ -281,11 +319,12 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
                   {renderPrice(product)}
                 </Link>
                 <div className="mt-auto pt-4 flex space-x-2">
-                  <Button 
-                    className="flex-1" 
+                  <Button
+                    className="flex-1 gap-1.5"
                     onClick={() => addToCart(product.id)}
                   >
-                    <ShoppingCartIcon className="mr-2 h-4 w-4" /> Añadir al carrito
+                    <ShoppingCartIcon className="h-4 w-4" />
+                    Añadir al Carrito
                   </Button>
                   <Button
                     variant="outline"
@@ -295,6 +334,16 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
                     <HeartIcon 
                       className={`h-4 w-4 ${favorites.includes(product.id) ? "fill-red-500 text-red-500" : ""}`} 
                     />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="flex-1 gap-1.5"
+                    asChild
+                  >
+                    <Link href={`/details/${product.id}`}>
+                      <ExternalLinkIcon className="h-4 w-4" />
+                      Ver Detalles
+                    </Link>
                   </Button>
                 </div>
               </div>
