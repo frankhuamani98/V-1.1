@@ -231,7 +231,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 bg-gray-50">
+    <div className="max-w-7xl mx-auto py-8 px-2 sm:px-4 lg:px-8 bg-gray-50">
       {flash?.message && (
         <div className="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded shadow-lg animate-fadeIn">
           {flash?.message}
@@ -239,14 +239,14 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
       )}
 
       <div className="bg-white shadow-xl rounded-xl overflow-hidden border border-gray-100">
-        <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <div className="p-4 sm:p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
           <h1 className="text-2xl font-bold text-gray-800">Agregar Nuevo Producto</h1>
           <p className="text-sm text-gray-500 mt-1">Ingresa los detalles del nuevo producto para tu catálogo</p>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="flex overflow-x-auto border-b border-gray-200 bg-gray-50 px-4">
-            <div className="flex space-x-1 py-3">
+          <div className="flex overflow-x-auto border-b border-gray-200 bg-gray-50 px-2 sm:px-4">
+            <div className="flex space-x-1 py-3 min-w-[350px] sm:min-w-0">
               {[
                 { id: 'informacion', label: 'Información' },
                 { id: 'precios', label: 'Precios' },
@@ -257,7 +257,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`relative py-3 px-6 font-medium text-sm transition-all duration-200 rounded-t-lg whitespace-nowrap
+                  className={`relative py-2 px-3 sm:py-3 sm:px-6 font-medium text-xs sm:text-sm transition-all duration-200 rounded-t-lg whitespace-nowrap
                     ${
                       activeTab === tab.id
                         ? 'text-blue-600 bg-white shadow-sm' 
@@ -274,7 +274,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
             </div>
           </div>
 
-          <div className="p-6">
+          <div className="p-2 sm:p-6">
             {/* Sección de Información */}
             {activeTab === 'informacion' && (
               <div className="space-y-8 animate-fadeIn">
@@ -399,11 +399,11 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                   </div>
                 </div>
 
-                <div className="flex justify-end pt-4">
+                <div className="flex flex-col sm:flex-row justify-end pt-4 gap-2">
                   <button
                     type="button"
                     onClick={nextStep}
-                    className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                    className="inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-transparent text-xs sm:text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 w-full sm:w-auto"
                   >
                     Siguiente
                     <ChevronRight className="h-5 w-5 ml-2" />
@@ -539,11 +539,11 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                   {errors.stock && <p className="mt-1 text-sm text-red-600">{errors.stock}</p>}
                 </div>
 
-                <div className="flex justify-between pt-4">
+                <div className="flex flex-col sm:flex-row justify-between pt-4 gap-2">
                   <button
                     type="button"
                     onClick={prevStep}
-                    className="inline-flex items-center px-6 py-3 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                    className="inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-gray-300 text-xs sm:text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 w-full sm:w-auto"
                   >
                     <ChevronLeft className="h-5 w-5 mr-2" />
                     Anterior
@@ -551,7 +551,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                   <button
                     type="button"
                     onClick={nextStep}
-                    className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                    className="inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-transparent text-xs sm:text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 w-full sm:w-auto"
                   >
                     Siguiente
                     <ChevronRight className="h-5 w-5 ml-2" />
@@ -712,11 +712,11 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                   </div>
                 </div>
 
-                <div className="flex justify-between pt-4">
+                <div className="flex flex-col sm:flex-row justify-between pt-4 gap-2">
                   <button
                     type="button"
                     onClick={prevStep}
-                    className="inline-flex items-center px-6 py-3 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                    className="inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-gray-300 text-xs sm:text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 w-full sm:w-auto"
                   >
                     <ChevronLeft className="h-5 w-5 mr-2" />
                     Anterior
@@ -724,7 +724,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                   <button
                     type="button"
                     onClick={nextStep}
-                    className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                    className="inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-transparent text-xs sm:text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 w-full sm:w-auto"
                   >
                     Siguiente
                     <ChevronRight className="h-5 w-5 ml-2" />
@@ -835,11 +835,11 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                   {errors.moto_ids && <p className="text-sm text-red-600 mt-1">{errors.moto_ids}</p>}
                 </div>
 
-                <div className="flex justify-between pt-4">
+                <div className="flex flex-col sm:flex-row justify-between pt-4 gap-2">
                   <button
                     type="button"
                     onClick={prevStep}
-                    className="inline-flex items-center px-6 py-3 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                    className="inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-gray-300 text-xs sm:text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 w-full sm:w-auto"
                   >
                     <ChevronLeft className="h-5 w-5 mr-2" />
                     Anterior
@@ -847,7 +847,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                   <button
                     type="submit"
                     disabled={processing}
-                    className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg shadow-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                    className="inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-transparent text-xs sm:text-sm font-medium rounded-lg shadow-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 w-full sm:w-auto"
                   >
                     {processing ? (
                       <>

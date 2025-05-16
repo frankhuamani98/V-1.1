@@ -46,6 +46,10 @@ interface InventarioProductosProps {
     productos: Producto[];
 }
 
+const PLACEHOLDER_PRODUCT = "/images/placeholder.png"; // Cambia a la ruta real de tu placeholder
+const PLACEHOLDER_ADDITIONAL = "/images/placeholder-additional.png"; // Cambia a la ruta real de tu placeholder adicional
+const PLACEHOLDER_CDN = "https://via.placeholder.com/300x300?text=Sin+Imagen";
+
 const calculateFinalPrice = (price: number, descuento: number): number => {
     const priceWithIgv = price * 1.18;
     return descuento > 0 ? priceWithIgv - (priceWithIgv * descuento / 100) : priceWithIgv;
@@ -64,6 +68,9 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
     const [searchTerm, setSearchTerm] = useState("");
     const [expandedProduct, setExpandedProduct] = useState<number | null>(null);
 
+    // Nuevo: Estado para el índice de imagen de cada producto
+    const [imageIndexes, setImageIndexes] = useState<{ [key: number]: number }>({});
+
     const isUrl = (str: string) => {
         try {
             new URL(str);
@@ -74,7 +81,7 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
     };
 
     const getImageUrl = (path: string | null) => {
-        if (!path) return "/images/placeholder-product.png";
+        if (!path) return PLACEHOLDER_PRODUCT;
         if (isUrl(path)) return path;
         const cleanPath = path.replace(/^\/?storage\/?/, "");
         return `/storage/${cleanPath}`;
@@ -134,9 +141,16 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
         setExpandedProduct(expandedProduct === productId ? null : productId);
     };
 
-    const filteredProductos = productos.filter((producto) =>
-        producto.nombre.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // Mejor filtro: busca por nombre, código y categoría
+    const filteredProductos = productos.filter((producto) => {
+        const term = searchTerm.trim().toLowerCase();
+        return (
+            producto.nombre.toLowerCase().includes(term) ||
+            producto.codigo.toLowerCase().includes(term) ||
+            (producto.categoria?.nombre?.toLowerCase().includes(term) ?? false) ||
+            (producto.subcategoria?.nombre?.toLowerCase().includes(term) ?? false)
+        );
+    });
 
     return (
         <div className="container mx-auto py-8 px-4 lg:px-8">
@@ -146,7 +160,7 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
             <div className="mb-8">
                 <input
                     type="text"
-                    placeholder="Buscar productos..."
+                    placeholder="Buscar productos por nombre, código o categoría..."
                     className="w-full p-4 border border-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -158,15 +172,20 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
                     const mainImageUrl = getImageUrl(producto.imagen_principal);
                     const additionalImages = safeAdditionalImages(producto.imagenes_adicionales);
                     const allImages = [mainImageUrl, ...additionalImages.map(img => getImageUrl(img.url))];
-                    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+                    // Usar el índice de imagen global para cada producto
+                    const currentImageIndex = imageIndexes[producto.id] ?? 0;
+                    const setCurrentImageIndex = (idx: number) => {
+                        setImageIndexes(prev => ({ ...prev, [producto.id]: idx }));
+                    };
                     const isExpanded = expandedProduct === producto.id;
 
                     const nextImage = () => {
-                        setCurrentImageIndex((prevIndex) => (prevIndex + 1) % allImages.length);
+                        setCurrentImageIndex((currentImageIndex + 1) % allImages.length);
                     };
 
                     const prevImage = () => {
-                        setCurrentImageIndex((prevIndex) => (prevIndex - 1 + allImages.length) % allImages.length);
+                        setCurrentImageIndex((currentImageIndex - 1 + allImages.length) % allImages.length);
                     };
 
                     return (
@@ -183,8 +202,13 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
                                         className="h-48 w-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-110"
                                         loading="lazy"
                                         onError={(e) => {
-                                            (e.target as HTMLImageElement).src = "/images/placeholder-product.png";
-                                            (e.target as HTMLImageElement).classList.add("bg-gray-100");
+                                            const img = e.target as HTMLImageElement;
+                                            if (img.src !== window.location.origin + PLACEHOLDER_PRODUCT && img.src !== PLACEHOLDER_CDN) {
+                                                img.src = PLACEHOLDER_PRODUCT;
+                                            } else if (img.src !== PLACEHOLDER_CDN) {
+                                                img.src = PLACEHOLDER_CDN;
+                                            }
+                                            img.classList.add("bg-gray-100");
                                         }}
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -222,8 +246,13 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
                                                     loading="lazy"
                                                     onClick={() => setCurrentImageIndex(index + 1)}
                                                     onError={(e) => {
-                                                        (e.target as HTMLImageElement).src = "/images/placeholder-additional.png";
-                                                        (e.target as HTMLImageElement).classList.add("bg-gray-100");
+                                                        const img = e.target as HTMLImageElement;
+                                                        if (img.src !== window.location.origin + PLACEHOLDER_ADDITIONAL && img.src !== PLACEHOLDER_CDN) {
+                                                            img.src = PLACEHOLDER_ADDITIONAL;
+                                                        } else if (img.src !== PLACEHOLDER_CDN) {
+                                                            img.src = PLACEHOLDER_CDN;
+                                                        }
+                                                        img.classList.add("bg-gray-100");
                                                     }}
                                                 />
                                             );
