@@ -1,11 +1,9 @@
 import React, { useState } from "react";
 import { Link } from "@inertiajs/react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/Components/ui/popover";
 import { Badge } from "@/Components/ui/badge";
 import { Button } from "@/Components/ui/button";
 import { Card } from "@/Components/ui/card";
-import { Separator } from "@/Components/ui/separator";
-import { Star, Tag, DollarSign, Package, Box } from "lucide-react";
+import { Star, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ImagenAdicional {
     url: string;
@@ -64,6 +62,7 @@ const formatPrice = (price: number): string => {
 
 const InventarioProductos = ({ productos }: InventarioProductosProps) => {
     const [searchTerm, setSearchTerm] = useState("");
+    const [expandedProduct, setExpandedProduct] = useState<number | null>(null);
 
     const isUrl = (str: string) => {
         try {
@@ -131,6 +130,10 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
         return <div className="flex">{stars}</div>;
     };
 
+    const toggleExpand = (productId: number) => {
+        setExpandedProduct(expandedProduct === productId ? null : productId);
+    };
+
     const filteredProductos = productos.filter((producto) =>
         producto.nombre.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -154,6 +157,17 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
                 {filteredProductos.map((producto) => {
                     const mainImageUrl = getImageUrl(producto.imagen_principal);
                     const additionalImages = safeAdditionalImages(producto.imagenes_adicionales);
+                    const allImages = [mainImageUrl, ...additionalImages.map(img => getImageUrl(img.url))];
+                    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+                    const isExpanded = expandedProduct === producto.id;
+
+                    const nextImage = () => {
+                        setCurrentImageIndex((prevIndex) => (prevIndex + 1) % allImages.length);
+                    };
+
+                    const prevImage = () => {
+                        setCurrentImageIndex((prevIndex) => (prevIndex - 1 + allImages.length) % allImages.length);
+                    };
 
                     return (
                         <Card
@@ -164,7 +178,7 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
                             <div className="w-full md:w-1/3 flex-shrink-0 relative">
                                 <div className="relative group">
                                     <img
-                                        src={mainImageUrl}
+                                        src={allImages[currentImageIndex]}
                                         alt={producto.nombre}
                                         className="h-48 w-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-110"
                                         loading="lazy"
@@ -176,33 +190,42 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 </div>
 
-                                {/* Carrusel de Imágenes Adicionales */}
+                                {/* Controles del Carrusel */}
+                                {allImages.length > 1 && (
+                                    <div className="flex justify-between mt-2">
+                                        <Button
+                                            onClick={prevImage}
+                                            className="p-2 rounded-full bg-gray-200 hover:bg-gray-300"
+                                        >
+                                            <ChevronLeft className="h-4 w-4" />
+                                        </Button>
+                                        <Button
+                                            onClick={nextImage}
+                                            className="p-2 rounded-full bg-gray-200 hover:bg-gray-300"
+                                        >
+                                            <ChevronRight className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                )}
+
+                                {/* Miniaturas de Imágenes Adicionales */}
                                 {additionalImages.length > 0 && (
                                     <div className="mt-4 flex space-x-3 overflow-x-auto">
                                         {additionalImages.map((img, index) => {
                                             const imageUrl = getImageUrl(img.url);
                                             return (
-                                                <Popover key={index}>
-                                                    <PopoverTrigger asChild>
-                                                        <img
-                                                            src={imageUrl}
-                                                            alt={`Imagen adicional ${index + 1}`}
-                                                            className="h-16 w-16 object-cover rounded-lg cursor-pointer border border-gray-300 shadow-sm transition-transform duration-300 hover:scale-110"
-                                                            loading="lazy"
-                                                            onError={(e) => {
-                                                                (e.target as HTMLImageElement).src = "/images/placeholder-additional.png";
-                                                                (e.target as HTMLImageElement).classList.add("bg-gray-100");
-                                                            }}
-                                                        />
-                                                    </PopoverTrigger>
-                                                    <PopoverContent className="w-auto p-0">
-                                                        <img
-                                                            src={imageUrl}
-                                                            alt={`Imagen adicional ${index + 1}`}
-                                                            className="max-h-96 max-w-full rounded-lg"
-                                                        />
-                                                    </PopoverContent>
-                                                </Popover>
+                                                <img
+                                                    key={index}
+                                                    src={imageUrl}
+                                                    alt={`Imagen adicional ${index + 1}`}
+                                                    className={`h-16 w-16 object-cover rounded-lg cursor-pointer border-2 ${currentImageIndex === index + 1 ? 'border-blue-500' : 'border-transparent'} shadow-sm transition-transform duration-300 hover:scale-110`}
+                                                    loading="lazy"
+                                                    onClick={() => setCurrentImageIndex(index + 1)}
+                                                    onError={(e) => {
+                                                        (e.target as HTMLImageElement).src = "/images/placeholder-additional.png";
+                                                        (e.target as HTMLImageElement).classList.add("bg-gray-100");
+                                                    }}
+                                                />
                                             );
                                         })}
                                     </div>
@@ -218,32 +241,12 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
                                     </Badge>
                                 </div>
                                 {renderStars(producto.calificacion)}
+
+                                {/* Información básica */}
                                 <div className="text-sm mt-4 space-y-2">
                                     <div className="flex justify-between">
                                         <span className="text-gray-500">Código:</span>
                                         <span className="font-medium">{producto.codigo}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-500">Precio Base:</span>
-                                        <span className="font-medium text-gray-700">{formatPrice(producto.precio)}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-500">Descuento:</span>
-                                        <span className="font-medium text-red-500">-{producto.descuento}%</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-500">Incluye IGV:</span>
-                                        <span className="font-medium text-gray-700">
-                                            {producto.incluye_igv ? "Sí" : "No"}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-500">Operación:</span>
-                                        <span className="font-medium text-gray-700">
-                                            {producto.incluye_igv
-                                                ? `${formatPrice(producto.precio)} x 1.18 - (${formatPrice(producto.precio * 1.18)} x ${producto.descuento}%)`
-                                                : `${formatPrice(producto.precio)} - (${formatPrice(producto.precio)} x ${producto.descuento}%)`}
-                                        </span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-gray-500">Precio Final:</span>
@@ -264,18 +267,46 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
                                             </Badge>
                                         </div>
                                     </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-500">Categoría:</span>
-                                        <span className="font-medium">{producto.categoria?.nombre || "Sin categoría"}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-500">Subcategoría:</span>
-                                        <span className="font-medium">{producto.subcategoria?.nombre || "Sin subcategoría"}</span>
-                                    </div>
                                 </div>
 
+                                {/* Información adicional (oculta inicialmente) */}
+                                {isExpanded && (
+                                    <div className="mt-4 space-y-2">
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-500">Precio Base:</span>
+                                            <span className="font-medium text-gray-700">{formatPrice(producto.precio)}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-500">Descuento:</span>
+                                            <span className="font-medium text-red-500">-{producto.descuento}%</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-500">Incluye IGV:</span>
+                                            <span className="font-medium text-gray-700">
+                                                {producto.incluye_igv ? "Sí" : "No"}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-500">Operación:</span>
+                                            <span className="font-medium text-gray-700">
+                                                {producto.incluye_igv
+                                                    ? `${formatPrice(producto.precio)} x 1.18 - (${formatPrice(producto.precio * 1.18)} x ${producto.descuento}%)`
+                                                    : `${formatPrice(producto.precio)} - (${formatPrice(producto.precio)} x ${producto.descuento}%)`}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-500">Categoría:</span>
+                                            <span className="font-medium">{producto.categoria?.nombre || "Sin categoría"}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-500">Subcategoría:</span>
+                                            <span className="font-medium">{producto.subcategoria?.nombre || "Sin subcategoría"}</span>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Motos Compatibles */}
-                                {producto.motos.length > 0 && (
+                                {isExpanded && producto.motos.length > 0 && (
                                     <div className="mt-6">
                                         <h4 className="font-medium text-gray-700 mb-2">Motos Compatibles:</h4>
                                         <div className="flex flex-wrap gap-2">
@@ -287,6 +318,23 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
                                         </div>
                                     </div>
                                 )}
+
+                                {/* Botón Ver más/Ver menos */}
+                                <Button
+                                    onClick={() => toggleExpand(producto.id)}
+                                    className="mt-4 w-full flex justify-center items-center"
+                                    variant="outline"
+                                >
+                                    {isExpanded ? (
+                                        <>
+                                            <ChevronUp className="mr-2 h-4 w-4" /> Ver menos
+                                        </>
+                                    ) : (
+                                        <>
+                                            <ChevronDown className="mr-2 h-4 w-4" /> Ver más
+                                        </>
+                                    )}
+                                </Button>
                             </div>
                         </Card>
                     );
