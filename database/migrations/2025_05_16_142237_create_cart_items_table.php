@@ -16,13 +16,12 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('producto_id')->constrained('productos')->onDelete('cascade');
             $table->string('nombre');
-            $table->decimal('precio', 10, 2);
-            $table->decimal('precio_original', 10, 2)->nullable();
-            $table->decimal('precio_final', 10, 2)->nullable();
-            $table->decimal('igv', 10, 2)->nullable();
-            $table->decimal('descuento', 10, 2)->default(0);
+            $table->decimal('precio_final', 10, 2);
             $table->integer('quantity')->default(1);
-            $table->string('imagen')->nullable();
+            $table->string('imagen');
+            $table->decimal('precio', 10, 2);
+            $table->decimal('descuento', 10, 2)->default(0);
+            $table->decimal('igv', 10, 2)->nullable();
             $table->timestamps();
         });
     }

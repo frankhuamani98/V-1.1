@@ -51,19 +51,18 @@ class FavoriteController extends Controller
             ]);
         }
         
-        $precio_original = $producto->precio;
+        $precio = $producto->precio;
         $descuento = $producto->descuento ?? 0;
-        $precio_final = $producto->precio_final ?? $precio_original;
+        $precio_final = $producto->precio_final ?? $precio;
         
         if (!$producto->precio_final && $descuento > 0) {
-            $precio_final = $precio_original - ($precio_original * $descuento / 100);
+            $precio_final = $precio - ($precio * $descuento / 100);
         }
         
         $favoriteItem = new FavoriteItem([
             'producto_id' => $producto->id,
             'nombre' => $producto->nombre,
-            'precio' => $precio_original,
-            'precio_original' => $precio_original,
+            'precio' => $precio,
             'precio_final' => $precio_final,
             'igv' => $producto->incluye_igv ? ($precio_final * 0.18) : null,
             'descuento' => $descuento,
@@ -123,19 +122,18 @@ class FavoriteController extends Controller
                 'isFavorite' => false
             ]);
         } else {
-            $precio_original = $producto->precio;
+            $precio = $producto->precio;
             $descuento = $producto->descuento ?? 0;
-            $precio_final = $producto->precio_final ?? $precio_original;
+            $precio_final = $producto->precio_final ?? $precio;
             
             if (!$producto->precio_final && $descuento > 0) {
-                $precio_final = $precio_original - ($precio_original * $descuento / 100);
+                $precio_final = $precio - ($precio * $descuento / 100);
             }
             
             $favoriteItem = new FavoriteItem([
                 'producto_id' => $producto->id,
                 'nombre' => $producto->nombre,
-                'precio' => $precio_original,
-                'precio_original' => $precio_original,
+                'precio' => $precio,
                 'precio_final' => $precio_final,
                 'igv' => $producto->incluye_igv ? ($precio_final * 0.18) : null,
                 'descuento' => $descuento,
