@@ -1,5 +1,3 @@
-"use client"
-
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 
@@ -202,11 +200,11 @@ const WhatsAppButton = () => {
     isSelected: boolean
   }) => {
     const colorVariants = [
-      "from-green-700 to-green-600",
-      "from-green-800 to-green-700",
-      "from-green-700 to-emerald-600",
-      "from-green-800 to-green-600",
-      "from-emerald-700 to-green-600",
+      "from-green-700/60 to-emerald-600/60",
+      "from-emerald-700/60 to-green-600/60",
+      "from-teal-700/60 to-green-600/60",
+      "from-green-800/60 to-emerald-700/60",
+      "from-emerald-800/60 to-teal-700/60",
     ]
 
     return (
@@ -215,19 +213,19 @@ const WhatsAppButton = () => {
         className={`w-full text-left p-2 rounded-lg transition-all duration-200 flex items-center text-xs
           ${
             isSelected
-              ? "border-2 border-white shadow-md scale-[1.02]"
-              : "border border-white/20 shadow-sm hover:shadow-md opacity-90 hover:opacity-100"
+              ? "border-2 border-white/20 shadow-md scale-[1.02] bg-green-900/50"
+              : "border border-white/10 shadow-sm hover:shadow-md hover:bg-green-800/70"
           }
-          bg-gradient-to-r ${colorVariants[index % colorVariants.length]}`}
+          bg-gradient-to-r ${colorVariants[index % colorVariants.length]} backdrop-blur-sm`}
         onClick={() => handleSelectMessage(option.text, index)}
       >
         <div className="flex-1 min-w-0">
-          <p className="text-white font-medium" style={{ textShadow: "0 1px 2px rgba(0,0,0,0.1)" }}>
+          <p className="text-white/90 font-medium tracking-wide" style={{ textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}>
             {option.text}
           </p>
         </div>
         {isSelected && (
-          <svg className="w-3 h-3 ml-1 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="w-3 h-3 ml-1 text-white/90" fill="currentColor" viewBox="0 0 20 20">
             <path
               fillRule="evenodd"
               d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -326,20 +324,27 @@ const WhatsAppButton = () => {
           className={`fixed bottom-20 right-6 z-50 w-64 max-w-[calc(100vw-3rem)] rounded-xl overflow-hidden border border-white/20
           transition-all duration-300 backdrop-blur-sm
           ${showDialog ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}
-          bg-gradient-to-br from-slate-900/95 to-teal-800/95 shadow-xl shadow-black/30`}
+          shadow-xl shadow-black/30`}
+          style={{
+            backgroundImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.4)), url('https://mail.nitro.pe/images/2015/noviembre/kawasaki_ninja_h2r.jpg')",
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backdropFilter: 'brightness(1.3) contrast(1.3)'
+          }}
         >
           {/* Encabezado del diálogo */}
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-rose-600 to-teal-600 opacity-95"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-rose-600 to-teal-600 opacity-80"></div>
             <div
-              className="absolute inset-0 opacity-20"
+              className="absolute inset-0 opacity-10"
               style={{ backgroundImage: "url('https://grainy-gradients.vercel.app/noise.svg')" }}
             ></div>
             <div className="relative px-3 py-2">
               <div className="flex items-center justify-between">
                 <h2
                   className="font-semibold text-white text-xs tracking-wide"
-                  style={{ textShadow: "0 1px 2px rgba(0,0,0,0.1)" }}
+                  style={{ textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}
                 >
                   Enviar mensaje
                 </h2>
@@ -356,7 +361,7 @@ const WhatsAppButton = () => {
           </div>
 
           {/* Opciones de mensajes */}
-          <div className="p-2 space-y-1.5 bg-gradient-to-b from-teal-900/10 to-emerald-900/05">
+          <div className="p-2 space-y-1.5 bg-gradient-to-b from-black/30 to-black/20">
             <div className="grid grid-cols-1 gap-1.5 max-h-[40vh] overflow-y-auto pr-1">
               {MESSAGE_OPTIONS.map((option, index) => (
                 <MessageOption key={index} option={option} index={index} isSelected={selectedOptionIndex === index} />
@@ -365,8 +370,8 @@ const WhatsAppButton = () => {
           </div>
 
           {/* Área de entrada de mensaje */}
-          <div className="p-2 border-t border-white/10 bg-gradient-to-b from-slate-900/80 to-teal-800/80">
-            <div className="flex items-center space-x-1 rounded-lg p-1.5 transition-all bg-white/15 border border-white/20 shadow-sm">
+          <div className="p-2 border-t border-white/10 bg-gradient-to-b from-black/40 to-black/30">
+            <div className="flex items-center space-x-1 rounded-lg p-1.5 transition-all bg-black/30 border border-white/20 shadow-sm">
               <input
                 ref={inputRef}
                 type="text"
