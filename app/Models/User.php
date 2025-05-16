@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -68,5 +69,15 @@ class User extends Authenticatable
     public function reservas()
     {
         return $this->hasMany(Reserva::class);
+    }
+    
+    public function cartItems(): HasMany
+    {
+        return $this->hasMany(CartItem::class);
+    }
+    
+    public function favoriteItems(): HasMany
+    {
+        return $this->hasMany(FavoriteItem::class);
     }
 }
