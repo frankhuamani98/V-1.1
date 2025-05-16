@@ -182,7 +182,9 @@ export default function Details({ producto, productosRelacionados }: Props) {
             </li>
             <li className="flex items-center">
               <span className="mx-2 text-gray-400 dark:text-gray-600">/</span>
-              <a href={`/categorias/${producto.categoria.id}/subcategorias/${producto.subcategoria.id}`} className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 text-sm">{producto.subcategoria.nombre}</a>
+              <a href="/categorias" className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 text-sm">
+                {producto.subcategoria.nombre}
+              </a>
             </li>
             <li className="flex items-center">
               <span className="mx-2 text-gray-400 dark:text-gray-600">/</span>
