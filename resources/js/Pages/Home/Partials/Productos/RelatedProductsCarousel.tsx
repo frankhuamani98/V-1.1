@@ -204,35 +204,33 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
 
   const getTagBadges = (product: any, discountPercentage: number) => {
     const tags: React.ReactNode[] = [];
-    if (product.tag) {
-      product.tag.split(", ").forEach((tag: string) => {
-        if (tag === "Destacado") {
-          tags.push(
-            <div key="destacado" className="flex items-center gap-1 bg-yellow-500 text-white px-2 py-0.5 rounded shadow-sm">
-              <ZapIcon className="h-3 w-3" />
-              <span className="text-[10px] font-semibold uppercase">Destacado</span>
-            </div>
-          );
-        }
-        if (tag === "Más Vendido") {
-          tags.push(
-            <div key="mas_vendido" className="flex items-center gap-1 bg-green-500 text-white px-2 py-0.5 rounded shadow-sm">
-              <TrendingUpIcon className="h-3 w-3" />
-              <span className="text-[10px] font-semibold uppercase">Más Vendido</span>
-            </div>
-          );
-        }
-        if (tag === "Destacados") {
-          tags.push(
-            <div key="destacados" className="flex items-center gap-1 bg-yellow-600 text-white px-2 py-0.5 rounded shadow-sm">
-              <ZapIcon className="h-3 w-3" />
-              <span className="text-[10px] font-semibold uppercase">Destacados</span>
-            </div>
-          );
-        }
-        // "Oferta" y "Nuevo" no se muestran
-      });
+    // Destacado
+    if (product.destacado || (product.tag && product.tag.split(", ").includes("Destacado"))) {
+      tags.push(
+        <div key="destacado" className="flex items-center gap-1 bg-yellow-500 text-white px-2 py-0.5 rounded shadow-sm">
+          <ZapIcon className="h-3 w-3" />
+          <span className="text-[10px] font-semibold uppercase">Destacado</span>
+        </div>
+      );
     }
+    // Más Vendido
+    if (product.masVendido || (product.tag && product.tag.split(", ").includes("Más Vendido"))) {
+      tags.push(
+        <div key="mas_vendido" className="flex items-center gap-1 bg-green-500 text-white px-2 py-0.5 rounded shadow-sm">
+          <TrendingUpIcon className="h-3 w-3" />
+          <span className="text-[10px] font-semibold uppercase">Más Vendido</span>
+        </div>
+      );
+    }
+    // Libres
+    if (product.tag && product.tag.split(", ").includes("Libre")) {
+      tags.push(
+        <div key="libre" className="flex items-center gap-1 bg-blue-500 text-white px-2 py-0.5 rounded shadow-sm">
+          <span className="text-[10px] font-semibold uppercase">Libre</span>
+        </div>
+      );
+    }
+    // Descuento
     if (discountPercentage > 0) {
       tags.push(
         <div key="descuento" className="flex items-center gap-1 bg-red-500 text-white px-2 py-0.5 rounded shadow-sm">
@@ -248,8 +246,8 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
     );
   };
 
-  // Mostrar todos los productos, sin límite
-  const visibleProducts = products;
+  // Mostrar hasta 10 productos o todos si hay menos
+  const visibleProducts = products.slice(0, 10);
 
   return (
     <div className="space-y-4 py-6">
