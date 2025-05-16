@@ -173,18 +173,20 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
     const precioOriginal = product.descuento > 0 ? formatPrice(product.precio) : null;
 
     return (
-      <div className="flex items-center gap-2 mt-2">
-        <span className="font-bold text-lg">{precioFinal}</span>
-        {precioOriginal && (
-          <span className="text-sm text-muted-foreground line-through">
-            {precioOriginal}
-          </span>
-        )}
-        {product.descuento > 0 && (
-          <span className="text-sm text-red-500">
-            -{product.descuento}%
-          </span>
-        )}
+      <div className="flex flex-col gap-0 mt-2">
+        <div className="flex items-center gap-2">
+          <span className="font-bold text-lg">{precioFinal}</span>
+          {precioOriginal && (
+            <span className="text-sm text-muted-foreground line-through">
+              {precioOriginal}
+            </span>
+          )}
+          {/* Quitar el descuento aquí, solo se verá la etiqueta */}
+        </div>
+        {/* Mensaje de precio final y descuento */}
+        <div className="text-xs text-green-700 mt-1">
+          El precio final es <span className="font-semibold">{precioFinal}</span> con un descuento de <span className="font-semibold">{product.descuento || 0}%</span>.
+        </div>
       </div>
     );
   };
