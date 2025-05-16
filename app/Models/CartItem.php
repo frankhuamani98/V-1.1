@@ -20,7 +20,6 @@ class CartItem extends Model
         'producto_id',
         'nombre',
         'precio',
-        'precio_original',
         'precio_final',
         'igv',
         'descuento',
@@ -35,7 +34,6 @@ class CartItem extends Model
      */
     protected $casts = [
         'precio' => 'decimal:2',
-        'precio_original' => 'decimal:2',
         'precio_final' => 'decimal:2',
         'igv' => 'decimal:2',
         'descuento' => 'decimal:2',
@@ -53,6 +51,6 @@ class CartItem extends Model
 
     public function getTotalAttribute()
     {
-        return $this->precio * $this->quantity;
+        return $this->precio_final * $this->quantity;
     }
 }
