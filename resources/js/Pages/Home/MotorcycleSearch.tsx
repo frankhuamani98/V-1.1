@@ -257,7 +257,7 @@ export default function MotorcycleSearch({ motoData }: Props) {
               <Button
                 className="bg-white/10 hover:bg-white/20 text-white font-semibold px-8 py-6 rounded-xl shadow-lg backdrop-blur-sm border border-white/20 transition-all duration-300 flex items-center gap-2 group"
                 onClick={() => {
-                  window.location.href = "/contacto"
+                  window.location.href = "/contacto/contactanos"
                 }}
               >
                 <span>Contactar ahora</span>
