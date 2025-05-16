@@ -291,6 +291,10 @@ const ProductCard = ({ product }: { product: Producto }) => {
                 </p>
               </div>
             )}
+            {/* Mensaje de precio final y descuento */}
+            <div className="text-xs text-green-700 mt-1">
+              El precio final es <span className="font-semibold">{precioFormateado}</span> con un descuento de <span className="font-semibold">{product.descuento || 0}%</span>.
+            </div>
           </div>
         </div>
       </CardContent>

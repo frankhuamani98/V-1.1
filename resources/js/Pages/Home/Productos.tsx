@@ -462,6 +462,15 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
                             return null;
                           })()}
                         </div>
+                        {/* Mensaje de precio final y descuento */}
+                        {(() => {
+                          const discountPercentage = getDiscountPercentage(product);
+                          return (
+                            <div className="text-xs text-green-700 mt-1">
+                              El precio final es <span className="font-semibold">{product.price}</span> con un descuento de <span className="font-semibold">{discountPercentage}%</span>.
+                            </div>
+                          );
+                        })()}
                       </div>
                     </CardContent>
 
