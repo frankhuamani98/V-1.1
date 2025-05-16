@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from '@inertiajs/react';
+import axios from "axios";
 
 interface ProductosProps {
     productosDestacados: Array<{
@@ -95,14 +96,10 @@ interface CarouselSectionProps {
   }>;
 }
 
-// Cambia la función getDiscountPercentage para que use el campo 'descuento' si existe en el producto
-// Corrige el error cuando product.originalPrice o product.price es undefined o null
 const getDiscountPercentage = (product: any) => {
-  // Si el producto tiene el campo 'descuento' y es mayor a 0, úsalo directamente
   if (typeof product.descuento === "number" && product.descuento > 0) {
     return product.descuento;
   }
-  // Si no, calcula el descuento a partir de los precios
   const parsePrice = (price: string | undefined | null) =>
     typeof price === "string"
       ? Number(
@@ -122,7 +119,6 @@ const getDiscountPercentage = (product: any) => {
 
 const getTagBadges = (product: any) => {
   const tags: React.ReactNode[] = [];
-  // Etiquetas personalizadas
   if (product.tag) {
     product.tag.split(", ").forEach((tag: string) => {
       if (tag === "Destacado") {
@@ -158,7 +154,6 @@ const getTagBadges = (product: any) => {
       }
     });
   }
-  // Descuento SIEMPRE que el precio original sea mayor al precio final y ambos sean válidos
   const discountPercentage = getDiscountPercentage(product);
   if (discountPercentage > 0) {
     tags.push(
@@ -196,8 +191,6 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
       api.off("select", handleSelect);
     };
   }, [api]);
-
-  // Nuevo estado para saber si el mouse está sobre una tarjeta
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
@@ -238,38 +231,61 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
       clearInterval(interval);
       clearInterval(progressTimer);
     };
-  }, [api, isHovered]); // Cambia isPlaying por isHovered
+  }, [api, isHovered]); 
 
   const toggleFavorite = (productId: number) => {
-    setFavorites(prev => {
-      const newFavorites = prev.includes(productId)
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId];
-
-      if (newFavorites.includes(productId)) {
-        toast.success("Añadido a favoritos", {
-          description: `${productList.find(p => p.id === productId)?.name} ha sido añadido a tus favoritos.`,
+    axios.post('/favorites/toggle', { producto_id: productId })
+      .then(response => {
+        if (response.data.success) {
+          if (response.data.isFavorite) {
+            setFavorites(prev => [...prev, productId]);
+            toast.success("Añadido a favoritos", {
+              description: `${productList.find(p => p.id === productId)?.name} ha sido añadido a tus favoritos.`,
+              duration: 3000,
+            });
+          } else {
+            setFavorites(prev => prev.filter(id => id !== productId));
+            toast("Eliminado de favoritos", {
+              description: `${productList.find(p => p.id === productId)?.name} ha sido eliminado de tus favoritos.`,
+              duration: 3000,
+            });
+          }
+          
+          const event = new CustomEvent('favorites-updated');
+          window.dispatchEvent(event);
+        }
+      })
+      .catch(error => {
+        console.error('Error toggling favorite:', error);
+        toast.error("Error al actualizar favoritos", {
           duration: 3000,
         });
-      } else {
-        toast("Eliminado de favoritos", {
-          description: `${productList.find(p => p.id === productId)?.name} ha sido eliminado de tus favoritos.`,
-          duration: 3000,
-        });
-      }
-
-      return newFavorites;
-    });
+      });
   };
 
   const addToCart = (productId: number) => {
-    setCart(prev => {
-      const newCart = [...prev, productId];
-      toast.success("Añadido al carrito", {
-        description: `${productList.find(p => p.id === productId)?.name} ha sido añadido a tu carrito.`,
+    axios.post('/cart/add', {
+      producto_id: productId,
+      quantity: 1
+    })
+    .then(response => {
+      if (response.data.success) {
+        setCart(prev => [...prev, productId]);
+        
+        toast.success("Añadido al carrito", {
+          description: `${productList.find(p => p.id === productId)?.name} ha sido añadido a tu carrito.`,
+          duration: 3000,
+        });
+        
+        const event = new CustomEvent('cart-updated');
+        window.dispatchEvent(event);
+      }
+    })
+    .catch(error => {
+      console.error('Error adding to cart:', error);
+      toast.error("Error al añadir al carrito", {
         duration: 3000,
       });
-      return newCart;
     });
   };
 
@@ -312,6 +328,21 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
     );
   };
 
+  useEffect(() => {
+    if (productList.length > 0) {
+      axios.get('/favorites')
+        .then(response => {
+          if (response.data.success && response.data.data) {
+            const favoriteProductIds = response.data.data.map((item: any) => item.producto_id);
+            setFavorites(favoriteProductIds);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching favorites:', error);
+        });
+    }
+  }, [productList]);
+
   return (
     <div className="space-y-4 py-6">
       <div className="flex items-center justify-between px-4">
@@ -348,7 +379,6 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
                 <CarouselItem
                   key={product.id}
                   className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4 pl-4"
-                  // Detener autoplay al pasar el mouse sobre la tarjeta
                   onMouseEnter={() => setIsHovered(true)}
                   onMouseLeave={() => setIsHovered(false)}
                 >

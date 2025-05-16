@@ -62,19 +62,10 @@ import { toast } from "sonner";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { ProfileModal } from "@/Components/Modals/ProfileModal";
-import { 
-  getCartItems, 
-  getFavoriteItems, 
-  removeFromCart as removeCartItem,
-  removeFromFavorites as removeFavoriteItem,
-  calculateCartTotal,
-  getCartCount,
-  isInCart,
-  addToCart
-} from "@/lib/cartHelpers";
 
 interface CartItem {
   id: number;
+  producto_id: number;
   nombre: string;
   precio: number;
   precio_original?: number;
@@ -85,6 +76,7 @@ interface CartItem {
 
 interface FavoriteItem {
   id: number;
+  producto_id: number;
   nombre: string;
   precio: number;
   descuento?: number;
@@ -147,16 +139,23 @@ const CartItem = ({
       )}
       <div className="flex-1 min-w-0">
         <h4 className="text-sm font-medium truncate">{product.nombre}</h4>
-        <div className="flex items-center mt-1 text-sm text-muted-foreground">
-          <span>
-            {product.quantity} x {formatPrice(product.precio)}
-          </span>
-          {product.descuento > 0 && (
-            <span className="ml-1 text-xs text-red-500">
-              (-{product.descuento}%)
-            </span>
-          )}
-        </div>
+                        <div className="flex items-center mt-1 text-sm text-muted-foreground">
+                  {product.descuento > 0 ? (
+                    <>
+                      <span>
+                        {product.quantity} x {formatPrice(product.precio - (product.precio * product.descuento / 100))}
+                      </span>
+                      <span className="ml-2 text-xs line-through">{formatPrice(product.precio)}</span>
+                      <span className="ml-1 text-xs text-red-500">
+                        (-{product.descuento}%)
+                      </span>
+                    </>
+                  ) : (
+                    <span>
+                      {product.quantity} x {formatPrice(product.precio)}
+                    </span>
+                  )}
+                </div>
       </div>
       <Button
         variant="ghost"
@@ -259,52 +258,145 @@ export default function Header() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   useEffect(() => {
-    setCart(getCartItems());
-    setFavorites(getFavoriteItems());
-  }, []);
+    if (user) {
+      fetchCartItems();
+      fetchFavoriteItems();
+    }
+  }, [user]);
+
+  const fetchCartItems = () => {
+    if (user) {
+      axios.get('/cart')
+        .then(response => {
+          if (response.data.success) {
+            setCart(response.data.data || []);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching cart items:', error);
+        });
+    }
+  };
+
+  const fetchFavoriteItems = () => {
+    if (user) {
+      axios.get('/favorites')
+        .then(response => {
+          if (response.data.success) {
+            setFavorites(response.data.data || []);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching favorite items:', error);
+        });
+    }
+  };
 
   useEffect(() => {
     const handleCartUpdated = () => {
-      setCart(getCartItems());
+      fetchCartItems();
     };
 
     const handleFavoritesUpdated = () => {
-      setFavorites(getFavoriteItems());
+      fetchFavoriteItems();
     };
 
     const handleAddToCart = (event: CustomEvent) => {
       const product = event.detail;
-      setCart(prevCart => {
-        const existingItem = prevCart.find(item => item.id === product.id);
+      const productId = product.producto_id || product.id;
+      
+      axios.post('/cart/add', {
+        producto_id: productId,
+        quantity: 1
+      })
+      .then(response => {
+        if (response.data.success) {
+          if (response.data.message === "Product already in cart" || 
+              response.data.message === "El producto ya está en el carrito") {
+            toast.info("Producto ya en el carrito", {
+              description: `${product.nombre || 'Este producto'} ya está en tu carrito.`,
+              duration: 3000,
+            });
+          } else {
+            fetchCartItems();
+            toast.success("Producto añadido al carrito", {
+              duration: 3000,
+            });
+          }
+        } else if (response.data.message === "Product already in cart" || 
+                   response.data.message === "El producto ya está en el carrito") {
+          toast.info("Producto ya en el carrito", {
+            description: `${product.nombre || 'Este producto'} ya está en tu carrito.`,
+            duration: 3000,
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error adding to cart:', error);
         
-        let newCart;
-        if (existingItem) {
-          newCart = prevCart.map(item => 
-            item.id === product.id 
-              ? { ...item, quantity: item.quantity + 1 } 
-              : item
-          );
-        } else {
-          newCart = [...prevCart, { ...product, quantity: 1 }];
+        if (error.response && error.response.data) {
+          if (error.response.data.message === "Product already in cart" || 
+              error.response.data.message === "El producto ya está en el carrito") {
+            toast.info("Producto ya en el carrito", {
+              description: `${product.nombre || 'Este producto'} ya está en tu carrito.`,
+              duration: 3000,
+            });
+            return;
+          }
         }
         
-        localStorage.setItem('cart', JSON.stringify(newCart));
-        return newCart;
+        toast.error("Error al añadir al carrito", {
+          duration: 3000,
+        });
       });
     };
 
     const handleAddToFavorites = (event: CustomEvent) => {
       const product = event.detail;
-      setFavorites(prevFavorites => {
-        const existingItem = prevFavorites.find(item => item.id === product.id);
+      const productId = product.producto_id || product.id;
+      
+      axios.post('/favorites/add', {
+        producto_id: productId
+      })
+      .then(response => {
+        if (response.data.success) {
+          if (response.data.message === "Product already in favorites" || 
+              response.data.message === "El producto ya está en favoritos") {
+            toast.info("Producto ya en favoritos", {
+              description: `${product.nombre || 'Este producto'} ya está en tus favoritos.`,
+              duration: 3000,
+            });
+          } else {
+            fetchFavoriteItems();
+            toast.success("Producto añadido a favoritos", {
+              duration: 3000,
+            });
+          }
+        } else if (response.data.message === "Product already in favorites" || 
+                   response.data.message === "El producto ya está en favoritos") {
+          toast.info("Producto ya en favoritos", {
+            description: `${product.nombre || 'Este producto'} ya está en tus favoritos.`,
+            duration: 3000,
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error adding to favorites:', error);
         
-        if (existingItem) {
-          return prevFavorites;
+        if (error.response && error.response.data) {
+          if (error.response.data.message === "Product already in favorites" || 
+              error.response.data.message === "El producto ya está en favoritos") {
+            toast.info("Producto ya en favoritos", {
+              description: `${product.nombre || 'Este producto'} ya está en tus favoritos.`,
+              duration: 3000,
+            });
+            return;
+          }
         }
         
-        const newFavorites = [...prevFavorites, product];
-        localStorage.setItem('favorites', JSON.stringify(newFavorites));
-        return newFavorites;
+        toast.error("Error al añadir a favoritos", {
+          duration: 3000,
+        });
       });
     };
 
@@ -319,63 +411,104 @@ export default function Header() {
       window.removeEventListener('add-to-cart', handleAddToCart as EventListener);
       window.removeEventListener('add-to-favorites', handleAddToFavorites as EventListener);
     };
-  }, []);
+  }, [user]);
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
-  const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+  const cartCount = cart.length;
   const favoritesCount = favorites.length;
   const cartTotal = cart.reduce(
-    (total, item) => total + item.precio * item.quantity,
-    0
-  );
+  (total, item) => {
+    const discountedPrice = item.descuento > 0 
+      ? item.precio - (item.precio * item.descuento / 100) 
+      : item.precio;
+    return total + discountedPrice * item.quantity;
+  },
+  0
+);
   
   const removeFromCart = (id: number) => {
-    const newCart = removeCartItem(id);
-    setCart(newCart);
-    toast.success("Producto eliminado del carrito", {
-      duration: 3000,
-    });
+    axios.delete(`/cart/${id}`)
+      .then(response => {
+        if (response.data.success) {
+          fetchCartItems();
+          toast.success("Producto eliminado del carrito", {
+            duration: 3000,
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error removing from cart:', error);
+        toast.error("Error al eliminar del carrito", {
+          duration: 3000,
+        });
+      });
   };
 
   const removeFromFavorites = (id: number) => {
-    const newFavorites = removeFavoriteItem(id);
-    setFavorites(newFavorites);
-    toast.success("Producto eliminado de favoritos", {
-      duration: 3000,
-    });
+    axios.delete(`/favorites/${id}`)
+      .then(response => {
+        if (response.data.success) {
+          fetchFavoriteItems();
+          toast.success("Producto eliminado de favoritos", {
+            duration: 3000,
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error removing from favorites:', error);
+        toast.error("Error al eliminar de favoritos", {
+          duration: 3000,
+        });
+      });
   };
 
   const addToCartFromFavorites = (product: FavoriteItem) => {
-    const existingItem = cart.find(item => item.id === product.id);
-    if (existingItem) {
-      toast.info("Producto ya en el carrito", {
-        description: `${product.nombre} ya está en tu carrito.`,
+    const productId = product.producto_id;
+    
+    axios.post('/cart/add', {
+      producto_id: productId,
+      quantity: 1
+    })
+    .then(response => {
+      if (response.data.success) {
+        if (response.data.message === "Product already in cart" || 
+            response.data.message === "El producto ya está en el carrito") {
+          toast.info("Producto ya en el carrito", {
+            description: `${product.nombre} ya está en tu carrito.`,
+            duration: 3000,
+          });
+        } else {
+          fetchCartItems();
+          toast.success("Añadido al carrito", {
+            description: `${product.nombre} ha sido añadido a tu carrito.`,
+            duration: 3000,
+          });
+        }
+      } else if (response.data.message === "Product already in cart" || 
+                 response.data.message === "El producto ya está en el carrito") {
+        toast.info("Producto ya en el carrito", {
+          description: `${product.nombre} ya está en tu carrito.`,
+          duration: 3000,
+        });
+      }
+    })
+    .catch(error => {
+      console.error('Error adding to cart:', error);
+      
+      if (error.response && error.response.data) {
+        if (error.response.data.message === "Product already in cart" || 
+            error.response.data.message === "El producto ya está en el carrito") {
+          toast.info("Producto ya en el carrito", {
+            description: `${product.nombre} ya está en tu carrito.`,
+            duration: 3000,
+          });
+          return;
+        }
+      }
+      
+      toast.error("Error al añadir al carrito", {
         duration: 3000,
       });
-      return;
-    }
-
-    let finalPrice = product.precio;
-    if (product.descuento && product.descuento > 0) {
-      finalPrice = product.precio - (product.precio * product.descuento / 100);
-    }
-
-    const cartProduct: CartItem = {
-      id: product.id,
-      nombre: product.nombre,
-      precio: finalPrice,
-      precio_original: product.precio,
-      descuento: product.descuento || 0,
-      quantity: 1,
-      imagen: product.imagen
-    };
-    
-    const event = new CustomEvent('add-to-cart', { detail: cartProduct });
-    window.dispatchEvent(event);
-    
-    toast.success("Añadido al carrito", {
-      description: `${product.nombre} ha sido añadido a tu carrito.`,
-      duration: 3000,
     });
   };
 
@@ -1004,15 +1137,27 @@ export default function Header() {
                     <Button className="w-full" asChild>
                       <a href="/favorites">Ver Todos los Favoritos</a>
                     </Button>
-                    <Button 
+                                          <Button 
                       variant="outline" 
                       className="w-full"
                       onClick={() => {
-                        favorites.forEach(item => {
+                        const itemsToAdd = favorites.filter(item => 
+                          !cart.some(cartItem => cartItem.producto_id === item.producto_id)
+                        );
+                        
+                        if (itemsToAdd.length === 0) {
+                          toast.info("Todos los favoritos ya están en el carrito", {
+                            duration: 3000,
+                          });
+                          return;
+                        }
+                        
+                        itemsToAdd.forEach(item => {
                           const event = new CustomEvent('add-to-cart', { detail: {...item, quantity: 1} });
                           window.dispatchEvent(event);
                         });
-                        toast.success("Todos los favoritos añadidos al carrito", {
+                        
+                        toast.success(`${itemsToAdd.length} producto(s) añadido(s) al carrito`, {
                           duration: 3000,
                         });
                       }}

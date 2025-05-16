@@ -15,6 +15,7 @@ use App\Http\Controllers\Pedidos\{EstadoPedidosController, NuevosPedidosControll
 use App\Http\Controllers\Categorias\{CategoriasPrincipalesController, SubcategoriasController, ListaCategoriasController, CategoriaPublicaController};
 use App\Http\Controllers\Contacto\ContactoController;
 use App\Http\Controllers\Auth\ProfileController;
+use App\Http\Controllers\Shop\{CartController, FavoriteController};
 
 // Rutas Públicas
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
@@ -54,6 +55,25 @@ require __DIR__.'/auth.php';
 Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Cart routes
+    Route::prefix('cart')->name('cart.')->group(function () {
+        Route::get('/', [CartController::class, 'index'])->name('index');
+        Route::post('/add', [CartController::class, 'store'])->name('add');
+        Route::put('/{id}', [CartController::class, 'update'])->name('update');
+        Route::delete('/{id}', [CartController::class, 'destroy'])->name('remove');
+        Route::delete('/', [CartController::class, 'clear'])->name('clear');
+    });
+    
+    // Favorite routes
+    Route::prefix('favorites')->name('favorites.')->group(function () {
+        Route::get('/', [FavoriteController::class, 'index'])->name('index');
+        Route::post('/add', [FavoriteController::class, 'store'])->name('add');
+        Route::delete('/{id}', [FavoriteController::class, 'destroy'])->name('remove');
+        Route::post('/toggle', [FavoriteController::class, 'toggle'])->name('toggle');
+        Route::get('/check/{productoId}', [FavoriteController::class, 'check'])->name('check');
+        Route::delete('/', [FavoriteController::class, 'clear'])->name('clear');
+    });
     
     // Usuarios
     Route::prefix('usuarios')->group(function () {

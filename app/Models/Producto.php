@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Producto extends Model
 {
@@ -66,6 +67,16 @@ class Producto extends Model
     public function motos()
     {
         return $this->belongsToMany(Moto::class, 'moto_producto');
+    }
+
+    public function cartItems(): HasMany
+    {
+        return $this->hasMany(CartItem::class);
+    }
+    
+    public function favoriteItems(): HasMany
+    {
+        return $this->hasMany(FavoriteItem::class);
     }
 
     public function scopeActivos($query)
