@@ -210,7 +210,7 @@ const Footer = () => {
               {categoriasActivas.map((categoria) => (
                 <li key={categoria.id}>
                   <a 
-                    href={`/productos/categoria/${categoria.id}`} 
+                    href={`/categorias/${categoria.id}`} 
                     className="text-neutral-400 text-sm hover:text-neutral-200 transition-colors flex items-center justify-center sm:justify-start group"
                   >
                     <ChevronRightIcon className="h-4 w-4 mr-2 text-neutral-200 opacity-0 group-hover:opacity-100 transition-opacity" />
