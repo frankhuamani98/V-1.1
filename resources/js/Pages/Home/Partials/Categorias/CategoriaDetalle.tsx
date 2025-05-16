@@ -400,7 +400,7 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
             </li>
             <li className="flex items-center">
               <span className="mx-2 text-gray-400 dark:text-gray-600">/</span>
-              <span className="text-gray-800 dark:text-gray-200 font-medium text-sm">
+              <span className="text-gray-800 dark:text-gray-200 font-medium text-sm" title={`Categoría: ${categoria.nombre}`}>
                 {categoria.nombre}
               </span>
             </li>
@@ -408,9 +408,14 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
         </nav>
 
         <div className="mb-6">
-          <h1 className="text-2xl font-bold mb-2">{categoria.nombre}</h1>
+          <h1 className="text-2xl font-bold mb-2 flex items-center gap-2">
+            {categoria.nombre}
+            <span className="bg-primary text-primary-foreground text-xs font-semibold px-2 py-0.5 rounded">
+              Categoría
+            </span>
+          </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Explora nuestra selección de productos en la categoría {categoria.nombre}.
+            Explora nuestra selección de productos en la categoría <span className="font-semibold">{categoria.nombre}</span>.
           </p>
         </div>
 

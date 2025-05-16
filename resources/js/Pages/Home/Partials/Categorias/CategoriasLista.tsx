@@ -41,7 +41,7 @@ export default function CategoriasLista({ categorias }: Props) {
             </li>
             <li className="flex items-center">
               <span className="mx-2 text-gray-400 dark:text-gray-600">/</span>
-              <span className="text-gray-800 dark:text-gray-200 font-medium text-sm">
+              <span className="text-gray-800 dark:text-gray-200 font-medium text-sm" title="Vista de categorías">
                 Categorías
               </span>
             </li>
@@ -49,9 +49,14 @@ export default function CategoriasLista({ categorias }: Props) {
         </nav>
 
         <div className="mb-6">
-          <h1 className="text-2xl font-bold mb-2">Categorías</h1>
+          <h1 className="text-2xl font-bold mb-2 flex items-center gap-2">
+            Categorías
+            <span className="bg-primary text-primary-foreground text-xs font-semibold px-2 py-0.5 rounded">
+              {categorias[0]?.nombre || "Principal"}
+            </span>
+          </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Explora nuestras categorías de productos para motos
+            Explora nuestra selección de productos en la <span className="font-semibold">{categorias[0]?.nombre || "categoría principal"}</span>.
           </p>
         </div>
 
@@ -78,4 +83,4 @@ export default function CategoriasLista({ categorias }: Props) {
       <Footer />
     </div>
   );
-} 
+}
