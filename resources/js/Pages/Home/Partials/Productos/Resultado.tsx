@@ -653,7 +653,10 @@ const Resultado: React.FC<ResultadoProps> = ({
                         ? `Contamos con más repuestos para tu ${brand} ${model} ${year}. Contáctanos.`
                         : "Contáctanos y te ayudaremos a encontrar lo que necesitas."}
                     </p>
-                    <Button className="w-full md:w-auto gap-2 text-sm">
+                    <Button
+                      className="w-full md:w-auto gap-2 text-sm"
+                      onClick={() => (window.location.href = "/contacto/contactanos")}
+                    >
                       <PhoneIcon size={16} />
                       Contactar a un especialista
                     </Button>
