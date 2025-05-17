@@ -35,7 +35,7 @@ interface PageProps {
   auth: {
     user: User;
   };
-  categoriasMenu: Array<{
+  categoriasMenu?: Array<{
     id: number;
     nombre: string;
     estado: string;
@@ -68,9 +68,9 @@ const Footer = () => {
   };
 
   const currentYear = new Date().getFullYear();
-  const { categoriasMenu } = usePage<PageProps>().props;
+  const { categoriasMenu = [] } = usePage<PageProps>().props;
 
-  const categoriasActivas = categoriasMenu.filter(categoria => categoria.estado === "Activo");
+  const categoriasActivas = categoriasMenu?.filter?.(categoria => categoria.estado === "Activo") || [];
 
   return (
     <footer className="bg-[var(--custom-footer)] text-white pt-12 pb-6">

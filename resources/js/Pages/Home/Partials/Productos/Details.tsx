@@ -122,6 +122,18 @@ export default function Details({ producto, productosRelacionados }: Props) {
   };
 
   const handleAddToCart = () => {
+    window.dispatchEvent(new CustomEvent('add-to-cart', { 
+      detail: {
+        id: producto.id,
+        producto_id: producto.id,
+        nombre: producto.nombre,
+        precio: producto.precio,
+        descuento: producto.descuento,
+        quantity: quantity,
+        imagen: producto.imagen_principal
+      }
+    }));
+    
     toast.success("Producto añadido al carrito", {
       description: `${producto.nombre} (${selectedColor}) x${quantity} ha sido añadido a tu carrito.`,
       duration: 3000,

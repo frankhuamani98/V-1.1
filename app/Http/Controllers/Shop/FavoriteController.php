@@ -2,185 +2,202 @@
 
 namespace App\Http\Controllers\Shop;
 
+use App\Http\Controllers\Controller;
 use App\Models\FavoriteItem;
 use App\Models\Producto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 
 class FavoriteController extends Controller
 {
-    /**
-     * Get all favorite items for the authenticated user.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function index()
     {
-        $favoriteItems = Auth::user()->favoriteItems()->get();
+        $user = Auth::user();
         
-        return response()->json([
-            'success' => true,
-            'data' => $favoriteItems
-        ]);
+        try {
+            $favoriteItems = FavoriteItem::where('user_id', $user->id)
+                ->with(['producto' => function($query) {
+                    $query->select('id', 'nombre', 'precio', 'descuento', 'precio_final', 'imagen_principal', 'estado');
+                }])
+                ->get()
+                ->map(function($item) {
+                    $precio_final = $item->producto->precio_final;
+                    
+                    Log::debug('Favorite item price details', [
+                        'producto_id' => $item->producto_id,
+                        'nombre' => $item->producto->nombre,
+                        'precio' => $item->producto->precio,
+                        'descuento' => $item->producto->descuento,
+                        'precio_final' => $precio_final
+                    ]);
+                    
+                    return [
+                        'id' => $item->id,
+                        'producto_id' => $item->producto_id,
+                        'nombre' => $item->producto->nombre,
+                        'precio' => $item->producto->precio,
+                        'descuento' => $item->producto->descuento,
+                        'precio_final' => $precio_final,
+                        'imagen' => $item->producto->imagen_principal,
+                        'estado' => $item->producto->estado,
+                    ];
+                });
+
+            if (request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $favoriteItems,
+                ]);
+            }
+
+            return Inertia::render('Home/Partials/Shop/Favorites', [
+                'favoriteItems' => $favoriteItems,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching favorite items', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            if (request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al obtener los productos favoritos',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+            
+            return Inertia::render('Home/Partials/Shop/Favorites', [
+                'favoriteItems' => [],
+                'error' => 'No se pudieron cargar los productos favoritos'
+            ]);
+        }
     }
-    
-    /**
-     * Add a product to favorites.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
+
     public function store(Request $request)
     {
         $request->validate([
-            'producto_id' => 'required|exists:productos,id'
+            'producto_id' => 'required|exists:productos,id',
         ]);
-        
+
+        $user = Auth::user();
         $producto = Producto::findOrFail($request->producto_id);
-        
-        $existingItem = Auth::user()->favoriteItems()
-            ->where('producto_id', $producto->id)
+
+        if (strtolower($producto->estado) !== strtolower(Producto::ESTADO_ACTIVO)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'El producto no está disponible',
+                'debug' => [
+                    'estado_actual' => $producto->estado,
+                    'estado_esperado' => Producto::ESTADO_ACTIVO
+                ]
+            ], 400);
+        }
+
+        $existingItem = FavoriteItem::where('user_id', $user->id)
+            ->where('producto_id', $request->producto_id)
             ->first();
-            
+
         if ($existingItem) {
             return response()->json([
-                'success' => true,
+                'success' => false,
                 'message' => 'El producto ya está en favoritos',
-                'data' => $existingItem
-            ]);
+            ], 200);
         }
-        
-        $precio = $producto->precio;
-        $descuento = $producto->descuento ?? 0;
-        $precio_final = $producto->precio_final ?? $precio;
-        
-        if (!$producto->precio_final && $descuento > 0) {
-            $precio_final = $precio - ($precio * $descuento / 100);
-        }
-        
-        $favoriteItem = new FavoriteItem([
-            'producto_id' => $producto->id,
-            'nombre' => $producto->nombre,
-            'precio' => $precio,
-            'precio_final' => $precio_final,
-            'igv' => $producto->incluye_igv ? ($precio_final * 0.18) : null,
-            'descuento' => $descuento,
-            'imagen' => $producto->imagen_principal
+
+        FavoriteItem::create([
+            'user_id' => $user->id,
+            'producto_id' => $request->producto_id,
         ]);
-        
-        Auth::user()->favoriteItems()->save($favoriteItem);
-        
+
         return response()->json([
             'success' => true,
-            'message' => 'Producto añadido a favoritos',
-            'data' => $favoriteItem
+            'message' => 'Producto agregado a favoritos',
         ]);
     }
-    
-    /**
-     * Remove a favorite item.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
+
     public function destroy($id)
     {
-        $favoriteItem = Auth::user()->favoriteItems()->findOrFail($id);
+        $user = Auth::user();
+        $favoriteItem = FavoriteItem::where('id', $id)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
         $favoriteItem->delete();
-        
+
         return response()->json([
             'success' => true,
-            'message' => 'Producto eliminado de favoritos'
+            'message' => 'Producto eliminado de favoritos',
         ]);
     }
-    
-    /**
-     * Toggle a product in favorites (add if not exists, remove if exists).
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
+
+    public function clear()
+    {
+        $user = Auth::user();
+        FavoriteItem::where('user_id', $user->id)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Favoritos vaciados',
+        ]);
+    }
+
     public function toggle(Request $request)
     {
         $request->validate([
-            'producto_id' => 'required|exists:productos,id'
+            'producto_id' => 'required|exists:productos,id',
         ]);
-        
+
+        $user = Auth::user();
         $producto = Producto::findOrFail($request->producto_id);
-        
-        $existingItem = Auth::user()->favoriteItems()
-            ->where('producto_id', $producto->id)
+
+        if (strtolower($producto->estado) !== strtolower(Producto::ESTADO_ACTIVO)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'El producto no está disponible',
+                'debug' => [
+                    'estado_actual' => $producto->estado,
+                    'estado_esperado' => Producto::ESTADO_ACTIVO
+                ]
+            ], 400);
+        }
+
+        $existingItem = FavoriteItem::where('user_id', $user->id)
+            ->where('producto_id', $request->producto_id)
             ->first();
-            
+
         if ($existingItem) {
             $existingItem->delete();
-            
             return response()->json([
                 'success' => true,
+                'isFavorite' => false,
                 'message' => 'Producto eliminado de favoritos',
-                'isFavorite' => false
             ]);
         } else {
-            $precio = $producto->precio;
-            $descuento = $producto->descuento ?? 0;
-            $precio_final = $producto->precio_final ?? $precio;
-            
-            if (!$producto->precio_final && $descuento > 0) {
-                $precio_final = $precio - ($precio * $descuento / 100);
-            }
-            
-            $favoriteItem = new FavoriteItem([
-                'producto_id' => $producto->id,
-                'nombre' => $producto->nombre,
-                'precio' => $precio,
-                'precio_final' => $precio_final,
-                'igv' => $producto->incluye_igv ? ($precio_final * 0.18) : null,
-                'descuento' => $descuento,
-                'imagen' => $producto->imagen_principal
+            FavoriteItem::create([
+                'user_id' => $user->id,
+                'producto_id' => $request->producto_id,
             ]);
-            
-            Auth::user()->favoriteItems()->save($favoriteItem);
-            
             return response()->json([
                 'success' => true,
-                'message' => 'Producto añadido a favoritos',
-                'data' => $favoriteItem,
-                'isFavorite' => true
+                'isFavorite' => true,
+                'message' => 'Producto agregado a favoritos',
             ]);
         }
     }
-    
-    /**
-     * Check if a product is in favorites.
-     *
-     * @param  int  $productoId
-     * @return \Illuminate\Http\JsonResponse
-     */
+
     public function check($productoId)
     {
-        $isFavorite = Auth::user()->favoriteItems()
+        $user = Auth::user();
+        $isFavorite = FavoriteItem::where('user_id', $user->id)
             ->where('producto_id', $productoId)
             ->exists();
-            
+
         return response()->json([
             'success' => true,
-            'isFavorite' => $isFavorite
-        ]);
-    }
-    
-    /**
-     * Clear all favorite items for the authenticated user.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function clear()
-    {
-        Auth::user()->favoriteItems()->delete();
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Lista de favoritos vaciada'
+            'isFavorite' => $isFavorite,
         ]);
     }
 }

@@ -68,7 +68,7 @@ interface CartItem {
   producto_id: number;
   nombre: string;
   precio: number;
-  precio_original?: number;
+  precio_final: number;
   descuento: number;
   quantity: number;
   imagen?: string;
@@ -79,6 +79,7 @@ interface FavoriteItem {
   producto_id: number;
   nombre: string;
   precio: number;
+  precio_final: number;
   descuento?: number;
   imagen?: string;
 }
@@ -128,34 +129,41 @@ const CartItem = ({
 }) => {
   return (
     <div className="flex items-start py-3 gap-3">
-      {product.imagen && (
-        <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0">
+      <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0 bg-gray-100">
+        {product.imagen ? (
           <img 
             src={product.imagen.startsWith('http') ? product.imagen : `/storage/${product.imagen}`} 
             alt={product.nombre} 
             className="w-full h-full object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/images/placeholder-product.png';
+            }}
           />
-        </div>
-      )}
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gray-200">
+            <ShoppingBagIcon className="h-6 w-6 text-gray-400" />
+          </div>
+        )}
+      </div>
       <div className="flex-1 min-w-0">
         <h4 className="text-sm font-medium truncate">{product.nombre}</h4>
-                        <div className="flex items-center mt-1 text-sm text-muted-foreground">
-                  {product.descuento > 0 ? (
-                    <>
-                      <span>
-                        {product.quantity} x {formatPrice(product.precio - (product.precio * product.descuento / 100))}
-                      </span>
-                      <span className="ml-2 text-xs line-through">{formatPrice(product.precio)}</span>
-                      <span className="ml-1 text-xs text-red-500">
-                        (-{product.descuento}%)
-                      </span>
-                    </>
-                  ) : (
-                    <span>
-                      {product.quantity} x {formatPrice(product.precio)}
-                    </span>
-                  )}
-                </div>
+        <div className="flex items-center mt-1 text-sm text-muted-foreground">
+          {product.descuento > 0 ? (
+            <>
+              <span>
+                {product.quantity} x {formatPrice(product.precio_final)}
+              </span>
+              <span className="ml-2 text-xs line-through">{formatPrice(product.precio)}</span>
+              <span className="ml-1 text-xs text-red-500">
+                (-{product.descuento}%)
+              </span>
+            </>
+          ) : (
+            <span>
+              {product.quantity} x {formatPrice(product.precio_final)}
+            </span>
+          )}
+        </div>
       </div>
       <Button
         variant="ghost"
@@ -180,29 +188,35 @@ const FavoriteItem = ({
 }) => {
   const getDisplayPrice = () => {
     if (product.descuento && product.descuento > 0) {
-      const discountedPrice = product.precio - (product.precio * product.descuento / 100);
       return (
         <div className="flex items-center">
-          <span className="font-medium">{formatPrice(discountedPrice)}</span>
+          <span className="font-medium">{formatPrice(product.precio_final)}</span>
           <span className="ml-2 text-xs text-muted-foreground line-through">{formatPrice(product.precio)}</span>
           <span className="ml-1 text-xs text-red-500">(-{product.descuento}%)</span>
         </div>
       );
     }
-    return <span>{formatPrice(product.precio)}</span>;
+    return <span>{formatPrice(product.precio_final || product.precio)}</span>;
   };
 
   return (
     <div className="flex items-start py-3 gap-3">
-      {product.imagen && (
-        <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0">
+      <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0 bg-gray-100">
+        {product.imagen ? (
           <img 
             src={product.imagen.startsWith('http') ? product.imagen : `/storage/${product.imagen}`}
             alt={product.nombre} 
             className="w-full h-full object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/images/placeholder-product.png';
+            }}
           />
-        </div>
-      )}
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gray-200">
+            <ShoppingBagIcon className="h-6 w-6 text-gray-400" />
+          </div>
+        )}
+      </div>
       <div className="flex-1 min-w-0">
         <h4 className="text-sm font-medium truncate">{product.nombre}</h4>
         <div className="flex items-center mt-1 text-sm text-muted-foreground">
@@ -292,6 +306,89 @@ export default function Header() {
     }
   };
 
+  const handleAddToCart = (event: CustomEvent) => {
+    const product = event.detail;
+    const productId = product.producto_id || product.id;
+    
+    axios.post('/cart/add', {
+      producto_id: productId,
+      quantity: 1
+    })
+    .then(response => {
+      if (response.data.success) {
+        fetchCartItems();
+        toast.success("Producto añadido al carrito", {
+          duration: 3000,
+        });
+      } else if (response.data.message?.includes("ya está en el carrito")) {
+        toast.info("Producto ya en el carrito", {
+          description: `${product.nombre || 'Este producto'} ya está en tu carrito.`,
+          duration: 3000,
+        });
+      }
+    })
+    .catch(error => {
+      console.error('Error adding to cart:', error);
+      
+      if (error.response?.data?.message?.includes("ya está en el carrito")) {
+        toast.info("Producto ya en el carrito", {
+          description: `${product.nombre || 'Este producto'} ya está en tu carrito.`,
+          duration: 3000,
+        });
+        return;
+      }
+      
+      if (error.response?.data?.message?.includes("stock disponible")) {
+        toast.error("Stock insuficiente", {
+          description: "No hay suficiente stock disponible para este producto.",
+          duration: 3000,
+        });
+        return;
+      }
+      
+      toast.error("Error al añadir al carrito", {
+        duration: 3000,
+      });
+    });
+  };
+
+  const handleAddToFavorites = (event: CustomEvent) => {
+    const product = event.detail;
+    const productId = product.producto_id || product.id;
+    
+    axios.post('/favorites/add', {
+      producto_id: productId
+    })
+    .then(response => {
+      if (response.data.success) {
+        fetchFavoriteItems();
+        toast.success("Producto añadido a favoritos", {
+          duration: 3000,
+        });
+      } else if (response.data.message?.includes("ya está en favoritos")) {
+        toast.info("Producto ya en favoritos", {
+          description: `${product.nombre || 'Este producto'} ya está en tus favoritos.`,
+          duration: 3000,
+        });
+      }
+    })
+    .catch(error => {
+      console.error('Error adding to favorites:', error);
+      
+      if (error.response?.data?.message?.includes("ya está en favoritos")) {
+        toast.info("Producto ya en favoritos", {
+          description: `${product.nombre || 'Este producto'} ya está en tus favoritos.`,
+          duration: 3000,
+        });
+        return;
+      }
+      
+      toast.error("Error al añadir a favoritos", {
+        duration: 3000,
+      });
+    });
+  };
+
   useEffect(() => {
     const handleCartUpdated = () => {
       fetchCartItems();
@@ -299,105 +396,6 @@ export default function Header() {
 
     const handleFavoritesUpdated = () => {
       fetchFavoriteItems();
-    };
-
-    const handleAddToCart = (event: CustomEvent) => {
-      const product = event.detail;
-      const productId = product.producto_id || product.id;
-      
-      axios.post('/cart/add', {
-        producto_id: productId,
-        quantity: 1
-      })
-      .then(response => {
-        if (response.data.success) {
-          if (response.data.message === "Product already in cart" || 
-              response.data.message === "El producto ya está en el carrito") {
-            toast.info("Producto ya en el carrito", {
-              description: `${product.nombre || 'Este producto'} ya está en tu carrito.`,
-              duration: 3000,
-            });
-          } else {
-            fetchCartItems();
-            toast.success("Producto añadido al carrito", {
-              duration: 3000,
-            });
-          }
-        } else if (response.data.message === "Product already in cart" || 
-                   response.data.message === "El producto ya está en el carrito") {
-          toast.info("Producto ya en el carrito", {
-            description: `${product.nombre || 'Este producto'} ya está en tu carrito.`,
-            duration: 3000,
-          });
-        }
-      })
-      .catch(error => {
-        console.error('Error adding to cart:', error);
-        
-        if (error.response && error.response.data) {
-          if (error.response.data.message === "Product already in cart" || 
-              error.response.data.message === "El producto ya está en el carrito") {
-            toast.info("Producto ya en el carrito", {
-              description: `${product.nombre || 'Este producto'} ya está en tu carrito.`,
-              duration: 3000,
-            });
-            return;
-          }
-        }
-        
-        toast.error("Error al añadir al carrito", {
-          duration: 3000,
-        });
-      });
-    };
-
-    const handleAddToFavorites = (event: CustomEvent) => {
-      const product = event.detail;
-      const productId = product.producto_id || product.id;
-      
-      axios.post('/favorites/add', {
-        producto_id: productId
-      })
-      .then(response => {
-        if (response.data.success) {
-          if (response.data.message === "Product already in favorites" || 
-              response.data.message === "El producto ya está en favoritos") {
-            toast.info("Producto ya en favoritos", {
-              description: `${product.nombre || 'Este producto'} ya está en tus favoritos.`,
-              duration: 3000,
-            });
-          } else {
-            fetchFavoriteItems();
-            toast.success("Producto añadido a favoritos", {
-              duration: 3000,
-            });
-          }
-        } else if (response.data.message === "Product already in favorites" || 
-                   response.data.message === "El producto ya está en favoritos") {
-          toast.info("Producto ya en favoritos", {
-            description: `${product.nombre || 'Este producto'} ya está en tus favoritos.`,
-            duration: 3000,
-          });
-        }
-      })
-      .catch(error => {
-        console.error('Error adding to favorites:', error);
-        
-        if (error.response && error.response.data) {
-          if (error.response.data.message === "Product already in favorites" || 
-              error.response.data.message === "El producto ya está en favoritos") {
-            toast.info("Producto ya en favoritos", {
-              description: `${product.nombre || 'Este producto'} ya está en tus favoritos.`,
-              duration: 3000,
-            });
-            return;
-          }
-        }
-        
-        toast.error("Error al añadir a favoritos", {
-          duration: 3000,
-        });
-      });
     };
 
     window.addEventListener('cart-updated', handleCartUpdated);
@@ -417,14 +415,9 @@ export default function Header() {
   const cartCount = cart.length;
   const favoritesCount = favorites.length;
   const cartTotal = cart.reduce(
-  (total, item) => {
-    const discountedPrice = item.descuento > 0 
-      ? item.precio - (item.precio * item.descuento / 100) 
-      : item.precio;
-    return total + discountedPrice * item.quantity;
-  },
-  0
-);
+    (total, item) => total + item.precio_final * item.quantity,
+    0
+  );
   
   const removeFromCart = (id: number) => {
     axios.delete(`/cart/${id}`)
@@ -495,20 +488,38 @@ export default function Header() {
     .catch(error => {
       console.error('Error adding to cart:', error);
       
-      if (error.response && error.response.data) {
-        if (error.response.data.message === "Product already in cart" || 
-            error.response.data.message === "El producto ya está en el carrito") {
-          toast.info("Producto ya en el carrito", {
-            description: `${product.nombre} ya está en tu carrito.`,
+      if (error.response) {
+        const { data } = error.response;
+        if (data && data.message) {
+          toast.error(data.message, {
             duration: 3000,
           });
-          return;
+        } else if (error.response.status === 422) {
+          toast.error('No se pudo añadir el producto (error de validación)', {
+            duration: 3000,
+          });
+        } else if (error.response.status === 404) {
+          toast.error('El producto no está disponible actualmente', {
+            duration: 3000,
+          });
+        } else if (error.response.status === 400) {
+          toast.error('No hay suficiente stock disponible', {
+            duration: 3000,
+          });
+        } else {
+          toast.error(`Error al añadir al carrito: ${error.response.status}`, {
+            duration: 3000,
+          });
         }
+      } else if (error.request) {
+        toast.error('No se pudo conectar con el servidor. Verifica tu conexión', {
+          duration: 3000,
+        });
+      } else {
+        toast.error("Error al añadir al carrito", {
+          duration: 3000,
+        });
       }
-      
-      toast.error("Error al añadir al carrito", {
-        duration: 3000,
-      });
     });
   };
 

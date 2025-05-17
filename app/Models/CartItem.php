@@ -10,33 +10,14 @@ class CartItem extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'user_id',
         'producto_id',
-        'nombre',
-        'precio',
-        'precio_final',
-        'igv',
-        'descuento',
         'quantity',
-        'imagen',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
-        'precio' => 'decimal:2',
-        'precio_final' => 'decimal:2',
-        'igv' => 'decimal:2',
-        'descuento' => 'decimal:2',
+        'quantity' => 'integer',
     ];
 
     public function user(): BelongsTo
@@ -47,10 +28,5 @@ class CartItem extends Model
     public function producto(): BelongsTo
     {
         return $this->belongsTo(Producto::class);
-    }
-
-    public function getTotalAttribute()
-    {
-        return $this->precio_final * $this->quantity;
     }
 }
