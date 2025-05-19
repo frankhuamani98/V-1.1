@@ -1009,14 +1009,6 @@ export default function Header() {
                         <ShoppingBagIcon className="mr-2 h-4 w-4" />
                         <span>Pedidos</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <HeartIcon className="mr-2 h-4 w-4" />
-                        <span>Favoritos</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <SettingsIcon className="mr-2 h-4 w-4" />
-                        <span>Configuración</span>
-                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
                         <a href="/logout">
