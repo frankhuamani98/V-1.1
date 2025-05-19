@@ -103,13 +103,13 @@ export default function CarruselResponsivo() {
 
   return (
     <div
-      className="relative w-screen overflow-hidden rounded-lg shadow-xl h-[50vh] md:h-[60vh] lg:h-[70vh]"
+      className="relative w-full max-w-screen overflow-hidden rounded-lg shadow-xl h-[35vh] sm:h-[45vh] md:h-[60vh] lg:h-[70vh] xl:h-[80vh]"
       onMouseEnter={() => setAutoPlay(false)}
       onMouseLeave={() => setAutoPlay(true)}
     >
       <div
         ref={carruselRef}
-        className="flex h-full"
+        className="flex h-full transition-transform duration-500 ease-in-out"
       >
         {bannersInfinitos.map((banner, index) => (
           <div
@@ -123,6 +123,8 @@ export default function CarruselResponsivo() {
                   src={banner.imagen_principal}
                   alt={banner.titulo}
                   className="object-cover w-full h-full"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
+                  style={{ objectPosition: 'center' }}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.src = 'https://via.placeholder.com/1600x900?text=Imagen+no+disponible';
@@ -133,19 +135,21 @@ export default function CarruselResponsivo() {
                   src={`/storage/${banner.imagen_principal}`}
                   alt={banner.titulo}
                   className="object-cover w-full h-full"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
+                  style={{ objectPosition: 'center' }}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.src = 'https://via.placeholder.com/1600x900?text=Imagen+no+disponible';
                   }}
                 />
               )}
-              <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
             </div>
 
-            <div className="absolute inset-0 flex flex-col justify-center px-4 md:px-8 lg:px-16 text-white">
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight mb-3">{banner.titulo}</h2>
+            <div className="absolute inset-0 flex flex-col justify-center px-2 sm:px-4 md:px-8 lg:px-16 text-white">
+              <h2 className="text-lg sm:text-xl md:text-3xl lg:text-4xl font-bold tracking-tight mb-2 sm:mb-3">{banner.titulo}</h2>
               {banner.subtitulo && (
-                <p className="text-lg md:text-xl lg:text-2xl mb-8 max-w-md">{banner.subtitulo}</p>
+                <p className="text-xs sm:text-base md:text-lg lg:text-2xl mb-4 sm:mb-8 max-w-xs sm:max-w-md">{banner.subtitulo}</p>
               )}
             </div>
           </div>
@@ -156,34 +160,41 @@ export default function CarruselResponsivo() {
         <>
           <button
             onClick={bannerAnterior}
-            className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
+            className="absolute left-1 sm:left-2 md:left-4 top-1/2 -translate-y-1/2 p-1 sm:p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
             aria-label="Banner anterior"
           >
-            <ChevronLeft size={24} />
+            <ChevronLeft size={20} className="sm:hidden" />
+            <ChevronLeft size={24} className="hidden sm:inline" />
           </button>
 
           <button
             onClick={siguienteBanner}
-            className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
+            className="absolute right-1 sm:right-2 md:right-4 top-1/2 -translate-y-1/2 p-1 sm:p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
             aria-label="Siguiente banner"
           >
-            <ChevronRight size={24} />
+            <ChevronRight size={20} className="sm:hidden" />
+            <ChevronRight size={24} className="hidden sm:inline" />
           </button>
 
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+          <div className="absolute bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 flex space-x-1 sm:space-x-2">
             {bannersActivos.map((_, indice) => {
               const indiceReal = indiceActual % bannersActivos.length;
               return (
                 <button
                   key={indice}
                   onClick={() => moverA(indice + bannersActivos.length)}
-                  className="p-1 focus:outline-none"
+                  className="p-0.5 sm:p-1 focus:outline-none"
                   aria-label={`Ir al banner ${indice + 1}`}
                 >
                   {indice === indiceReal ? (
-                    <CircleDot size={16} className="text-white" />
+                    <CircleDot size={12} className="sm:hidden text-white" />
                   ) : (
-                    <Circle size={16} className="text-white/70" />
+                    <Circle size={12} className="sm:hidden text-white/70" />
+                  )}
+                  {indice === indiceReal ? (
+                    <CircleDot size={16} className="hidden sm:inline text-white" />
+                  ) : (
+                    <Circle size={16} className="hidden sm:inline text-white/70" />
                   )}
                 </button>
               );

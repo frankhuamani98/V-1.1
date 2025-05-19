@@ -51,12 +51,9 @@ export default function CategoriasLista({ categorias }: Props) {
         <div className="mb-6">
           <h1 className="text-2xl font-bold mb-2 flex items-center gap-2">
             Categorías
-            <span className="bg-primary text-primary-foreground text-xs font-semibold px-2 py-0.5 rounded">
-              {categorias[0]?.nombre || "Principal"}
-            </span>
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Explora nuestra selección de productos en la <span className="font-semibold">{categorias[0]?.nombre || "categoría principal"}</span>.
+            Explora nuestra selección de productos en nuestras <span className="font-semibold">categorías</span>.
           </p>
         </div>
 
