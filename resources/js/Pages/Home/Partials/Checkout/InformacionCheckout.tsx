@@ -40,6 +40,14 @@ export default function InformacionCheckout({ user, pedido }: Props) {
   const [loading, setLoading] = useState(false);
   const [mensaje, setMensaje] = useState('');
 
+  // Nuevo: useForm para el envío del pedido
+  const { post, processing, setData } = useForm({
+    nombre: user.nombre,
+    apellidos: user.apellidos,
+    dni: user.dni,
+    direccion_alternativa: '', // se actualizará si el usuario la ingresa
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -52,6 +60,8 @@ export default function InformacionCheckout({ user, pedido }: Props) {
       if (response.data.success) {
         setUsarDireccionAlternativa(true);
         setMensaje('Dirección alternativa guardada correctamente');
+        // Actualiza el campo en useForm
+        setData('direccion_alternativa', direccionAlternativa);
         setTimeout(() => {
           setShowModal(false);
           setMensaje('');
@@ -62,6 +72,16 @@ export default function InformacionCheckout({ user, pedido }: Props) {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Nuevo: manejar el submit del pedido
+  const handlePedidoSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    post('/checkout/informacion', {
+      onSuccess: () => {
+        // Redirige a métodos de pago automáticamente por el backend
+      },
+    });
   };
 
   return (
@@ -139,20 +159,24 @@ export default function InformacionCheckout({ user, pedido }: Props) {
             </div>
           </div>
 
-          <div className="flex justify-end space-x-4">
-            <Link
-              href="/cart"
-              className="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
-            >
-              Volver al carrito
-            </Link>
-            <Link
-              href="/checkout/metodos-pago"
-              className="px-6 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
-            >
-              Continuar con el pago
-            </Link>
-          </div>
+          {/* Cambia los botones por un formulario */}
+          <form onSubmit={handlePedidoSubmit}>
+            <div className="flex justify-end space-x-4">
+              <Link
+                href="/cart"
+                className="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
+              >
+                Volver al carrito
+              </Link>
+              <button
+                type="submit"
+                className="px-6 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition disabled:opacity-75"
+                disabled={processing}
+              >
+                {processing ? 'Guardando pedido...' : 'Continuar con el pago'}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
 

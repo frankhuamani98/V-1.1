@@ -76,14 +76,18 @@ class InformacionCheckout extends Controller
         try {
             DB::beginTransaction();
 
+            // Usar dirección alternativa de la sesión si existe
+            $direccionAlternativa = $request->direccion_alternativa ?: session('direccion_alternativa');
+            $direccionFinal = $direccionAlternativa ?: $user->address;
+
             // Crear el pedido
             $pedido = Pedido::create([
                 'user_id' => $user->id,
                 'nombre' => $request->nombre,
                 'apellidos' => $request->apellidos,
                 'dni' => $request->dni,
-                'direccion' => !empty($request->direccion_alternativa) ? $request->direccion_alternativa : $user->address,
-                'direccion_alternativa' => $request->direccion_alternativa,
+                'direccion' => $direccionFinal,
+                'direccion_alternativa' => $direccionAlternativa,
                 'subtotal' => $subtotal,
                 'total' => $total,
                 'estado' => 'pendiente',
@@ -101,13 +105,13 @@ class InformacionCheckout extends Controller
                 ]);
             }
 
-            // Limpiar el carrito del usuario
-            $user->cartItems()->delete();
+            // Limpiar la dirección alternativa de la sesión
+            session()->forget('direccion_alternativa');
 
             DB::commit();
 
             // Redireccionar a la página de métodos de pago
-            return redirect()->route('checkout.metodos-pago', ['pedido_id' => $pedido->id]);
+            return redirect()->route('checkout.metodos', ['pedido_id' => $pedido->id]);
 
         } catch (\Exception $e) {
             DB::rollBack();
