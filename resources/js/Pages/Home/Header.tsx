@@ -915,13 +915,10 @@ export default function Header() {
                         <div className="p-3 border-t">
                           <div className="flex justify-between mb-2">
                             <span className="font-medium">Total:</span>
-                            <span className="font-bold">S/{cartTotal.toFixed(2)}</span>
+                            <span className="font-bold">{formatPrice(cartTotal)}</span>
                           </div>
                           <div className="flex flex-col gap-2">
                             <Button asChild>
-                              <a href="/checkout">Finalizar Compra</a>
-                            </Button>
-                            <Button variant="outline" asChild>
                               <a href="/cart">Ver Carrito</a>
                             </Button>
                           </div>
@@ -1094,17 +1091,14 @@ export default function Header() {
                 <div className="border-t pt-4 mt-auto">
                   <div className="flex justify-between mb-4">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span className="font-medium">S/{cartTotal.toFixed(2)}</span>
+                    <span className="font-medium">{formatPrice(cartTotal)}</span>
                   </div>
                   <div className="flex justify-between mb-6">
                     <span className="font-medium">Total</span>
-                    <span className="font-bold text-lg">S/{cartTotal.toFixed(2)}</span>
+                    <span className="font-bold text-lg">{formatPrice(cartTotal)}</span>
                   </div>
                   <div className="space-y-3">
                     <Button className="w-full" asChild>
-                      <a href="/checkout">Finalizar Compra</a>
-                    </Button>
-                    <Button variant="outline" className="w-full" asChild>
                       <a href="/cart">Ver Carrito</a>
                     </Button>
                   </div>
