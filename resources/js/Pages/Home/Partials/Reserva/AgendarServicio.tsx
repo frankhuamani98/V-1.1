@@ -3,6 +3,20 @@ import { Head } from "@inertiajs/react";
 import { useForm } from "@inertiajs/react";
 import NavigationMenu from '@/Components/NavigationMenu';
 import axios from "axios";
+import {
+  CalendarDays,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  Bike,
+  BadgeInfo,
+  Tag,
+  Hash,
+  Wrench,
+  ChevronLeft,
+  Save,
+  ClipboardList,
+} from "lucide-react";
 
 interface Moto {
   id: number;
@@ -281,81 +295,75 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
   return (
     <>
       <Head title={isEditing ? "Editar Reserva" : "Agendar Servicio"} />
-      <NavigationMenu /> 
-      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-          <div className="p-6 bg-white border-b border-gray-200">
-            <h1 className="text-2xl font-semibold text-gray-900 mb-6">
-              {isEditing ? "Editar Reserva" : "Agendar Servicio para tu Moto"}
-            </h1>
-            
+      <NavigationMenu />
+      <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-0 px-0">
+        <div className="w-[90%] bg-white shadow-xl rounded-2xl border border-blue-200 flex flex-col justify-center mx-auto my-8">
+          <div className="p-4 md:p-8 border-b border-gray-200 bg-gradient-to-r from-blue-100 to-indigo-100">
+            <div className="flex items-center gap-2">
+              <CalendarDays className="h-6 w-6 text-blue-500" />
+              <h1 className="text-2xl font-bold text-gray-800">
+                {isEditing ? "Editar Reserva" : "Agendar Servicio para tu Moto"}
+              </h1>
+            </div>
+            <p className="text-sm text-gray-500 mt-2">Completa los datos para reservar tu cita</p>
+          </div>
+          <div className="flex-1 flex flex-col justify-center p-4 sm:p-8">
             {successMessage && (
-              <div className="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
-                <div className="flex">
-                  <div>
-                    <p className="text-sm text-green-700">{successMessage}</p>
-                  </div>
-                </div>
+              <div className="mb-6 flex items-center gap-2 bg-green-50 border-l-4 border-green-400 p-4 rounded-lg shadow-sm">
+                <CheckCircle className="text-green-500 h-6 w-6" />
+                <span className="text-base text-green-700">{successMessage}</span>
               </div>
             )}
-            
             {errorMessage && (
-              <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
-                <div className="flex">
-                  <div>
-                    <p className="text-sm text-red-700">{errorMessage}</p>
-                  </div>
-                </div>
+              <div className="mb-6 flex items-center gap-2 bg-red-50 border-l-4 border-red-400 p-4 rounded-lg shadow-sm">
+                <AlertCircle className="text-red-500 h-6 w-6" />
+                <span className="text-base text-red-700">{errorMessage}</span>
               </div>
             )}
-
-            <form onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
+            <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1">
+                <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                      <BadgeInfo className="h-5 w-5 text-blue-400" />
                       Año del Modelo
                     </label>
                     <select
-                      className={`mt-1 block w-full border ${errors.moto_id ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
+                      className={`mt-1 block w-full border ${errors.moto_id ? 'border-red-300' : 'border-gray-300'} rounded-2xl shadow-sm py-4 px-5 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 text-lg`}
                       value={selectedYear}
                       onChange={(e) => handleYearChange(e.target.value)}
                       required
                     >
                       <option value="">Seleccione un año</option>
                       {motoData.years.map((year) => (
-                        <option key={year} value={year}>
-                          {year}
-                        </option>
+                        <option key={year} value={year}>{year}</option>
                       ))}
                     </select>
                   </div>
-
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                      <Bike className="h-5 w-5 text-blue-400" />
                       Marca
                     </label>
                     <select
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      className="mt-1 block w-full border border-gray-300 rounded-2xl shadow-sm py-4 px-5 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 text-lg"
                       value={selectedBrand}
                       onChange={(e) => handleBrandChange(e.target.value)}
                       required
                     >
                       <option value="">Seleccione una marca</option>
                       {motoData.brands.map((brand) => (
-                        <option key={brand} value={brand}>
-                          {brand}
-                        </option>
+                        <option key={brand} value={brand}>{brand}</option>
                       ))}
                     </select>
                   </div>
-
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                      <Tag className="h-5 w-5 text-blue-400" />
                       Modelo
                     </label>
                     <select
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      className="mt-1 block w-full border border-gray-300 rounded-2xl shadow-sm py-4 px-5 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 text-lg"
                       value={data.moto_id}
                       onChange={(e) => handleModelSelect(e.target.value)}
                       required
@@ -367,163 +375,190 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                           : "Seleccione un modelo"}
                       </option>
                       {filteredModels.map((moto) => (
-                        <option key={moto.id} value={moto.id}>
-                          {moto.modelo}
-                        </option>
+                        <option key={moto.id} value={moto.id}>{moto.modelo}</option>
                       ))}
                     </select>
                     {errors.moto_id && (
-                      <p className="mt-1 text-sm text-red-600">{errors.moto_id}</p>
+                      <p className="mt-1 text-base text-red-600">{errors.moto_id}</p>
                     )}
                   </div>
-
                   <div>
-                    <label htmlFor="placa" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="placa" className="block text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                      <Hash className="h-5 w-5 text-blue-400" />
                       Placa
                     </label>
                     <input
                       type="text"
                       id="placa"
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      className="mt-1 block w-full border border-gray-300 rounded-2xl shadow-sm py-4 px-5 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 text-lg"
                       value={data.placa}
                       onChange={(e) => setData("placa", e.target.value)}
                       required
+                      maxLength={10}
+                      placeholder="Ej: ABC-123"
                     />
                     {errors.placa && (
-                      <p className="mt-1 text-sm text-red-600">{errors.placa}</p>
+                      <p className="mt-1 text-base text-red-600">{errors.placa}</p>
                     )}
                   </div>
                 </div>
-
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <div>
-                    <label htmlFor="servicio_id" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="servicio_id" className="block text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                      <Wrench className="h-5 w-5 text-blue-400" />
                       Servicio
                     </label>
                     <select
                       id="servicio_id"
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      className="mt-1 block w-full border border-gray-300 rounded-2xl shadow-sm py-4 px-5 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 text-lg"
                       value={data.servicio_id}
                       onChange={(e) => setData("servicio_id", e.target.value)}
                       required
                     >
                       <option value="">Seleccione un servicio</option>
                       {servicios.map((servicio) => (
-                        <option key={servicio.id} value={servicio.id}>
-                          {servicio.nombre}
-                        </option>
+                        <option key={servicio.id} value={servicio.id}>{servicio.nombre}</option>
                       ))}
                     </select>
                     {errors.servicio_id && (
-                      <p className="mt-1 text-sm text-red-600">{errors.servicio_id}</p>
+                      <p className="mt-1 text-base text-red-600">{errors.servicio_id}</p>
                     )}
                   </div>
-                  
                   <div>
-                    <label htmlFor="detalles" className="block text-sm font-medium text-gray-700">
-                    ¿Qué problema presenta tu moto?
+                    <label htmlFor="detalles" className="block text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                      <AlertCircle className="h-5 w-5 text-blue-400" />
+                      ¿Qué problema presenta tu moto?
                     </label>
-                    <textarea
-                      id="detalles"
-                      rows={3}
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                      value={data.detalles}
-                      onChange={(e) => setData("detalles", e.target.value)}
-                    />
+                    <div className="relative">
+                      <textarea
+                        id="detalles"
+                        rows={3}
+                        className="mt-1 block w-full border border-gray-300 rounded-2xl shadow-sm py-4 px-5 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 text-lg"
+                        value={data.detalles}
+                        onChange={(e) => setData("detalles", e.target.value)}
+                        placeholder="Describe el problema o servicio requerido"
+                      />
+                      <AlertCircle className="absolute right-4 top-4 h-5 w-5 text-blue-200 pointer-events-none" />
+                    </div>
                   </div>
-                </div>
-                
-                <div className="space-y-4">
                   <div>
-                    <label htmlFor="fecha" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="fecha" className="block text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                      <CalendarDays className="h-5 w-5 text-blue-400" />
                       Fecha
                     </label>
-                    <input
-                      type="date"
-                      id="fecha"
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                      value={data.fecha}
-                      onChange={(e) => {
-                        setData("fecha", e.target.value);
-                        setSelectedDate(e.target.value);
-                      }}
-                      min={new Date().toISOString().split('T')[0]}
-                      required
-                    />
+                    <div className="relative">
+                      <input
+                        type="date"
+                        id="fecha"
+                        className="mt-1 block w-full border border-gray-300 rounded-2xl shadow-sm py-4 px-5 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 text-lg"
+                        value={data.fecha}
+                        onChange={(e) => {
+                          setData("fecha", e.target.value);
+                          setSelectedDate(e.target.value);
+                        }}
+                        min={new Date().toISOString().split('T')[0]}
+                        required
+                      />
+                      <CalendarDays className="absolute right-4 top-4 h-5 w-5 text-blue-200 pointer-events-none" />
+                    </div>
                     {errors.fecha && (
-                      <p className="mt-1 text-sm text-red-600">{errors.fecha}</p>
+                      <p className="mt-1 text-base text-red-600">{errors.fecha}</p>
                     )}
                     {dateErrorMessage && (
-                      <p className="mt-1 text-sm text-red-600">{dateErrorMessage}</p>
+                      <p className="mt-1 text-base text-red-600">{dateErrorMessage}</p>
                     )}
                   </div>
-                  
                   <div>
-                    <label htmlFor="hora" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="hora" className="block text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                      <Clock className="h-5 w-5 text-blue-400" />
                       Hora
                     </label>
-                    <select
-                      id="hora"
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                      value={data.hora}
-                      onChange={(e) => setData("hora", e.target.value)}
-                      required
-                      disabled={!selectedDate || loadingHours || availableHours.length === 0}
-                    >
-                      <option value="">
-                        {loadingHours
-                          ? "Cargando horarios..."
-                          : availableHours.length === 0 && selectedDate
-                          ? "No hay horarios disponibles"
-                          : "Seleccione una hora"}
-                      </option>
-                      {availableHours.map((hora) => (
-                        <option key={hora} value={hora}>
-                          {hora}
+                    <div className="relative">
+                      <select
+                        id="hora"
+                        className="mt-1 block w-full border border-gray-300 rounded-2xl shadow-sm py-4 px-5 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 text-lg"
+                        value={data.hora}
+                        onChange={(e) => setData("hora", e.target.value)}
+                        required
+                        disabled={!selectedDate || loadingHours || availableHours.length === 0}
+                      >
+                        <option value="">
+                          {loadingHours
+                            ? "Cargando horarios..."
+                            : availableHours.length === 0 && selectedDate
+                            ? "No hay horarios disponibles"
+                            : "Seleccione una hora"}
                         </option>
-                      ))}
-                    </select>
+                        {availableHours.map((hora) => (
+                          <option key={hora} value={hora}>{hora}</option>
+                        ))}
+                      </select>
+                      <Clock className="absolute right-4 top-4 h-5 w-5 text-blue-200 pointer-events-none" />
+                    </div>
                     {errors.hora && (
-                      <p className="mt-1 text-sm text-red-600">{errors.hora}</p>
+                      <p className="mt-1 text-base text-red-600">{errors.hora}</p>
                     )}
-                  </div>
-                  
-                  <div className="bg-gray-50 p-4 rounded-md mt-4">
-                    <h3 className="text-sm font-medium text-gray-700 mb-2">Horarios de Atención</h3>
-                    {Object.entries({
-                      'Lunes': horarios.horarios['Lunes'] || '',
-                      'Martes': horarios.horarios['Martes'] || '',
-                      'Miércoles': horarios.horarios['Miércoles'] || '',
-                      'Jueves': horarios.horarios['Jueves'] || '',
-                      'Viernes': horarios.horarios['Viernes'] || '',
-                      'Sábado': horarios.horarios['Sábado'] || '',
-                      'Domingo': horarios.horarios['Domingo'] || ''
-                    })
-                      .filter(([_, horario]) => horario !== '')
-                      .map(([dia, horario]) => (
-                        <p key={dia} className="text-sm text-gray-600">
-                          <span className="font-medium">{dia}:</span> {horario}
-                        </p>
-                      ))}
                   </div>
                 </div>
               </div>
-              
-              <div className="mt-8 flex justify-end space-x-3">
+              <div className="bg-blue-50 p-4 rounded-xl mt-8 mb-4 border border-blue-100 shadow-sm">
+                <h3 className="text-sm font-semibold text-blue-700 mb-2 flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-blue-400" />
+                  Horarios de Atención
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 border border-blue-200 rounded-lg p-2 bg-white">
+                  {Object.entries({
+                    'Lunes': horarios.horarios['Lunes'] || '',
+                    'Martes': horarios.horarios['Martes'] || '',
+                    'Miércoles': horarios.horarios['Miércoles'] || '',
+                    'Jueves': horarios.horarios['Jueves'] || '',
+                    'Viernes': horarios.horarios['Viernes'] || '',
+                    'Sábado': horarios.horarios['Sábado'] || '',
+                    'Domingo': horarios.horarios['Domingo'] || ''
+                  })
+                    .filter(([_, horario]) => horario !== '')
+                    .map(([dia, horario]) => (
+                      <div key={dia} className="text-xs text-blue-900 flex items-center gap-2">
+                        <Clock className="h-3 w-3 text-blue-300" />
+                        <span className="font-medium">{dia}:</span> {horario}
+                      </div>
+                    ))}
+                </div>
+              </div>
+              <div className="mt-8 flex flex-col sm:flex-row justify-end gap-3">
                 {isEditing && (
                   <a
                     href={route('reservas.index')}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-xl shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 gap-2"
                   >
+                    <ChevronLeft className="h-5 w-5" />
                     Cancelar
                   </a>
                 )}
                 <button
                   type="submit"
-                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 gap-2"
                   disabled={processing || Boolean(availableHours.length === 0 && selectedDate)}
                 >
-                  {processing ? "Procesando..." : isEditing ? "Guardar Cambios" : "Agendar Cita"}
+                  {processing ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Procesando...
+                    </>
+                  ) : isEditing ? (
+                    <>
+                      <Save className="h-5 w-5" />
+                      Guardar Cambios
+                    </>
+                  ) : (
+                    <>
+                      <ClipboardList className="h-5 w-5" />
+                      Agendar Cita
+                    </>
+                  )}
                 </button>
               </div>
             </form>
