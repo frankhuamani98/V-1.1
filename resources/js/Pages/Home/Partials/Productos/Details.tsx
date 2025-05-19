@@ -141,7 +141,7 @@ export default function Details({ producto, productosRelacionados }: Props) {
   };
 
   const incrementQuantity = () => {
-    setQuantity(prev => prev + 1);
+    setQuantity(prev => Math.min(prev + 1, producto.stock));
   };
 
   const decrementQuantity = () => {
@@ -367,15 +367,17 @@ export default function Details({ producto, productosRelacionados }: Props) {
                     <input
                       type="number"
                       value={quantity}
-                      onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                      onChange={(e) => setQuantity(Math.max(1, Math.min(producto.stock, parseInt(e.target.value) || 1)))}
                       className="w-full h-10 text-center border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
                       min="1"
+                      max={producto.stock}
                     />
                   </div>
                   <Button
                     variant="outline"
                     size="icon"
                     onClick={incrementQuantity}
+                    disabled={quantity >= producto.stock}
                     className="h-10 w-10 dark:border-gray-700"
                   >
                     <ArrowRight className="h-4 w-4" />
