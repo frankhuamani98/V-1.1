@@ -80,8 +80,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/confirmacion', [ConfirmacionPagoController::class, 'index'])->name('confirmacion');
         Route::get('/confirmacion/{id}', [ConfirmacionPagoController::class, 'show'])->name('confirmacion.show');
 
-        // Nueva ruta para información de checkout
+        // Rutas para información de checkout
         Route::get('/informacion', [InformacionCheckout::class, 'index'])->name('informacion');
+        Route::post('/informacion', [InformacionCheckout::class, 'store'])->name('informacion.store');
+        Route::post('/direccion-alternativa', [InformacionCheckout::class, 'guardarDireccionAlternativa'])->name('direccion.alternativa');
     });
     
     // Favorite routes
