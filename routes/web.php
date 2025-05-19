@@ -16,6 +16,7 @@ use App\Http\Controllers\Categorias\{CategoriasPrincipalesController, Subcategor
 use App\Http\Controllers\Contacto\ContactoController;
 use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\Shop\{CartController, FavoriteController};
+use App\Http\Controllers\Checkout\{FormularioPagoController, MetodosPagoController, ConfirmacionPagoController, ProcesandoPagoController};
 
 // Rutas Públicas
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
@@ -63,6 +64,21 @@ Route::middleware('auth')->group(function () {
         Route::put('/{id}', [CartController::class, 'update'])->name('update');
         Route::delete('/{id}', [CartController::class, 'destroy'])->name('remove');
         Route::delete('/', [CartController::class, 'clear'])->name('clear');
+    });
+    
+    // Checkout routes
+    Route::prefix('checkout')->name('checkout.')->group(function () {
+        Route::get('/formulario', [FormularioPagoController::class, 'index'])->name('formulario');
+        Route::post('/formulario', [FormularioPagoController::class, 'store'])->name('formulario.store');
+        
+        Route::get('/metodos-pago', [MetodosPagoController::class, 'index'])->name('metodos');
+        Route::post('/metodos-pago/procesar', [MetodosPagoController::class, 'procesar'])->name('metodos.procesar');
+        
+        Route::get('/procesando', [ProcesandoPagoController::class, 'index'])->name('procesando');
+        Route::post('/procesar-pago', [ProcesandoPagoController::class, 'procesar'])->name('procesar');
+        
+        Route::get('/confirmacion', [ConfirmacionPagoController::class, 'index'])->name('confirmacion');
+        Route::get('/confirmacion/{id}', [ConfirmacionPagoController::class, 'show'])->name('confirmacion.show');
     });
     
     // Favorite routes
