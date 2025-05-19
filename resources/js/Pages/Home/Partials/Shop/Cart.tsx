@@ -334,7 +334,7 @@ export default function Cart({ cartItems: initialCartItems, total: initialTotal 
                   Vaciar carrito
                 </button>
                 <Link
-                  href="/"
+                  href="/checkout/informacion"
                   className="inline-flex justify-center items-center bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-3 px-6 transition-colors flex-1 text-center"
                 >
                   Proceder al pago
@@ -371,4 +371,4 @@ export default function Cart({ cartItems: initialCartItems, total: initialTotal 
       <Footer />
     </div>
   );
-} 
+}
