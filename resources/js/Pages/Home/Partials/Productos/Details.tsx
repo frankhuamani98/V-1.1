@@ -84,8 +84,9 @@ export default function Details({ producto, productosRelacionados }: Props) {
   };
 
   const precioFinal = producto.precio_final; // Usar el precio final directamente
-  const ahorro = formatPrice((producto.precio * 1.18) - precioFinal);
   const hasDiscount = producto.descuento > 0;
+  // Solo calcular ahorro si hay descuento
+  const ahorro = hasDiscount ? formatPrice(producto.precio - precioFinal) : '';
 
   useEffect(() => {
     const checkIfMobile = () => {
@@ -280,7 +281,7 @@ export default function Details({ producto, productosRelacionados }: Props) {
                   {hasDiscount && (
                     <>
                       <span className="text-lg text-gray-500 dark:text-gray-400 line-through">
-                        {formatPrice(producto.precio * 1.18)}
+                        {formatPrice(producto.precio)}
                       </span>
                       <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50 ml-2">
                         -{producto.descuento}% OFF
