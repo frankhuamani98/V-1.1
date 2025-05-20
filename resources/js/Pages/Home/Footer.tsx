@@ -128,7 +128,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-10">
           <div className="text-center sm:text-left">
             <h3 className="text-xl font-bold mb-4 flex items-center justify-center sm:justify-start">
-              <span className="mr-2">Rudolf</span>Motors
+              <span className="mr-2">Rudolf</span>Motos
             </h3>
             <p className="text-neutral-400 text-sm mb-6">
               Especialistas en repuestos y accesorios para motocicletas desde 2020. Comprometidos con la calidad y el servicio técnico especializado para mantener tu moto en óptimas condiciones.
@@ -210,8 +210,11 @@ const Footer = () => {
 
           <div className="text-center sm:text-left">
             <h3 className="text-xl font-bold mb-4">Categorías</h3>
+            <p className="text-neutral-400 text-sm mb-5">
+              Explora nuestros productos y accesorios para motos
+            </p>
             <ul className="space-y-3">
-              {categoriasActivas.map((categoria) => (
+              {categoriasActivas.slice(0, 4).map((categoria) => (
                 <li key={categoria.id}>
                   <a 
                     href={`/categorias/${categoria.id}`} 
@@ -222,6 +225,15 @@ const Footer = () => {
                   </a>
                 </li>
               ))}
+              <li>
+                <a 
+                  href="/categorias" 
+                  className="text-neutral-400 text-sm hover:text-neutral-200 transition-colors flex items-center justify-center sm:justify-start group"
+                >
+                  <ChevronRightIcon className="h-4 w-4 mr-2 text-neutral-200 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  Ver todas las categorías
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -284,7 +296,7 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-neutral-800">
           <div className="text-left mb-4 md:mb-0 md:w-1/3">
             <p className="text-xs text-neutral-500">
-              © {currentYear} Rudolf Motors. Especialistas en Repuestos y Accesorios para Motos.
+              © {currentYear} Rudolf Motos. Especialistas en Repuestos y Accesorios para Motos.
             </p>
           </div>
           <div className="flex flex-col items-center mb-4 md:mb-0 md:w-1/3">

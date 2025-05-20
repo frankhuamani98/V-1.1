@@ -592,7 +592,7 @@ export default function Header() {
     subcategories: [
       ...(Array.isArray(categoriasMenu)
         ? categoriasMenu
-            .slice(0, 6)
+            .slice(0, 4)
             .map((categoria: { nombre: string; id: number }) => ({
               name: categoria.nombre,
               href: `/categorias/${categoria.id}`,
