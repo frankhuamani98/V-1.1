@@ -32,6 +32,8 @@ import {
 } from "@/Components/ui/tooltip";
 import { Link } from '@inertiajs/react';
 import { useTheme } from "next-themes";
+import axios from "axios";
+import { toast } from "sonner";
 
 interface Producto {
     id: number;
@@ -159,6 +161,7 @@ const ProductCard = ({ product }: { product: Producto }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -167,11 +170,22 @@ const ProductCard = ({ product }: { product: Producto }) => {
 
     checkMobile();
     window.addEventListener('resize', checkMobile);
+    
+    axios.get('/favorites')
+      .then(response => {
+        if (response.data.success && response.data.data) {
+          const favoriteProductIds = response.data.data.map((item: any) => item.producto_id);
+          setIsFavorite(favoriteProductIds.includes(product.id));
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching favorites:', error);
+      });
 
     return () => {
       window.removeEventListener('resize', checkMobile);
     };
-  }, []);
+  }, [product.id]);
 
   const renderStars = (rating: number) => {
     const fullStars = Math.floor(rating);
@@ -229,8 +243,61 @@ const ProductCard = ({ product }: { product: Producto }) => {
   const getStockStatus = (stock: number) => {
     return stock > 0 ? 'Disponible' : 'Agotado';
   };
+  
+  const toggleFavorite = () => {
+    axios.post('/favorites/toggle', { producto_id: product.id })
+      .then(response => {
+        if (response.data.success) {
+          setIsFavorite(response.data.isFavorite);
+          
+          if (response.data.isFavorite) {
+            toast.success("Añadido a favoritos", {
+              description: `${product.nombre} ha sido añadido a tus favoritos.`,
+              duration: 3000,
+            });
+          } else {
+            toast("Eliminado de favoritos", {
+              description: `${product.nombre} ha sido eliminado de tus favoritos.`,
+              duration: 3000,
+            });
+          }
+          
+          const event = new CustomEvent('favorites-updated');
+          window.dispatchEvent(event);
+        }
+      })
+      .catch(error => {
+        console.error('Error toggling favorite:', error);
+        toast.error("Error al actualizar favoritos", {
+          duration: 3000,
+        });
+      });
+  };
+  
+  const addToCart = () => {
+    axios.post('/cart/add', {
+      producto_id: product.id,
+      quantity: 1
+    })
+    .then(response => {
+      if (response.data.success) {
+        toast.success("Producto añadido al carrito", {
+          description: `${product.nombre} ha sido añadido a tu carrito.`,
+          duration: 3000,
+        });
+        
+        const event = new CustomEvent('cart-updated');
+        window.dispatchEvent(event);
+      }
+    })
+    .catch(error => {
+      console.error('Error adding to cart:', error);
+      toast.error("Error al añadir al carrito", {
+        duration: 3000,
+      });
+    });
+  };
 
-  // Solo mostrar el precio base tachado si es mayor al precio final
   const precioFormateado = formatPrice(product.precio_final);
   const mostrarPrecioBaseTachado = product.precio > product.precio_final;
 
@@ -249,13 +316,14 @@ const ProductCard = ({ product }: { product: Producto }) => {
                 <Button 
                   variant="outline" 
                   size="icon" 
-                  className="h-8 w-8 rounded-full bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className={`h-8 w-8 rounded-full bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 ${isFavorite ? 'text-red-500' : 'text-gray-600 dark:text-gray-300'}`}
+                  onClick={toggleFavorite}
                 >
-                  <HeartIcon size={16} className="text-gray-600 dark:text-gray-300" />
+                  <HeartIcon size={16} fill={isFavorite ? 'currentColor' : 'none'} />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Agregar a favoritos</p>
+                <p>{isFavorite ? 'Eliminar de favoritos' : 'Agregar a favoritos'}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -283,7 +351,6 @@ const ProductCard = ({ product }: { product: Producto }) => {
             <p className="text-lg sm:text-xl font-bold dark:text-white">
               {precioFormateado}
             </p>
-            {/* Solo mostrar el precio base tachado si es mayor al precio final */}
             {mostrarPrecioBaseTachado && (
               <div className="flex items-center gap-1">
                 <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 line-through">
@@ -291,7 +358,6 @@ const ProductCard = ({ product }: { product: Producto }) => {
                 </p>
               </div>
             )}
-            {/* Mensaje de precio final y descuento */}
             <div className="text-xs text-green-700 mt-1">
               El precio final es <span className="font-semibold">{precioFormateado}</span> con un descuento de <span className="font-semibold">{product.descuento || 0}%</span>.
             </div>
@@ -299,22 +365,23 @@ const ProductCard = ({ product }: { product: Producto }) => {
         </div>
       </CardContent>
       <CardFooter className="p-3 sm:p-4 pt-0 flex flex-col gap-2">
-        <Button 
-          className="w-full text-sm dark:bg-primary dark:hover:bg-primary/90"
-          disabled={product.stock <= 0}
+        <Button
+          variant="default"
+          className="w-full gap-1.5 text-xs sm:text-sm bg-primary hover:bg-primary/90 text-white"
+          onClick={addToCart}
         >
-          <ShoppingCartIcon size={16} className="mr-2" />
+          <ShoppingCartIcon className="h-3.5 w-3.5" />
           Añadir al Carrito
         </Button>
-        <Button 
-          className="w-full text-sm" 
+        <Button
           variant="outline"
+          className="w-full gap-1.5 text-xs sm:text-sm"
           asChild
         >
-                        <Link href={`/details/${product.id}`}>
-                          <ExternalLinkIcon className="h-4 w-4" />
-                          Ver Detalles
-                        </Link>
+          <Link href={`/details/${product.id}`}>
+            <ExternalLinkIcon className="h-3.5 w-3.5" />
+            Ver Detalles
+          </Link>
         </Button>
       </CardFooter>
     </Card>

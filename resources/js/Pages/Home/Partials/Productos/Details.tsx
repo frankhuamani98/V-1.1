@@ -6,6 +6,7 @@ import { Separator } from "@/Components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
 import { HeartIcon, StarIcon } from "lucide-react";
 import { toast } from "sonner";
+import axios from "axios";
 import RelatedProductsCarousel from './RelatedProductsCarousel';
 import Header from '../../Header';
 import Footer from '../../Footer';
@@ -72,6 +73,7 @@ export default function Details({ producto, productosRelacionados }: Props) {
   const [expandedSection, setExpandedSection] = useState<string | null>("descripcion");
   const [isMobile, setIsMobile] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   const formatPrice = (price: number): string => {
     const formattedPrice = price.toLocaleString("es-PE", {
@@ -83,9 +85,8 @@ export default function Details({ producto, productosRelacionados }: Props) {
     return formattedPrice.replace("PEN", "S/");
   };
 
-  const precioFinal = producto.precio_final; // Usar el precio final directamente
+  const precioFinal = producto.precio_final;
   const hasDiscount = producto.descuento > 0;
-  // Solo calcular ahorro si hay descuento
   const ahorro = hasDiscount ? formatPrice(producto.precio - precioFinal) : '';
 
   useEffect(() => {
@@ -96,11 +97,22 @@ export default function Details({ producto, productosRelacionados }: Props) {
     checkIfMobile();
 
     window.addEventListener('resize', checkIfMobile);
+    
+    axios.get('/favorites')
+      .then(response => {
+        if (response.data.success && response.data.data) {
+          const favoriteProductIds = response.data.data.map((item: any) => item.producto_id);
+          setIsFavorite(favoriteProductIds.includes(producto.id));
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching favorites:', error);
+      });
 
     return () => {
       window.removeEventListener('resize', checkIfMobile);
     };
-  }, []);
+  }, [producto.id]);
 
   const toggleDarkMode = () => {
     const newDarkMode = !isDarkMode;
@@ -123,22 +135,57 @@ export default function Details({ producto, productosRelacionados }: Props) {
   };
 
   const handleAddToCart = () => {
-    window.dispatchEvent(new CustomEvent('add-to-cart', { 
-      detail: {
-        id: producto.id,
-        producto_id: producto.id,
-        nombre: producto.nombre,
-        precio: producto.precio,
-        descuento: producto.descuento,
-        quantity: quantity,
-        imagen: producto.imagen_principal
+    axios.post('/cart/add', {
+      producto_id: producto.id,
+      quantity: quantity
+    })
+    .then(response => {
+      if (response.data.success) {
+        toast.success("Añadido al carrito", {
+          description: `${producto.nombre} ha sido añadido a tu carrito.`,
+          duration: 3000,
+        });
+        
+        const event = new CustomEvent('cart-updated');
+        window.dispatchEvent(event);
       }
-    }));
-    
-    toast.success("Producto añadido al carrito", {
-      description: `${producto.nombre} (${selectedColor}) x${quantity} ha sido añadido a tu carrito.`,
-      duration: 3000,
+    })
+    .catch(error => {
+      console.error('Error adding to cart:', error);
+      toast.error("Error al añadir al carrito", {
+        duration: 3000,
+      });
     });
+  };
+  
+  const toggleFavorite = () => {
+    axios.post('/favorites/toggle', { producto_id: producto.id })
+      .then(response => {
+        if (response.data.success) {
+          setIsFavorite(response.data.isFavorite);
+          
+          if (response.data.isFavorite) {
+            toast.success("Añadido a favoritos", {
+              description: `${producto.nombre} ha sido añadido a tus favoritos.`,
+              duration: 3000,
+            });
+          } else {
+            toast("Eliminado de favoritos", {
+              description: `${producto.nombre} ha sido eliminado de tus favoritos.`,
+              duration: 3000,
+            });
+          }
+          
+          const event = new CustomEvent('favorites-updated');
+          window.dispatchEvent(event);
+        }
+      })
+      .catch(error => {
+        console.error('Error toggling favorite:', error);
+        toast.error("Error al actualizar favoritos", {
+          duration: 3000,
+        });
+      });
   };
 
   const incrementQuantity = () => {
@@ -225,10 +272,10 @@ export default function Details({ producto, productosRelacionados }: Props) {
                 <Button
                   variant="secondary"
                   size="icon"
-                  className="rounded-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-sm hover:bg-white dark:hover:bg-gray-900"
-                  onClick={() => toast.success("Añadido a favoritos")}
+                  className={`rounded-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-sm hover:bg-white dark:hover:bg-gray-900 ${isFavorite ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'}`}
+                  onClick={toggleFavorite}
                 >
-                  <HeartIcon className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                  <HeartIcon className="h-5 w-5" fill={isFavorite ? 'currentColor' : 'none'} />
                 </Button>
               </div>
               <img

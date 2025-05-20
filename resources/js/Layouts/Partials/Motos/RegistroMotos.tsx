@@ -67,7 +67,6 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [motoToDelete, setMotoToDelete] = useState<number | null>(null);
     
-    // Colores personalizados para estados con diseño más atractivo
     const estadoColors: Record<string, string> = {
         'Activo': 'bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-800 border-emerald-200 shadow-sm',
         'Inactivo': 'bg-gradient-to-r from-amber-50 to-amber-100 text-amber-800 border-amber-200 shadow-sm',

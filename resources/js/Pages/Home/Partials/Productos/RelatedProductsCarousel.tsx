@@ -9,6 +9,7 @@ import { PauseIcon, PlayIcon, ShoppingCartIcon, HeartIcon, StarIcon, InfoIcon, E
 import { toast } from "sonner";
 import { Separator } from "@/Components/ui/separator";
 import { Link } from '@inertiajs/react';
+import axios from "axios";
 
 interface RelatedProductsCarouselProps {
   products: Array<{
@@ -26,7 +27,7 @@ interface RelatedProductsCarouselProps {
     destacado?: boolean;
   }>;
   isMobile?: boolean;
-  mainProductName?: string; // Nuevo: para mostrar el nombre del producto principal
+  mainProductName?: string;
 }
 
 const IGV_RATE = 0.18;
@@ -57,6 +58,21 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
       api.off("select", handleSelect);
     };
   }, [api]);
+  
+  useEffect(() => {
+    if (products.length > 0) {
+      axios.get('/favorites')
+        .then(response => {
+          if (response.data.success && response.data.data) {
+            const favoriteProductIds = response.data.data.map((item: any) => item.producto_id);
+            setFavorites(favoriteProductIds);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching favorites:', error);
+        });
+    }
+  }, [products]);
 
   useEffect(() => {
     if (!api || !isPlaying) {
@@ -103,37 +119,58 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
   };
 
   const toggleFavorite = (productId: number) => {
-    setFavorites(prev => {
-      const newFavorites = prev.includes(productId)
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId];
-
-      if (newFavorites.includes(productId)) {
-        toast.success("Añadido a favoritos", {
-          description: `${products.find(p => p.id === productId)?.name} ha sido añadido a tus favoritos.`,
+    axios.post('/favorites/toggle', { producto_id: productId })
+      .then(response => {
+        if (response.data.success) {
+          if (response.data.isFavorite) {
+            setFavorites(prev => [...prev, productId]);
+            toast.success("Añadido a favoritos", {
+              description: `${products.find(p => p.id === productId)?.name} ha sido añadido a tus favoritos.`,
+              duration: 3000,
+            });
+          } else {
+            setFavorites(prev => prev.filter(id => id !== productId));
+            toast("Eliminado de favoritos", {
+              description: `${products.find(p => p.id === productId)?.name} ha sido eliminado de tus favoritos.`,
+              duration: 3000,
+            });
+          }
+          
+          const event = new CustomEvent('favorites-updated');
+          window.dispatchEvent(event);
+        }
+      })
+      .catch(error => {
+        console.error('Error toggling favorite:', error);
+        toast.error("Error al actualizar favoritos", {
           duration: 3000,
         });
-      } else {
-        toast("Eliminado de favoritos", {
-          description: `${products.find(p => p.id === productId)?.name} ha sido eliminado de tus favoritos.`,
-          duration: 3000,
-        });
-      }
-
-      return newFavorites;
-    });
+      });
   };
 
   const addToCart = (productId: number) => {
-    setCart(prev => {
-      const newCart = [...prev, productId];
-
-      toast.success("Añadido al carrito", {
-        description: `${products.find(p => p.id === productId)?.name} ha sido añadido a tu carrito.`,
+    axios.post('/cart/add', {
+      producto_id: productId,
+      quantity: 1
+    })
+    .then(response => {
+      if (response.data.success) {
+        setCart(prev => [...prev, productId]);
+        
+        toast.success("Añadido al carrito", {
+          description: `${products.find(p => p.id === productId)?.name} ha sido añadido a tu carrito.`,
+          duration: 3000,
+        });
+        
+        const event = new CustomEvent('cart-updated');
+        window.dispatchEvent(event);
+      }
+    })
+    .catch(error => {
+      console.error('Error adding to cart:', error);
+      toast.error("Error al añadir al carrito", {
         duration: 3000,
       });
-
-      return newCart;
     });
   };
 
@@ -161,8 +198,8 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
       return parseFloat(value.replace(/[^\d.-]/g, ''));
     };
 
-    const currentPrice = formatPrice(price) * (1 + IGV_RATE); // Añadir IGV al precio actual
-    const origPrice = formatPrice(originalPrice) * (1 + IGV_RATE); // Añadir IGV al precio original
+    const currentPrice = formatPrice(price) * (1 + IGV_RATE);
+    const origPrice = formatPrice(originalPrice) * (1 + IGV_RATE);
 
     if (origPrice > currentPrice) {
       const discount = Math.round(((origPrice - currentPrice) / origPrice) * 100);
@@ -178,7 +215,6 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
     };
 
     const priceWithIGV = formatPrice(price);
-    // Formatea el número con separador de miles y punto decimal
     return `S/ ${priceWithIGV.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
@@ -204,7 +240,6 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
 
   const getTagBadges = (product: any, discountPercentage: number) => {
     const tags: React.ReactNode[] = [];
-    // Destacado
     if (product.destacado || (product.tag && product.tag.split(", ").includes("Destacado"))) {
       tags.push(
         <div key="destacado" className="flex items-center gap-1 bg-yellow-500 text-white px-2 py-0.5 rounded shadow-sm">
@@ -213,7 +248,6 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
         </div>
       );
     }
-    // Más Vendido
     if (product.masVendido || (product.tag && product.tag.split(", ").includes("Más Vendido"))) {
       tags.push(
         <div key="mas_vendido" className="flex items-center gap-1 bg-green-500 text-white px-2 py-0.5 rounded shadow-sm">
@@ -222,7 +256,6 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
         </div>
       );
     }
-    // Libres
     if (product.tag && product.tag.split(", ").includes("Libre")) {
       tags.push(
         <div key="libre" className="flex items-center gap-1 bg-blue-500 text-white px-2 py-0.5 rounded shadow-sm">
@@ -230,7 +263,6 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
         </div>
       );
     }
-    // Descuento
     if (discountPercentage > 0) {
       tags.push(
         <div key="descuento" className="flex items-center gap-1 bg-red-500 text-white px-2 py-0.5 rounded shadow-sm">
@@ -246,7 +278,6 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
     );
   };
 
-  // Mostrar hasta 10 productos o todos si hay menos
   const visibleProducts = products.slice(0, 10);
 
   return (
@@ -354,7 +385,6 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
                             </span>
                           )}
                         </div>
-                        {/* Mensaje de precio final y descuento */}
                         <div className="text-xs text-green-700 mt-1">
                           El precio final es <span className="font-semibold">{renderPriceWithIGV(product.price)}</span> con un descuento de <span className="font-semibold">{discountPercentage}%</span>.
                         </div>

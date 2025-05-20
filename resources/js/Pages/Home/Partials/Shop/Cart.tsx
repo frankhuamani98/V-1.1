@@ -184,7 +184,6 @@ export default function Cart({ cartItems: initialCartItems, total: initialTotal 
           ) : (
             <>
               <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
-                {/* Cabecera de la tabla */}
                 <div className="hidden md:grid md:grid-cols-12 gap-4 p-4 bg-gray-50 border-b">
                   <div className="col-span-6 font-medium text-gray-700">Producto</div>
                   <div className="col-span-2 font-medium text-gray-700 text-center">Precio</div>
