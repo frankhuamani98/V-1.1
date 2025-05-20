@@ -45,6 +45,10 @@ interface PageProps {
       estado: string;
     }>;
   }>;
+  categoriasServicio?: Array<{
+    id: number;
+    nombre: string;
+  }>;
   [key: string]: any;
 }
 
@@ -68,7 +72,7 @@ const Footer = () => {
   };
 
   const currentYear = new Date().getFullYear();
-  const { categoriasMenu = [] } = usePage<PageProps>().props;
+  const { categoriasMenu = [], categoriasServicio = [] } = usePage<PageProps>().props;
 
   const categoriasActivas = categoriasMenu?.filter?.(categoria => categoria.estado === "Activo") || [];
 
@@ -222,26 +226,32 @@ const Footer = () => {
           </div>
 
           <div className="text-center sm:text-left">
-            <h3 className="text-xl font-bold mb-4">Novedades</h3>
+            <h3 className="text-xl font-bold mb-4">Servicios Técnicos</h3>
             <p className="text-neutral-400 text-sm mb-5">
-              Regístrate para recibir ofertas exclusivas, nuevos productos y consejos de mantenimiento para tu motocicleta.
+              Ofrecemos una amplia gama de servicios para tu motocicleta
             </p>
-            <form onSubmit={handleSubscribe} className="flex flex-col space-y-3 max-w-xs mx-auto sm:mx-0">
-              <div className="flex">
-                <Input
-                  type="email"
-                  name="email"
-                  placeholder="Tu correo electrónico"
-                  className="bg-neutral-800 border-neutral-700 text-sm rounded-l-md"
-                />
-                <Button type="submit" className="bg-[var(--custom-blue)] hover:bg-blue-900 rounded-l-none px-4">
-                  <ArrowRightIcon className="h-4 w-4" />
-                </Button>
-              </div>
-              <p className="text-xs text-neutral-500">
-                Al suscribirte, aceptas nuestra política de privacidad.
-              </p>
-            </form>
+            <ul className="space-y-3">
+              {Array.isArray(categoriasServicio) && categoriasServicio.slice(0, 4).map((categoria) => (
+                <li key={categoria.id}>
+                  <a 
+                    href={`/catalogo-servicios/categoria/${categoria.id}`} 
+                    className="text-neutral-400 text-sm hover:text-neutral-200 transition-colors flex items-center justify-center sm:justify-start group"
+                  >
+                    <ChevronRightIcon className="h-4 w-4 mr-2 text-neutral-200 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    {categoria.nombre}
+                  </a>
+                </li>
+              ))}
+              <li>
+                <a 
+                  href="/catalogo-servicios" 
+                  className="text-neutral-400 text-sm hover:text-neutral-200 transition-colors flex items-center justify-center sm:justify-start group"
+                >
+                  <ChevronRightIcon className="h-4 w-4 mr-2 text-neutral-200 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  Ver todos los servicios
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
 

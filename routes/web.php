@@ -30,7 +30,7 @@ Route::get('/categorias/{categoria}', [CategoriaPublicaController::class, 'show'
     ->where('categoria', '[0-9]+');
 
 // Rutas para servicios públicos
-Route::prefix('servicios')->name('servicios.publico.')->group(function () {
+Route::prefix('catalogo-servicios')->name('servicios.publico.')->group(function () {
     Route::get('/', [ServicioController::class, 'publicIndex'])->name('index');
     Route::get('/categoria/{categoria}', [ServicioController::class, 'publicCategory'])
         ->name('categoria')
@@ -209,27 +209,14 @@ Route::middleware('auth')->group(function () {
             Route::get('/crear', [CategoriaServicioController::class, 'create'])->name('crear');
             Route::post('/', [CategoriaServicioController::class, 'store'])->name('store');
             Route::get('/todas', [CategoriaServicioController::class, 'getAll'])->name('todas');
-            Route::get('/{categoriaServicio}/editar', [CategoriaServicioController::class, 'edit'])
-                ->name('editar')
-                ->where('categoriaServicio', '[0-9]+');
-            Route::put('/{categoriaServicio}', [CategoriaServicioController::class, 'update'])
-                ->name('update')
-                ->where('categoriaServicio', '[0-9]+');
-            Route::delete('/{categoriaServicio}', [CategoriaServicioController::class, 'destroy'])
-                ->name('destroy')
-                ->where('categoriaServicio', '[0-9]+');
+            Route::get('/{categoriaServicio}/editar', [CategoriaServicioController::class, 'edit'])->name('editar')->where('categoriaServicio', '[0-9]+');
+            Route::put('/{categoriaServicio}', [CategoriaServicioController::class, 'update'])->name('update')->where('categoriaServicio', '[0-9]+');
+            Route::delete('/{categoriaServicio}', [CategoriaServicioController::class, 'destroy'])->name('destroy')->where('categoriaServicio', '[0-9]+');
         });
         
-        // Estas rutas deben ir al final porque contienen parámetros dinámicos
-        Route::get('/{servicio}/editar', [ServicioController::class, 'edit'])
-            ->name('editar')
-            ->where('servicio', '[0-9]+');
-        Route::put('/{servicio}', [ServicioController::class, 'update'])
-            ->name('update')
-            ->where('servicio', '[0-9]+');
-        Route::delete('/{servicio}', [ServicioController::class, 'destroy'])
-            ->name('destroy')
-            ->where('servicio', '[0-9]+');
+        Route::get('/{servicio}/editar', [ServicioController::class, 'edit'])->name('editar')->where('servicio', '[0-9]+');
+        Route::put('/{servicio}', [ServicioController::class, 'update'])->name('update')->where('servicio', '[0-9]+');
+        Route::delete('/{servicio}', [ServicioController::class, 'destroy'])->name('destroy')->where('servicio', '[0-9]+');
     });
 
     // Reservas

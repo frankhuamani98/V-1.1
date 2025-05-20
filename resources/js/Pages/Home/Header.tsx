@@ -532,12 +532,17 @@ export default function Header() {
     href: "/servicios",
     description: "Ofrecemos una amplia gama de servicios para tu motocicleta",
     icon: <WrenchIcon className="mr-2 h-4 w-4" />,
-    subcategories: Array.isArray(categoriasServicio) 
-      ? categoriasServicio.map(categoria => ({
-          name: categoria.nombre,
-          href: `/servicios/categoria/${categoria.id}`,
-        }))
-      : [{ name: "Ver todos los servicios", href: "/servicios" }]
+    subcategories: [
+      ...(Array.isArray(categoriasServicio) 
+        ? categoriasServicio
+            .slice(0, 4)
+            .map(categoria => ({
+              name: categoria.nombre,
+              href: `/catalogo-servicios/categoria/${categoria.id}`,
+            }))
+        : []),
+      { name: "Ver todos los servicios", href: "/catalogo-servicios" }
+    ]
   };
 
   const fixedCategories = [

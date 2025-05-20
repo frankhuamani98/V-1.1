@@ -1,9 +1,11 @@
 import React from "react";
-import { usePage } from "@inertiajs/react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card";
-import { Button } from "@/Components/ui/button";
-import { Separator } from "@/Components/ui/separator";
-import { WrenchIcon, ChevronRightIcon, TagIcon, ClockIcon } from "lucide-react";
+import { usePage, Link } from "@inertiajs/react";
+import { Head } from "@inertiajs/react";
+import { Badge } from "@/Components/ui/badge";
+import { WrenchIcon, SettingsIcon, ActivityIcon, ZapIcon, ShieldIcon, SparklesIcon, RotateCwIcon, BoltIcon, PlugIcon, HomeIcon, Sparkles, Tag, BadgeCheck, Package } from "lucide-react";
+import { motion } from "framer-motion";
+import Header from "@/Pages/Home/Header";
+import Footer from "@/Pages/Home/Footer";
 
 interface Category {
   id: number;
@@ -11,127 +13,205 @@ interface Category {
   descripcion?: string;
 }
 
-interface Service {
-  id: number;
-  nombre: string;
-  categoria_id: number;
-  descripcion?: string;
-}
-
 export default function CategoriaServicios() {
-  const { categoriasServicio = [], servicios = [] } = usePage<any>().props;
+  const { categoriasServicio = [] } = usePage<any>().props;
+
+  const categoryIcons = [
+    <WrenchIcon className="h-4 w-4" />,
+    <SettingsIcon className="h-4 w-4" />,
+    <ActivityIcon className="h-4 w-4" />,
+    <ZapIcon className="h-4 w-4" />,
+    <ShieldIcon className="h-4 w-4" />,
+    <SparklesIcon className="h-4 w-4" />,
+    <RotateCwIcon className="h-4 w-4" />,
+    <BoltIcon className="h-4 w-4" />,
+    <PlugIcon className="h-4 w-4" />
+  ];
 
   if (!Array.isArray(categoriasServicio) || categoriasServicio.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-8">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold mb-6 text-gray-900">Nuestros Servicios</h2>
-          <div className="bg-white rounded-xl p-8 text-center border border-gray-100 shadow-sm">
-            <WrenchIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-xl font-medium mb-2 text-gray-800">No hay categorías de servicios disponibles</h3>
-            <p className="text-gray-600 mb-6">
-              Actualmente no hay categorías de servicios configuradas.
-            </p>
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Head title="Servicios - Rudolf Motors" />
+        <Header />
+        
+        <div className="flex-grow py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav className="mb-6">
+              <ol className="flex items-center flex-wrap gap-2 py-2">
+                <li>
+                  <Link href="/" className="text-gray-500 hover:text-gray-800 flex items-center text-sm">
+                    <HomeIcon className="w-3.5 h-3.5 mr-1" />
+                    Inicio
+                  </Link>
+                </li>
+                <li className="flex items-center">
+                  <span className="mx-2 text-gray-400">/</span>
+                  <span className="text-gray-800 font-medium text-sm" title="Servicios">
+                    Servicios
+                  </span>
+                </li>
+              </ol>
+            </nav>
+          
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-bold text-gray-900 mb-3">Nuestros Servicios</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto text-sm">
+                Explora nuestra amplia gama de servicios especializados para el mantenimiento y cuidado de tu moto
+              </p>
+            </div>
+            
+            <div className="bg-white rounded-xl p-8 text-center border border-gray-200 shadow-sm max-w-md mx-auto">
+              <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium mb-2 text-gray-800">No hay categorías disponibles</h3>
+              <p className="text-gray-500 text-sm mb-6">
+                Actualmente no hay categorías de servicios configuradas.
+              </p>
+            </div>
           </div>
         </div>
+        
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-8">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Nuestros Servicios</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Explora nuestra amplia gama de servicios especializados para el mantenimiento y cuidado de tu moto
-          </p>
-        </div>
-        
-        <div className="space-y-16">
-          {categoriasServicio.map((categoria: Category) => {
-            const serviciosCategoria = servicios.filter(
-              (servicio: any) => servicio.categoria_servicio_id === categoria.id || servicio.categoria_id === categoria.id
-            );
-            
-            return (
-              <div key={categoria.id} className="space-y-6">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div>
-                    <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                      {categoria.nombre}
-                      <span className="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                        {serviciosCategoria.length} servicios
-                      </span>
-                    </h3>
-                    {categoria.descripcion && (
-                      <p className="text-gray-600 mt-2">{categoria.descripcion}</p>
-                    )}
-                  </div>
-                  <Button variant="outline" size="sm" asChild className="shrink-0 hover:bg-gray-50 hover:text-blue-600 hover:border-blue-500 transition-colors">
-                    <a href={`/servicios/categoria/${categoria.id}`}>
-                      Ver todos
-                      <ChevronRightIcon className="ml-2 h-4 w-4" />
-                    </a>
-                  </Button>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex flex-col">
+      <Head title="Servicios - Rudolf Motors" />
+      <Header />
+      
+      <div className="flex-grow py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav className="mb-6">
+            <ol className="flex items-center flex-wrap gap-2 bg-white shadow-sm rounded-full px-4 py-2 border border-slate-100">
+              <li>
+                <Link href="/" className="text-slate-600 hover:text-indigo-700 flex items-center text-sm transition-colors duration-200">
+                  <HomeIcon className="w-3.5 h-3.5 mr-1" />
+                  Inicio
+                </Link>
+              </li>
+              <li className="flex items-center">
+                <span className="mx-2 text-slate-300">/</span>
+                <span className="text-indigo-700 font-medium text-sm" title="Servicios">
+                  Servicios
+                </span>
+              </li>
+            </ol>
+          </nav>
+          
+          <div className="flex items-center justify-between mb-8">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="max-w-2xl"
+            >
+              <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3 mb-2">
+                <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white p-2.5 rounded-lg shadow-md">
+                  <WrenchIcon className="h-5 w-5" />
                 </div>
-                
-                <Separator className="bg-gray-200" />
-                
-                {serviciosCategoria.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {serviciosCategoria.slice(0, 3).map((servicio: Service) => (
-                      <Card 
-                        key={servicio.id} 
-                        className="group border border-gray-100 hover:border-gray-200 shadow-sm hover:shadow-md transition-all duration-200"
-                      >
-                        <CardHeader>
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <CardTitle className="text-xl text-gray-900 group-hover:text-blue-600 transition-colors">
-                                {servicio.nombre}
-                              </CardTitle>
-                              <CardDescription className="mt-2">
-                                {servicio.descripcion || "Próximamente más información sobre este servicio"}
-                              </CardDescription>
-                            </div>
-                            <div className="flex-shrink-0">
-                              <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
-                                <WrenchIcon className="h-5 w-5 text-blue-500" />
-                              </div>
-                            </div>
+                Nuestros Servicios
+              </h1>
+              <p className="text-slate-600 mt-2 ml-11 leading-relaxed max-w-3xl">
+                Explora nuestra amplia gama de servicios especializados para el mantenimiento y cuidado de tu moto. 
+                Selecciona una categoría para ver los servicios disponibles.
+              </p>
+            </motion.div>
+            
+            <Badge className="px-3 py-1.5 bg-gradient-to-r from-indigo-50 to-indigo-100 text-indigo-700 border-indigo-200 rounded-full text-xs font-medium shadow-sm">
+              {categoriasServicio.length} categorías disponibles
+            </Badge>
+          </div>
+        
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 mb-10">
+            {categoriasServicio.map((categoria: Category, index: number) => {
+              const iconIndex = index % categoryIcons.length;
+              
+              const colorClasses = [
+                'from-indigo-500 to-indigo-600',
+                'from-blue-500 to-blue-600',
+                'from-cyan-500 to-cyan-600',
+                'from-violet-500 to-violet-600',
+                'from-purple-500 to-purple-600'
+              ];
+              const colorClass = colorClasses[index % colorClasses.length];
+              const bgColorClass = colorClass.includes('indigo') ? 'bg-indigo-50' : 
+                                  colorClass.includes('blue') ? 'bg-blue-50' : 
+                                  colorClass.includes('cyan') ? 'bg-cyan-50' : 
+                                  colorClass.includes('violet') ? 'bg-violet-50' : 'bg-purple-50';
+              const textColorClass = colorClass.includes('indigo') ? 'text-indigo-700' : 
+                                    colorClass.includes('blue') ? 'text-blue-700' : 
+                                    colorClass.includes('cyan') ? 'text-cyan-700' : 
+                                    colorClass.includes('violet') ? 'text-violet-700' : 'text-purple-700';
+              const borderColorClass = colorClass.includes('indigo') ? 'border-indigo-200' : 
+                                      colorClass.includes('blue') ? 'border-blue-200' : 
+                                      colorClass.includes('cyan') ? 'border-cyan-200' : 
+                                      colorClass.includes('violet') ? 'border-violet-200' : 'border-purple-200';
+              
+              const icons = [
+                <WrenchIcon className="h-5 w-5" />,
+                <SettingsIcon className="h-5 w-5" />,
+                <SparklesIcon className="h-5 w-5" />,
+                <Tag className="h-5 w-5" />,
+                <BadgeCheck className="h-5 w-5" />,
+                <Package className="h-5 w-5" />
+              ];
+              
+              return (
+                <motion.div 
+                  key={categoria.id}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                >
+                  <a 
+                    href={`/catalogo-servicios/categoria/${categoria.id}`}
+                    className="block h-full"
+                  >
+                    <div className="bg-white h-full rounded-lg border border-slate-100 hover:border-indigo-200 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col overflow-hidden group">
+                      <div className={`h-1 w-full bg-gradient-to-r ${colorClass}`}></div>
+                      
+                      <div className="p-5">
+                        <div className="flex items-start mb-3">
+                          <div className={`w-10 h-10 rounded-lg ${bgColorClass} ${borderColorClass} border flex items-center justify-center mr-3 shadow-sm group-hover:scale-110 transition-transform duration-300`}>
+                            {icons[index % icons.length]}
                           </div>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <TagIcon className="h-4 w-4 text-gray-400" />
-                            <span>{categoria.nombre}</span>
+                          <h3 className="text-base font-semibold text-slate-900 group-hover:text-indigo-700 transition-colors duration-200 pt-1.5">
+                            {categoria.nombre}
+                          </h3>
+                        </div>
+                        
+                        <p className="text-sm text-slate-600 mb-4 leading-relaxed">
+                          {categoria.descripcion ? (
+                            <span className="line-clamp-2">{categoria.descripcion}</span>
+                          ) : (
+                            "Servicios especializados para tu moto"
+                          )}
+                        </p>
+                        
+                        <div className="mt-auto pt-2">
+                          <div className={`text-sm ${textColorClass} font-medium flex items-center justify-end group-hover:underline transition-all duration-200`}>
+                            Ver servicios
+                            <svg className="ml-1.5 h-3.5 w-3.5 transition-transform group-hover:translate-x-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
                           </div>
-                        </CardContent>
-                        <Separator />
-                        <CardFooter className="p-4 bg-gradient-to-r from-gray-50 to-white">
-                          <Button asChild variant="outline" className="w-full group-hover:border-blue-500 group-hover:text-blue-600">
-                            <a href={`/servicios/${servicio.id}`}>
-                              Ver detalles
-                              <ChevronRightIcon className="ml-2 h-4 w-4" />
-                            </a>
-                          </Button>
-                        </CardFooter>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="bg-white rounded-lg p-6 text-center border border-gray-100">
-                    <p className="text-gray-600">
-                      No hay servicios disponibles en esta categoría.
-                    </p>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 }
