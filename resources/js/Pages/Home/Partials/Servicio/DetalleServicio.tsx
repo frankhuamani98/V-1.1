@@ -28,10 +28,10 @@ export default function DetalleServicio() {
   if (!servicio) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="bg-muted/50 rounded-lg p-8 text-center">
-          <WrenchIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-xl font-medium mb-2">Servicio no encontrado</h3>
-          <p className="text-muted-foreground mb-6">
+        <div className="bg-muted/50 dark:bg-slate-800 rounded-lg p-8 text-center">
+          <WrenchIcon className="mx-auto h-12 w-12 text-muted-foreground dark:text-slate-400 mb-4" />
+          <h3 className="text-xl font-medium mb-2 dark:text-white">Servicio no encontrado</h3>
+          <p className="text-muted-foreground dark:text-slate-400 mb-6">
             El servicio que estás buscando no existe o ha sido desactivado.
           </p>
           <Button asChild>
@@ -43,7 +43,7 @@ export default function DetalleServicio() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-slate-900 dark:to-slate-950 flex flex-col">
       <Head title={`${servicio?.nombre || 'Detalle de Servicio'} - Rudolf Motors`} />
       <Header />
       
@@ -55,22 +55,22 @@ export default function DetalleServicio() {
             transition={{ duration: 0.3 }}
           >
             <nav className="mb-6">
-              <ol className="flex items-center flex-wrap gap-2 bg-white shadow-sm rounded-full px-4 py-2 border border-slate-100">
+              <ol className="flex items-center flex-wrap gap-2 bg-white dark:bg-slate-800 shadow-sm rounded-full px-4 py-2 border border-slate-100 dark:border-slate-700">
                 <li>
-                  <Link href="/" className="text-slate-600 hover:text-indigo-700 flex items-center text-sm transition-colors duration-200">
+                  <Link href="/" className="text-slate-600 dark:text-slate-300 hover:text-indigo-700 dark:hover:text-indigo-400 flex items-center text-sm transition-colors duration-200">
                     <HomeIcon className="w-3.5 h-3.5 mr-1" />
                     Inicio
                   </Link>
                 </li>
                 <li className="flex items-center">
-                  <span className="mx-2 text-slate-300">/</span>
-                  <Link href="/catalogo-servicios" className="text-slate-600 hover:text-indigo-700 flex items-center text-sm transition-colors duration-200">
+                  <span className="mx-2 text-slate-300 dark:text-slate-500">/</span>
+                  <Link href="/catalogo-servicios" className="text-slate-600 dark:text-slate-300 hover:text-indigo-700 dark:hover:text-indigo-400 flex items-center text-sm transition-colors duration-200">
                     Servicios
                   </Link>
                 </li>
                 <li className="flex items-center">
-                  <span className="mx-2 text-slate-300">/</span>
-                  <span className="text-indigo-700 font-medium text-sm">
+                  <span className="mx-2 text-slate-300 dark:text-slate-500">/</span>
+                  <span className="text-indigo-700 dark:text-indigo-400 font-medium text-sm">
                     {servicio?.nombre}
                   </span>
                 </li>
@@ -85,18 +85,18 @@ export default function DetalleServicio() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100 bg-gradient-to-br from-blue-100/70 to-indigo-100/70 backdrop-blur-sm">
-                <h1 className="text-3xl font-bold mb-4 text-gray-900 flex items-center">
-                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-indigo-700">
+              <div className="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-md border border-gray-100 dark:border-slate-700 bg-gradient-to-br from-blue-100/70 to-indigo-100/70 dark:from-slate-800/70 dark:to-slate-900/70 backdrop-blur-sm">
+                <h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white flex items-center">
+                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-indigo-700 dark:from-blue-400 dark:to-indigo-400">
                     {servicio.nombre}
                   </span>
                 </h1>
-                <div className="flex items-center gap-3 text-muted-foreground">
+                <div className="flex items-center gap-3 text-muted-foreground dark:text-slate-400">
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger>
-                        <Badge variant="secondary" className="flex items-center gap-1 hover:bg-blue-100 px-3 py-1 transition-colors duration-200 border border-blue-200">
-                          <TagIcon className="h-3 w-3 text-blue-600" />
+                        <Badge variant="secondary" className="flex items-center gap-1 hover:bg-blue-100 dark:hover:bg-blue-900 px-3 py-1 transition-colors duration-200 border border-blue-200 dark:border-blue-700">
+                          <TagIcon className="h-3 w-3 text-blue-600 dark:text-blue-400" />
                           {servicio.categoriaServicio?.nombre}
                         </Badge>
                       </TooltipTrigger>
@@ -108,25 +108,25 @@ export default function DetalleServicio() {
                 </div>
               </div>
 
-              <Card className="border-0 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
-                <CardHeader className="pb-3 bg-gradient-to-r from-blue-50 to-blue-100/50">
+              <Card className="border-0 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden dark:bg-slate-800">
+                <CardHeader className="pb-3 bg-gradient-to-r from-blue-50 to-blue-100/50 dark:from-slate-800 dark:to-slate-900">
                   <div className="flex items-center gap-2">
-                    <InfoIcon className="h-5 w-5 text-blue-600" />
-                    <CardTitle className="text-xl text-gray-800">Descripción</CardTitle>
+                    <InfoIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    <CardTitle className="text-xl text-gray-800 dark:text-white">Descripción</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent className="pt-4">
-                  <p className="text-gray-600 leading-relaxed">
+                  <p className="text-gray-600 dark:text-slate-400 leading-relaxed">
                     {servicio.descripcion || "No hay descripción disponible para este servicio."}
                   </p>
                 </CardContent>
               </Card>
 
               {serviciosRelacionados.length > 0 && (
-                <Card className="border-0 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
-                  <CardHeader className="bg-gradient-to-r from-indigo-50 to-indigo-100/50">
-                    <CardTitle className="text-xl text-gray-800">Servicios relacionados</CardTitle>
-                    <CardDescription>
+                <Card className="border-0 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden dark:bg-slate-800">
+                  <CardHeader className="bg-gradient-to-r from-indigo-50 to-indigo-100/50 dark:from-slate-800 dark:to-slate-900">
+                    <CardTitle className="text-xl text-gray-800 dark:text-white">Servicios relacionados</CardTitle>
+                    <CardDescription className="dark:text-slate-400">
                       Otros servicios que podrían interesarte
                     </CardDescription>
                   </CardHeader>
@@ -139,17 +139,17 @@ export default function DetalleServicio() {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.3, delay: index * 0.1 }}
                         >
-                          <Card className="border border-gray-100 hover:border-blue-300 hover:shadow-md transition-all duration-200 h-full group">
+                          <Card className="border border-gray-100 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-md transition-all duration-200 h-full group dark:bg-slate-900">
                             <CardHeader>
-                              <CardTitle className="text-lg">{related.nombre}</CardTitle>
+                              <CardTitle className="text-lg dark:text-white">{related.nombre}</CardTitle>
                             </CardHeader>
                             <CardContent>
-                              <p className="text-sm text-gray-600 line-clamp-2">
+                              <p className="text-sm text-gray-600 dark:text-slate-400 line-clamp-2">
                                 {related.descripcion || "Sin descripción"}
                               </p>
                             </CardContent>
                             <CardFooter>
-                              <Button asChild variant="ghost" className="w-full hover:bg-blue-50 hover:text-blue-600 group-hover:bg-blue-50 transition-colors duration-200">
+                              <Button asChild variant="ghost" className="w-full hover:bg-blue-50 dark:hover:bg-blue-900 hover:text-blue-600 dark:hover:text-blue-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-900 transition-colors duration-200">
                                 <a href={`/catalogo-servicios/${related.id}`}>Ver detalles</a>
                               </Button>
                             </CardFooter>
@@ -168,13 +168,13 @@ export default function DetalleServicio() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-200 bg-gradient-to-br from-blue-100 to-indigo-100 transform hover:-translate-y-1">
-                <CardHeader className="pb-3 border-b border-blue-200/50">
+              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-200 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-slate-800 dark:to-slate-900 transform hover:-translate-y-1">
+                <CardHeader className="pb-3 border-b border-blue-200/50 dark:border-blue-800/50">
                   <div className="flex items-center gap-2">
-                    <CalendarIcon className="h-5 w-5 text-blue-600" />
-                    <CardTitle className="text-xl text-gray-800">Agendar Servicio</CardTitle>
+                    <CalendarIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    <CardTitle className="text-xl text-gray-800 dark:text-white">Agendar Servicio</CardTitle>
                   </div>
-                  <CardDescription>
+                  <CardDescription className="dark:text-slate-400">
                     Programa una cita para este servicio
                   </CardDescription>
                 </CardHeader>
@@ -189,21 +189,21 @@ export default function DetalleServicio() {
                 </CardContent>
               </Card>
 
-              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1 bg-gradient-to-br from-gray-50 to-gray-100">
-                <CardHeader className="pb-3 bg-gradient-to-r from-gray-50 to-gray-100/70">
+              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-800 dark:to-slate-900">
+                <CardHeader className="pb-3 bg-gradient-to-r from-gray-50 to-gray-100/70 dark:from-slate-800 dark:to-slate-900">
                   <div className="flex items-center gap-2">
-                    <PhoneIcon className="h-5 w-5 text-blue-600" />
-                    <CardTitle className="text-xl text-gray-800">¿Necesitas ayuda?</CardTitle>
+                    <PhoneIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    <CardTitle className="text-xl text-gray-800 dark:text-white">¿Necesitas ayuda?</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-slate-400">
                     Si tienes dudas sobre este servicio, no dudes en contactarnos.
                   </p>
-                  <Button asChild variant="outline" className="w-full group hover:border-blue-500 hover:bg-blue-50/50 transition-colors duration-200">
+                  <Button asChild variant="outline" className="w-full group hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-900/50 transition-colors duration-200">
                     <a href="/contacto/contactanos">
-                      <PhoneIcon className="h-4 w-4 mr-2 text-gray-500 group-hover:text-blue-500" />
-                      <span className="group-hover:text-blue-500">Contactar</span>
+                      <PhoneIcon className="h-4 w-4 mr-2 text-gray-500 dark:text-slate-400 group-hover:text-blue-500 dark:group-hover:text-blue-400" />
+                      <span className="group-hover:text-blue-500 dark:group-hover:text-blue-400">Contactar</span>
                     </a>
                   </Button>
                 </CardContent>

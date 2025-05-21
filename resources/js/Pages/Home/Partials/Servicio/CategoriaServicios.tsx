@@ -30,7 +30,7 @@ export default function CategoriaServicios() {
 
   if (!Array.isArray(categoriasServicio) || categoriasServicio.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex flex-col">
         <Head title="Servicios - Rudolf Motors" />
         <Header />
         
@@ -39,14 +39,14 @@ export default function CategoriaServicios() {
             <nav className="mb-6">
               <ol className="flex items-center flex-wrap gap-2 py-2">
                 <li>
-                  <Link href="/" className="text-gray-500 hover:text-gray-800 flex items-center text-sm">
+                  <Link href="/" className="text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-white flex items-center text-sm">
                     <HomeIcon className="w-3.5 h-3.5 mr-1" />
                     Inicio
                   </Link>
                 </li>
                 <li className="flex items-center">
-                  <span className="mx-2 text-gray-400">/</span>
-                  <span className="text-gray-800 font-medium text-sm" title="Servicios">
+                  <span className="mx-2 text-gray-400 dark:text-slate-600">/</span>
+                  <span className="text-gray-800 dark:text-white font-medium text-sm" title="Servicios">
                     Servicios
                   </span>
                 </li>
@@ -54,20 +54,20 @@ export default function CategoriaServicios() {
             </nav>
           
             <div className="text-center mb-10">
-              <h2 className="text-3xl font-bold text-gray-900 mb-3">Nuestros Servicios</h2>
-              <p className="text-gray-600 max-w-2xl mx-auto text-sm">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">Nuestros Servicios</h2>
+              <p className="text-gray-600 dark:text-slate-400 max-w-2xl mx-auto text-sm">
                 Explora nuestra amplia gama de servicios especializados para el mantenimiento y cuidado de tu moto
               </p>
             </div>
             
-            <div className="bg-white rounded-xl p-8 text-center border border-gray-200 shadow-sm max-w-md mx-auto">
-              <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-8 text-center border border-gray-200 dark:border-slate-700 shadow-sm max-w-md mx-auto">
+              <div className="w-14 h-14 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-400 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium mb-2 text-gray-800">No hay categorías disponibles</h3>
-              <p className="text-gray-500 text-sm mb-6">
+              <h3 className="text-lg font-medium mb-2 text-gray-800 dark:text-white">No hay categorías disponibles</h3>
+              <p className="text-gray-500 dark:text-slate-400 text-sm mb-6">
                 Actualmente no hay categorías de servicios configuradas.
               </p>
             </div>
@@ -80,23 +80,23 @@ export default function CategoriaServicios() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-slate-900 dark:to-slate-950 flex flex-col">
       <Head title="Servicios - Rudolf Motors" />
       <Header />
       
       <div className="flex-grow py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="mb-6">
-            <ol className="flex items-center flex-wrap gap-2 bg-white shadow-sm rounded-full px-4 py-2 border border-slate-100">
+            <ol className="flex items-center flex-wrap gap-2 bg-white dark:bg-slate-800 shadow-sm rounded-full px-4 py-2 border border-slate-100 dark:border-slate-700">
               <li>
-                <Link href="/" className="text-slate-600 hover:text-indigo-700 flex items-center text-sm transition-colors duration-200">
+                <Link href="/" className="text-slate-600 dark:text-slate-300 hover:text-indigo-700 dark:hover:text-indigo-400 flex items-center text-sm transition-colors duration-200">
                   <HomeIcon className="w-3.5 h-3.5 mr-1" />
                   Inicio
                 </Link>
               </li>
               <li className="flex items-center">
-                <span className="mx-2 text-slate-300">/</span>
-                <span className="text-indigo-700 font-medium text-sm" title="Servicios">
+                <span className="mx-2 text-slate-300 dark:text-slate-500">/</span>
+                <span className="text-indigo-700 dark:text-indigo-400 font-medium text-sm" title="Servicios">
                   Servicios
                 </span>
               </li>
@@ -110,19 +110,19 @@ export default function CategoriaServicios() {
               transition={{ duration: 0.4 }}
               className="max-w-2xl"
             >
-              <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3 mb-2">
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3 mb-2">
                 <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white p-2.5 rounded-lg shadow-md">
                   <WrenchIcon className="h-5 w-5" />
                 </div>
                 Nuestros Servicios
               </h1>
-              <p className="text-slate-600 mt-2 ml-11 leading-relaxed max-w-3xl">
+              <p className="text-slate-600 dark:text-slate-400 mt-2 ml-11 leading-relaxed max-w-3xl">
                 Explora nuestra amplia gama de servicios especializados para el mantenimiento y cuidado de tu moto. 
                 Selecciona una categoría para ver los servicios disponibles.
               </p>
             </motion.div>
             
-            <Badge className="px-3 py-1.5 bg-gradient-to-r from-indigo-50 to-indigo-100 text-indigo-700 border-indigo-200 rounded-full text-xs font-medium shadow-sm">
+            <Badge className="px-3 py-1.5 bg-gradient-to-r from-indigo-50 to-indigo-100 dark:from-slate-800 dark:to-slate-900 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-slate-700 rounded-full text-xs font-medium shadow-sm">
               {categoriasServicio.length} categorías disponibles
             </Badge>
           </div>
@@ -139,18 +139,18 @@ export default function CategoriaServicios() {
                 'from-purple-500 to-purple-600'
               ];
               const colorClass = colorClasses[index % colorClasses.length];
-              const bgColorClass = colorClass.includes('indigo') ? 'bg-indigo-50' : 
-                                  colorClass.includes('blue') ? 'bg-blue-50' : 
-                                  colorClass.includes('cyan') ? 'bg-cyan-50' : 
-                                  colorClass.includes('violet') ? 'bg-violet-50' : 'bg-purple-50';
-              const textColorClass = colorClass.includes('indigo') ? 'text-indigo-700' : 
-                                    colorClass.includes('blue') ? 'text-blue-700' : 
-                                    colorClass.includes('cyan') ? 'text-cyan-700' : 
-                                    colorClass.includes('violet') ? 'text-violet-700' : 'text-purple-700';
-              const borderColorClass = colorClass.includes('indigo') ? 'border-indigo-200' : 
-                                      colorClass.includes('blue') ? 'border-blue-200' : 
-                                      colorClass.includes('cyan') ? 'border-cyan-200' : 
-                                      colorClass.includes('violet') ? 'border-violet-200' : 'border-purple-200';
+              const bgColorClass = colorClass.includes('indigo') ? 'bg-indigo-50 dark:bg-indigo-900' : 
+                                  colorClass.includes('blue') ? 'bg-blue-50 dark:bg-blue-900' : 
+                                  colorClass.includes('cyan') ? 'bg-cyan-50 dark:bg-cyan-900' : 
+                                  colorClass.includes('violet') ? 'bg-violet-50 dark:bg-violet-900' : 'bg-purple-50 dark:bg-purple-900';
+              const textColorClass = colorClass.includes('indigo') ? 'text-indigo-700 dark:text-indigo-300' : 
+                                    colorClass.includes('blue') ? 'text-blue-700 dark:text-blue-300' : 
+                                    colorClass.includes('cyan') ? 'text-cyan-700 dark:text-cyan-300' : 
+                                    colorClass.includes('violet') ? 'text-violet-700 dark:text-violet-300' : 'text-purple-700 dark:text-purple-300';
+              const borderColorClass = colorClass.includes('indigo') ? 'border-indigo-200 dark:border-indigo-700' : 
+                                      colorClass.includes('blue') ? 'border-blue-200 dark:border-blue-700' : 
+                                      colorClass.includes('cyan') ? 'border-cyan-200 dark:border-cyan-700' : 
+                                      colorClass.includes('violet') ? 'border-violet-200 dark:border-violet-700' : 'border-purple-200 dark:border-purple-700';
               
               const icons = [
                 <WrenchIcon className="h-5 w-5" />,
@@ -172,7 +172,7 @@ export default function CategoriaServicios() {
                     href={`/catalogo-servicios/categoria/${categoria.id}`}
                     className="block h-full"
                   >
-                    <div className="bg-white h-full rounded-lg border border-slate-100 hover:border-indigo-200 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col overflow-hidden group">
+                    <div className="bg-white dark:bg-slate-800 h-full rounded-lg border border-slate-100 dark:border-slate-700 hover:border-indigo-200 dark:hover:border-indigo-500 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col overflow-hidden group">
                       <div className={`h-1 w-full bg-gradient-to-r ${colorClass}`}></div>
                       
                       <div className="p-5">
@@ -180,12 +180,12 @@ export default function CategoriaServicios() {
                           <div className={`w-10 h-10 rounded-lg ${bgColorClass} ${borderColorClass} border flex items-center justify-center mr-3 shadow-sm group-hover:scale-110 transition-transform duration-300`}>
                             {icons[index % icons.length]}
                           </div>
-                          <h3 className="text-base font-semibold text-slate-900 group-hover:text-indigo-700 transition-colors duration-200 pt-1.5">
+                          <h3 className="text-base font-semibold text-slate-900 dark:text-white group-hover:text-indigo-700 dark:group-hover:text-indigo-400 transition-colors duration-200 pt-1.5">
                             {categoria.nombre}
                           </h3>
                         </div>
                         
-                        <p className="text-sm text-slate-600 mb-4 leading-relaxed">
+                        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
                           {categoria.descripcion ? (
                             <span className="line-clamp-2">{categoria.descripcion}</span>
                           ) : (
