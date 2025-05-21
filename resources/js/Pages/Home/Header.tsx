@@ -61,7 +61,7 @@ import { cn } from "@/lib/utils";
 import "../../../css/app.css";
 import { toast } from "sonner";
 import axios from "axios";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { ProfileModal } from "@/Components/Modals/ProfileModal";
 
 interface CartItem {
@@ -252,6 +252,41 @@ const FavoriteItem = ({
   );
 };
 
+// Utilidad para saber si el producto es nuevo (últimos 7 días)
+const isNewProduct = (createdAt?: string) => {
+  if (!createdAt) return false;
+  const created = new Date(createdAt);
+  const now = new Date();
+  const diff = (now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24);
+  return diff <= 7;
+};
+
+const SearchSkeleton = () => (
+  <ul className="divide-y divide-border max-h-72 overflow-y-auto custom-scrollbar">
+    {Array.from({ length: 4 }).map((_, idx) => (
+      <li
+        key={idx}
+        className="flex items-center gap-3 py-3 px-3 rounded-lg animate-pulse bg-gradient-to-r from-muted/80 to-muted/40 shadow-sm mb-2"
+      >
+        <div className="w-14 h-14 bg-muted rounded-lg relative overflow-hidden">
+          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[shimmer_1.2s_infinite]"></span>
+        </div>
+        <div className="flex-1 min-w-0 space-y-2">
+          <div className="h-4 bg-muted rounded w-2/3 relative overflow-hidden">
+            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[shimmer_1.2s_infinite]"></span>
+          </div>
+          <div className="h-3 bg-muted rounded w-1/2 relative overflow-hidden">
+            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[shimmer_1.2s_infinite]"></span>
+          </div>
+          <div className="h-3 bg-muted rounded w-1/4 relative overflow-hidden">
+            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[shimmer_1.2s_infinite]"></span>
+          </div>
+        </div>
+      </li>
+    ))}
+  </ul>
+);
+
 export default function Header() {
   const { auth: { user }, categoriasMenu = [], categoriasServicio = [], servicios = [] } = usePage<{ 
     auth: { user: { id: number; name: string; first_name: string; last_name: string; email: string, username: string, dni: string, phone: string, address: string, sexo: string } },
@@ -282,7 +317,9 @@ export default function Header() {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [searchSelected, setSearchSelected] = useState<number>(-1);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user) {
@@ -755,12 +792,14 @@ export default function Header() {
       setSearchResults([]);
       setSearchError(null);
       setSearchLoading(false);
+      setSearchSelected(-1);
       return;
     }
     if (!searchQuery || searchQuery.trim().length < 2) {
       setSearchResults([]);
       setSearchError(null);
       setSearchLoading(false);
+      setSearchSelected(-1);
       return;
     }
     setSearchLoading(true);
@@ -773,6 +812,7 @@ export default function Header() {
         .then((res) => {
           setSearchResults(res.data.data || []);
           setSearchError(null);
+          setSearchSelected(-1);
         })
         .catch(() => {
           setSearchError("Error al buscar productos.");
@@ -785,6 +825,67 @@ export default function Header() {
       if (searchTimeout.current) clearTimeout(searchTimeout.current);
     };
   }, [searchQuery, isSearchModalOpen]);
+
+  // Mejor UX: cerrar modal con Escape y enfocar input
+  useEffect(() => {
+    if (isSearchModalOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isSearchModalOpen) return;
+      if (e.key === "Escape") {
+        setIsSearchModalOpen(false);
+      }
+      if (searchResults.length > 0) {
+        if (e.key === "ArrowDown") {
+          setSearchSelected((prev) => Math.min(prev + 1, searchResults.length - 1));
+          e.preventDefault();
+        }
+        if (e.key === "ArrowUp") {
+          setSearchSelected((prev) => Math.max(prev - 1, 0));
+          e.preventDefault();
+        }
+        if (e.key === "Enter" && searchSelected >= 0 && searchSelected < searchResults.length) {
+          window.location.href = `/details/${searchResults[searchSelected].id}`;
+          setIsSearchModalOpen(false);
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line
+  }, [isSearchModalOpen, searchResults, searchSelected]);
+
+  // Función para resaltar el texto buscado
+  const highlightText = (text: string, highlight: string) => {
+    if (!highlight) return text;
+    const regex = new RegExp(`(${highlight})`, "gi");
+    return text.split(regex).map((part, i) =>
+      regex.test(part) ? (
+        <span key={i} className="bg-primary/20 text-primary font-semibold rounded px-0.5">{part}</span>
+      ) : (
+        part
+      )
+    );
+  };
+
+  // Mejor visualización de precios y descuentos
+  const renderPrice = (prod: any) => {
+    if (prod.precio_final && prod.precio_final !== prod.precio) {
+      return (
+        <span>
+          <span className="font-semibold text-primary">{prod.precio_final}</span>
+          {prod.descuento > 0 && (
+            <span className="ml-2 text-xs text-destructive font-bold bg-destructive/10 px-2 py-0.5 rounded">
+              -{prod.descuento}%
+            </span>
+          )}
+          <span className="ml-2 text-xs line-through text-muted-foreground">{prod.precio}</span>
+        </span>
+      );
+    }
+    return <span className="font-semibold text-primary">{prod.precio_final || prod.price || ""}</span>;
+  };
 
   return (
     <>
@@ -1489,59 +1590,140 @@ export default function Header() {
         onClose={() => setIsProfileOpen(false)}
         user={user}
       />
-      {/* Modal de búsqueda */}
+      {/* Modal de búsqueda mejorado */}
+      <AnimatePresence>
       {isSearchModalOpen && (
-        <div className="fixed inset-0 z-[100] bg-black/40 flex flex-col items-center">
-          {/* Espacio para el header, medio centímetro más arriba */}
-          <div className="h-16 w-full" />
-          <div className="bg-background rounded-lg shadow-lg w-full max-w-md p-6 relative mt-0">
+        <motion.div
+          className="fixed inset-0 z-[100] flex flex-col items-center"
+          style={{ backdropFilter: "blur(6px)" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          {/* Fondo oscuro con desenfoque */}
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-[6px] pointer-events-none" />
+          {/* Espacio para el header */}
+          <div className="h-16 w-full relative z-10" />
+          <motion.div
+            className="bg-background rounded-xl shadow-2xl w-full max-w-lg p-0 relative mt-0 border border-border z-20"
+            initial={{ y: -40, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -40, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Buscar productos"
+          >
             <button
-              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
+              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground z-30"
               onClick={() => setIsSearchModalOpen(false)}
+              tabIndex={0}
+              aria-label="Cerrar búsqueda"
             >
               <XIcon className="h-5 w-5" />
             </button>
-            <h2 className="text-lg font-semibold mb-4">Buscar productos</h2>
-            <div className="relative mb-4">
-              <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                autoFocus
-                type="search"
-                placeholder="Buscar productos..."
-                className="pl-9 h-10 w-full"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-              />
+            <div className="flex items-center gap-2 px-6 pt-6 pb-2">
+              <motion.span
+                animate={searchResults.length > 0 ? { scale: [1, 1.2, 1], opacity: [1, 0.7, 1] } : { scale: 1, opacity: 1 }}
+                transition={{ repeat: searchResults.length > 0 ? Infinity : 0, duration: 1.2 }}
+                className="inline-flex"
+              >
+                <SearchIcon className="h-5 w-5 text-primary" />
+              </motion.span>
+              <h2 className="text-lg font-semibold">Buscar productos</h2>
+            </div>
+            <div className="px-6 pb-2">
+              <div className="relative">
+                <Input
+                  ref={searchInputRef}
+                  autoFocus
+                  type="search"
+                  placeholder="¿Qué producto buscas? Ej: casco, aceite, repuesto..."
+                  className={cn(
+                    "pl-10 h-12 w-full text-base border-2 border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none",
+                    isSearchModalOpen && "ring-2 ring-primary/30"
+                  )}
+                  value={searchQuery}
+                  onChange={e => {
+                    setSearchQuery(e.target.value);
+                    setSearchSelected(-1);
+                  }}
+                  onFocus={() => setSearchSelected(-1)}
+                  aria-label="Buscar productos"
+                  role="searchbox"
+                  aria-activedescendant={searchSelected >= 0 ? `search-result-${searchSelected}` : undefined}
+                  aria-autocomplete="list"
+                />
+                <SearchIcon className="absolute left-3 top-3 h-5 w-5 text-primary/60 pointer-events-none" />
+              </div>
+              <div className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
+                <InfoIcon className="h-4 w-4" /> Escribe al menos 2 letras para buscar. Usa ↑ ↓ para navegar, Enter para seleccionar.
+              </div>
             </div>
             {/* Resultados */}
-            <div className="min-h-[80px]">
-              {searchLoading && (
-                <div className="text-center text-muted-foreground py-4 text-sm">Buscando...</div>
-              )}
+            <div className="min-h-[90px] px-2 pb-4">
+              {searchLoading && <SearchSkeleton />}
               {searchError && (
-                <div className="text-center text-destructive py-4 text-sm">{searchError}</div>
+                <div className="text-center text-destructive py-6 text-base">{searchError}</div>
               )}
               {!searchLoading && !searchError && searchQuery.trim().length >= 2 && searchResults.length === 0 && (
-                <div className="text-center text-muted-foreground py-4 text-sm">No se encontraron productos.</div>
+                <div className="text-center text-muted-foreground py-6 text-base">
+                  <span className="inline-block mb-2">
+                    <SearchIcon className="h-8 w-8 text-muted-foreground/40" />
+                  </span>
+                  <div>No se encontraron productos.</div>
+                  <div className="mt-2 text-xs">
+                    ¿No encuentras lo que buscas? <a href="/categorias" className="text-primary underline hover:text-primary/80">Explora todas las categorías</a>
+                  </div>
+                </div>
               )}
               {!searchLoading && !searchError && searchResults.length > 0 && (
-                <ul className="divide-y divide-border max-h-64 overflow-y-auto">
-                  {searchResults.map((prod) => (
-                    <li key={prod.id}>
+                <ul className="divide-y divide-border max-h-72 overflow-y-auto custom-scrollbar" role="listbox">
+                  {searchResults.map((prod, idx) => (
+                    <li key={prod.id} id={`search-result-${idx}`}>
                       <a
                         href={`/details/${prod.id}`}
-                        className="flex items-center gap-3 py-2 hover:bg-accent/40 rounded transition-colors"
+                        className={cn(
+                          "flex items-center gap-3 py-3 px-3 rounded-lg transition-colors group cursor-pointer relative",
+                          idx === searchSelected
+                            ? "bg-primary/10 ring-2 ring-primary/40 outline-none"
+                            : "hover:bg-accent/50"
+                        )}
                         onClick={() => setIsSearchModalOpen(false)}
+                        tabIndex={0}
+                        onMouseEnter={() => setSearchSelected(idx)}
+                        onMouseLeave={() => setSearchSelected(-1)}
+                        role="option"
+                        aria-selected={idx === searchSelected}
                       >
-                        <img
-                          src={prod.imagen_principal || prod.image || "/images/placeholder-product.png"}
-                          alt={prod.nombre || prod.name}
-                          className="w-12 h-12 object-cover rounded border border-border bg-muted"
-                          onError={e => (e.currentTarget.src = "/images/placeholder-product.png")}
-                        />
-                        <div>
-                          <div className="font-medium text-sm">{prod.nombre || prod.name}</div>
-                          <div className="text-xs text-muted-foreground">{prod.price || prod.precio_final || ""}</div>
+                        <div className="relative">
+                          <img
+                            src={prod.imagen_principal || prod.image || "/images/placeholder-product.png"}
+                            alt={prod.nombre || prod.name}
+                            className="w-14 h-14 object-cover rounded-lg border border-border bg-muted flex-shrink-0 group-hover:scale-105 transition-transform"
+                            onError={e => (e.currentTarget.src = "/images/placeholder-product.png")}
+                          />
+                          {isNewProduct(prod.created_at) && (
+                            <span className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow font-bold animate-bounce">
+                              Nuevo
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-base text-foreground truncate">
+                            {highlightText(prod.nombre || prod.name, searchQuery)}
+                          </div>
+                          <div className="text-xs text-muted-foreground truncate">
+                            {highlightText(prod.descripcion_corta || prod.description || "", searchQuery)}
+                          </div>
+                          <div className="text-sm font-semibold mt-1 flex items-center gap-2">
+                            {renderPrice(prod)}
+                            {prod.descuento > 0 && (
+                              <span className="ml-1 text-[11px] font-bold text-white bg-gradient-to-r from-red-500 to-orange-400 px-2 py-0.5 rounded shadow animate-pulse">
+                                -{prod.descuento}%
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </a>
                     </li>
@@ -1549,9 +1731,21 @@ export default function Header() {
                 </ul>
               )}
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
+      </AnimatePresence>
+      {/* ...existing code... */}
     </>
+  );
+}
+
+// Icono de información para ayuda
+function InfoIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 20 20">
+      <circle cx="10" cy="10" r="8" strokeWidth="2" />
+      <path strokeWidth="2" d="M10 8v4m0 2h.01" />
+    </svg>
   );
 }

@@ -325,7 +325,7 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
     };
 
     return (
-      <div className="group relative flex items-start space-x-4 py-4 hover:bg-gray-50 rounded-lg px-4 -mx-4 transition-colors">
+      <div className="group relative flex items-start space-x-4 py-4 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg px-4 -mx-4 transition-colors">
         <div className="flex-shrink-0 mt-1">
           <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
             {icon}
@@ -434,7 +434,7 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
         }}>
           <div className="flex flex-col md:flex-row h-[80vh]">
             {/* Sidebar with user info */}
-            <div className="md:w-80 bg-gray-50 dark:bg-gray-900 p-6 border-r">
+            <div className="md:w-80 bg-background dark:bg-[#18181b] p-6 border-r border-border">
               <div className="flex flex-col items-center text-center">
                 <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center text-3xl font-semibold mb-4">
                   {user ? getInitials(user.first_name || "", user.last_name || "") : ""}
@@ -443,7 +443,7 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
                   {user?.first_name} {user?.last_name}
                 </DialogTitle>
                 <p className="text-sm text-muted-foreground mb-4">{user?.email}</p>
-                <Badge variant="outline" className="mb-6 bg-black text-white">
+                <Badge variant="outline" className="mb-6 bg-black text-white dark:bg-white dark:text-black">
                   Usuario Registrado
                 </Badge>
 
@@ -606,27 +606,27 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
                             />
                             <Key className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
                           </div>
-                          <div className="space-y-2 p-3 bg-gray-50 rounded-md">
+                          <div className="space-y-2 p-3 bg-gray-50 dark:bg-gray-900 rounded-md">
                             <p className="text-sm font-medium mb-2">La contraseña debe tener:</p>
                             <ul className="space-y-1 text-sm">
-                              <li className={`flex items-center ${passwordValidation.hasMinLength ? 'text-green-600' : 'text-gray-500'}`}>
-                                <CheckIcon className={`h-4 w-4 mr-2 ${passwordValidation.hasMinLength ? 'text-green-600' : 'text-gray-300'}`} />
+                              <li className={`flex items-center ${passwordValidation.hasMinLength ? 'text-green-600' : 'text-gray-500 dark:text-gray-400'}`}>
+                                <CheckIcon className={`h-4 w-4 mr-2 ${passwordValidation.hasMinLength ? 'text-green-600' : 'text-gray-300 dark:text-gray-600'}`} />
                                 Mínimo 8 caracteres
                               </li>
-                              <li className={`flex items-center ${passwordValidation.hasUpperCase ? 'text-green-600' : 'text-gray-500'}`}>
-                                <CheckIcon className={`h-4 w-4 mr-2 ${passwordValidation.hasUpperCase ? 'text-green-600' : 'text-gray-300'}`} />
+                              <li className={`flex items-center ${passwordValidation.hasUpperCase ? 'text-green-600' : 'text-gray-500 dark:text-gray-400'}`}>
+                                <CheckIcon className={`h-4 w-4 mr-2 ${passwordValidation.hasUpperCase ? 'text-green-600' : 'text-gray-300 dark:text-gray-600'}`} />
                                 Al menos una mayúscula
                               </li>
-                              <li className={`flex items-center ${passwordValidation.hasLowerCase ? 'text-green-600' : 'text-gray-500'}`}>
-                                <CheckIcon className={`h-4 w-4 mr-2 ${passwordValidation.hasLowerCase ? 'text-green-600' : 'text-gray-300'}`} />
+                              <li className={`flex items-center ${passwordValidation.hasLowerCase ? 'text-green-600' : 'text-gray-500 dark:text-gray-400'}`}>
+                                <CheckIcon className={`h-4 w-4 mr-2 ${passwordValidation.hasLowerCase ? 'text-green-600' : 'text-gray-300 dark:text-gray-600'}`} />
                                 Al menos una minúscula
                               </li>
-                              <li className={`flex items-center ${passwordValidation.hasNumber ? 'text-green-600' : 'text-gray-500'}`}>
-                                <CheckIcon className={`h-4 w-4 mr-2 ${passwordValidation.hasNumber ? 'text-green-600' : 'text-gray-300'}`} />
+                              <li className={`flex items-center ${passwordValidation.hasNumber ? 'text-green-600' : 'text-gray-500 dark:text-gray-400'}`}>
+                                <CheckIcon className={`h-4 w-4 mr-2 ${passwordValidation.hasNumber ? 'text-green-600' : 'text-gray-300 dark:text-gray-600'}`} />
                                 Al menos un número
                               </li>
-                              <li className={`flex items-center ${passwordValidation.hasSpecialChar ? 'text-green-600' : 'text-gray-500'}`}>
-                                <CheckIcon className={`h-4 w-4 mr-2 ${passwordValidation.hasSpecialChar ? 'text-green-600' : 'text-gray-300'}`} />
+                              <li className={`flex items-center ${passwordValidation.hasSpecialChar ? 'text-green-600' : 'text-gray-500 dark:text-gray-400'}`}>
+                                <CheckIcon className={`h-4 w-4 mr-2 ${passwordValidation.hasSpecialChar ? 'text-green-600' : 'text-gray-300 dark:text-gray-600'}`} />
                                 Al menos un carácter especial
                               </li>
                             </ul>

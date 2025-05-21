@@ -214,14 +214,13 @@ class WelcomeController extends Controller
             return response()->json(['data' => []]);
         }
 
-        // Asegúrate de que la búsqueda sea insensible a mayúsculas/minúsculas y sin espacios extra
         $query = trim($query);
 
         $productos = \App\Models\Producto::where('estado', 'Activo')
             ->whereRaw('LOWER(nombre) LIKE ?', ['%' . mb_strtolower($query, 'UTF8') . '%'])
             ->orderBy('nombre')
             ->limit(10)
-            ->get(['id', 'nombre', 'precio_final', 'imagen_principal']);
+            ->get(['id', 'nombre', 'precio_final', 'imagen_principal', 'descripcion_corta']);
 
         $data = $productos->map(function ($prod) {
             return [
@@ -233,6 +232,7 @@ class WelcomeController extends Controller
                         ? $prod->imagen_principal
                         : asset('storage/' . ltrim($prod->imagen_principal, '/')))
                     : null,
+                'descripcion_corta' => $prod->descripcion_corta,
             ];
         });
 
