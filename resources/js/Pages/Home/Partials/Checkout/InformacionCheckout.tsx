@@ -127,24 +127,47 @@ export default function InformacionCheckout({ user, pedido }: Props) {
           <div className="mb-8">
             <h2 className="text-lg font-semibold text-gray-800 mb-2">Resumen del pedido</h2>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 mb-4">
-                <thead>
-                  <tr>
-                    <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Producto</th>
-                    <th className="px-4 py-2 text-center text-sm font-semibold text-gray-700">Unidad</th>
-                    <th className="px-4 py-2 text-right text-sm font-semibold text-gray-700">Subtotal</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pedido.items.map((item, idx) => (
-                    <tr key={idx} className="border-b">
-                      <td className="px-4 py-2">{item.nombre}</td>
-                      <td className="px-4 py-2 text-center">{item.cantidad}</td>
-                      <td className="px-4 py-2 text-right">{formatPrice(item.subtotal)}</td>
+              {pedido.items.length === 1 ? (
+                // Si solo hay un producto, muestra toda la información relevante
+                <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-100 text-center flex flex-col items-center">
+                  <div>
+                    <span className="text-base text-gray-700">Producto seleccionado:</span>
+                    <span className="ml-2 text-lg font-bold text-blue-800">{pedido.items[0].nombre}</span>
+                  </div>
+                  <div className="mt-2">
+                    <span className="text-base text-gray-700">Unidades:</span>
+                    <span className="ml-2 text-lg font-bold text-blue-800">{pedido.items[0].cantidad}</span>
+                  </div>
+                  <div className="mt-2">
+                    <span className="text-base text-gray-700">Precio unitario:</span>
+                    <span className="ml-2 text-lg font-bold text-blue-800">{formatPrice(pedido.items[0].precio_final)}</span>
+                  </div>
+                  <div className="mt-2">
+                    <span className="text-base text-gray-700">Subtotal:</span>
+                    <span className="ml-2 text-lg font-bold text-blue-800">{formatPrice(pedido.items[0].subtotal)}</span>
+                  </div>
+                </div>
+              ) : (
+                // Si hay varios productos, muestra la tabla
+                <table className="min-w-full divide-y divide-gray-200 mb-4">
+                  <thead>
+                    <tr>
+                      <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Producto</th>
+                      <th className="px-4 py-2 text-center text-sm font-semibold text-gray-700">Unidad</th>
+                      <th className="px-4 py-2 text-right text-sm font-semibold text-gray-700">Subtotal</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {pedido.items.map((item, idx) => (
+                      <tr key={idx} className="border-b">
+                        <td className="px-4 py-2">{item.nombre}</td>
+                        <td className="px-4 py-2 text-center">{item.cantidad}</td>
+                        <td className="px-4 py-2 text-right">{formatPrice(item.subtotal)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
             {/* Subtotal y Total */}
             <div className="flex flex-col gap-2 mt-4 pt-4 border-t">

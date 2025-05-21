@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ShoppingCart, Check, Home, Star, Tag, Siren as Fire, Truck, Shield, ArrowLeft, ArrowRight, Package, RefreshCw, CreditCard, Clock, ChevronDown, ChevronUp, ChevronRight } from 'lucide-react';
 import { Button } from "@/Components/ui/button";
 import { Badge } from "@/Components/ui/badge";
@@ -74,6 +74,11 @@ export default function Details({ producto, productosRelacionados }: Props) {
   const [isMobile, setIsMobile] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+  const buyNowFormRef = useRef<HTMLFormElement>(null);
+  // Nuevo: obtener el token CSRF del meta tag
+  const csrfToken = (typeof document !== "undefined")
+    ? document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+    : '';
 
   const formatPrice = (price: number): string => {
     const formattedPrice = price.toLocaleString("es-PE", {
@@ -222,6 +227,20 @@ export default function Details({ producto, productosRelacionados }: Props) {
         <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">({producto.total_reviews} reseñas)</span>
       </div>
     );
+  };
+
+  const handleBuyNow = async () => {
+    try {
+      await axios.post('/cart/add', {
+        producto_id: producto.id,
+        quantity: quantity
+      });
+      window.location.href = '/checkout/informacion';
+    } catch (error) {
+      toast.error("Error al añadir al carrito", {
+        duration: 3000,
+      });
+    }
   };
 
   return (
@@ -445,9 +464,10 @@ export default function Details({ producto, productosRelacionados }: Props) {
                   Añadir al carrito
                 </Button>
                 <Button
+                  type="button"
                   variant="secondary"
                   className="w-full py-6 text-base"
-                  onClick={() => toast.success("¡Compra ahora!")}
+                  onClick={handleBuyNow}
                 >
                   <CreditCard className="mr-2 w-5 h-5" />
                   Comprar ahora
