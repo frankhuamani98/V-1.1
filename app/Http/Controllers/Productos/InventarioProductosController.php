@@ -23,4 +23,13 @@ class InventarioProductosController extends Controller
             'productos' => $productos,
         ]);
     }
+
+    public function destroy($producto)
+    {
+        $producto = \App\Models\Producto::findOrFail($producto);
+        // Elimina completamente de la base de datos, incluso si usa SoftDeletes
+        $producto->forceDelete();
+
+        return redirect()->back()->with('success', 'Producto eliminado correctamente.');
+    }
 }

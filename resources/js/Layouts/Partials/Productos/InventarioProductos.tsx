@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
 import { Badge } from "@/Components/ui/badge";
 import { Button } from "@/Components/ui/button";
 import { Card } from "@/Components/ui/card";
@@ -67,6 +67,8 @@ const formatPrice = (price: number): string => {
 const InventarioProductos = ({ productos }: InventarioProductosProps) => {
     const [searchTerm, setSearchTerm] = useState("");
     const [expandedProduct, setExpandedProduct] = useState<number | null>(null);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [productoAEliminar, setProductoAEliminar] = useState<number | null>(null);
 
     // Nuevo: Estado para el índice de imagen de cada producto
     const [imageIndexes, setImageIndexes] = useState<{ [key: number]: number }>({});
@@ -139,6 +141,27 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
 
     const toggleExpand = (productId: number) => {
         setExpandedProduct(expandedProduct === productId ? null : productId);
+    };
+
+    // Eliminar producto
+    const handleEliminar = (id: number) => {
+        setProductoAEliminar(id);
+        setModalOpen(true);
+    };
+
+    const confirmarEliminar = () => {
+        if (productoAEliminar !== null) {
+            router.delete(`/productos/${productoAEliminar}`, {
+                preserveScroll: true,
+            });
+        }
+        setModalOpen(false);
+        setProductoAEliminar(null);
+    };
+
+    const cancelarEliminar = () => {
+        setModalOpen(false);
+        setProductoAEliminar(null);
     };
 
     // Mejor filtro: busca por nombre, código y categoría
@@ -364,11 +387,37 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
                                         </>
                                     )}
                                 </Button>
+                                {/* Botón Eliminar */}
+                                <Button
+                                    className="mt-2 w-full flex justify-center items-center bg-red-600 hover:bg-red-700 text-white"
+                                    variant="destructive"
+                                    onClick={() => handleEliminar(producto.id)}
+                                >
+                                    Eliminar
+                                </Button>
                             </div>
                         </Card>
                     );
                 })}
             </div>
+
+            {/* Modal de confirmación */}
+            {modalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                    <div className="bg-white rounded-lg shadow-lg p-8 max-w-sm w-full">
+                        <h2 className="text-lg font-bold mb-4 text-gray-800">¿Eliminar producto?</h2>
+                        <p className="mb-6 text-gray-600">¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer.</p>
+                        <div className="flex justify-end gap-2">
+                            <Button variant="outline" onClick={cancelarEliminar}>
+                                Cancelar
+                            </Button>
+                            <Button variant="destructive" className="bg-red-600 hover:bg-red-700 text-white" onClick={confirmarEliminar}>
+                                Eliminar
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
