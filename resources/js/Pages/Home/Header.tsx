@@ -439,6 +439,12 @@ export default function Header() {
           fetchCartItems();
           toast.success("Producto eliminado del carrito", {
             duration: 3000,
+            style: {
+              position: 'fixed',
+              top: '64px',
+              right: '10px',
+              zIndex: 9999,
+            },
           });
         }
       })
@@ -446,6 +452,12 @@ export default function Header() {
         console.error('Error removing from cart:', error);
         toast.error("Error al eliminar del carrito", {
           duration: 3000,
+          style: {
+            position: 'fixed',
+            top: '64px',
+            right: '10px',
+            zIndex: 9999,
+          },
         });
       });
   };
@@ -457,6 +469,12 @@ export default function Header() {
           fetchFavoriteItems();
           toast.success("Producto eliminado de favoritos", {
             duration: 3000,
+            style: {
+              position: 'fixed',
+              top: '64px',
+              right: '10px',
+              zIndex: 9999,
+            },
           });
         }
       })
@@ -464,6 +482,12 @@ export default function Header() {
         console.error('Error removing from favorites:', error);
         toast.error("Error al eliminar de favoritos", {
           duration: 3000,
+          style: {
+            position: 'fixed',
+            top: '64px',
+            right: '10px',
+            zIndex: 9999,
+          },
         });
       });
   };
@@ -482,12 +506,24 @@ export default function Header() {
           toast.info("Producto ya en el carrito", {
             description: `${product.nombre} ya está en tu carrito.`,
             duration: 3000,
+            style: {
+              position: 'fixed',
+              top: '64px',
+              right: '10px',
+              zIndex: 9999,
+            },
           });
         } else {
           fetchCartItems();
           toast.success("Añadido al carrito", {
             description: `${product.nombre} ha sido añadido a tu carrito.`,
             duration: 3000,
+            style: {
+              position: 'fixed',
+              top: '64px',
+              right: '10px',
+              zIndex: 9999,
+            },
           });
         }
       } else if (response.data.message === "Product already in cart" || 
@@ -495,6 +531,12 @@ export default function Header() {
         toast.info("Producto ya en el carrito", {
           description: `${product.nombre} ya está en tu carrito.`,
           duration: 3000,
+          style: {
+            position: 'fixed',
+            top: '64px',
+            right: '10px',
+            zIndex: 9999,
+          },
         });
       }
     })
@@ -510,27 +552,63 @@ export default function Header() {
         } else if (error.response.status === 422) {
           toast.error('No se pudo añadir el producto (error de validación)', {
             duration: 3000,
+            style: {
+              position: 'fixed',
+              top: '64px',
+              right: '10px',
+              zIndex: 9999,
+            },
           });
         } else if (error.response.status === 404) {
           toast.error('El producto no está disponible actualmente', {
             duration: 3000,
+            style: {
+              position: 'fixed',
+              top: '64px',
+              right: '10px',
+              zIndex: 9999,
+            },
           });
         } else if (error.response.status === 400) {
           toast.error('No hay suficiente stock disponible', {
             duration: 3000,
+            style: {
+              position: 'fixed',
+              top: '64px',
+              right: '10px',
+              zIndex: 9999,
+            },
           });
         } else {
           toast.error(`Error al añadir al carrito: ${error.response.status}`, {
             duration: 3000,
+            style: {
+              position: 'fixed',
+              top: '64px',
+              right: '10px',
+              zIndex: 9999,
+            },
           });
         }
       } else if (error.request) {
         toast.error('No se pudo conectar con el servidor. Verifica tu conexión', {
           duration: 3000,
+          style: {
+            position: 'fixed',
+            top: '64px',
+            right: '10px',
+            zIndex: 9999,
+          },
         });
       } else {
         toast.error("Error al añadir al carrito", {
           duration: 3000,
+          style: {
+            position: 'fixed',
+            top: '64px',
+            right: '10px',
+            zIndex: 9999,
+          },
         });
       }
     });

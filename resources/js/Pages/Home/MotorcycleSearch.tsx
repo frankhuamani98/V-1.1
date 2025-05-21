@@ -54,6 +54,11 @@ export default function MotorcycleSearch({ motoData }: Props) {
         toast.success("¡Bienvenido a Rudolf Motos!", {
           description: "Piezas originales y compatibles con garantía asegurada.",
           duration: 5000,
+          style: {
+        marginTop: '40px', // Ajusta este valor según necesites
+        zIndex: 100
+      },
+          position: "top-right",
         })
         sessionStorage.setItem("hasSeenWelcome", "true")
       }, 1500)

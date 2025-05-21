@@ -144,6 +144,12 @@ export default function Details({ producto, productosRelacionados }: Props) {
         toast.success("Añadido al carrito", {
           description: `${producto.nombre} ha sido añadido a tu carrito.`,
           duration: 3000,
+                    style: {
+                      position: 'fixed',
+                      top: '64px',  // más abajo desde la parte superior
+                      right: '10px', // ajusta si lo quieres más al centro
+                      zIndex: 9999,
+                  }, 
         });
         
         const event = new CustomEvent('cart-updated');
@@ -154,6 +160,12 @@ export default function Details({ producto, productosRelacionados }: Props) {
       console.error('Error adding to cart:', error);
       toast.error("Error al añadir al carrito", {
         duration: 3000,
+        style: {
+                      position: 'fixed',
+                      top: '64px',  // más abajo desde la parte superior
+                      right: '10px', // ajusta si lo quieres más al centro
+                      zIndex: 9999,
+                  }, 
       });
     });
   };
@@ -168,11 +180,23 @@ export default function Details({ producto, productosRelacionados }: Props) {
             toast.success("Añadido a favoritos", {
               description: `${producto.nombre} ha sido añadido a tus favoritos.`,
               duration: 3000,
+              style: {
+                      position: 'fixed',
+                      top: '64px',  // más abajo desde la parte superior
+                      right: '10px', // ajusta si lo quieres más al centro
+                      zIndex: 9999,
+                  }, 
             });
           } else {
             toast("Eliminado de favoritos", {
               description: `${producto.nombre} ha sido eliminado de tus favoritos.`,
               duration: 3000,
+              style: {
+                      position: 'fixed',
+                      top: '64px',  // más abajo desde la parte superior
+                      right: '10px', // ajusta si lo quieres más al centro
+                      zIndex: 9999,
+                  }, 
             });
           }
           

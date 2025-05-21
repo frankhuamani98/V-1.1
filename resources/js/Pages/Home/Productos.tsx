@@ -242,12 +242,24 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
             toast.success("Añadido a favoritos", {
               description: `${productList.find(p => p.id === productId)?.name} ha sido añadido a tus favoritos.`,
               duration: 3000,
+              style: {
+                position: 'fixed',
+                top: '64px',
+                right: '10px',
+                zIndex: 9999,
+              }, 
             });
           } else {
             setFavorites(prev => prev.filter(id => id !== productId));
             toast("Eliminado de favoritos", {
               description: `${productList.find(p => p.id === productId)?.name} ha sido eliminado de tus favoritos.`,
               duration: 3000,
+              style: {
+                position: 'fixed',
+                top: '64px',
+                right: '10px',
+                zIndex: 9999,
+              }, 
             });
           }
           
@@ -259,6 +271,12 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
         console.error('Error toggling favorite:', error);
         toast.error("Error al actualizar favoritos", {
           duration: 3000,
+          style: {
+            position: 'fixed',
+            top: '64px',
+            right: '10px',
+            zIndex: 9999,
+          },
         });
       });
   };
@@ -275,6 +293,12 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
         toast.success("Añadido al carrito", {
           description: `${productList.find(p => p.id === productId)?.name} ha sido añadido a tu carrito.`,
           duration: 3000,
+          style: {
+            position: 'fixed',
+            top: '64px',
+            right: '10px',
+            zIndex: 9999,
+          },
         });
         
         const event = new CustomEvent('cart-updated');
@@ -285,6 +309,12 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
       console.error('Error adding to cart:', error);
       toast.error("Error al añadir al carrito", {
         duration: 3000,
+        style: {
+          position: 'fixed',
+          top: '64px',
+          right: '10px',
+          zIndex: 9999,
+        }
       });
     });
   };

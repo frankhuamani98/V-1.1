@@ -60,6 +60,12 @@ export default function Favorites({ favoriteItems: initialFavoriteItems }: Favor
           
           toast.success('Producto eliminado de favoritos', {
             duration: 3000,
+            style: {
+                      position: 'fixed',
+                      top: '64px',  // más abajo desde la parte superior
+                      right: '10px', // ajusta si lo quieres más al centro
+                      zIndex: 9999,
+                  },
           });
           
           const event = new CustomEvent('favorites-updated');
@@ -70,6 +76,12 @@ export default function Favorites({ favoriteItems: initialFavoriteItems }: Favor
         console.error('Error removing from favorites:', error);
         toast.error('Error al eliminar de favoritos', {
           duration: 3000,
+          style: {
+                      position: 'fixed',
+                      top: '64px',  // más abajo desde la parte superior
+                      right: '10px', // ajusta si lo quieres más al centro
+                      zIndex: 9999,
+                  },
         });
       })
       .finally(() => {
@@ -100,6 +112,12 @@ export default function Favorites({ favoriteItems: initialFavoriteItems }: Favor
       if (response.data.success) {
         toast.success(`${item.nombre} añadido al carrito`, {
           duration: 3000,
+          style: {
+                      position: 'fixed',
+                      top: '64px',  // más abajo desde la parte superior
+                      right: '10px', // ajusta si lo quieres más al centro
+                      zIndex: 9999,
+                  }, 
         });
         
         const event = new CustomEvent('cart-updated');
@@ -107,6 +125,12 @@ export default function Favorites({ favoriteItems: initialFavoriteItems }: Favor
       } else if (response.data.message === "El producto ya está en el carrito") {
         toast.info(`${item.nombre} ya está en el carrito`, {
           duration: 3000,
+                    style: {
+                      position: 'fixed',
+                      top: '64px',  // más abajo desde la parte superior
+                      right: '10px', // ajusta si lo quieres más al centro
+                      zIndex: 9999,
+                  }, 
         });
       }
     })
@@ -122,27 +146,64 @@ export default function Favorites({ favoriteItems: initialFavoriteItems }: Favor
         } else if (error.response.status === 422) {
           toast.error('No se pudo añadir el producto (error de validación)', {
             duration: 3000,
+            style: {
+                      position: 'fixed',
+                      top: '64px',  // más abajo desde la parte superior
+                      right: '10px', // ajusta si lo quieres más al centro
+                      zIndex: 9999,
+                  }, 
           });
         } else if (error.response.status === 404) {
           toast.error('El producto no está disponible actualmente', {
             duration: 3000,
+            style: {
+                      position: 'fixed',
+                      top: '64px',  // más abajo desde la parte superior
+                      right: '10px', // ajusta si lo quieres más al centro
+                      zIndex: 9999,
+                  },
+            
           });
         } else if (error.response.status === 400) {
           toast.error('No hay suficiente stock disponible', {
             duration: 3000,
+            style: {
+                      position: 'fixed',
+                      top: '64px',  // más abajo desde la parte superior
+                      right: '10px', // ajusta si lo quieres más al centro
+                      zIndex: 9999,
+                  },
           });
         } else {
           toast.error(`Error al añadir al carrito: ${error.response.status}`, {
             duration: 3000,
+            style: {
+                      position: 'fixed',
+                      top: '64px',  // más abajo desde la parte superior
+                      right: '10px', // ajusta si lo quieres más al centro
+                      zIndex: 9999,
+                  },
           });
         }
       } else if (error.request) {
         toast.error('No se pudo conectar con el servidor. Verifica tu conexión', {
           duration: 3000,
+          style: {
+                      position: 'fixed',
+                      top: '64px',  // más abajo desde la parte superior
+                      right: '10px', // ajusta si lo quieres más al centro
+                      zIndex: 9999,
+                  },
         });
       } else {
         toast.error('Error al añadir al carrito', {
           duration: 3000,
+          style: {
+                      position: 'fixed',
+                      top: '64px',  // más abajo desde la parte superior
+                      right: '10px', // ajusta si lo quieres más al centro
+                      zIndex: 9999,
+                  },
         });
       }
     })
@@ -170,6 +231,12 @@ export default function Favorites({ favoriteItems: initialFavoriteItems }: Favor
         console.error('Error clearing favorites:', error);
         toast.error('Error al vaciar favoritos', {
           duration: 3000,
+          style: {
+                      position: 'fixed',
+                      top: '64px',  // más abajo desde la parte superior
+                      right: '10px', // ajusta si lo quieres más al centro
+                      zIndex: 9999,
+                  },
         });
       })
       .finally(() => {

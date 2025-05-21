@@ -284,6 +284,12 @@ const ProductCard = ({ product }: { product: Producto }) => {
         toast.success("Producto añadido al carrito", {
           description: `${product.nombre} ha sido añadido a tu carrito.`,
           duration: 3000,
+          style: {
+                      position: 'fixed',
+                      top: '64px',  
+                      right: '10px', 
+                      zIndex: 9999,
+                  }, 
         });
         
         const event = new CustomEvent('cart-updated');
@@ -294,6 +300,12 @@ const ProductCard = ({ product }: { product: Producto }) => {
       console.error('Error adding to cart:', error);
       toast.error("Error al añadir al carrito", {
         duration: 3000,
+        style: {
+          position: 'fixed',
+          top: '64px',  
+          right: '10px', 
+          zIndex: 9999,
+        },
       });
     });
   };

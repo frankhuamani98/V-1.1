@@ -104,11 +104,23 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
         toast.success("Añadido a favoritos", {
           description: `${productos.find(p => p.id === productId)?.nombre} ha sido añadido a tus favoritos.`,
           duration: 3000,
+          style: {
+            position: 'fixed',
+            top: '64px',
+            right: '10px',
+            zIndex: 9999,
+          },
         });
       } else {
         toast("Eliminado de favoritos", {
           description: `${productos.find(p => p.id === productId)?.nombre} ha sido eliminado de tus favoritos.`,
           duration: 3000,
+          style: {
+            position: 'fixed',
+            top: '64px',
+            right: '10px',
+            zIndex: 9999,
+          },
         });
       }
 
@@ -123,6 +135,12 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
       toast.success("Añadido al carrito", {
         description: `${productos.find(p => p.id === productId)?.nombre} ha sido añadido a tu carrito.`,
         duration: 3000,
+        style: {
+          position: 'fixed',
+          top: '64px',
+          right: '10px',
+          zIndex: 9999,
+        },
       });
 
       return newCart;
