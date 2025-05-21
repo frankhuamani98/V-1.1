@@ -127,7 +127,7 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
             toast.success("Añadido a favoritos", {
               description: `${products.find(p => p.id === productId)?.name} ha sido añadido a tus favoritos.`,
               duration: 3000,
-              style: {
+                style: {
                 position: 'fixed',
                 top: '64px',
                 right: '10px',

@@ -118,7 +118,7 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
           style: {
             position: 'fixed',
             top: '64px',
-            right: '10px',
+            right: '10px', 
             zIndex: 9999,
           },
         });

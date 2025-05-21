@@ -297,7 +297,7 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
             position: 'fixed',
             top: '64px',
             right: '10px',
-            zIndex: 9999,
+            zIndex: 9999, 
           },
         });
         

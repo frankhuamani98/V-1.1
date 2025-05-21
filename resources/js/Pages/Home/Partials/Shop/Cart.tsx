@@ -28,7 +28,7 @@ interface CartItem {
   quantity: number;
   stock: number;
   estado: string;
-  subtotal: number;
+  subtotal: number; 
 }
 
 interface CartProps {
