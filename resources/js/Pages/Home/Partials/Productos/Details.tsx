@@ -369,7 +369,7 @@ export default function Details({ producto, productosRelacionados }: Props) {
                     </div>
                     <p className="text-sm text-green-600 dark:text-green-400 flex items-center">
                       <Clock className="w-4 h-4 mr-1" />
-                      ¡Oferta por tiempo limitado!
+                      ¡Oferta por tiempo limitado!  
                     </p>
                   </div>
                 )}
