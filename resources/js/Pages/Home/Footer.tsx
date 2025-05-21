@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import { Separator } from "@/Components/ui/separator";
-import { usePage } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
 import { toast } from "sonner";
 import {
   FacebookIcon,
@@ -179,22 +179,13 @@ const Footer = () => {
               </a>
               </li>
               <li>
-              <a
-                href=""
-                className="text-neutral-400 text-sm hover:text-neutral-200 transition-colors flex items-center justify-center sm:justify-start group"
-              >
-                <ChevronRightIcon className="h-4 w-4 mr-2 text-neutral-200 opacity-0 group-hover:opacity-100 transition-opacity" />
-                Servicios
-              </a>
-              </li>
-              <li>
-              <a
-                href="/nosotros"
+              <Link
+                href={route('nosotros')}
                 className="text-neutral-400 text-sm hover:text-neutral-200 transition-colors flex items-center justify-center sm:justify-start group"
               >
                 <ChevronRightIcon className="h-4 w-4 mr-2 text-neutral-200 opacity-0 group-hover:opacity-100 transition-opacity" />
                 Nosotros
-              </a>
+              </Link>
               </li>
               <li>
               <a

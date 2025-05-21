@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 use App\Http\Controllers\{DashboardController, WelcomeController, ResultadosController};
 use App\Http\Controllers\Usuarios\{ListaUsuariosController, AdministradoresController};
 use App\Http\Controllers\Productos\{AgregarProductoController, InventarioProductosController, DetalleProductoController};
@@ -22,6 +23,9 @@ use App\Http\Controllers\Checkout\{FormularioPagoController, MetodosPagoControll
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
 Route::get('/resultados', [ResultadosController::class, 'index'])->name('resultados');
 Route::get('/details/{id}', [DetalleProductoController::class, 'show'])->name('productos.detalles');
+
+// Ruta para Nosotros
+Route::get('/nosotros', fn () => Inertia::render('Home/Partials/Nosotros/NosotrosPage'))->name('nosotros');
 
 // Rutas para categorias públicas
 Route::get('/categorias', [CategoriaPublicaController::class, 'index'])->name('categorias.index');
