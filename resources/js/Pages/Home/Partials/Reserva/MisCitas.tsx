@@ -1,7 +1,9 @@
 import React from 'react';
 import { Head } from '@inertiajs/react';
 import { router } from '@inertiajs/react';
-import NavigationMenu from '@/Components/NavigationMenu';
+import ReservaNavigation from '@/Components/ReservaNavigation';
+import Header from '@/Pages/Home/Header';
+import Footer from '@/Pages/Home/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
@@ -74,7 +76,8 @@ export default function MisCitas({ reservas }: Props) {
     return (
         <>
             <Head title="Mis Citas" />
-            <NavigationMenu />
+            <Header />
+            <ReservaNavigation currentPage="Mis Citas" />
             <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-start justify-center py-0 px-0">
                 <div className="w-[90%] mx-auto mt-4 mb-8">
                     <div className="bg-white shadow-2xl rounded-2xl border border-blue-200 p-8">
@@ -177,6 +180,7 @@ export default function MisCitas({ reservas }: Props) {
                 </div>
             </div>
             <Toaster position="top-right" closeButton />
+            <Footer />
         </>
     );
 }

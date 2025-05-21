@@ -1,7 +1,9 @@
 import React, { useEffect } from "react";
 import { Head, Link } from "@inertiajs/react";
-import NavigationMenu from '@/Components/NavigationMenu';
+import ReservaNavigation from '@/Components/ReservaNavigation';
 import { CalendarDays, Clock, AlertCircle, CheckCircle } from "lucide-react";
+import Header from "@/Pages/Home/Header";
+import Footer from "@/Pages/Home/Footer";
 
 interface Excepcion {
   fecha: string;
@@ -31,7 +33,8 @@ export default function HorariosAtencion({ horarios }: Props) {
   return (
     <>
       <Head title="Horarios de Atención" />
-      <NavigationMenu />
+      <Header />
+      <ReservaNavigation currentPage="Horarios de Atención" />
       <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-start justify-center py-0 px-0">
         <div className="w-[90%] mx-auto mt-4 mb-8">
           <div className="bg-white shadow-2xl rounded-2xl border border-blue-200 p-8">
@@ -131,6 +134,7 @@ export default function HorariosAtencion({ horarios }: Props) {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 }

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Head } from "@inertiajs/react";
 import { useForm } from "@inertiajs/react";
-import NavigationMenu from '@/Components/NavigationMenu';
 import axios from "axios";
 import {
   CalendarDays,
@@ -17,6 +16,9 @@ import {
   Save,
   ClipboardList,
 } from "lucide-react";
+import ReservaNavigation from "@/Components/ReservaNavigation";
+import Header from "@/Pages/Home/Header";
+import Footer from "@/Pages/Home/Footer";
 
 interface Moto {
   id: number;
@@ -295,7 +297,8 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
   return (
     <>
       <Head title={isEditing ? "Editar Reserva" : "Agendar Servicio"} />
-      <NavigationMenu />
+      <Header />
+      <ReservaNavigation currentPage="Agendar Servicio" />
       <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-0 px-0">
         <div className="w-[90%] bg-white shadow-xl rounded-2xl border border-blue-200 flex flex-col justify-center mx-auto my-8">
           <div className="p-4 md:p-8 border-b border-gray-200 bg-gradient-to-r from-blue-100 to-indigo-100">
@@ -565,6 +568,7 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 }

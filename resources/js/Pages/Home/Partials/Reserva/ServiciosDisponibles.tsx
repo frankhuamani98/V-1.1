@@ -1,7 +1,9 @@
 import React from "react";
 import { Head, Link } from "@inertiajs/react";
-import NavigationMenu from '@/Components/NavigationMenu';
 import { Wrench, ClipboardList } from "lucide-react";
+import ReservaNavigation from "@/Components/ReservaNavigation";
+import Header from "@/Pages/Home/Header";
+import Footer from "@/Pages/Home/Footer";
 
 interface CategoriaServicio {
   id: number;
@@ -53,7 +55,8 @@ export default function ServiciosDisponibles({ servicios, error }: Props) {
   return (
     <>
       <Head title="Servicios Disponibles" />
-      <NavigationMenu />
+      <Header />
+      <ReservaNavigation currentPage="Servicios Disponibles" />
       <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-start justify-center py-0 px-0">
         <div className="w-[80%] mx-auto mt-4 mb-8">
           <div className="bg-white shadow-2xl rounded-2xl border border-blue-200 p-4">
@@ -110,6 +113,7 @@ export default function ServiciosDisponibles({ servicios, error }: Props) {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 }
