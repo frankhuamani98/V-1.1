@@ -19,6 +19,7 @@ import {
   ChevronRightIcon,
   TrashIcon,
   PackageIcon,
+  ArrowRightIcon,
   WrenchIcon,
   CalendarIcon,
   PhoneIcon as Phone,
@@ -127,9 +128,11 @@ const CartItem = ({
   product: CartItem;
   onRemove: (id: number) => void;
 }) => {
+  const subtotal = product.precio_final * product.quantity;
+  
   return (
-    <div className="flex items-start py-3 gap-3">
-      <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0 bg-gray-100">
+    <div className="group flex items-start py-3 gap-3 rounded-lg transition-all duration-200 hover:bg-accent/30">
+      <div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0 bg-gray-100 border border-border shadow-sm transition-transform duration-200 group-hover:scale-105">
         {product.imagen ? (
           <img 
             src={product.imagen.startsWith('http') ? product.imagen : `/storage/${product.imagen}`} 
@@ -146,29 +149,32 @@ const CartItem = ({
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <h4 className="text-sm font-medium truncate">{product.nombre}</h4>
-        <div className="flex items-center mt-1 text-sm text-muted-foreground">
-          {product.descuento > 0 ? (
+        <h4 className="text-sm font-medium truncate group-hover:text-primary transition-colors">{product.nombre}</h4>
+        <div className="flex items-center mt-1">
+          <Badge variant="outline" className="text-xs px-2 py-0 h-5 bg-background/80">
+            {product.quantity}
+          </Badge>
+          <span className="mx-1 text-xs text-muted-foreground">x</span>
+          <span className="text-sm font-medium">
+            {formatPrice(product.precio_final)}
+          </span>
+          {product.descuento > 0 && (
             <>
-              <span>
-                {product.quantity} x {formatPrice(product.precio_final)}
-              </span>
-              <span className="ml-2 text-xs line-through">{formatPrice(product.precio)}</span>
-              <span className="ml-1 text-xs text-red-500">
-                (-{product.descuento}%)
-              </span>
+              <span className="ml-2 text-xs line-through text-muted-foreground">{formatPrice(product.precio)}</span>
+              <Badge variant="destructive" className="ml-1 text-[10px] h-4 px-1">
+                -{product.descuento}%
+              </Badge>
             </>
-          ) : (
-            <span>
-              {product.quantity} x {formatPrice(product.precio_final)}
-            </span>
           )}
+        </div>
+        <div className="mt-1 text-sm font-medium">
+          <span className="text-muted-foreground text-xs">Subtotal:</span> <span className="text-foreground">{formatPrice(subtotal)}</span>
         </div>
       </div>
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+        className="h-8 w-8 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive hover:bg-destructive/10"
         onClick={() => onRemove(product.id)}
       >
         <TrashIcon className="h-4 w-4" />
@@ -192,16 +198,18 @@ const FavoriteItem = ({
         <div className="flex items-center">
           <span className="font-medium">{formatPrice(product.precio_final)}</span>
           <span className="ml-2 text-xs text-muted-foreground line-through">{formatPrice(product.precio)}</span>
-          <span className="ml-1 text-xs text-red-500">(-{product.descuento}%)</span>
+          <Badge variant="destructive" className="ml-1 text-[10px] h-4 px-1">
+            -{product.descuento}%
+          </Badge>
         </div>
       );
     }
-    return <span>{formatPrice(product.precio_final || product.precio)}</span>;
+    return <span className="font-medium">{formatPrice(product.precio_final || product.precio)}</span>;
   };
 
   return (
-    <div className="flex items-start py-3 gap-3">
-      <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0 bg-gray-100">
+    <div className="group flex items-start py-3 gap-3 rounded-lg transition-all duration-200 hover:bg-accent/30">
+      <div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0 bg-gray-100 border border-border shadow-sm transition-transform duration-200 group-hover:scale-105">
         {product.imagen ? (
           <img 
             src={product.imagen.startsWith('http') ? product.imagen : `/storage/${product.imagen}`}
@@ -218,14 +226,14 @@ const FavoriteItem = ({
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <h4 className="text-sm font-medium truncate">{product.nombre}</h4>
-        <div className="flex items-center mt-1 text-sm text-muted-foreground">
+        <h4 className="text-sm font-medium truncate group-hover:text-primary transition-colors">{product.nombre}</h4>
+        <div className="flex items-center mt-1 text-sm">
           {getDisplayPrice()}
         </div>
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
-          className="mt-1 h-7 text-xs text-primary hover:text-primary"
+          className="mt-2 h-8 text-xs font-medium bg-primary/5 hover:bg-primary/10 text-primary hover:text-primary border-primary/20 transition-all duration-200 group-hover:translate-y-[-2px]"
           onClick={() => onAddToCart(product)}
         >
           <ShoppingCartIcon className="h-3 w-3 mr-1" />
@@ -235,7 +243,7 @@ const FavoriteItem = ({
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+        className="h-8 w-8 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive hover:bg-destructive/10"
         onClick={() => onRemove(product.id)}
       >
         <TrashIcon className="h-4 w-4" />
@@ -839,44 +847,119 @@ export default function Header() {
               <div className="hidden md:block">
                 <DropdownMenu open={isFavoritesOpen} onOpenChange={setIsFavoritesOpen}>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-9 w-9 relative">
-                      <HeartIcon className="h-4 w-4" />
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-9 w-9 relative hover:bg-primary/10 transition-colors duration-200"
+                    >
+                      <motion.div
+                        initial={{ scale: 1 }}
+                        animate={{ scale: favoritesCount > 0 ? [1, 1.2, 1] : 1 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <HeartIcon className="h-4 w-4" />
+                      </motion.div>
                       {favoritesCount > 0 && (
                         <Badge
                           variant="destructive"
-                          className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px]"
+                          className="absolute -top-1.5 -right-1.5 h-5 w-5 p-0 flex items-center justify-center text-[10px] shadow-sm border border-background animate-in fade-in duration-300"
                         >
                           {favoritesCount}
                         </Badge>
                       )}
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-80">
-                    <DropdownMenuLabel>Mis Favoritos</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <div className="max-h-[300px] overflow-y-auto">
+                  <DropdownMenuContent 
+                    align="end" 
+                    className="w-96 p-0 overflow-hidden shadow-lg border-border/40 backdrop-blur-sm bg-background/95"
+                    sideOffset={8}
+                  >
+                    <div className="bg-gradient-to-r from-rose-500/5 to-rose-500/10 p-4">
+                      <div className="flex items-center justify-between">
+                        <DropdownMenuLabel className="p-0 text-base flex items-center gap-2">
+                          <HeartIcon className="h-4 w-4 text-rose-500" />
+                          Mis Favoritos
+                          {favoritesCount > 0 && (
+                            <Badge variant="secondary" className="ml-1">
+                              {favoritesCount} {favoritesCount === 1 ? 'item' : 'items'}
+                            </Badge>
+                          )}
+                        </DropdownMenuLabel>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-7 w-7 rounded-full" 
+                          onClick={() => setIsFavoritesOpen(false)}
+                        >
+                          <XIcon className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="max-h-[350px] overflow-y-auto p-3 scrollbar-thin scrollbar-thumb-primary/10 scrollbar-track-transparent hover:scrollbar-thumb-primary/20">
                       {favorites.length > 0 ? (
                         favorites.map((product) => (
-                          <div key={product.id}>
+                          <div key={product.id} className="mb-2 last:mb-0">
                             <FavoriteItem 
                               product={product} 
                               onRemove={removeFromFavorites} 
                               onAddToCart={addToCartFromFavorites} 
                             />
-                            <DropdownMenuSeparator />
+                            {/* No separator needed with the new design */}
                           </div>
                         ))
                       ) : (
-                        <div className="py-4 text-center text-muted-foreground">
-                          No tienes productos favoritos
+                        <div className="py-8 text-center">
+                          <div className="flex flex-col items-center justify-center">
+                            <div className="w-16 h-16 rounded-full bg-rose-500/5 flex items-center justify-center mb-3">
+                              <HeartIcon className="h-8 w-8 text-rose-500/40" />
+                            </div>
+                            <h3 className="text-base font-medium mb-1">No tienes favoritos</h3>
+                            <p className="text-sm text-muted-foreground max-w-[200px]">Guarda productos para verlos más tarde</p>
+                          </div>
                         </div>
                       )}
                     </div>
+                    
                     {favorites.length > 0 && (
-                      <div className="p-3">
-                        <Button className="w-full" asChild>
-                          <a href="/favorites">Ver todos los favoritos</a>
-                        </Button>
+                      <div className="p-4 bg-muted/30 border-t">
+                        <div className="flex flex-col gap-2">
+                          <Button 
+                            variant="outline" 
+                            className="w-full bg-rose-500/5 hover:bg-rose-500/10 text-rose-600 border-rose-200 hover:text-rose-700"
+                            onClick={() => {
+                              const itemsToAdd = favorites.filter(item => 
+                                !cart.some(cartItem => cartItem.producto_id === item.producto_id)
+                              );
+                              
+                              if (itemsToAdd.length === 0) {
+                                toast.info("Todos los favoritos ya están en el carrito", {
+                                  duration: 3000,
+                                });
+                                return;
+                              }
+                              
+                              itemsToAdd.forEach(item => {
+                                const event = new CustomEvent('add-to-cart', { detail: {...item, quantity: 1} });
+                                window.dispatchEvent(event);
+                              });
+                              
+                              toast.success(`${itemsToAdd.length} producto(s) añadido(s) al carrito`, {
+                                duration: 3000,
+                              });
+                              setIsFavoritesOpen(false);
+                            }}
+                          >
+                            <ShoppingCartIcon className="h-4 w-4 mr-2" />
+                            Agregar Todo al Carrito
+                          </Button>
+                          <Button asChild className="w-full bg-white text-gray-700 border border-gray-200 hover:border-gray-300 rounded-lg group hover:bg-gray-50 transition-all duration-200">
+                            <a href="/favorites" className="flex items-center justify-center gap-1.5 py-1.5">
+                              <HeartIcon className="h-4 w-4 text-rose-400 group-hover:text-rose-500 transition-colors duration-200" />
+                              <span className="font-medium group-hover:text-gray-900 transition-colors duration-200">Ver todos los favoritos</span>
+                            </a>
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </DropdownMenuContent>
@@ -886,49 +969,95 @@ export default function Header() {
               <div className="hidden md:block">
                 <DropdownMenu open={isCartOpen} onOpenChange={setIsCartOpen}>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-9 w-9 relative">
-                      <ShoppingCartIcon className="h-4 w-4" />
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-9 w-9 relative hover:bg-primary/10 transition-colors duration-200"
+                    >
+                      <motion.div
+                        initial={{ scale: 1 }}
+                        animate={{ scale: cartCount > 0 ? [1, 1.2, 1] : 1 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <ShoppingCartIcon className="h-4 w-4" />
+                      </motion.div>
                       {cartCount > 0 && (
                         <Badge
                           variant="destructive"
-                          className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px]"
+                          className="absolute -top-1.5 -right-1.5 h-5 w-5 p-0 flex items-center justify-center text-[10px] shadow-sm border border-background animate-in fade-in duration-300"
                         >
                           {cartCount}
                         </Badge>
                       )}
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-80">
-                    <DropdownMenuLabel>Mi Carrito</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <div className="max-h-[300px] overflow-y-auto">
+                  <DropdownMenuContent 
+                    align="end" 
+                    className="w-96 p-0 overflow-hidden shadow-lg border-border/40 backdrop-blur-sm bg-background/95"
+                    sideOffset={8}
+                  >
+                    <div className="bg-gradient-to-r from-primary/5 to-primary/10 p-4">
+                      <div className="flex items-center justify-between">
+                        <DropdownMenuLabel className="p-0 text-base flex items-center gap-2">
+                          <ShoppingCartIcon className="h-4 w-4" />
+                          Mi Carrito
+                          {cartCount > 0 && (
+                            <Badge variant="secondary" className="ml-1">
+                              {cartCount} {cartCount === 1 ? 'item' : 'items'}
+                            </Badge>
+                          )}
+                        </DropdownMenuLabel>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-7 w-7 rounded-full" 
+                          onClick={() => setIsCartOpen(false)}
+                        >
+                          <XIcon className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="max-h-[350px] overflow-y-auto p-3 scrollbar-thin scrollbar-thumb-primary/10 scrollbar-track-transparent hover:scrollbar-thumb-primary/20">
                       {cart.length > 0 ? (
                         cart.map((product) => (
-                          <div key={product.id}>
+                          <div key={product.id} className="mb-2 last:mb-0">
                             <CartItem product={product} onRemove={removeFromCart} />
-                            <DropdownMenuSeparator />
+                            {/* No separator needed with the new design */}
                           </div>
                         ))
                       ) : (
-                        <div className="py-4 text-center text-muted-foreground">
-                          Tu carrito está vacío
+                        <div className="py-8 text-center">
+                          <div className="flex flex-col items-center justify-center">
+                            <div className="w-16 h-16 rounded-full bg-primary/5 flex items-center justify-center mb-3">
+                              <ShoppingBagIcon className="h-8 w-8 text-primary/40" />
+                            </div>
+                            <h3 className="text-base font-medium mb-1">Tu carrito está vacío</h3>
+                            <p className="text-sm text-muted-foreground max-w-[200px]">Añade productos a tu carrito para comenzar a comprar</p>
+                          </div>
                         </div>
                       )}
                     </div>
+                    
                     {cart.length > 0 && (
-                      <>
-                        <div className="p-3 border-t">
-                          <div className="flex justify-between mb-2">
-                            <span className="font-medium">Total:</span>
-                            <span className="font-bold">{formatPrice(cartTotal)}</span>
-                          </div>
-                          <div className="flex flex-col gap-2">
-                            <Button asChild>
-                              <a href="/cart">Ver Carrito</a>
-                            </Button>
-                          </div>
+                      <div className="p-4 bg-muted/30 border-t">
+                        <div className="flex justify-between mb-3">
+                          <span className="text-muted-foreground">Subtotal:</span>
+                          <span className="font-medium">{formatPrice(cartTotal)}</span>
                         </div>
-                      </>
+                        <div className="flex justify-between mb-4">
+                          <span className="font-medium">Total:</span>
+                          <span className="font-bold text-lg">{formatPrice(cartTotal)}</span>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <Button asChild className="w-full bg-white text-gray-700 border border-gray-200 hover:border-gray-300 rounded-lg group hover:bg-gray-50 transition-all duration-200">
+                            <a href="/cart" className="flex items-center justify-center gap-1.5 py-1.5">
+                              <ShoppingBagIcon className="h-4 w-4 text-primary/70 group-hover:text-primary transition-colors duration-200" />
+                              <span className="font-medium group-hover:text-gray-900 transition-colors duration-200">Ver Carrito</span>
+                            </a>
+                          </Button>
+                        </div>
+                      </div>
                     )}
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -937,14 +1066,20 @@ export default function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 relative md:hidden"
+                className="h-9 w-9 relative md:hidden hover:bg-primary/10 transition-colors duration-200"
                 onClick={() => setIsCartSheetOpen(true)}
               >
-                <ShoppingCartIcon className="h-4 w-4" />
+                <motion.div
+                  initial={{ scale: 1 }}
+                  animate={{ scale: cartCount > 0 ? [1, 1.2, 1] : 1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <ShoppingCartIcon className="h-4 w-4" />
+                </motion.div>
                 {cartCount > 0 && (
                   <Badge
                     variant="destructive"
-                    className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px]"
+                    className="absolute -top-1.5 -right-1.5 h-5 w-5 p-0 flex items-center justify-center text-[10px] shadow-sm border border-background animate-in fade-in duration-300"
                   >
                     {cartCount}
                   </Badge>
@@ -954,14 +1089,20 @@ export default function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 relative md:hidden"
+                className="h-9 w-9 relative md:hidden hover:bg-primary/10 transition-colors duration-200"
                 onClick={() => setIsFavoritesSheetOpen(true)}
               >
-                <HeartIcon className="h-4 w-4" />
+                <motion.div
+                  initial={{ scale: 1 }}
+                  animate={{ scale: favoritesCount > 0 ? [1, 1.2, 1] : 1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <HeartIcon className="h-4 w-4" />
+                </motion.div>
                 {favoritesCount > 0 && (
                   <Badge
                     variant="destructive"
-                    className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px]"
+                    className="absolute -top-1.5 -right-1.5 h-5 w-5 p-0 flex items-center justify-center text-[10px] shadow-sm border border-background animate-in fade-in duration-300"
                   >
                     {favoritesCount}
                   </Badge>
@@ -1061,36 +1202,54 @@ export default function Header() {
           </div>
         )}
         <Sheet open={isCartSheetOpen} onOpenChange={setIsCartSheetOpen}>
-          <SheetContent side="right" className="w-full sm:max-w-md">
-            <SheetHeader>
-              <SheetTitle>Mi Carrito ({cartCount})</SheetTitle>
-              <SheetDescription>Revisa los productos en tu carrito de compras</SheetDescription>
-            </SheetHeader>
-            <div className="mt-6 flex flex-col h-[calc(100vh-10rem)]">
-              <div className="flex-1 overflow-y-auto -mx-6 px-6">
+          <SheetContent side="right" className="w-full sm:max-w-md p-0 overflow-hidden">
+            <div className="bg-gradient-to-r from-primary/5 to-primary/10 p-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ShoppingCartIcon className="h-5 w-5" />
+                <SheetTitle className="m-0 p-0">Mi Carrito</SheetTitle>
+                {cartCount > 0 && (
+                  <Badge variant="secondary" className="ml-1">
+                    {cartCount} {cartCount === 1 ? 'item' : 'items'}
+                  </Badge>
+                )}
+              </div>
+              <SheetClose asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                  <XIcon className="h-4 w-4" />
+                </Button>
+              </SheetClose>
+            </div>
+            
+            <SheetDescription className="px-4 pt-2 pb-0 text-sm">
+              Revisa los productos en tu carrito de compras
+            </SheetDescription>
+            
+            <div className="mt-2 flex flex-col h-[calc(100vh-10rem)]">
+              <div className="flex-1 overflow-y-auto px-4 py-2 scrollbar-thin scrollbar-thumb-primary/10 scrollbar-track-transparent">
                 {cart.length > 0 ? (
                   cart.map((product) => (
-                    <div key={product.id} className="mb-4">
+                    <div key={product.id} className="mb-3 last:mb-0">
                       <CartItem product={product} onRemove={removeFromCart} />
-                      <Separator className="mt-4" />
                     </div>
                   ))
                 ) : (
-                  <div className="flex flex-col items-center justify-center h-full text-center">
-                    <ShoppingBagIcon className="h-12 w-12 text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-medium">Tu carrito está vacío</h3>
-                    <p className="text-muted-foreground mt-1">Agrega algunos productos para comenzar</p>
+                  <div className="flex flex-col items-center justify-center h-full text-center py-8">
+                    <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center mb-4">
+                      <ShoppingBagIcon className="h-10 w-10 text-primary/40" />
+                    </div>
+                    <h3 className="text-lg font-medium mb-2">Tu carrito está vacío</h3>
+                    <p className="text-muted-foreground text-sm max-w-[250px]">Agrega algunos productos para comenzar tu compra</p>
                   </div>
                 )}
               </div>
 
               {cart.length > 0 && (
-                <div className="border-t pt-4 mt-auto">
-                  <div className="flex justify-between mb-4">
+                <div className="border-t bg-muted/30 p-4">
+                  <div className="flex justify-between mb-2">
                     <span className="text-muted-foreground">Subtotal</span>
                     <span className="font-medium">{formatPrice(cartTotal)}</span>
                   </div>
-                  <div className="flex justify-between mb-6">
+                  <div className="flex justify-between mb-4">
                     <span className="font-medium">Total</span>
                     <span className="font-bold text-lg">{formatPrice(cartTotal)}</span>
                   </div>
@@ -1106,42 +1265,57 @@ export default function Header() {
         </Sheet>
 
         <Sheet open={isFavoritesSheetOpen} onOpenChange={setIsFavoritesSheetOpen}>
-          <SheetContent side="right" className="w-full sm:max-w-md">
-            <SheetHeader>
-              <SheetTitle>Mis Favoritos ({favoritesCount})</SheetTitle>
-              <SheetDescription>Tus productos guardados como favoritos</SheetDescription>
-            </SheetHeader>
-            <div className="mt-6 flex flex-col h-[calc(100vh-10rem)]">
-              <div className="flex-1 overflow-y-auto -mx-6 px-6">
+          <SheetContent side="right" className="w-full sm:max-w-md p-0 overflow-hidden">
+            <div className="bg-gradient-to-r from-rose-500/5 to-rose-500/10 p-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <HeartIcon className="h-5 w-5 text-rose-500" />
+                <SheetTitle className="m-0 p-0">Mis Favoritos</SheetTitle>
+                {favoritesCount > 0 && (
+                  <Badge variant="secondary" className="ml-1">
+                    {favoritesCount} {favoritesCount === 1 ? 'item' : 'items'}
+                  </Badge>
+                )}
+              </div>
+              <SheetClose asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                  <XIcon className="h-4 w-4" />
+                </Button>
+              </SheetClose>
+            </div>
+            
+            <SheetDescription className="px-4 pt-2 pb-0 text-sm">
+              Tus productos guardados como favoritos
+            </SheetDescription>
+            
+            <div className="mt-2 flex flex-col h-[calc(100vh-10rem)]">
+              <div className="flex-1 overflow-y-auto px-4 py-2 scrollbar-thin scrollbar-thumb-primary/10 scrollbar-track-transparent">
                 {favorites.length > 0 ? (
                   favorites.map((product) => (
-                    <div key={product.id} className="mb-4">
+                    <div key={product.id} className="mb-3 last:mb-0">
                       <FavoriteItem 
                         product={product} 
                         onRemove={removeFromFavorites} 
                         onAddToCart={addToCartFromFavorites} 
                       />
-                      <Separator className="mt-4" />
                     </div>
                   ))
                 ) : (
-                  <div className="flex flex-col items-center justify-center h-full text-center">
-                    <HeartIcon className="h-12 w-12 text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-medium">No tienes favoritos</h3>
-                    <p className="text-muted-foreground mt-1">Guarda productos para verlos más tarde</p>
+                  <div className="flex flex-col items-center justify-center h-full text-center py-8">
+                    <div className="w-20 h-20 rounded-full bg-rose-500/5 flex items-center justify-center mb-4">
+                      <HeartIcon className="h-10 w-10 text-rose-500/40" />
+                    </div>
+                    <h3 className="text-lg font-medium mb-2">No tienes favoritos</h3>
+                    <p className="text-muted-foreground text-sm max-w-[250px]">Guarda productos para verlos más tarde</p>
                   </div>
                 )}
               </div>
 
               {favorites.length > 0 && (
-                <div className="border-t pt-4 mt-auto">
+                <div className="border-t bg-muted/30 p-4">
                   <div className="space-y-3">
-                    <Button className="w-full" asChild>
-                      <a href="/favorites">Ver Todos los Favoritos</a>
-                    </Button>
-                                          <Button 
+                    <Button 
                       variant="outline" 
-                      className="w-full"
+                      className="w-full bg-rose-500/5 hover:bg-rose-500/10 text-rose-600 border-rose-200 hover:text-rose-700"
                       onClick={() => {
                         const itemsToAdd = favorites.filter(item => 
                           !cart.some(cartItem => cartItem.producto_id === item.producto_id)
@@ -1162,9 +1336,14 @@ export default function Header() {
                         toast.success(`${itemsToAdd.length} producto(s) añadido(s) al carrito`, {
                           duration: 3000,
                         });
+                        setIsFavoritesSheetOpen(false);
                       }}
                     >
+                      <ShoppingCartIcon className="h-4 w-4 mr-2" />
                       Agregar Todo al Carrito
+                    </Button>
+                    <Button asChild variant="ghost" className="w-full">
+                      <a href="/favorites">Ver Todos los Favoritos</a>
                     </Button>
                   </div>
                 </div>
