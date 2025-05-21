@@ -369,11 +369,23 @@ export default function Header() {
         fetchCartItems();
         toast.success("Producto añadido al carrito", {
           duration: 3000,
+          style: {
+                    position: 'fixed',
+                    top: '65px',  
+                    right: '10px', 
+                    zIndex: 9999,
+                  }
         });
       } else if (response.data.message?.includes("ya está en el carrito")) {
         toast.info("Producto ya en el carrito", {
           description: `${product.nombre || 'Este producto'} ya está en tu carrito.`,
           duration: 3000,
+          style: {
+                    position: 'fixed',
+                    top: '65px',  
+                    right: '10px', 
+                    zIndex: 9999,
+                  }
         });
       }
     })
@@ -384,6 +396,12 @@ export default function Header() {
         toast.info("Producto ya en el carrito", {
           description: `${product.nombre || 'Este producto'} ya está en tu carrito.`,
           duration: 3000,
+          style: {
+                    position: 'fixed',
+                    top: '65px',  
+                    right: '10px', 
+                    zIndex: 9999,
+                  }
         });
         return;
       }
@@ -392,12 +410,24 @@ export default function Header() {
         toast.error("Stock insuficiente", {
           description: "No hay suficiente stock disponible para este producto.",
           duration: 3000,
+          style: {
+                    position: 'fixed',
+                    top: '65px',  
+                    right: '10px', 
+                    zIndex: 9999,
+                  }
         });
         return;
       }
       
       toast.error("Error al añadir al carrito", {
         duration: 3000,
+        style: {
+                    position: 'fixed',
+                    top: '65px',  
+                    right: '10px', 
+                    zIndex: 9999,
+                  }
       });
     });
   };
@@ -414,11 +444,23 @@ export default function Header() {
         fetchFavoriteItems();
         toast.success("Producto añadido a favoritos", {
           duration: 3000,
+          style: {
+                    position: 'fixed',
+                    top: '65px',  
+                    right: '10px', 
+                    zIndex: 9999,
+                  }
         });
       } else if (response.data.message?.includes("ya está en favoritos")) {
         toast.info("Producto ya en favoritos", {
           description: `${product.nombre || 'Este producto'} ya está en tus favoritos.`,
           duration: 3000,
+          style: {
+                    position: 'fixed',
+                    top: '65px',  
+                    right: '10px', 
+                    zIndex: 9999,
+                  }
         });
       }
     })
@@ -429,12 +471,25 @@ export default function Header() {
         toast.info("Producto ya en favoritos", {
           description: `${product.nombre || 'Este producto'} ya está en tus favoritos.`,
           duration: 3000,
+          style: {
+                    position: 'fixed',
+                    top: '65px',  
+                    right: '10px', 
+                    zIndex: 9999,
+                  }
         });
         return;
       }
       
       toast.error("Error al añadir a favoritos", {
         duration: 3000,
+        style: {
+                    position: 'fixed',
+                    top: '65px',  
+                    right: '10px', 
+                    zIndex: 9999,
+                  }
+          
       });
     });
   };
