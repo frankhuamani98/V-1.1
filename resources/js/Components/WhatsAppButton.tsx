@@ -1,4 +1,7 @@
+"use client"
+
 import type React from "react"
+
 import { useState, useEffect, useRef } from "react"
 
 const WhatsAppButton = () => {
@@ -199,24 +202,16 @@ const WhatsAppButton = () => {
     index: number
     isSelected: boolean
   }) => {
-    const colorVariants = [
-      "from-green-700/60 to-emerald-600/60",
-      "from-emerald-700/60 to-green-600/60",
-      "from-teal-700/60 to-green-600/60",
-      "from-green-800/60 to-emerald-700/60",
-      "from-emerald-800/60 to-teal-700/60",
-    ]
-
     return (
       <button
         key={index}
         className={`w-full text-left p-2 rounded-lg transition-all duration-200 flex items-center text-xs
           ${
             isSelected
-              ? "border-2 border-white/20 shadow-md scale-[1.02] bg-green-900/50"
-              : "border border-white/10 shadow-sm hover:shadow-md hover:bg-green-800/70"
+              ? "border-2 border-white/20 shadow-md scale-[1.02] bg-[#044134]/90"
+              : "border border-white/10 shadow-sm hover:shadow-md hover:bg-[#044134]/70"
           }
-          bg-gradient-to-r ${colorVariants[index % colorVariants.length]} backdrop-blur-sm`}
+          bg-[#033025]/80 backdrop-blur-sm`}
         onClick={() => handleSelectMessage(option.text, index)}
       >
         <div className="flex-1 min-w-0">
@@ -326,16 +321,17 @@ const WhatsAppButton = () => {
           ${showDialog ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}
           shadow-xl shadow-black/30`}
           style={{
-            backgroundImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.4)), url('https://mail.nitro.pe/images/2015/noviembre/kawasaki_ninja_h2r.jpg')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            backdropFilter: 'brightness(1.3) contrast(1.3)'
+            backgroundImage:
+              "linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.4)), url('https://mail.nitro.pe/images/2015/noviembre/kawasaki_ninja_h2r.jpg')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            backdropFilter: "brightness(1.3) contrast(1.3)",
           }}
         >
           {/* Encabezado del diálogo */}
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-rose-600 to-teal-600 opacity-80"></div>
+            <div className="absolute inset-0 bg-[#044134] opacity-95"></div>
             <div
               className="absolute inset-0 opacity-10"
               style={{ backgroundImage: "url('https://grainy-gradients.vercel.app/noise.svg')" }}
@@ -343,8 +339,13 @@ const WhatsAppButton = () => {
             <div className="relative px-3 py-2">
               <div className="flex items-center justify-between">
                 <h2
-                  className="font-semibold text-white text-xs tracking-wide"
-                  style={{ textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}
+                  className="font-bold text-white text-xs tracking-wide"
+                  style={{
+                    textShadow: "0 1px 2px rgba(229, 248, 227, 0.99)",
+                    color: "#ffffff",
+                    fontFamily: "'Montserrat', sans-serif",
+                    letterSpacing: "0.3em",
+                  }}
                 >
                   Enviar mensaje
                 </h2>
@@ -361,7 +362,7 @@ const WhatsAppButton = () => {
           </div>
 
           {/* Opciones de mensajes */}
-          <div className="p-2 space-y-1.5 bg-gradient-to-b from-black/30 to-black/20">
+          <div className="p-2 space-y-1.5 bg-gradient-to-b from-[#044134]/40 to-[#044134]/30">
             <div className="grid grid-cols-1 gap-1.5 max-h-[40vh] overflow-y-auto pr-1">
               {MESSAGE_OPTIONS.map((option, index) => (
                 <MessageOption key={index} option={option} index={index} isSelected={selectedOptionIndex === index} />
@@ -389,7 +390,7 @@ const WhatsAppButton = () => {
                   ${
                     !messageInput.trim()
                       ? "bg-white/20 text-white/40 cursor-not-allowed"
-                      : "text-white shadow-sm bg-gradient-to-r from-rose-600 to-amber-500"
+                      : "text-white shadow-sm bg-gradient-to-r from-[#044134] to-[#075E54]"
                   }`}
               >
                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
