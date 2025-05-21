@@ -366,8 +366,7 @@ const ProductCard = ({ product }: { product: Producto }) => {
       </CardContent>
       <CardFooter className="p-3 sm:p-4 pt-0 flex flex-col gap-2">
         <Button
-          variant="default"
-          className="w-full gap-1.5 text-xs sm:text-sm bg-primary hover:bg-primary/90 text-white"
+          className="w-full gap-1.5"
           onClick={addToCart}
         >
           <ShoppingCartIcon className="h-3.5 w-3.5" />
