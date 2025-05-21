@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ReactNode } from "react";
+import React, { useState, useEffect, ReactNode, useRef } from "react";
 import { Link, usePage } from "@inertiajs/react";
 import {
   ShoppingCartIcon,
@@ -278,6 +278,11 @@ export default function Header() {
   const [isFavoritesSheetOpen, setIsFavoritesSheetOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -664,6 +669,44 @@ export default function Header() {
   useEffect(() => {
     setIsAuthenticated(!!user);
   }, [user]);
+
+  // Buscar productos cuando cambia el query
+  useEffect(() => {
+    if (!isSearchModalOpen) {
+      setSearchQuery("");
+      setSearchResults([]);
+      setSearchError(null);
+      setSearchLoading(false);
+      return;
+    }
+    if (!searchQuery || searchQuery.trim().length < 2) {
+      setSearchResults([]);
+      setSearchError(null);
+      setSearchLoading(false);
+      return;
+    }
+    setSearchLoading(true);
+    setSearchError(null);
+
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    searchTimeout.current = setTimeout(() => {
+      axios
+        .get(`/api/buscar-productos?query=${encodeURIComponent(searchQuery)}`)
+        .then((res) => {
+          setSearchResults(res.data.data || []);
+          setSearchError(null);
+        })
+        .catch(() => {
+          setSearchError("Error al buscar productos.");
+          setSearchResults([]);
+        })
+        .finally(() => setSearchLoading(false));
+    }, 350);
+
+    return () => {
+      if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    };
+  }, [searchQuery, isSearchModalOpen]);
 
   return (
     <>
@@ -1381,16 +1424,53 @@ export default function Header() {
               <XIcon className="h-5 w-5" />
             </button>
             <h2 className="text-lg font-semibold mb-4">Buscar productos</h2>
-            <div className="relative">
+            <div className="relative mb-4">
               <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 autoFocus
                 type="search"
                 placeholder="Buscar productos..."
                 className="pl-9 h-10 w-full"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
               />
             </div>
-            {/* Aquí puedes agregar resultados de búsqueda si lo deseas */}
+            {/* Resultados */}
+            <div className="min-h-[80px]">
+              {searchLoading && (
+                <div className="text-center text-muted-foreground py-4 text-sm">Buscando...</div>
+              )}
+              {searchError && (
+                <div className="text-center text-destructive py-4 text-sm">{searchError}</div>
+              )}
+              {!searchLoading && !searchError && searchQuery.trim().length >= 2 && searchResults.length === 0 && (
+                <div className="text-center text-muted-foreground py-4 text-sm">No se encontraron productos.</div>
+              )}
+              {!searchLoading && !searchError && searchResults.length > 0 && (
+                <ul className="divide-y divide-border max-h-64 overflow-y-auto">
+                  {searchResults.map((prod) => (
+                    <li key={prod.id}>
+                      <a
+                        href={`/details/${prod.id}`}
+                        className="flex items-center gap-3 py-2 hover:bg-accent/40 rounded transition-colors"
+                        onClick={() => setIsSearchModalOpen(false)}
+                      >
+                        <img
+                          src={prod.imagen_principal || prod.image || "/images/placeholder-product.png"}
+                          alt={prod.nombre || prod.name}
+                          className="w-12 h-12 object-cover rounded border border-border bg-muted"
+                          onError={e => (e.currentTarget.src = "/images/placeholder-product.png")}
+                        />
+                        <div>
+                          <div className="font-medium text-sm">{prod.nombre || prod.name}</div>
+                          <div className="text-xs text-muted-foreground">{prod.price || prod.precio_final || ""}</div>
+                        </div>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         </div>
       )}

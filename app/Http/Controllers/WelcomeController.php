@@ -10,6 +10,7 @@ use App\Models\Opinion;
 use App\Models\CategoriaServicio;
 use App\Models\Servicio;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
 
 class WelcomeController extends Controller
 {
@@ -203,6 +204,39 @@ class WelcomeController extends Controller
             'todosProductos' => $todosProductos,
             'productosRelacionadosPorSubcategoria' => $productosRelacionadosPorSubcategoria,
         ]);
+    }
+
+    // --- NUEVO MÉTODO API ---
+    public function buscarProductos(Request $request)
+    {
+        $query = $request->input('query', '');
+        if (strlen($query) < 2) {
+            return response()->json(['data' => []]);
+        }
+
+        // Asegúrate de que la búsqueda sea insensible a mayúsculas/minúsculas y sin espacios extra
+        $query = trim($query);
+
+        $productos = \App\Models\Producto::where('estado', 'Activo')
+            ->whereRaw('LOWER(nombre) LIKE ?', ['%' . mb_strtolower($query, 'UTF8') . '%'])
+            ->orderBy('nombre')
+            ->limit(10)
+            ->get(['id', 'nombre', 'precio_final', 'imagen_principal']);
+
+        $data = $productos->map(function ($prod) {
+            return [
+                'id' => $prod->id,
+                'nombre' => $prod->nombre,
+                'precio_final' => 'S/ ' . number_format($prod->precio_final, 2, '.', ','),
+                'imagen_principal' => $prod->imagen_principal
+                    ? (str_starts_with($prod->imagen_principal, 'http')
+                        ? $prod->imagen_principal
+                        : asset('storage/' . ltrim($prod->imagen_principal, '/')))
+                    : null,
+            ];
+        });
+
+        return response()->json(['data' => $data]);
     }
 
     private function formatProductData($producto)

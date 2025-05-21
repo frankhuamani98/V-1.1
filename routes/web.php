@@ -309,3 +309,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/tecnico', [SoporteTecnicoController::class, 'index'])->name('soporte.tecnico');
     });
 });
+
+// Rutas API
+Route::get('/api/buscar-productos', [WelcomeController::class, 'buscarProductos']);
