@@ -261,7 +261,6 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
       const savedMode = localStorage.getItem('darkMode');
@@ -278,6 +277,7 @@ export default function Header() {
   const [isCartSheetOpen, setIsCartSheetOpen] = useState(false);
   const [isFavoritesSheetOpen, setIsFavoritesSheetOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -661,10 +661,6 @@ export default function Header() {
     localStorage.setItem('darkMode', JSON.stringify(newMode));
   };
 
-  const toggleSearch = () => {
-    setIsSearchOpen(!isSearchOpen);
-  };
-
   useEffect(() => {
     setIsAuthenticated(!!user);
   }, [user]);
@@ -810,12 +806,12 @@ export default function Header() {
             </div>
 
             <div className="flex items-center space-x-2">
-              <div
-                className={cn(
-                  "hidden md:block transition-all duration-300 overflow-hidden",
-                  isSearchOpen ? "w-64 opacity-100" : "w-0 opacity-0"
-                )}
-              >
+              {/* Elimina el buscador embebido */}
+              {/* 
+              <div className={cn(
+                "hidden md:block transition-all duration-300 overflow-hidden",
+                isSearchOpen ? "w-64 opacity-100" : "w-0 opacity-0"
+              )}>
                 <div className="relative">
                   <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -832,6 +828,18 @@ export default function Header() {
                 className="h-9 w-9"
               >
                 {isSearchOpen ? <XIcon className="h-4 w-4" /> : <SearchIcon className="h-4 w-4" />}
+              </Button>
+              */}
+
+              {/* Nuevo icono de búsqueda (ahora SearchIcon) */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9"
+                onClick={() => setIsSearchModalOpen(true)}
+                aria-label="Buscar"
+              >
+                <SearchIcon className="h-4 w-4" />
               </Button>
 
               <Button
@@ -1189,6 +1197,8 @@ export default function Header() {
             </div>
           </div>
         </div>
+        {/* Elimina el buscador para mobile */}
+        {/* 
         {isSearchOpen && (
           <div className="w-full px-4 py-2 bg-background md:hidden">
             <div className="relative">
@@ -1201,6 +1211,7 @@ export default function Header() {
             </div>
           </div>
         )}
+        */}
         <Sheet open={isCartSheetOpen} onOpenChange={setIsCartSheetOpen}>
           <SheetContent side="right" className="w-full sm:max-w-md p-0 overflow-hidden">
             <div className="bg-gradient-to-r from-primary/5 to-primary/10 p-4 flex items-center justify-between">
@@ -1357,6 +1368,32 @@ export default function Header() {
         onClose={() => setIsProfileOpen(false)}
         user={user}
       />
+      {/* Modal de búsqueda */}
+      {isSearchModalOpen && (
+        <div className="fixed inset-0 z-[100] bg-black/40 flex flex-col items-center">
+          {/* Espacio para el header, medio centímetro más arriba */}
+          <div className="h-16 w-full" />
+          <div className="bg-background rounded-lg shadow-lg w-full max-w-md p-6 relative mt-0">
+            <button
+              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
+              onClick={() => setIsSearchModalOpen(false)}
+            >
+              <XIcon className="h-5 w-5" />
+            </button>
+            <h2 className="text-lg font-semibold mb-4">Buscar productos</h2>
+            <div className="relative">
+              <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                autoFocus
+                type="search"
+                placeholder="Buscar productos..."
+                className="pl-9 h-10 w-full"
+              />
+            </div>
+            {/* Aquí puedes agregar resultados de búsqueda si lo deseas */}
+          </div>
+        </div>
+      )}
     </>
   );
 }
