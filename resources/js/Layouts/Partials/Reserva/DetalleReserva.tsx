@@ -70,7 +70,7 @@ const DetalleReserva = ({ reserva: initialReserva }: DetalleReservaProps) => {
             preserveScroll: true,
             onSuccess: () => {
                 setReserva({ ...reserva, estado });
-                toast.success("Estado de la reserva actualizado correctamente");
+                toast.success("Estado de la reserva actualizado correctamente");    
             },
             onError: () => {
                 toast.error("Error al actualizar el estado de la reserva");

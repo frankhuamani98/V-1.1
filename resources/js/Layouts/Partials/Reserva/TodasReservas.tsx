@@ -7,6 +7,7 @@ import { ChevronDown, ChevronUp, Calendar, CalendarCheck, CheckCircle, Clock, XC
 import { Toaster, toast } from "sonner";
 import { router } from "@inertiajs/react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/Components/ui/dialog";
+import { User, Bike, Wrench, BadgeCheck, CalendarDays, Clock3, Info, FileText } from "lucide-react";
 
 interface Reserva {
     id: number;
@@ -100,31 +101,75 @@ const TodasReservas = ({ reservas: initialReservas }: TodasReservasProps) => {
         <div className="p-2 sm:p-8 min-h-screen bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-gray-100 via-white to-gray-200 animate-fade-in">
             {/* Modal de detalle */}
             <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-                <DialogContent className="max-w-md">
+                <DialogContent
+                    className="w-full max-w-xl rounded-2xl p-6 sm:p-8 bg-white/95 shadow-2xl border border-primary/10 min-h-[250px] max-h-[90vh] overflow-y-auto"
+                    style={{ wordBreak: "break-word" }}
+                >
                     <DialogHeader>
-                        <DialogTitle>Detalle de la Reserva</DialogTitle>
-                        <DialogDescription>
+                        <DialogTitle className="text-lg font-bold text-primary flex items-center gap-2 mb-1 truncate">
+                            <FileText className="w-5 h-5 text-primary" />
+                            Detalle de la Reserva
+                        </DialogTitle>
+                        <DialogDescription className="text-sm text-gray-500 mb-4 truncate flex items-center gap-2">
+                            <Info className="w-4 h-4 text-gray-400" />
                             Información completa de la reserva seleccionada.
                         </DialogDescription>
                     </DialogHeader>
                     {detalleReserva && (
-                        <div className="space-y-2 text-sm">
-                            <div><span className="font-semibold">Cliente:</span> {detalleReserva.usuario}</div>
-                            <div><span className="font-semibold">Moto:</span> {`${detalleReserva.moto.marca} ${detalleReserva.moto.modelo} ${detalleReserva.moto.año}`} - {detalleReserva.placa}</div>
-                            <div><span className="font-semibold">Servicio:</span> {detalleReserva.servicio}</div>
-                            <div><span className="font-semibold">Fecha:</span> {formatFecha(detalleReserva.fecha)}</div>
-                            <div><span className="font-semibold">Hora:</span> {detalleReserva.hora}</div>
-                            <div><span className="font-semibold">Estado:</span> 
-                                <Badge className={`ml-1 ${getEstadoBadgeClass(detalleReserva.estado)}`}>
-                                    {detalleReserva.estado.charAt(0).toUpperCase() + detalleReserva.estado.slice(1)}
-                                </Badge>
+                        <div className="space-y-4 text-sm">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
+                                <div className="flex flex-col bg-gray-50 rounded-lg p-3 shadow-sm">
+                                    <span className="text-gray-500 font-semibold flex items-center gap-1">
+                                        <User className="w-4 h-4 text-primary" /> Cliente
+                                    </span>
+                                    <span className="text-gray-900 font-medium break-words">{detalleReserva.usuario}</span>
+                                </div>
+                                <div className="flex flex-col bg-gray-50 rounded-lg p-3 shadow-sm">
+                                    <span className="text-gray-500 font-semibold flex items-center gap-1">
+                                        <Bike className="w-4 h-4 text-primary" /> Moto
+                                    </span>
+                                    <span className="text-gray-900 break-words">{`${detalleReserva.moto.marca} ${detalleReserva.moto.modelo} ${detalleReserva.moto.año}`} - {detalleReserva.placa}</span>
+                                </div>
+                                <div className="flex flex-col bg-gray-50 rounded-lg p-3 shadow-sm">
+                                    <span className="text-gray-500 font-semibold flex items-center gap-1">
+                                        <Wrench className="w-4 h-4 text-primary" /> Servicio
+                                    </span>
+                                    <span className="text-gray-900 break-words">{detalleReserva.servicio}</span>
+                                </div>
+                                <div className="flex flex-col bg-gray-50 rounded-lg p-3 shadow-sm">
+                                    <span className="text-gray-500 font-semibold flex items-center gap-1">
+                                        <BadgeCheck className="w-4 h-4 text-primary" /> Estado
+                                    </span>
+                                    <Badge className={`text-xs font-bold px-3 py-1.5 rounded-full shadow border border-gray-200 mt-1 ${getEstadoBadgeClass(detalleReserva.estado)}`}>
+                                        {detalleReserva.estado.charAt(0).toUpperCase() + detalleReserva.estado.slice(1)}
+                                    </Badge>
+                                </div>
+                                <div className="flex flex-col bg-gray-50 rounded-lg p-3 shadow-sm">
+                                    <span className="text-gray-500 font-semibold flex items-center gap-1">
+                                        <CalendarDays className="w-4 h-4 text-primary" /> Fecha
+                                    </span>
+                                    <span className="text-gray-900">{formatFecha(detalleReserva.fecha)}</span>
+                                </div>
+                                <div className="flex flex-col bg-gray-50 rounded-lg p-3 shadow-sm">
+                                    <span className="text-gray-500 font-semibold flex items-center gap-1">
+                                        <Clock3 className="w-4 h-4 text-primary" /> Hora
+                                    </span>
+                                    <span className="text-gray-900">{detalleReserva.hora}</span>
+                                </div>
                             </div>
                             {detalleReserva.detalles && (
-                                <div><span className="font-semibold">Detalles:</span> {detalleReserva.detalles}</div>
+                                <div className="flex flex-col bg-gray-50 rounded-lg p-3 shadow-sm">
+                                    <span className="text-gray-500 font-semibold flex items-center gap-1">
+                                        <Info className="w-4 h-4 text-primary" /> Detalles
+                                    </span>
+                                    <span className="text-gray-900 break-words">{detalleReserva.detalles}</span>
+                                </div>
                             )}
-                            <div className="flex justify-end pt-2">
+                            <div className="flex justify-end pt-4">
                                 <DialogClose asChild>
-                                    <Button variant="outline">Cerrar</Button>
+                                    <Button variant="default" className="px-6 py-2 text-sm font-semibold rounded-lg">
+                                        Cerrar
+                                    </Button>
                                 </DialogClose>
                             </div>
                         </div>
