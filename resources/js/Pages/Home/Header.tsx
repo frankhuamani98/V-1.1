@@ -124,9 +124,11 @@ ListItem.displayName = "ListItem";
 const CartItem = ({
   product,
   onRemove,
+  disableRemove = false,
 }: {
   product: CartItem;
   onRemove: (id: number) => void;
+  disableRemove?: boolean;
 }) => {
   const subtotal = product.precio_final * product.quantity;
   
@@ -174,8 +176,9 @@ const CartItem = ({
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive hover:bg-destructive/10"
-        onClick={() => onRemove(product.id)}
+        className={`h-8 w-8 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive hover:bg-destructive/10 ${disableRemove ? 'cursor-not-allowed opacity-50' : ''}`}
+        onClick={() => { if (!disableRemove) onRemove(product.id); }}
+        disabled={disableRemove}
       >
         <TrashIcon className="h-4 w-4" />
       </Button>
@@ -942,6 +945,8 @@ export default function Header() {
     return <span className="font-semibold text-primary">{prod.precio_final || prod.price || ""}</span>;
   };
 
+  const isOnCartPage = typeof window !== "undefined" && window.location.pathname === "/cart";
+
   return (
     <>
       <header
@@ -1307,7 +1312,11 @@ export default function Header() {
                       {cart.length > 0 ? (
                         cart.map((product) => (
                           <div key={product.id} className="mb-2 last:mb-0">
-                            <CartItem product={product} onRemove={removeFromCart} />
+                            <CartItem 
+                              product={product} 
+                              onRemove={removeFromCart} 
+                              disableRemove={isOnCartPage}
+                            />
                             {/* No separator needed with the new design */}
                           </div>
                         ))
@@ -1335,12 +1344,18 @@ export default function Header() {
                           <span className="font-bold text-lg">{formatPrice(cartTotal)}</span>
                         </div>
                         <div className="flex flex-col gap-2">
-                          <Button asChild className="w-full bg-white text-gray-700 border border-gray-200 hover:border-gray-300 rounded-lg group hover:bg-gray-50 transition-all duration-200">
-                            <a href="/cart" className="flex items-center justify-center gap-1.5 py-1.5">
-                              <ShoppingBagIcon className="h-4 w-4 text-primary/70 group-hover:text-primary transition-colors duration-200" />
-                              <span className="font-medium group-hover:text-gray-900 transition-colors duration-200">Ver Carrito</span>
-                            </a>
-                          </Button>
+                          {isOnCartPage ? (
+                            <Button className="w-full bg-gray-200 text-gray-500 cursor-not-allowed" disabled>
+                              Ya estás en la sección de carrito
+                            </Button>
+                          ) : (
+                            <Button asChild className="w-full bg-white text-gray-700 border border-gray-200 hover:border-gray-300 rounded-lg group hover:bg-gray-50 transition-all duration-200">
+                              <a href="/cart" className="flex items-center justify-center gap-1.5 py-1.5">
+                                <ShoppingBagIcon className="h-4 w-4 text-primary/70 group-hover:text-primary transition-colors duration-200" />
+                                <span className="font-medium group-hover:text-gray-900 transition-colors duration-200">Ver Carrito</span>
+                              </a>
+                            </Button>
+                          )}
                         </div>
                       </div>
                     )}
