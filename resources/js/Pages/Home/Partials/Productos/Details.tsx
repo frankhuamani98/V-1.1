@@ -211,8 +211,14 @@ export default function Details({ producto, productosRelacionados }: Props) {
       })
       .catch(error => {
         console.error('Error toggling favorite:', error);
-        toast.error("Error al actualizar favoritos", {
+        toast.error("Error primero inicie sesión", {
           duration: 3000,
+          style: {
+            position: 'fixed',
+            top: '64px',
+            right: '10px',
+            zIndex: 9999,
+          },
         });
       });
   };

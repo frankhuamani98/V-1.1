@@ -269,7 +269,7 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ title, productList })
       })
       .catch(error => {
         console.error('Error toggling favorite:', error);
-        toast.error("Error al actualizar favoritos", {
+        toast.error("Error primero inicie sesión ", {
           duration: 3000,
           style: {
             position: 'fixed',
