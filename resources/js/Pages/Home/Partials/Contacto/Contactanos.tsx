@@ -7,7 +7,9 @@ import {
   CardTitle,
 } from "@/Components/ui/card";
 import { Phone, Mail, Users, Clock, MapPin } from 'lucide-react';
-import SocialNav from '@/Components/SocialNav';
+import Header from '@/Pages/Home/Header';
+import Footer from '@/Pages/Home/Footer';
+import ContactoNavigation from '@/Components/ContactoNavigation';
 
 interface ContactPerson {
   nombre: string;
@@ -35,7 +37,8 @@ interface Props {
 export default function Contactanos({ contactoData }: Props) {
   return (
     <>
-      <SocialNav />
+      <Header />
+      <ContactoNavigation currentPage="contactanos" />
       <div className="relative" style={{ minHeight: '500px' }}>
         {/* Imagen de fondo de moto */}
         <div className="absolute inset-0 -z-10 overflow-hidden opacity-95">
@@ -274,6 +277,7 @@ export default function Contactanos({ contactoData }: Props) {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 }

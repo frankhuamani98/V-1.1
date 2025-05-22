@@ -1,10 +1,12 @@
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
-import { MapPin, Building2, Wrench, ChevronLeft, ChevronRight, Clock, Phone } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/Components/ui/card"
+import { MapPin, Building2, Wrench, ChevronLeft, ChevronRight, Clock, Info } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import SocialNav from "@/Components/SocialNav"
 import { Button } from "@/Components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs"
+import Header from "@/Pages/Home/Header"
+import Footer from "@/Pages/Home/Footer"
+import ContactoNavigation from "@/Components/ContactoNavigation"
 
 interface Props {
   ubicacionData: {
@@ -31,8 +33,8 @@ export default function Ubicacion({ ubicacionData }: Props) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   const imagenes = {
-    tienda: ["/images/tienda.jpeg", "/images/tienda.jpeg", "/images/tienda.jpeg"],
-    taller: ["/images/taller.jpg", "/images/taller.jpg", "/images/taller.jpg"],
+    tienda: ["/images/tienda1.jpg", "/images/tienda2.jpg", "/images/tienda3.jpg"],
+    taller: ["/images/taller1.jpg", "/images/taller2.jpg", "/images/taller3.jpg"],
   }
 
   const getMapSrc = (establecimiento: string) => {
@@ -56,66 +58,90 @@ export default function Ubicacion({ ubicacionData }: Props) {
 
   return (
     <>
-      <SocialNav />
-      <div className="container mx-auto py-12 px-4">
-        <motion.div
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <h1 className="text-3xl md:text-4xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-cyan-400">
-            Nuestras Ubicaciones
-          </h1>
-          <div className="w-20 h-1 bg-gradient-to-r from-blue-400 to-cyan-300 mx-auto mb-4"></div>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Visítanos en cualquiera de nuestros locales especializados para brindarte la mejor atención
-          </p>
-        </motion.div>
+      <Header />
+      <ContactoNavigation currentPage="ubicacion" />
+      <div className="w-full min-h-screen bg-white flex items-start justify-center py-10 px-4">
+        <div className="w-full max-w-7xl mx-auto">
+          <Tabs defaultValue="tienda" value={activeTab} onValueChange={setActiveTab}>
+            <Card className="border border-slate-200 shadow-md overflow-hidden bg-white rounded-lg">
+              <CardHeader className="border-b border-slate-100 bg-white px-4 sm:px-6 md:px-8 py-6">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <div className="bg-indigo-100 p-2.5 md:p-3.5 rounded-full flex-shrink-0">
+                      <MapPin className="h-5 w-5 md:h-6 md:w-6 text-indigo-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-xl md:text-2xl font-semibold text-slate-800">Nuestras Ubicaciones</CardTitle>
+                      <CardDescription className="text-sm text-slate-500 mt-1">
+                        Visítanos en cualquiera de nuestros locales especializados
+                      </CardDescription>
+                    </div>
+                  </div>
+                  
+                  <div className="self-center w-full flex justify-center md:justify-end md:w-auto md:self-center">
+                    <div className="flex space-x-3">
+                      <button 
+                        type="button"
+                        onClick={() => setActiveTab("tienda")}
+                        className="group relative flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-all overflow-hidden focus:outline-none"
+                      >
+                        <div className={`absolute inset-0 ${activeTab === "tienda" ? "bg-indigo-50 dark:bg-indigo-950/20" : "bg-transparent"} rounded-lg transition-colors duration-200`}></div>
+                        <div className={`relative z-10 flex items-center justify-center w-8 h-8 ${activeTab === "tienda" ? "bg-indigo-500" : "bg-slate-200 group-hover:bg-slate-300"} rounded-full transition-colors duration-200`}>
+                          <Building2 className={`h-4 w-4 ${activeTab === "tienda" ? "text-white" : "text-slate-600 group-hover:text-slate-700"} transition-colors duration-200`} />
+                        </div>
+                        <span className={`relative z-10 ${activeTab === "tienda" ? "text-indigo-700 dark:text-indigo-400" : "text-slate-600 group-hover:text-slate-700"} transition-colors duration-200`}>Tienda</span>
+                        {activeTab === "tienda" && (
+                          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-500"></div>
+                        )}
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => setActiveTab("taller")}
+                        className="group relative flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-all overflow-hidden focus:outline-none"
+                      >
+                        <div className={`absolute inset-0 ${activeTab === "taller" ? "bg-indigo-50 dark:bg-indigo-950/20" : "bg-transparent"} rounded-lg transition-colors duration-200`}></div>
+                        <div className={`relative z-10 flex items-center justify-center w-8 h-8 ${activeTab === "taller" ? "bg-indigo-500" : "bg-slate-200 group-hover:bg-slate-300"} rounded-full transition-colors duration-200`}>
+                          <Wrench className={`h-4 w-4 ${activeTab === "taller" ? "text-white" : "text-slate-600 group-hover:text-slate-700"} transition-colors duration-200`} />
+                        </div>
+                        <span className={`relative z-10 ${activeTab === "taller" ? "text-indigo-700 dark:text-indigo-400" : "text-slate-600 group-hover:text-slate-700"} transition-colors duration-200`}>Taller</span>
+                        {activeTab === "taller" && (
+                          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-500"></div>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-8">
+                <TabsContent value="tienda">
+                  <LocationContent
+                    establecimiento={ubicacionData.establecimientos.tienda}
+                    mapSrc={getMapSrc("tienda")}
+                    images={imagenes.tienda}
+                    currentImageIndex={currentImageIndex}
+                    nextImage={nextImage}
+                    prevImage={prevImage}
+                    activeTab={activeTab}
+                  />
+                </TabsContent>
 
-        <div className="max-w-6xl mx-auto">
-          <Tabs defaultValue="tienda" value={activeTab} onValueChange={setActiveTab} className="mb-8">
-            <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8 p-1 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-800/30 rounded-full">
-              <TabsTrigger 
-                value="tienda" 
-                className="flex items-center gap-2 rounded-full transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-400 data-[state=active]:text-white data-[state=active]:shadow-lg"
-              >
-                <Building2 className="h-4 w-4" />
-                <span>Tienda</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="taller" 
-                className="flex items-center gap-2 rounded-full transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-400 data-[state=active]:text-white data-[state=active]:shadow-lg"
-              >
-                <Wrench className="h-4 w-4" />
-                <span>Taller</span>
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="tienda" className="mt-0">
-              <LocationContent
-                establecimiento={ubicacionData.establecimientos.tienda}
-                mapSrc={getMapSrc("tienda")}
-                images={imagenes.tienda}
-                currentImageIndex={currentImageIndex}
-                nextImage={nextImage}
-                prevImage={prevImage}
-              />
-            </TabsContent>
-
-            <TabsContent value="taller" className="mt-0">
-              <LocationContent
-                establecimiento={ubicacionData.establecimientos.taller}
-                mapSrc={getMapSrc("taller")}
-                images={imagenes.taller}
-                currentImageIndex={currentImageIndex}
-                nextImage={nextImage}
-                prevImage={prevImage}
-              />
-            </TabsContent>
+                <TabsContent value="taller">
+                  <LocationContent
+                    establecimiento={ubicacionData.establecimientos.taller}
+                    mapSrc={getMapSrc("taller")}
+                    images={imagenes.taller}
+                    currentImageIndex={currentImageIndex}
+                    nextImage={nextImage}
+                    prevImage={prevImage}
+                    activeTab={activeTab}
+                  />
+                </TabsContent>
+              </CardContent>
+            </Card>
           </Tabs>
         </div>
       </div>
+      <Footer />
     </>
   )
 }
@@ -127,6 +153,7 @@ interface LocationContentProps {
   currentImageIndex: number
   nextImage: () => void
   prevImage: () => void
+  activeTab: string
 }
 
 function LocationContent({
@@ -136,17 +163,13 @@ function LocationContent({
   currentImageIndex,
   nextImage,
   prevImage,
+  activeTab,
 }: LocationContentProps) {
   return (
-    <motion.div
-      className="grid lg:grid-cols-2 gap-8"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
+    <div className="grid lg:grid-cols-2 gap-8">
       <div className="space-y-6">
-        <Card className="overflow-hidden border-none shadow-lg">
-          <div className="relative aspect-video bg-muted">
+        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+          <div className="relative aspect-video bg-slate-100">
             <AnimatePresence mode="wait">
               <motion.img
                 key={currentImageIndex}
@@ -164,19 +187,19 @@ function LocationContent({
               <Button
                 variant="secondary"
                 size="icon"
-                className="rounded-full bg-gradient-to-r from-blue-500/80 to-cyan-400/80 backdrop-blur-md hover:from-blue-600/80 hover:to-cyan-500/80 border border-white/20 text-white"
+                className="rounded-full bg-white/80 hover:bg-white/90 border border-slate-200/30 text-slate-700 shadow-sm h-8 w-8"
                 onClick={prevImage}
               >
-                <ChevronLeft className="h-5 w-5" />
+                <ChevronLeft className="h-4 w-4" />
                 <span className="sr-only">Imagen anterior</span>
               </Button>
               <Button
                 variant="secondary"
                 size="icon"
-                className="rounded-full bg-gradient-to-r from-blue-500/80 to-cyan-400/80 backdrop-blur-md hover:from-blue-600/80 hover:to-cyan-500/80 border border-white/20 text-white"
+                className="rounded-full bg-white/80 hover:bg-white/90 border border-slate-200/30 text-slate-700 shadow-sm h-8 w-8"
                 onClick={nextImage}
               >
-                <ChevronRight className="h-5 w-5" />
+                <ChevronRight className="h-4 w-4" />
                 <span className="sr-only">Siguiente imagen</span>
               </Button>
             </div>
@@ -185,73 +208,65 @@ function LocationContent({
               {images.map((_, index) => (
                 <div
                   key={index}
-                  className={`h-1.5 rounded-full transition-all ${
-                    index === currentImageIndex ? "w-6 bg-gradient-to-r from-blue-400 to-cyan-300" : "w-1.5 bg-white/50"
+                  className={`h-1 rounded-full transition-all ${
+                    index === currentImageIndex ? "w-5 bg-indigo-500" : "w-1 bg-white/60"
                   }`}
                 />
               ))}
             </div>
           </div>
-        </Card>
-
-        <Card className="overflow-hidden border-none shadow-lg bg-white dark:bg-neutral-800">
-          <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-400 text-white">
-            <CardTitle className="flex items-center gap-2">
-              <MapPin className="h-5 w-5" />
-              Información del Local
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="space-y-4">
-              <div className="pb-4 border-b">
-                <h3 className="font-semibold text-lg mb-2">{establecimiento.nombre}</h3>
-                <div className="flex items-start gap-2 mb-2">
-                  <MapPin className="h-4 w-4 text-blue-500 mt-1 flex-shrink-0" />
-                  <p className="text-muted-foreground">{establecimiento.direccion}</p>
-                </div>
-                <div className="flex items-start gap-2 mb-2">
-                  <Clock className="h-4 w-4 text-cyan-400 mt-1 flex-shrink-0" />
-                  <p className="text-sm text-muted-foreground">Lunes a Viernes: 9:00 - 18:00 <br />
-                  Sábados: 9:00 - 13:00</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Phone className="h-4 w-4 text-blue-400 mt-1 flex-shrink-0" />
-                  <p className="text-sm text-muted-foreground">+51 984 123 456</p>
-                </div>
+        </div>
+        
+        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+          <h2 className="text-lg font-medium text-slate-800 mb-5 flex items-center gap-3">
+            <div className="bg-indigo-100 p-2 rounded-md">
+              <MapPin className="h-5 w-5 text-indigo-600" />
+            </div>
+            Información del Local
+          </h2>
+          
+          <div className="space-y-4">
+            <div className="pb-4 border-b border-slate-100">
+              <h3 className="font-medium text-base mb-3 text-slate-800">{establecimiento.nombre}</h3>
+              <div className="flex items-start gap-3 mb-3">
+                <MapPin className="h-4 w-4 text-indigo-500 mt-0.5 flex-shrink-0" />
+                <p className="text-slate-600">{establecimiento.direccion}</p>
               </div>
-
-              <div className="pt-2">
-                <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${establecimiento.coordenadas.lat},${establecimiento.coordenadas.lng}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-white bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 py-2 px-4 rounded-full transition-all shadow-md"
-                >
-                  <MapPin className="h-4 w-4" />
-                  <span>Abrir en Google Maps</span>
-                </a>
+              <div className="flex items-start gap-3 mb-3">
+                <Info className="h-4 w-4 text-indigo-500 mt-0.5 flex-shrink-0" />
+                <p className="text-slate-600">
+                  {activeTab === "tienda" ? "A unos pasos del Colegio GALILEO" : "En un callejón"}
+                </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
 
-      <Card className="overflow-hidden h-full border-none shadow-lg">
-        <div className="h-[400px] lg:h-full bg-muted relative rounded-xl overflow-hidden border-2 border-blue-400/20">
-          <div className="absolute inset-0 p-1">
-            <iframe
-              src={mapSrc}
-              width="100%"
-              height="100%"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              className="rounded-lg"
-            />
+            <div className="pt-2">
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${establecimiento.coordenadas.lat},${establecimiento.coordenadas.lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-white bg-indigo-500 hover:bg-indigo-600 py-2 px-4 rounded-md transition-colors text-sm font-medium"
+              >
+                <MapPin className="h-4 w-4" />
+                <span>Abrir en Google Maps</span>
+              </a>
+            </div>
           </div>
         </div>
-      </Card>
-    </motion.div>
+      </div>
+
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm h-full">
+        <iframe
+          src={mapSrc}
+          width="100%"
+          height="100%"
+          style={{ border: 0, minHeight: '500px' }}
+          allowFullScreen
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          className="w-full h-full"
+        />
+      </div>
+    </div>
   )
 }

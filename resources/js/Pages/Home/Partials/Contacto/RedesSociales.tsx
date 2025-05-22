@@ -1,12 +1,15 @@
 import React from 'react';
 import { Facebook, Instagram, Youtube } from 'lucide-react';
 import { FaTiktok } from 'react-icons/fa';
-import SocialNav from '@/Components/SocialNav';
+import Header from '@/Pages/Home/Header';
+import Footer from '@/Pages/Home/Footer';
+import ContactoNavigation from '@/Components/ContactoNavigation';
 
 const RedesSociales = () => {
   return (
     <>
-      <SocialNav />
+      <Header />
+      <ContactoNavigation currentPage="redes" />
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-4xl font-bold text-center mb-2 text-[#f43f5e]">
         Redes Sociales
@@ -177,6 +180,7 @@ const RedesSociales = () => {
         </div>
       </div>
     </div>
+      <Footer />
     </>
   );
 };
