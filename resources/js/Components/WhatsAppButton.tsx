@@ -202,25 +202,56 @@ const WhatsAppButton = () => {
     index: number
     isSelected: boolean
   }) => {
+    // Generar diferentes posiciones de fondo para cada mensaje
+    const backgroundPositions = [
+      "left top",
+      "center top",
+      "right top",
+      "left center",
+      "center center",
+      "right center",
+      "left bottom",
+      "center bottom",
+      "right bottom",
+    ]
+
+    const position = backgroundPositions[index % backgroundPositions.length]
+
     return (
       <button
         key={index}
-        className={`w-full text-left p-2 rounded-lg transition-all duration-200 flex items-center text-xs
-          ${
-            isSelected
-              ? "border-2 border-white/20 shadow-md scale-[1.02] bg-[#044134]/90"
-              : "border border-white/10 shadow-sm hover:shadow-md hover:bg-[#044134]/70"
-          }
-          bg-[#033025]/80 backdrop-blur-sm`}
+        className={`w-full text-left py-1 px-2 transition-all duration-200 flex items-center rounded-xl
+      ${
+        isSelected
+          ? "border border-white/20 shadow-md scale-[1.02]"
+          : "border border-white/10 shadow-sm hover:shadow-md"
+      }`}
+        style={{
+          backgroundImage:
+            "url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Imagen%20de%20WhatsApp%202025-05-22%20a%20las%2011.20.29_778c27ff.jpg-IeDJeGf6USGd2hucMQhIrtCe5JfRXo.jpeg')",
+          backgroundSize: "cover",
+          backgroundPosition: position,
+          backgroundRepeat: "no-repeat",
+        }}
         onClick={() => handleSelectMessage(option.text, index)}
       >
         <div className="flex-1 min-w-0">
-          <p className="text-white/90 font-medium tracking-wide" style={{ textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}>
+          <p
+            className="text-white font-semibold tracking-wide text-xs"
+            style={{
+              fontFamily: "'Bahnschrift', sans-serif",
+              textShadow: "0 1px 3px rgba(0,0,0,0.9)",
+              letterSpacing: "0.02em",
+              backgroundColor: "rgba(0,0,0,0.3)",
+              padding: "2px 4px",
+              borderRadius: "3px",
+            }}
+          >
             {option.text}
           </p>
         </div>
         {isSelected && (
-          <svg className="w-3 h-3 ml-1 text-white/90" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="w-3 h-3 ml-1 text-white" fill="currentColor" viewBox="0 0 20 20">
             <path
               fillRule="evenodd"
               d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -339,12 +370,12 @@ const WhatsAppButton = () => {
             <div className="relative px-3 py-2">
               <div className="flex items-center justify-between">
                 <h2
-                  className="font-bold text-white text-xs tracking-wide"
+                  className="font-medium text-white text-xs tracking-wide"
                   style={{
-                    textShadow: "0 1px 2px rgba(229, 248, 227, 0.99)",
+                    textShadow: "0 1px 2px rgba(0,0,0,0.5)",
                     color: "#ffffff",
-                    fontFamily: "'Montserrat', sans-serif",
-                    letterSpacing: "0.3em",
+                    fontFamily: "'Bahnschrift', sans-serif",
+                    letterSpacing: "0.02em",
                   }}
                 >
                   Enviar mensaje
@@ -362,7 +393,7 @@ const WhatsAppButton = () => {
           </div>
 
           {/* Opciones de mensajes */}
-          <div className="p-2 space-y-1.5 bg-gradient-to-b from-[#044134]/40 to-[#044134]/30">
+          <div className="p-2 space-y-1.5 bg-transparent">
             <div className="grid grid-cols-1 gap-1.5 max-h-[40vh] overflow-y-auto pr-1">
               {MESSAGE_OPTIONS.map((option, index) => (
                 <MessageOption key={index} option={option} index={index} isSelected={selectedOptionIndex === index} />

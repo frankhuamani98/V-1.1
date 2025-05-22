@@ -41,6 +41,16 @@ export default function MotorcycleSearch({ motoData }: Props) {
   const [loading, setLoading] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [showFeatures, setShowFeatures] = useState<number | null>(null)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
+  // Motorcycle images array
+  const motorcycleImages = [
+    "https://mail.nitro.pe/images/2015/noviembre/kawasaki_ninja_h2r.jpg",
+    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&h=1080&fit=crop",
+    "https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=1920&h=1080&fit=crop",
+    "https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=1920&h=1080&fit=crop",
+    "https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=1920&h=1080&fit=crop"
+  ]
 
   useEffect(() => {
     const savedSearches = localStorage.getItem("recentMotorcycleSearches")
@@ -55,9 +65,9 @@ export default function MotorcycleSearch({ motoData }: Props) {
           description: "Piezas originales y compatibles con garantía asegurada.",
           duration: 5000,
           style: {
-        marginTop: '40px', // Ajusta este valor según necesites
-        zIndex: 100
-      },
+            marginTop: '40px',
+            zIndex: 100
+          },
           position: "top-right",
         })
         sessionStorage.setItem("hasSeenWelcome", "true")
@@ -71,8 +81,16 @@ export default function MotorcycleSearch({ motoData }: Props) {
 
     window.addEventListener("scroll", handleScroll)
 
+    // Image carousel interval
+    const imageInterval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        (prevIndex + 1) % motorcycleImages.length
+      )
+    }, 4000)
+
     return () => {
       window.removeEventListener("scroll", handleScroll)
+      clearInterval(imageInterval)
     }
   }, [])
 
@@ -127,11 +145,11 @@ export default function MotorcycleSearch({ motoData }: Props) {
     toast.success("Buscando piezas", {
       description: `Localizando componentes para tu ${brand} ${model} ${year}`,
       style: {
-                position: 'fixed',
-                top: '65px',  
-                right: '10px', 
-                zIndex: 9999,
-              }
+        position: 'fixed',
+        top: '65px',  
+        right: '10px', 
+        zIndex: 9999,
+      }
     })
 
     setTimeout(() => {
@@ -166,140 +184,121 @@ export default function MotorcycleSearch({ motoData }: Props) {
 
   return (
     <div className="w-full bg-background min-h-screen">
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-900 via-slate-800 to-slate-900"></div>
-        
-        <div className="absolute inset-0 opacity-10">
-          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <defs>
-              <pattern id="grid" width="8" height="8" patternUnits="userSpaceOnUse">
-                <path d="M 8 0 L 0 0 0 8" fill="none" stroke="white" strokeWidth="0.5" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-          </svg>
+      <div className="relative overflow-hidden h-[85vh]">
+        {/* Dynamic Background Carousel - Sin overlay azul */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-black/20 z-10"></div>
+          <div className="relative w-full h-full overflow-hidden">
+            {motorcycleImages.map((src, index) => (
+              <motion.div
+                key={index}
+                className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                style={{ backgroundImage: `url(${src})` }}
+                initial={{ opacity: 0, scale: 1.1 }}
+                animate={{ 
+                  opacity: index === currentImageIndex ? 1 : 0,
+                  scale: index === currentImageIndex ? 1 : 1.1
+                }}
+                transition={{ duration: 1.5 }}
+              />
+            ))}
+          </div>
         </div>
 
-        <div className="absolute -top-20 -left-20 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-pulse"></div>
-        <div
-          className="absolute -bottom-20 -right-20 w-96 h-96 bg-cyan-600 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-pulse"
-          style={{ animationDelay: "2s" }}
-        ></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-6xl max-h-96 bg-gradient-to-tr from-cyan-400 to-slate-500 rounded-full mix-blend-multiply filter blur-3xl opacity-15"></div>
-
-        <div className="absolute inset-0 overflow-hidden">
-          {Array.from({ length: 20 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute bg-white rounded-full opacity-20"
-              style={{
-                width: `${Math.random() * 5 + 2}px`,
-                height: `${Math.random() * 5 + 2}px`,
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                animation: `float ${Math.random() * 10 + 10}s linear infinite`,
-                animationDelay: `${Math.random() * 5}s`,
-              }}
-            />
-          ))}
+        {/* Elementos geométricos más sutiles */}
+        <div className="absolute inset-0 z-20">
+          <div className="absolute top-20 left-10 w-20 h-20 bg-orange-500/20 blur-sm rounded-lg animate-pulse"></div>
+          <div className="absolute top-40 right-16 w-16 h-16 bg-red-500/20 blur-sm rounded-full animate-bounce" style={{ animationDuration: '3s' }}></div>
+          <div className="absolute bottom-32 left-1/4 w-24 h-24 bg-orange-400/15 blur-sm rounded-xl"></div>
+          <div className="absolute bottom-20 right-1/4 w-18 h-18 bg-red-400/20 blur-sm rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
         </div>
 
-        <div className="relative z-10 container mx-auto px-4 py-24 md:py-32">
+        <div className="relative z-30 container mx-auto px-4 pt-8 pb-16 flex items-center justify-center min-h-screen">
           <motion.div
-            className="flex flex-col items-center"
+            className="flex flex-col items-center w-full max-w-4xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
+            {/* Badge pequeño */}
             <motion.div
-              className="flex items-center justify-center space-x-2 mb-5"
+              className="flex items-center justify-center mb-6"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <div className="h-[1px] w-12 bg-cyan-300/70"></div>
-              <span className="text-cyan-300 text-sm font-medium uppercase tracking-widest">
-                Precisión en Repuestos
-              </span>
-              <div className="h-[1px] w-12 bg-cyan-300/70"></div>
+              <div className="px-4 py-2 bg-blue-600/90 rounded-full backdrop-blur-sm">
+                <span className="text-white text-xs font-bold uppercase tracking-wider">
+                  Repuestos de Calidad
+                </span>
+              </div>
             </motion.div>
 
-            <motion.h1
-              className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white text-center mb-8 tracking-tight leading-tight max-w-4xl"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              Servicio{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-cyan-500 relative">
-                premium
-                <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 100 15" preserveAspectRatio="none">
-                  <path d="M0,5 Q50,15 100,5" stroke="rgb(6, 182, 212)" strokeWidth="2" fill="none" />
-                </svg>
-              </span>{" "}
-              para tu motocicleta{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-cyan-500 relative">
-                favorita
-                <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 100 15" preserveAspectRatio="none">
-                  <path d="M0,5 Q50,15 100,5" stroke="rgb(6, 182, 212)" strokeWidth="2" fill="none" />
-                </svg>
-              </span>
-            </motion.h1>
-
-            <motion.p
-              className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto font-normal text-center mb-12"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-            >
-              Atención personalizada y mantenimiento especializado para cada modelo. Nuestros expertos están listos para
-              brindarte la mejor experiencia.
-            </motion.p>
-
+            {/* Título principal más compacto */}
             <motion.div
-              className="flex flex-col sm:flex-row justify-center gap-4"
+              className="text-center mb-8"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-4 text-white" 
+                  style={{ fontFamily: '"Roboto", "Helvetica", sans-serif', textShadow: '2px 2px 8px rgba(0,0,0,0.7)' }}>
+                RUDOLF
+                <span className="text-blue-500"> MOTOS</span>
+              </h1>
+
+              <p className="text-base md:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed"
+                 style={{ fontFamily: '"Playfair Display", Bahnschrift', letterSpacing: '0.5px', textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>
+                Atención personalizada y mantenimiento especializado para cada modelo. 
+                Encuentra las piezas exactas que necesitas.
+              </p>
+            </motion.div>
+
+            {/* Botones más elegantes */}
+            <motion.div
+              className="flex flex-col sm:flex-row gap-4 mb-12"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.8 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
             >
               <Button
-                className="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-semibold px-8 py-6 rounded-xl shadow-lg hover:shadow-cyan-500/25 transition-all duration-300 flex items-center gap-2 group"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg shadow-lg transition-all duration-300 flex items-center gap-2"
+                style={{ fontFamily: '"Roboto", sans-serif' }}
                 onClick={() => {
                   window.location.href = "/reservas/agendar"
                 }}
               >
-                <span>Agendar servicio</span>
-                <ChevronRightIcon className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                <span>Agendar Cita</span>
+                <ChevronRightIcon className="h-4 w-4" />
               </Button>
               <Button
-                className="bg-white/10 hover:bg-white/20 text-white font-semibold px-8 py-6 rounded-xl shadow-lg backdrop-blur-sm border border-white/20 transition-all duration-300 flex items-center gap-2 group"
+                variant="outline"
+                className="border-2 border-white/80 bg-white/10 hover:bg-white/20 text-white font-semibold px-8 py-3 rounded-lg backdrop-blur-sm transition-all duration-300 flex items-center gap-2"
+                style={{ fontFamily: '"Roboto", sans-serif' }}
                 onClick={() => {
                   window.location.href = "/contacto/contactanos"
                 }}
               >
-                <span>Contactar ahora</span>
-                <ChevronRightIcon className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                <span>Contactar</span>
+                <ChevronRightIcon className="h-4 w-4" />
               </Button>
             </motion.div>
 
+            {/* Indicador de scroll */}
             <motion.div
-              className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center"
+              className="flex flex-col items-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 1.2, duration: 0.5 }}
+              transition={{ delay: 1, duration: 0.5 }}
             >
-              <span className="text-cyan-300/70 text-sm mb-2">Descubre más</span>
-              <div className="w-6 h-10 border-2 border-cyan-300/50 rounded-full flex justify-center p-1">
+              <span className="text-white/80 text-sm mb-2 font-medium" style={{ fontFamily: '"Lato", sans-serif' }}>
+                Buscar piezas
+              </span>
+              <div className="w-6 h-10 border-2 border-white/60 rounded-full flex justify-center p-1 bg-white/5 backdrop-blur-sm">
                 <motion.div
-                  className="w-1.5 h-1.5 bg-cyan-300 rounded-full"
-                  animate={{
-                    y: [0, 12, 0],
-                  }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Number.POSITIVE_INFINITY,
-                    repeatType: "loop",
-                  }}
+                  className="w-1 h-1 bg-white/80 rounded-full"
+                  animate={{ y: [0, 12, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, repeatType: "loop" }}
                 />
               </div>
             </motion.div>
@@ -307,155 +306,136 @@ export default function MotorcycleSearch({ motoData }: Props) {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-12" id="motorcycle-finder">
+      {/* Formulario de búsqueda más compacto */}
+      <div className="container mx-auto px-4 py-8" id="motorcycle-finder">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <Card className="border-none rounded-2xl shadow-2xl overflow-hidden backdrop-blur-sm bg-card/95 -mt-16 z-10 transform transition-all duration-500 hover:shadow-cyan-500/10">
-            <CardContent className="p-0">
-              <div className="p-8">
-                <div className="text-center mb-10">
-                  <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg transform transition-transform duration-500 hover:scale-105 group">
-                    <BikeIcon className="h-10 w-10 text-white group-hover:scale-110 transition-transform duration-300" />
+          <Card className="border-none rounded-xl shadow-xl overflow-hidden bg-background/95 backdrop-blur-sm -mt-12 z-10">
+            <CardContent className="p-6">
+              <div className="text-center mb-6">
+                <div className="w-14 h-14 mx-auto mb-4 bg-blue-600 rounded-xl flex items-center justify-center shadow-md">
+                  <BikeIcon className="h-7 w-7 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-foreground mb-2" style={{ fontFamily: '"Roboto", sans-serif' }}>
+                  Encuentra tu Motocicleta
+                </h2>
+                <p className="text-muted-foreground text-sm" style={{ fontFamily: '"Lato", sans-serif' }}>
+                  Selecciona tu modelo para servicios personalizados
+                </p>
+              </div>
+
+              <form onSubmit={handleSearch} className="w-full max-w-2xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="year" className="font-medium text-sm text-foreground flex items-center">
+                      <ClockIcon className="h-4 w-4 mr-2 text-blue-600" />
+                      Año
+                    </Label>
+                    <Select value={year} onValueChange={handleYearChange}>
+                      <SelectTrigger className="w-full rounded-lg h-11">
+                        <SelectValue placeholder="Año" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60 rounded-lg">
+                        {motoData.years.map((y, index) => (
+                          <SelectItem key={index} value={y.toString()}>
+                            {y}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <h2 className="text-3xl font-bold text-foreground mb-3">Personaliza tu experiencia</h2>
-                  <p className="text-muted-foreground mt-2 max-w-lg mx-auto">
-                    Selecciona tu modelo para recibir atención especializada y servicios a medida para tu motocicleta
-                  </p>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="brand" className="font-medium text-sm text-foreground flex items-center">
+                      <SettingsIcon className="h-4 w-4 mr-2 text-blue-600" />
+                      Marca
+                    </Label>
+                    <Select value={brand} onValueChange={handleBrandChange} disabled={!year}>
+                      <SelectTrigger className="w-full rounded-lg h-11">
+                        <SelectValue placeholder={year ? "Marca" : "Selecciona año"} />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60 rounded-lg">
+                        {availableBrands.map((b, index) => (
+                          <SelectItem key={index} value={b}>
+                            {b}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="model" className="font-medium text-sm text-foreground flex items-center">
+                      <BikeIcon className="h-4 w-4 mr-2 text-blue-600" />
+                      Modelo
+                    </Label>
+                    <Select value={model} onValueChange={setModel} disabled={!brand}>
+                      <SelectTrigger className="w-full rounded-lg h-11">
+                        <SelectValue placeholder={brand ? "Modelo" : "Selecciona marca"} />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60 rounded-lg">
+                        {availableModels.map((m, index) => (
+                          <SelectItem key={index} value={m}>
+                            {m}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
-                <form onSubmit={handleSearch} className="w-full max-w-3xl mx-auto">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="space-y-3 group">
-                      <Label
-                        htmlFor="year"
-                        className="font-medium text-sm flex items-center text-foreground/80 ml-1 group-hover:text-cyan-600 transition-colors"
-                      >
-                        <ClockIcon className="h-4 w-4 mr-2 text-cyan-500 group-hover:scale-110 transition-transform" />
-                        Año del modelo
-                      </Label>
-                      <Select value={year} onValueChange={handleYearChange}>
-                        <SelectTrigger
-                          id="year"
-                          className="w-full bg-background border-border rounded-xl h-12 transition-all hover:border-cyan-400 focus:border-cyan-500 group-hover:shadow-sm"
-                        >
-                          <SelectValue placeholder="Selecciona año" />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-60 rounded-xl">
-                          {motoData.years.map((y, index) => (
-                            <SelectItem
-                              key={index}
-                              value={y.toString()}
-                              className="focus:bg-cyan-50 dark:focus:bg-cyan-900/20"
-                            >
-                              {y}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                <div className="text-center mt-6">
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold shadow-lg transition-all duration-300 min-w-40"
+                    style={{ fontFamily: '"Roboto", sans-serif' }}
+                  >
+                    {loading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Buscando...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <SearchIcon className="h-4 w-4 mr-2" />
+                        Buscar Piezas
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </form>
 
-                    <div className="space-y-3 group">
-                      <Label
-                        htmlFor="brand"
-                        className="font-medium text-sm flex items-center text-foreground/80 ml-1 group-hover:text-cyan-600 transition-colors"
-                      >
-                        <SettingsIcon className="h-4 w-4 mr-2 text-cyan-500 group-hover:scale-110 transition-transform" />
-                        Marca
-                      </Label>
-                      <Select value={brand} onValueChange={handleBrandChange} disabled={!year}>
-                        <SelectTrigger
-                          id="brand"
-                          className="w-full bg-background border-border rounded-xl h-12 transition-all hover:border-cyan-400 focus:border-cyan-500 group-hover:shadow-sm"
-                        >
-                          <SelectValue placeholder={year ? "Selecciona marca" : "Primero selecciona un año"} />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-60 rounded-xl">
-                          {availableBrands.map((b, index) => (
-                            <SelectItem key={index} value={b} className="focus:bg-cyan-50 dark:focus:bg-cyan-900/20">
-                              {b}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-3 group">
-                      <Label
-                        htmlFor="model"
-                        className="font-medium text-sm flex items-center text-foreground/80 ml-1 group-hover:text-cyan-600 transition-colors"
-                      >
-                        <BikeIcon className="h-4 w-4 mr-2 text-cyan-500 group-hover:scale-110 transition-transform" />
-                        Modelo específico
-                      </Label>
-                      <Select value={model} onValueChange={setModel} disabled={!brand}>
-                        <SelectTrigger
-                          id="model"
-                          className="w-full bg-background border-border rounded-xl h-12 transition-all hover:border-cyan-400 focus:border-cyan-500 group-hover:shadow-sm"
-                        >
-                          <SelectValue placeholder={brand ? "Selecciona modelo" : "Primero selecciona una marca"} />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-60 rounded-xl">
-                          {availableModels.map((m, index) => (
-                            <SelectItem key={index} value={m} className="focus:bg-cyan-50 dark:focus:bg-cyan-900/20">
-                              {m}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+              {recentSearches.length > 0 && (
+                <div className="mt-8">
+                  <div className="flex items-center justify-center mb-4">
+                    <span className="text-muted-foreground text-sm font-medium" style={{ fontFamily: '"Lato", sans-serif' }}>
+                      Búsquedas recientes
+                    </span>
                   </div>
-
-                  <div className="text-center mt-10">
-                    <Button
-                      type="submit"
-                      disabled={loading}
-                      className="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white px-8 py-3 rounded-xl font-semibold text-base shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30 transition-all duration-300 min-w-[220px] transform hover:translate-y-[-2px]"
-                    >
-                      {loading ? (
-                        <div className="flex items-center gap-2">
-                          <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>Procesando...</span>
-                        </div>
-                      ) : (
-                        <>
-                          <SearchIcon className="h-5 w-5 mr-2" />
-                          Buscar
-                        </>
-                      )}
-                    </Button>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 max-w-2xl mx-auto">
+                    {recentSearches.map((search, index) => (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        onClick={() => handleQuickSearch(search)}
+                        className="flex justify-between items-center border border-gray-200 hover:border-blue-300 hover:bg-blue-50 rounded-lg h-10 transition-all duration-200 text-sm"
+                        style={{ fontFamily: '"Lato", sans-serif' }}
+                      >
+                        <span className="truncate mr-2 flex items-center text-gray-600">
+                          <ClockIcon className="h-3 w-3 mr-2 text-gray-400" />
+                          {search.brand} {search.model} {search.year}
+                        </span>
+                        <ArrowRightIcon className="h-3 w-3 flex-shrink-0 text-blue-600" />
+                      </Button>
+                    ))}
                   </div>
-                </form>
-
-                {recentSearches.length > 0 && (
-                  <div className="mt-16">
-                    <div className="flex items-center justify-center mb-6">
-                      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent flex-grow"></div>
-                      <span className="px-4 text-muted-foreground text-sm font-medium mx-3">Servicios recientes</span>
-                      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent flex-grow"></div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 max-w-3xl mx-auto">
-                      {recentSearches.map((search, index) => (
-                        <Button
-                          key={index}
-                          variant="outline"
-                          onClick={() => handleQuickSearch(search)}
-                          className="flex justify-between items-center border border-border hover:border-cyan-300 hover:bg-accent rounded-xl h-12 transition-all duration-200 group"
-                        >
-                          <span className="truncate mr-2 flex items-center text-slate-700 dark:text-slate-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
-                            <ClockIcon className="h-3.5 w-3.5 mr-2 text-slate-400 group-hover:text-cyan-500 transition-colors" />
-                            {search.brand} {search.model} {search.year}
-                          </span>
-                          <ArrowRightIcon className="h-4 w-4 flex-shrink-0 text-cyan-500 opacity-70 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </motion.div>
