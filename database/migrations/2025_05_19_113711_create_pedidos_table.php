@@ -22,8 +22,8 @@ return new class extends Migration
             $table->decimal('subtotal', 10, 2);
             $table->decimal('total', 10, 2);
             $table->string('estado')->default('pendiente'); // pendiente, procesando, completado, cancelado
-            $table->string('metodo_pago')->nullable();
-            $table->string('referencia_pago')->nullable();
+            $table->string('metodo_pago')->nullable(); // almacena el método de pago seleccionado
+            $table->string('referencia_pago')->nullable(); // almacena el comprobante o referencia
             $table->timestamps();
         });
 
@@ -38,6 +38,26 @@ return new class extends Migration
             $table->decimal('subtotal', 10, 2);
             $table->timestamps();
         });
+
+        // Tabla para guardar los métodos de pago disponibles
+        Schema::create('metodos_pago', function (Blueprint $table) {
+            $table->id();
+            $table->string('nombre');
+            $table->string('descripcion')->nullable();
+            $table->string('imagen')->nullable();
+            $table->timestamps();
+        });
+
+        // Tabla para registrar los pagos realizados
+        Schema::create('pagos', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('pedido_id')->constrained()->onDelete('cascade');
+            $table->foreignId('metodo_pago_id')->constrained('metodos_pago')->onDelete('cascade');
+            $table->string('referencia')->nullable(); // referencia del pago o comprobante
+            $table->string('archivo_comprobante')->nullable(); // ruta del archivo del comprobante
+            $table->decimal('monto', 10, 2)->nullable();
+            $table->timestamps();
+        });
     }
 
     /**
@@ -45,6 +65,8 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('pagos');
+        Schema::dropIfExists('metodos_pago');
         Schema::dropIfExists('pedido_items');
         Schema::dropIfExists('pedidos');
     }
