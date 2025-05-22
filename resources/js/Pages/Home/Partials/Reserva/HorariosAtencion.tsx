@@ -1,9 +1,10 @@
 import React, { useEffect } from "react";
 import { Head, Link } from "@inertiajs/react";
 import ReservaNavigation from '@/Components/ReservaNavigation';
-import { CalendarDays, Clock, AlertCircle, CheckCircle } from "lucide-react";
+import { CalendarDays, Clock, AlertCircle, CheckCircle, Info } from "lucide-react";
 import Header from "@/Pages/Home/Header";
 import Footer from "@/Pages/Home/Footer";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
 
 interface Excepcion {
   fecha: string;
@@ -35,83 +36,95 @@ export default function HorariosAtencion({ horarios }: Props) {
       <Head title="Horarios de Atención" />
       <Header />
       <ReservaNavigation currentPage="Horarios de Atención" />
-      <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-start justify-center py-0 px-0">
-        <div className="w-[90%] mx-auto mt-4 mb-8">
-          <div className="bg-white shadow-2xl rounded-2xl border border-blue-200 p-8">
-            <div className="flex items-center gap-3 mb-8">
-              <CalendarDays className="h-8 w-8 text-blue-500" />
-              <h1 className="text-3xl font-bold text-gray-800">
-                Horarios de Atención
-              </h1>
-            </div>
+      <div className="w-full min-h-screen bg-white flex items-start justify-center py-10 px-4">
+        <div className="w-full max-w-7xl mx-auto">
+          <Card className="border border-slate-200 shadow-md overflow-hidden bg-white rounded-lg">
+            <CardHeader className="border-b border-slate-100 bg-white px-8 py-6">
+              <div className="flex items-center gap-4">
+                <div className="bg-indigo-100 p-3.5 rounded-full">
+                  <Clock className="h-6 w-6 text-indigo-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-2xl font-semibold text-slate-800">Horarios de Atención</CardTitle>
+                  <CardDescription className="text-sm text-slate-500 mt-1">
+                    Consulta nuestros días y horarios de servicio
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Horarios regulares */}
-              <div className="bg-blue-50 border border-blue-100 rounded-xl p-6 shadow-sm">
-                <h2 className="text-xl font-semibold text-blue-800 mb-4 flex items-center gap-2">
-                  <Clock className="h-6 w-6 text-blue-400" />
+              <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-md">
+                <h2 className="text-lg font-medium text-slate-800 mb-5 flex items-center gap-3">
+                  <div className="bg-slate-100 p-2 rounded-md">
+                    <Clock className="h-5 w-5 text-indigo-600" />
+                  </div>
                   Días y Horarios Regulares
                 </h2>
                 {horarios.dias.length > 0 ? (
                   <ul className="space-y-3">
                     {horarios.dias.map((dia) => (
-                      <li key={dia} className="flex items-center gap-2">
-                        <span className="font-medium text-blue-700 w-32">{dia}:</span>
-                        <span className="text-blue-900">{horarios.horarios[dia]}</span>
+                      <li key={dia} className="flex items-center justify-between py-2.5 px-4 rounded-lg hover:bg-slate-50 border border-slate-100 transition-colors duration-200">
+                        <span className="font-medium text-slate-700 text-base">{dia}</span>
+                        <span className="text-slate-600 text-base bg-slate-100 px-3 py-1 rounded-md">{horarios.horarios[dia]}</span>
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-blue-500 italic">No hay horarios regulares configurados.</p>
+                  <p className="text-slate-500 text-base p-4 bg-slate-50 rounded-lg">No hay horarios regulares configurados.</p>
                 )}
               </div>
               {/* Excepciones */}
-              <div className="bg-red-50 border border-red-100 rounded-xl p-6 shadow-sm">
-                <h2 className="text-xl font-semibold text-red-800 mb-4 flex items-center gap-2">
-                  <AlertCircle className="h-6 w-6 text-red-400" />
+              <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-md">
+                <h2 className="text-lg font-medium text-slate-800 mb-5 flex items-center gap-3">
+                  <div className="bg-slate-100 p-2 rounded-md">
+                    <AlertCircle className="h-5 w-5 text-indigo-600" />
+                  </div>
                   Excepciones y Días Especiales
                 </h2>
                 {tieneExcepciones ? (
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-100">
+                    <table className="w-full text-base text-left text-slate-700">
+                      <thead className="text-sm text-slate-600 bg-slate-50 border-b border-slate-200">
                         <tr>
-                          <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th scope="col" className="px-4 py-3 font-medium">
                             Fecha
                           </th>
-                          <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th scope="col" className="px-4 py-3 font-medium">
                             Horario
                           </th>
-                          <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th scope="col" className="px-4 py-3 font-medium">
                             Estado
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
+                      <tbody>
                         {horarios.excepciones.map((excepcion) => (
-                          <tr key={excepcion.fecha}>
-                            <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                          <tr key={excepcion.fecha} className="border-b border-slate-100 hover:bg-slate-50 transition-colors duration-200">
+                            <td className="px-4 py-3 font-medium text-slate-700">
                               {excepcion.fecha_formateada}
                             </td>
-                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                            <td className="px-4 py-3 text-slate-600">
                               {excepcion.activo ? (
-                                <>
-                                  <Clock className="inline h-4 w-4 text-green-400 mr-1" />
-                                  {excepcion.hora_inicio} - {excepcion.hora_fin}
-                                </>
+                                <div className="flex items-center gap-2">
+                                  <Clock className="h-4 w-4 text-emerald-500" />
+                                  <span>{excepcion.hora_inicio} - {excepcion.hora_fin}</span>
+                                </div>
                               ) : (
-                                <span className="text-red-500 flex items-center gap-1">
-                                  <AlertCircle className="inline h-4 w-4" /> Cerrado
+                                <span className="text-slate-500 flex items-center gap-2">
+                                  <AlertCircle className="h-4 w-4 text-rose-400" /> Cerrado
                                 </span>
                               )}
                             </td>
-                            <td className="px-4 py-3 whitespace-nowrap text-sm">
+                            <td className="px-4 py-3">
                               {excepcion.activo ? (
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 gap-1">
-                                  <CheckCircle className="h-4 w-4" /> Abierto
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                  <CheckCircle className="h-4 w-4 mr-1.5" /> Abierto
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 gap-1">
-                                  <AlertCircle className="h-4 w-4" /> {excepcion.motivo || "Cerrado"}
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-rose-50 text-rose-700 border border-rose-200">
+                                  <AlertCircle className="h-4 w-4 mr-1.5" /> {excepcion.motivo || "Cerrado"}
                                 </span>
                               )}
                             </td>
@@ -121,17 +134,20 @@ export default function HorariosAtencion({ horarios }: Props) {
                     </table>
                   </div>
                 ) : (
-                  <p className="text-red-500 italic">No hay excepciones programadas para los próximos meses.</p>
+                  <p className="text-slate-500 text-base p-4 bg-slate-50 rounded-lg">No hay excepciones programadas para los próximos meses.</p>
                 )}
               </div>
             </div>
-            <div className="mt-10 bg-blue-100 border-l-4 border-blue-400 p-4 rounded-xl flex items-center gap-3 shadow-sm">
-              <CalendarDays className="h-6 w-6 text-blue-400" />
-              <p className="text-base text-blue-800">
-                Esta información está sujeta a cambios. Para agendar un servicio, use la opción <span className="font-semibold">"Agendar Servicio"</span> del menú.
+            <div className="mt-8 bg-slate-50 border border-slate-200 p-5 rounded-lg flex items-start gap-3 shadow-sm">
+              <div className="bg-slate-100 p-2 rounded-md mt-0.5">
+                <Info className="h-5 w-5 text-indigo-600" />
+              </div>
+              <p className="text-base text-slate-600">
+                Esta información está sujeta a cambios. Para agendar un servicio, use la opción <span className="font-medium">"Agendar Servicio"</span> del menú.
               </p>
             </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
       <Footer />

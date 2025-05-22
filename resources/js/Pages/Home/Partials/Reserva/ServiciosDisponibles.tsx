@@ -1,9 +1,11 @@
 import React from "react";
 import { Head, Link } from "@inertiajs/react";
-import { Wrench, ClipboardList } from "lucide-react";
+import { Wrench, ClipboardList, AlertCircle, Settings } from "lucide-react";
 import ReservaNavigation from "@/Components/ReservaNavigation";
 import Header from "@/Pages/Home/Header";
 import Footer from "@/Pages/Home/Footer";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
+import { Button } from '@/Components/ui/button';
 
 interface CategoriaServicio {
   id: number;
@@ -57,47 +59,61 @@ export default function ServiciosDisponibles({ servicios, error }: Props) {
       <Head title="Servicios Disponibles" />
       <Header />
       <ReservaNavigation currentPage="Servicios Disponibles" />
-      <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-start justify-center py-0 px-0">
-        <div className="w-[80%] mx-auto mt-4 mb-8">
-          <div className="bg-white shadow-2xl rounded-2xl border border-blue-200 p-4">
-            <div className="flex items-center gap-3 mb-6">
-              <Wrench className="h-7 w-7 text-blue-500" />
-              <h1 className="text-2xl font-bold text-gray-800">
-                Servicios Disponibles
-              </h1>
-            </div>
+      <div className="w-full min-h-screen bg-white flex items-start justify-center py-10 px-4">
+        <div className="w-full max-w-7xl mx-auto">
+          <Card className="border border-slate-200 shadow-md overflow-hidden bg-white rounded-lg">
+            <CardHeader className="border-b border-slate-100 bg-white px-8 py-6">
+              <div className="flex items-center gap-4">
+                <div className="bg-indigo-100 p-3.5 rounded-full">
+                  <Settings className="h-6 w-6 text-indigo-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-2xl font-semibold text-slate-800">Servicios Disponibles</CardTitle>
+                  <CardDescription className="text-sm text-slate-500 mt-1">
+                    Explora y agenda nuestros servicios para tu moto
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-8">
             {error && (
-              <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6 rounded-lg shadow-sm flex items-center gap-2">
-                <ClipboardList className="h-5 w-5 text-red-400" />
-                <p className="text-sm text-red-700">{error}</p>
+              <div className="bg-rose-50 border border-rose-200 p-4 mb-6 rounded-lg shadow-sm flex items-center gap-3">
+                <AlertCircle className="h-5 w-5 text-rose-500" />
+                <p className="text-base text-rose-700">{error}</p>
               </div>
             )}
             {Object.entries(serviciosPorCategoria).map(([categoriaId, { categoria, servicios }]) => (
-              <div key={categoriaId} className="mb-4">
-                <h2 className="text-2xl font-semibold text-blue-800 mb-2 flex items-center gap-2">
-                  <Wrench className="h-6 w-6 text-blue-400" />
+              <div key={categoriaId} className="mb-10">
+                <h2 className="text-xl font-medium text-slate-800 mb-4 flex items-center gap-3">
+                  <div className="bg-slate-100 p-2 rounded-md">
+                    <Wrench className="h-5 w-5 text-indigo-600" />
+                  </div>
                   {categoria.nombre}
                 </h2>
                 {categoria.descripcion && (
-                  <p className="text-blue-700 mb-4">{categoria.descripcion}</p>
+                  <p className="text-slate-500 text-base mb-5 ml-10">{categoria.descripcion}</p>
                 )}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {servicios.map((servicio) => (
-                    <div key={servicio.id} className="bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl shadow-lg border border-blue-100 hover:shadow-2xl transition-shadow duration-200">
+                    <div key={servicio.id} className="bg-white rounded-xl shadow-md border border-slate-200 hover:shadow-lg transition-all duration-300 overflow-hidden">
                       <div className="p-6 flex flex-col h-full">
-                        <h3 className="text-lg font-bold text-blue-900 mb-2 flex items-center gap-2">
-                          <ClipboardList className="h-5 w-5 text-blue-400" />
+                        <h3 className="text-lg font-medium text-slate-800 mb-3 flex items-center gap-3">
+                          <div className="bg-slate-100 p-1.5 rounded-md">
+                            <ClipboardList className="h-4 w-4 text-indigo-600" />
+                          </div>
                           {servicio.nombre}
                         </h3>
-                        <p className="text-blue-800 mb-6 flex-1">{servicio.descripcion}</p>
+                        <p className="text-slate-600 text-base mb-5 flex-1">{servicio.descripcion}</p>
                         <div className="flex justify-end">
-                          <Link
-                            href={route('reservas.create', { servicio_id: servicio.id })}
-                            className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 gap-2 transition-colors duration-200"
+                          <Button
+                            asChild
+                            className="bg-indigo-500 hover:bg-indigo-600 text-white gap-2"
                           >
-                            <Wrench className="h-4 w-4" />
-                            Agendar
-                          </Link>
+                            <Link href={route('reservas.create', { servicio_id: servicio.id })}>
+                              <Wrench className="h-4 w-4" />
+                              Agendar
+                            </Link>
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -106,11 +122,18 @@ export default function ServiciosDisponibles({ servicios, error }: Props) {
               </div>
             ))}
             {Object.keys(serviciosPorCategoria).length === 0 && (
-              <div className="text-center py-8">
-                <p className="text-blue-500">No hay servicios disponibles en este momento.</p>
+              <div className="text-center py-16 px-4 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
+                <div className="mx-auto w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+                  <Settings className="h-8 w-8 text-slate-300" />
+                </div>
+                <h3 className="text-slate-700 font-medium text-lg mb-2">No hay servicios disponibles</h3>
+                <p className="text-slate-500 text-base max-w-md mx-auto">
+                  En este momento no hay servicios disponibles para reservar. Por favor, intenta más tarde.
+                </p>
               </div>
             )}
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
       <Footer />

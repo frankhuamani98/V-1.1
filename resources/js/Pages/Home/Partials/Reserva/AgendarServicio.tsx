@@ -1,24 +1,27 @@
-import React, { useState, useEffect } from "react";
-import { Head } from "@inertiajs/react";
-import { useForm } from "@inertiajs/react";
-import axios from "axios";
-import {
-  CalendarDays,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  Bike,
-  BadgeInfo,
-  Tag,
-  Hash,
-  Wrench,
-  ChevronLeft,
-  Save,
-  ClipboardList,
-} from "lucide-react";
-import ReservaNavigation from "@/Components/ReservaNavigation";
-import Header from "@/Pages/Home/Header";
-import Footer from "@/Pages/Home/Footer";
+import React, { useState, useEffect } from 'react';
+import { Head, useForm } from '@inertiajs/react';
+import axios from 'axios';
+
+import Header from '@/Pages/Home/Header';
+import Footer from '@/Pages/Home/Footer';
+import ReservaNavigation from '@/Components/ReservaNavigation';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
+import { Button } from '@/Components/ui/button';
+
+import { 
+  AlertCircle, 
+  CalendarDays, 
+  CheckCircle, 
+  ChevronLeft, 
+  ClipboardList, 
+  Save, 
+  Clock, 
+  Bike, 
+  Tag, 
+  Hash, 
+  Wrench, 
+  BadgeInfo 
+} from 'lucide-react';
 
 interface Moto {
   id: number;
@@ -299,40 +302,54 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
       <Head title={isEditing ? "Editar Reserva" : "Agendar Servicio"} />
       <Header />
       <ReservaNavigation currentPage="Agendar Servicio" />
-      <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-0 px-0">
-        <div className="w-[90%] bg-white shadow-xl rounded-2xl border border-blue-200 flex flex-col justify-center mx-auto my-8">
-          <div className="p-4 md:p-8 border-b border-gray-200 bg-gradient-to-r from-blue-100 to-indigo-100">
-            <div className="flex items-center gap-2">
-              <CalendarDays className="h-6 w-6 text-blue-500" />
-              <h1 className="text-2xl font-bold text-gray-800">
-                {isEditing ? "Editar Reserva" : "Agendar Servicio para tu Moto"}
-              </h1>
-            </div>
-            <p className="text-sm text-gray-500 mt-2">Completa los datos para reservar tu cita</p>
-          </div>
-          <div className="flex-1 flex flex-col justify-center p-4 sm:p-8">
-            {successMessage && (
-              <div className="mb-6 flex items-center gap-2 bg-green-50 border-l-4 border-green-400 p-4 rounded-lg shadow-sm">
-                <CheckCircle className="text-green-500 h-6 w-6" />
-                <span className="text-base text-green-700">{successMessage}</span>
+      <div className="w-full min-h-screen bg-white py-10 px-4">
+        <div className="w-full max-w-7xl mx-auto">
+          <Card className="border border-slate-200 shadow-md overflow-hidden bg-white rounded-lg">
+            <CardHeader className="border-b border-slate-100 bg-white px-8 py-6">
+              <div className="flex items-center gap-4">
+                <div className="bg-indigo-100 p-3.5 rounded-full">
+                  <CalendarDays className="h-6 w-6 text-indigo-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-2xl font-semibold text-slate-800">
+                    {isEditing ? "Editar Reserva" : "Agendar Servicio"}
+                  </CardTitle>
+                  <CardDescription className="text-sm text-slate-500 mt-1">
+                    Completa los datos para reservar tu cita
+                  </CardDescription>
+                </div>
               </div>
-            )}
-            {errorMessage && (
-              <div className="mb-6 flex items-center gap-2 bg-red-50 border-l-4 border-red-400 p-4 rounded-lg shadow-sm">
-                <AlertCircle className="text-red-500 h-6 w-6" />
-                <span className="text-base text-red-700">{errorMessage}</span>
-              </div>
-            )}
-            <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1">
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                      <BadgeInfo className="h-5 w-5 text-blue-400" />
+            </CardHeader>
+            <CardContent className="p-8">
+              {successMessage && (
+                <div className="mb-6 flex items-center gap-3 bg-emerald-50 border border-emerald-200 p-5 rounded-lg">
+                  <div className="bg-emerald-100 p-2 rounded-md">
+                    <CheckCircle className="text-emerald-600 h-5 w-5" />
+                  </div>
+                  <span className="text-base text-emerald-800">{successMessage}</span>
+                </div>
+              )}
+              
+              {errorMessage && (
+                <div className="mb-6 flex items-center gap-3 bg-rose-50 border border-rose-200 p-5 rounded-lg">
+                  <div className="bg-rose-100 p-2 rounded-md">
+                    <AlertCircle className="text-rose-600 h-5 w-5" />
+                  </div>
+                  <span className="text-base text-rose-800 whitespace-pre-line">{errorMessage}</span>
+                </div>
+              )}
+              <form onSubmit={handleSubmit} className="flex flex-col">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-5">
+                    <div>
+                    <label className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
+                      <div className="bg-slate-100 p-1.5 rounded-md">
+                        <BadgeInfo className="h-4 w-4 text-indigo-600" />
+                      </div>
                       Año del Modelo
                     </label>
                     <select
-                      className={`mt-1 block w-full border ${errors.moto_id ? 'border-red-300' : 'border-gray-300'} rounded-2xl shadow-sm py-4 px-5 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 text-lg`}
+                      className={`mt-1 block w-full border ${errors.moto_id ? 'border-rose-200' : 'border-slate-200'} rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white`}
                       value={selectedYear}
                       onChange={(e) => handleYearChange(e.target.value)}
                       required
@@ -344,12 +361,14 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                     </select>
                   </div>
                   <div>
-                    <label className="block text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                      <Bike className="h-5 w-5 text-blue-400" />
+                    <label className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
+                      <div className="bg-slate-100 p-1.5 rounded-md">
+                        <Bike className="h-4 w-4 text-indigo-600" />
+                      </div>
                       Marca
                     </label>
                     <select
-                      className="mt-1 block w-full border border-gray-300 rounded-2xl shadow-sm py-4 px-5 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 text-lg"
+                      className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
                       value={selectedBrand}
                       onChange={(e) => handleBrandChange(e.target.value)}
                       required
@@ -361,12 +380,14 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                     </select>
                   </div>
                   <div>
-                    <label className="block text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                      <Tag className="h-5 w-5 text-blue-400" />
+                    <label className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
+                      <div className="bg-slate-100 p-1.5 rounded-md">
+                        <Tag className="h-4 w-4 text-indigo-600" />
+                      </div>
                       Modelo
                     </label>
                     <select
-                      className="mt-1 block w-full border border-gray-300 rounded-2xl shadow-sm py-4 px-5 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 text-lg"
+                      className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
                       value={data.moto_id}
                       onChange={(e) => handleModelSelect(e.target.value)}
                       required
@@ -382,18 +403,20 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                       ))}
                     </select>
                     {errors.moto_id && (
-                      <p className="mt-1 text-base text-red-600">{errors.moto_id}</p>
+                      <p className="mt-1.5 text-sm text-rose-600">{errors.moto_id}</p>
                     )}
                   </div>
                   <div>
-                    <label htmlFor="placa" className="block text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                      <Hash className="h-5 w-5 text-blue-400" />
+                    <label htmlFor="placa" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
+                      <div className="bg-slate-100 p-1.5 rounded-md">
+                        <Hash className="h-4 w-4 text-indigo-600" />
+                      </div>
                       Placa
                     </label>
                     <input
                       type="text"
                       id="placa"
-                      className="mt-1 block w-full border border-gray-300 rounded-2xl shadow-sm py-4 px-5 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 text-lg"
+                      className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
                       value={data.placa}
                       onChange={(e) => setData("placa", e.target.value)}
                       required
@@ -401,19 +424,22 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                       placeholder="Ej: ABC-123"
                     />
                     {errors.placa && (
-                      <p className="mt-1 text-base text-red-600">{errors.placa}</p>
+                      <p className="mt-1.5 text-sm text-rose-600">{errors.placa}</p>
                     )}
                   </div>
-                </div>
-                <div className="space-y-6">
-                  <div>
-                    <label htmlFor="servicio_id" className="block text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                      <Wrench className="h-5 w-5 text-blue-400" />
+                  </div>
+                  
+                  <div className="space-y-5">
+                    <div>
+                    <label htmlFor="servicio_id" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
+                      <div className="bg-slate-100 p-1.5 rounded-md">
+                        <Wrench className="h-4 w-4 text-indigo-600" />
+                      </div>
                       Servicio
                     </label>
                     <select
                       id="servicio_id"
-                      className="mt-1 block w-full border border-gray-300 rounded-2xl shadow-sm py-4 px-5 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 text-lg"
+                      className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
                       value={data.servicio_id}
                       onChange={(e) => setData("servicio_id", e.target.value)}
                       required
@@ -424,36 +450,40 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                       ))}
                     </select>
                     {errors.servicio_id && (
-                      <p className="mt-1 text-base text-red-600">{errors.servicio_id}</p>
+                      <p className="mt-1.5 text-sm text-rose-600">{errors.servicio_id}</p>
                     )}
                   </div>
                   <div>
-                    <label htmlFor="detalles" className="block text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                      <AlertCircle className="h-5 w-5 text-blue-400" />
+                    <label htmlFor="detalles" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
+                      <div className="bg-slate-100 p-1.5 rounded-md">
+                        <AlertCircle className="h-4 w-4 text-indigo-600" />
+                      </div>
                       ¿Qué problema presenta tu moto?
                     </label>
                     <div className="relative">
                       <textarea
                         id="detalles"
                         rows={3}
-                        className="mt-1 block w-full border border-gray-300 rounded-2xl shadow-sm py-4 px-5 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 text-lg"
+                        className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 pr-8 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
                         value={data.detalles}
                         onChange={(e) => setData("detalles", e.target.value)}
                         placeholder="Describe el problema o servicio requerido"
                       />
-                      <AlertCircle className="absolute right-4 top-4 h-5 w-5 text-blue-200 pointer-events-none" />
+                      <AlertCircle className="absolute right-3 top-3 h-4 w-4 text-slate-300 pointer-events-none" />
                     </div>
                   </div>
                   <div>
-                    <label htmlFor="fecha" className="block text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                      <CalendarDays className="h-5 w-5 text-blue-400" />
+                    <label htmlFor="fecha" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
+                      <div className="bg-slate-100 p-1.5 rounded-md">
+                        <CalendarDays className="h-4 w-4 text-indigo-600" />
+                      </div>
                       Fecha
                     </label>
                     <div className="relative">
                       <input
                         type="date"
                         id="fecha"
-                        className="mt-1 block w-full border border-gray-300 rounded-2xl shadow-sm py-4 px-5 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 text-lg"
+                        className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 pr-8 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
                         value={data.fecha}
                         onChange={(e) => {
                           setData("fecha", e.target.value);
@@ -462,24 +492,26 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                         min={new Date().toISOString().split('T')[0]}
                         required
                       />
-                      <CalendarDays className="absolute right-4 top-4 h-5 w-5 text-blue-200 pointer-events-none" />
+                      <CalendarDays className="absolute right-3 top-3 h-4 w-4 text-slate-300 pointer-events-none" />
                     </div>
                     {errors.fecha && (
-                      <p className="mt-1 text-base text-red-600">{errors.fecha}</p>
+                      <p className="mt-1.5 text-sm text-rose-600">{errors.fecha}</p>
                     )}
                     {dateErrorMessage && (
-                      <p className="mt-1 text-base text-red-600">{dateErrorMessage}</p>
+                      <p className="mt-1.5 text-sm text-rose-600">{dateErrorMessage}</p>
                     )}
                   </div>
                   <div>
-                    <label htmlFor="hora" className="block text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                      <Clock className="h-5 w-5 text-blue-400" />
+                    <label htmlFor="hora" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
+                      <div className="bg-slate-100 p-1.5 rounded-md">
+                        <Clock className="h-4 w-4 text-indigo-600" />
+                      </div>
                       Hora
                     </label>
                     <div className="relative">
                       <select
                         id="hora"
-                        className="mt-1 block w-full border border-gray-300 rounded-2xl shadow-sm py-4 px-5 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 text-lg"
+                        className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 pr-8 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
                         value={data.hora}
                         onChange={(e) => setData("hora", e.target.value)}
                         required
@@ -496,20 +528,22 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                           <option key={hora} value={hora}>{hora}</option>
                         ))}
                       </select>
-                      <Clock className="absolute right-4 top-4 h-5 w-5 text-blue-200 pointer-events-none" />
+                      <Clock className="absolute right-3 top-3 h-4 w-4 text-slate-300 pointer-events-none" />
                     </div>
                     {errors.hora && (
-                      <p className="mt-1 text-base text-red-600">{errors.hora}</p>
+                      <p className="mt-1.5 text-sm text-rose-600">{errors.hora}</p>
                     )}
                   </div>
                 </div>
               </div>
-              <div className="bg-blue-50 p-4 rounded-xl mt-8 mb-4 border border-blue-100 shadow-sm">
-                <h3 className="text-sm font-semibold text-blue-700 mb-2 flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-blue-400" />
+                <div className="bg-slate-50 p-5 rounded-lg mt-8 mb-6 border border-slate-200 shadow-sm">
+                  <h3 className="text-sm font-medium text-slate-700 mb-3 flex items-center gap-2">
+                  <div className="bg-slate-100 p-1.5 rounded-md">
+                    <Clock className="h-4 w-4 text-indigo-600" />
+                  </div>
                   Horarios de Atención
                 </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 border border-blue-200 rounded-lg p-2 bg-white">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-2">
                   {Object.entries({
                     'Lunes': horarios.horarios['Lunes'] || '',
                     'Martes': horarios.horarios['Martes'] || '',
@@ -521,31 +555,34 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                   })
                     .filter(([_, horario]) => horario !== '')
                     .map(([dia, horario]) => (
-                      <div key={dia} className="text-xs text-blue-900 flex items-center gap-2">
-                        <Clock className="h-3 w-3 text-blue-300" />
+                      <div key={dia} className="text-sm text-slate-600 flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-indigo-400"></div>
                         <span className="font-medium">{dia}:</span> {horario}
                       </div>
                     ))}
                 </div>
               </div>
-              <div className="mt-8 flex flex-col sm:flex-row justify-end gap-3">
-                {isEditing && (
-                  <a
-                    href={route('reservas.index')}
-                    className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-xl shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 gap-2"
+                <div className="mt-10 flex flex-col sm:flex-row justify-end gap-4">
+                  {isEditing && (
+                  <Button
+                    variant="outline"
+                    className="gap-2 border-slate-200 text-slate-700 hover:bg-slate-50 h-11 px-5"
+                    asChild
                   >
-                    <ChevronLeft className="h-5 w-5" />
-                    Cancelar
-                  </a>
+                    <a href={route('reservas.index')}>
+                      <ChevronLeft className="h-5 w-5" />
+                      Cancelar
+                    </a>
+                  </Button>
                 )}
-                <button
-                  type="submit"
-                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 gap-2"
-                  disabled={processing || Boolean(availableHours.length === 0 && selectedDate)}
-                >
+                  <Button
+                    type="submit"
+                    className="gap-2 bg-indigo-500 hover:bg-indigo-600 h-11 px-5"
+                    disabled={processing || Boolean(availableHours.length === 0 && selectedDate)}
+                  >
                   {processing ? (
                     <>
-                      <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg className="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
@@ -553,19 +590,20 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                     </>
                   ) : isEditing ? (
                     <>
-                      <Save className="h-5 w-5" />
+                      <Save className="h-4 w-4" />
                       Guardar Cambios
                     </>
                   ) : (
                     <>
-                      <ClipboardList className="h-5 w-5" />
+                      <ClipboardList className="h-4 w-4" />
                       Agendar Cita
                     </>
                   )}
-                </button>
+                  </Button>
               </div>
-            </form>
-          </div>
+              </form>
+            </CardContent>
+          </Card>
         </div>
       </div>
       <Footer />
