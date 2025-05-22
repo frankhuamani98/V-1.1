@@ -28,6 +28,7 @@ class InformacionCheckout extends Controller
                     'cantidad' => $item->quantity,
                     'precio_final' => $precio_final,
                     'subtotal' => $precio_final * $item->quantity,
+                    'imagen' => $item->producto->imagen_principal, // <-- Añadido para mostrar imagen
                 ];
             }),
             'subtotal' => $cart->sum(function ($item) {
