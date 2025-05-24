@@ -104,12 +104,7 @@ export default function MetodosPago({ pedido, metodos }: Props) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden">
-      {/* Fondo animado */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute -top-32 -left-32 w-[400px] h-[400px] bg-gradient-to-br from-blue-200 via-purple-200 to-pink-200 rounded-full blur-3xl opacity-60 animate-pulse-slow"></div>
-        <div className="absolute bottom-0 right-0 w-[350px] h-[350px] bg-gradient-to-tr from-orange-200 via-yellow-100 to-red-200 rounded-full blur-2xl opacity-50 animate-pulse-slow"></div>
-      </div>
+    <div className="min-h-screen flex flex-col">
       <Head title="Selecciona tu método de pago" />
       <Header />
       <main className="flex-grow flex flex-col justify-center z-10 relative">
@@ -394,4 +389,3 @@ export default function MetodosPago({ pedido, metodos }: Props) {
     </div>
   );
 }
-
