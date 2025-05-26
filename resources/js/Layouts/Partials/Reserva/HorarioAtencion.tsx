@@ -489,54 +489,47 @@ const HorarioAtencion = ({ horariosRecurrentes, excepciones }: HorarioAtencionPr
         setIsDialogOpen(true);
       };
 
-    // Componente VisuallyHidden para accesibilidad
-    const VisuallyHidden = ({ children }: { children: React.ReactNode }) => (
-        <span style={{
-            border: 0,
-            clip: "rect(0 0 0 0)",
-            height: "1px",
-            margin: "-1px",
-            overflow: "hidden",
-            padding: 0,
-            position: "absolute",
-            width: "1px",
-            whiteSpace: "nowrap"
-        }}>{children}</span>
-    );
-
     return (
         <div className="p-2 sm:p-4 md:p-6">
             <Card className="border-0 sm:border shadow-md rounded-xl overflow-hidden">
-                <CardHeader className="px-3 sm:px-6 py-4 bg-white border-b">
+                <CardHeader className="px-3 sm:px-6 py-4 bg-gradient-to-r from-blue-100 via-white to-blue-50 border-b">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div className="flex items-center gap-3">
                             <div className="bg-blue-100 p-2 rounded-full hidden sm:block">
                                 <Clock className="h-5 w-5 text-blue-600" />
                             </div>
                             <div>
-                                <CardTitle className="text-base sm:text-xl font-bold text-gray-800">
+                                <CardTitle className="text-base sm:text-xl font-bold text-blue-900">
                                     Horarios de Atención
                                 </CardTitle>
-                                <CardDescription className="text-xs sm:text-sm text-gray-500">
+                                <CardDescription className="text-xs sm:text-sm text-blue-600">
                                     Gestiona los horarios semanales y excepciones
                                 </CardDescription>
                             </div>
                         </div>
                     </div>
                 </CardHeader>
-
                 <CardContent className="p-2 sm:p-6">
                     <Tabs defaultValue="calendario" value={activeTab} onValueChange={setActiveTab} className="w-full">
-                        <TabsList className="mb-4 grid grid-cols-3 h-auto gap-2">
-                            <TabsTrigger value="calendario" className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2">
+                        <TabsList className="mb-4 grid grid-cols-3 h-auto gap-2 bg-blue-50 rounded-xl p-1 shadow border border-blue-100">
+                            <TabsTrigger
+                                value="calendario"
+                                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-lg font-bold text-blue-800 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-blue-400 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all"
+                            >
                                 <CalendarIcon className="h-4 w-4" />
                                 <span className="text-xs sm:text-sm">Calendario</span>
                             </TabsTrigger>
-                            <TabsTrigger value="semanal" className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2">
+                            <TabsTrigger
+                                value="semanal"
+                                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-lg font-bold text-blue-800 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-blue-400 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all"
+                            >
                                 <Clock className="h-4 w-4" />
                                 <span className="text-xs sm:text-sm">Horario</span>
                             </TabsTrigger>
-                            <TabsTrigger value="excepciones" className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2">
+                            <TabsTrigger
+                                value="excepciones"
+                                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-lg font-bold text-blue-800 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-blue-400 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all"
+                            >
                                 <AlertCircle className="h-4 w-4" />
                                 <span className="text-xs sm:text-sm">Excepciones</span>
                             </TabsTrigger>
@@ -556,33 +549,33 @@ const HorarioAtencion = ({ horariosRecurrentes, excepciones }: HorarioAtencionPr
                             <div className="flex justify-end mb-4">
                                 <Button 
                                     onClick={handleCreateHorario}
-                                    className="bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-500 text-white text-xs sm:text-sm rounded-xl shadow-lg px-4 py-2 flex items-center gap-2 font-bold transition-all duration-200"
+                                    className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm rounded-lg shadow px-4 py-2 flex items-center gap-2"
                                 >
                                     <Plus className="h-4 w-4" />
                                     <span>Agregar Horario</span>
                                 </Button>
                             </div>
                             <div className="overflow-x-auto">
-                                <Table className="rounded-2xl overflow-hidden border border-blue-200 shadow-lg bg-blue-50/60">
+                                <Table>
                                     <TableHeader>
-                                        <TableRow className="bg-blue-100/80">
-                                            <TableHead className="text-xs sm:text-sm text-blue-800 font-bold">Día</TableHead>
-                                            <TableHead className="text-xs sm:text-sm text-blue-800 font-bold">Horario</TableHead>
-                                            <TableHead className="text-xs sm:text-sm text-blue-800 font-bold">Estado</TableHead>
-                                            <TableHead className="text-right text-xs sm:text-sm text-blue-800 font-bold">Acciones</TableHead>
+                                        <TableRow>
+                                            <TableHead className="text-xs sm:text-sm">Día</TableHead>
+                                            <TableHead className="text-xs sm:text-sm">Horario</TableHead>
+                                            <TableHead className="text-xs sm:text-sm">Estado</TableHead>
+                                            <TableHead className="text-right text-xs sm:text-sm">Acciones</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {diasSemana.map((dia) => {
                                             const horario = horariosRecurrentes.find(h => h.dia_semana === dia);
                                             return (
-                                                <TableRow key={dia} className="hover:bg-blue-100/60 transition">
-                                                    <TableCell className="font-semibold text-xs sm:text-sm text-blue-900">
-                                                        <span className="px-2 py-1 rounded bg-blue-100 text-blue-800 font-semibold shadow">
+                                                <TableRow key={dia} className={colorCeleste}>
+                                                    <TableCell className="font-medium text-xs sm:text-sm">
+                                                        <span className={`px-2 py-1 rounded ${colorCeleste} font-semibold`}>
                                                             {capitalizarPrimeraLetra(dia)}
                                                         </span>
                                                     </TableCell>
-                                                    <TableCell className="text-xs sm:text-sm text-blue-900">
+                                                    <TableCell className="text-xs sm:text-sm">
                                                         {horario ? (
                                                             <span className="font-mono">{horario.hora_inicio} - {horario.hora_fin}</span>
                                                         ) : (
@@ -591,10 +584,10 @@ const HorarioAtencion = ({ horariosRecurrentes, excepciones }: HorarioAtencionPr
                                                     </TableCell>
                                                     <TableCell>
                                                         <Badge className={cn(
-                                                            "text-xs px-2 py-0.5 rounded-full font-semibold",
+                                                            "text-xs",
                                                             horario ? (
-                                                                horario.activo ? "bg-green-100 text-green-800 border border-green-200" : "bg-red-100 text-red-800 border border-red-200"
-                                                            ) : "bg-gray-100 text-gray-800 border border-gray-200"
+                                                                horario.activo ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                                                            ) : "bg-gray-100 text-gray-800"
                                                         )}>
                                                             {horario ? (horario.activo ? "Abierto" : "Cerrado") : "Sin definir"}
                                                         </Badge>
@@ -606,9 +599,9 @@ const HorarioAtencion = ({ horariosRecurrentes, excepciones }: HorarioAtencionPr
                                                                     variant="outline"
                                                                     size="sm"
                                                                     onClick={() => handleEditHorario(horario)}
-                                                                    className="h-8 w-8 p-0 border-blue-300 hover:border-blue-500"
+                                                                    className="h-8 w-8 p-0"
                                                                 >
-                                                                    <Edit className="h-3 w-3 sm:h-4 sm:w-4 text-blue-700" />
+                                                                    <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                                                                 </Button>
                                                                 <Button
                                                                     variant="destructive"
@@ -649,7 +642,7 @@ const HorarioAtencion = ({ horariosRecurrentes, excepciones }: HorarioAtencionPr
                                         });
                                         setIsDialogOpen(true);
                                     }}
-                                    className="bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-500 text-white text-xs sm:text-sm rounded-xl shadow-lg font-bold px-4 py-2 flex items-center gap-2 transition-all duration-200"
+                                    className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm"
                                 >
                                     <Plus className="h-4 w-4 mr-1 sm:mr-2" />
                                     Agregar Excepción
@@ -657,45 +650,45 @@ const HorarioAtencion = ({ horariosRecurrentes, excepciones }: HorarioAtencionPr
                             </div>
                             <div className="overflow-x-auto -mx-4 sm:mx-0">
                                 <div className="min-w-full inline-block align-middle">
-                                    <div className="border rounded-2xl overflow-hidden shadow-lg bg-blue-50/60 border-blue-200">
+                                    <div className="border rounded-lg overflow-hidden">
                                         <Table>
                                             <TableHeader>
-                                                <TableRow className="bg-blue-100/80">
-                                                    <TableHead className="text-xs sm:text-sm text-blue-800 font-bold whitespace-nowrap">Fecha</TableHead>
-                                                    <TableHead className="text-xs sm:text-sm text-blue-800 font-bold whitespace-nowrap hidden sm:table-cell">Horario</TableHead>
-                                                    <TableHead className="text-xs sm:text-sm text-blue-800 font-bold whitespace-nowrap">Estado</TableHead>
-                                                    <TableHead className="text-xs sm:text-sm text-blue-800 font-bold whitespace-nowrap hidden md:table-cell">Motivo</TableHead>
-                                                    <TableHead className="text-right text-xs sm:text-sm text-blue-800 font-bold whitespace-nowrap">Acciones</TableHead>
+                                                <TableRow>
+                                                    <TableHead className="text-xs sm:text-sm whitespace-nowrap">Fecha</TableHead>
+                                                    <TableHead className="text-xs sm:text-sm whitespace-nowrap hidden sm:table-cell">Horario</TableHead>
+                                                    <TableHead className="text-xs sm:text-sm whitespace-nowrap">Estado</TableHead>
+                                                    <TableHead className="text-xs sm:text-sm whitespace-nowrap hidden md:table-cell">Motivo</TableHead>
+                                                    <TableHead className="text-right text-xs sm:text-sm whitespace-nowrap">Acciones</TableHead>
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
                                                 {excepciones.map((excepcion) => (
-                                                    <TableRow key={excepcion.id} className="hover:bg-blue-100/60 transition">
-                                                        <TableCell className="font-semibold text-xs sm:text-sm text-blue-900">
+                                                    <TableRow key={excepcion.id}>
+                                                        <TableCell className="font-medium text-xs sm:text-sm">
                                                             <div>
                                                                 {excepcion.fecha.split('-').reverse().join('/')}
                                                             </div>
-                                                            <div className="sm:hidden text-xs text-blue-700 mt-1">
+                                                            <div className="sm:hidden text-xs text-gray-500 mt-1">
                                                                 {excepcion.hora_inicio} - {excepcion.hora_fin}
                                                             </div>
                                                         </TableCell>
-                                                        <TableCell className="text-xs sm:text-sm whitespace-nowrap hidden sm:table-cell text-blue-900">
+                                                        <TableCell className="text-xs sm:text-sm whitespace-nowrap hidden sm:table-cell">
                                                             {excepcion.hora_inicio} - {excepcion.hora_fin}
                                                         </TableCell>
                                                         <TableCell>
                                                             <Badge className={cn(
-                                                                "text-xs whitespace-nowrap px-2 py-0.5 rounded-full font-semibold",
-                                                                excepcion.activo ? "bg-green-100 text-green-800 border border-green-200" : "bg-red-100 text-red-800 border border-red-200"
+                                                                "text-xs whitespace-nowrap",
+                                                                excepcion.activo ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                                                             )}>
                                                                 {excepcion.activo ? "Abierto" : "Cerrado"}
                                                             </Badge>
                                                             {!excepcion.activo && excepcion.motivo && (
-                                                                <div className="md:hidden text-xs text-blue-700 mt-1 line-clamp-1">
+                                                                <div className="md:hidden text-xs text-gray-500 mt-1 line-clamp-1">
                                                                     {excepcion.motivo}
                                                                 </div>
                                                             )}
                                                         </TableCell>
-                                                        <TableCell className="text-xs sm:text-sm max-w-[200px] hidden md:table-cell text-blue-900">
+                                                        <TableCell className="text-xs sm:text-sm max-w-[200px] hidden md:table-cell">
                                                             <div className="truncate" title={excepcion.motivo || "-"}>
                                                                 {excepcion.motivo || "-"}
                                                             </div>
@@ -709,9 +702,9 @@ const HorarioAtencion = ({ horariosRecurrentes, excepciones }: HorarioAtencionPr
                                                                                 variant="outline"
                                                                                 size="sm"
                                                                                 onClick={() => handleEditHorario(excepcion)}
-                                                                                className="h-8 w-8 p-0 border-blue-300 hover:border-blue-500"
+                                                                                className="h-8 w-8 p-0"
                                                                             >
-                                                                                <Edit className="h-3 w-3 sm:h-4 sm:w-4 text-blue-700" />
+                                                                                <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                                                                             </Button>
                                                                         </TooltipTrigger>
                                                                         <TooltipContent>
@@ -751,215 +744,168 @@ const HorarioAtencion = ({ horariosRecurrentes, excepciones }: HorarioAtencionPr
             </Card>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent
-                    className="sm:max-w-[425px] w-[95%] max-h-[90vh] overflow-y-auto 
-                    bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 
-                    shadow-2xl rounded-3xl border-2 border-blue-300 relative
-                    ring-4 ring-blue-100"
-                    aria-describedby="horario-dialog-desc"
-                    style={{
-                        top: "10vh", // Hace que el modal se muestre más arriba
-                        margin: "0 auto",
-                        position: "fixed",
-                        left: "50%",
-                        transform: "translate(-50%, 0)", // Centrado horizontal, arriba vertical
-                        zIndex: 50
-                    }}
-                >
-                    {/* Botón de cerrar visible y animado */}
-                    <button
-                        onClick={() => setIsDialogOpen(false)}
-                        className="absolute top-3 right-3 z-10 rounded-full bg-blue-200 hover:bg-blue-400 p-1 transition-all duration-200 shadow-lg border border-blue-400"
-                        aria-label="Cerrar"
-                        type="button"
-                    >
-                        <svg width="22" height="22" viewBox="0 0 20 20" className="text-blue-700 hover:text-blue-900 transition-colors duration-200">
-                            <line x1="5" y1="5" x2="15" y2="15" stroke="currentColor" strokeWidth="2"/>
-                            <line x1="15" y1="5" x2="5" y2="15" stroke="currentColor" strokeWidth="2"/>
-                        </svg>
-                    </button>
-                    {/* DialogTitle oculto para accesibilidad */}
-                    <VisuallyHidden>
-                        <DialogTitle>
-                            {activeTab === 'semanal'
-                                ? 'Editar horario semanal'
-                                : 'Editar excepción'}
-                        </DialogTitle>
-                        <DialogDescription id="horario-dialog-desc">
-                            {activeTab === 'semanal'
-                                ? 'Formulario para crear o editar un horario semanal de atención'
-                                : 'Formulario para crear o editar una excepción de horario'}
-                        </DialogDescription>
-                    </VisuallyHidden>
+                <DialogContent className="sm:max-w-[425px] w-[95%] max-h-[90vh] overflow-y-auto">
                     {activeTab === 'semanal' ? (
                         <FormProvider {...recurrenteForm}>
-                            <form onSubmit={recurrenteForm.handleSubmit(onSubmitRecurrente)} className="space-y-7 text-xs sm:text-sm">
-                                <div className="rounded-2xl bg-blue-50/80 shadow-lg p-5 space-y-5 border border-blue-200">
+                            <form onSubmit={recurrenteForm.handleSubmit(onSubmitRecurrente)} className="space-y-4 text-xs sm:text-sm">
+                                <FormField
+                                    control={recurrenteForm.control}
+                                    name="dia_semana"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Día de la semana</FormLabel>
+                                            <Select
+                                                onValueChange={field.onChange}
+                                                defaultValue={field.value}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Selecciona un día" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {diasSemana.map((dia) => (
+                                                        <SelectItem key={dia} value={dia}>
+                                                            {capitalizarPrimeraLetra(dia)}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                
+                                <div className="grid grid-cols-2 gap-4">
                                     <FormField
                                         control={recurrenteForm.control}
-                                        name="dia_semana"
+                                        name="hora_inicio"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="font-bold text-blue-700">Día de la semana</FormLabel>
-                                                <Select
-                                                    onValueChange={field.onChange}
-                                                    defaultValue={field.value}
-                                                >
-                                                    <FormControl>
-                                                        <SelectTrigger className="rounded-lg border-blue-300 shadow focus:ring-2 focus:ring-blue-400 bg-blue-100/70 text-blue-900 font-semibold">
-                                                            <SelectValue placeholder="Selecciona un día" />
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent className="rounded-lg shadow-lg bg-blue-50 border-blue-200">
-                                                        {diasSemana.map((dia) => (
-                                                            <SelectItem key={dia} value={dia} className="text-blue-800 hover:bg-blue-200">
-                                                                {capitalizarPrimeraLetra(dia)}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
+                                                <FormLabel>Hora inicio</FormLabel>
+                                                <FormControl>
+                                                    <Input type="time" {...field} />
+                                                </FormControl>
                                                 <FormMessage />
                                             </FormItem>
                                         )}
                                     />
                                     
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <FormField
-                                            control={recurrenteForm.control}
-                                            name="hora_inicio"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="font-bold text-blue-700">Hora inicio</FormLabel>
-                                                    <FormControl>
-                                                        <Input type="time" {...field} className="rounded-lg border-blue-300 shadow bg-blue-100/70 text-blue-900 font-semibold focus:ring-2 focus:ring-blue-400" />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        
-                                        <FormField
-                                            control={recurrenteForm.control}
-                                            name="hora_fin"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="font-bold text-blue-700">Hora fin</FormLabel>
-                                                    <FormControl>
-                                                        <Input type="time" {...field} className="rounded-lg border-blue-300 shadow bg-blue-100/70 text-blue-900 font-semibold focus:ring-2 focus:ring-blue-400" />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-
                                     <FormField
                                         control={recurrenteForm.control}
-                                        name="activo"
+                                        name="hora_fin"
                                         render={({ field }) => (
-                                            <FormItem className="flex items-center justify-between">
-                                                <FormLabel className="font-bold text-blue-700">Activo</FormLabel>
+                                            <FormItem>
+                                                <FormLabel>Hora fin</FormLabel>
                                                 <FormControl>
-                                                    <Switch
-                                                        checked={field.value}
-                                                        onCheckedChange={field.onChange}
-                                                        className="data-[state=checked]:bg-blue-600"
-                                                    />
+                                                    <Input type="time" {...field} />
                                                 </FormControl>
+                                                <FormMessage />
                                             </FormItem>
                                         )}
                                     />
                                 </div>
+
+                                <FormField
+                                    control={recurrenteForm.control}
+                                    name="activo"
+                                    render={({ field }) => (
+                                        <FormItem className="flex items-center justify-between">
+                                            <FormLabel>Activo</FormLabel>
+                                            <FormControl>
+                                                <Switch
+                                                    checked={field.value}
+                                                    onCheckedChange={field.onChange}
+                                                />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+
                                 <DialogFooter>
-                                    <Button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-500 text-white rounded-xl shadow-lg font-bold tracking-wide transition-all duration-200">
-                                        Guardar
-                                    </Button>
+                                    <Button type="submit">Guardar</Button>
                                 </DialogFooter>
                             </form>
                         </FormProvider>
                     ) : (
                         <FormProvider {...excepcionForm}>
-                            <form onSubmit={excepcionForm.handleSubmit(onSubmitExcepcion)} className="space-y-7 text-xs sm:text-sm">
-                                <div className="rounded-2xl bg-blue-50/80 shadow-lg p-5 space-y-5 border border-blue-200">
+                            <form onSubmit={excepcionForm.handleSubmit(onSubmitExcepcion)} className="space-y-4 text-xs sm:text-sm">
+                                <FormField
+                                    control={excepcionForm.control}
+                                    name="fecha"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Fecha</FormLabel>
+                                            <FormControl>
+                                                <Input type="date" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                
+                                <div className="grid grid-cols-2 gap-4">
                                     <FormField
                                         control={excepcionForm.control}
-                                        name="fecha"
+                                        name="hora_inicio"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="font-bold text-blue-700">Fecha</FormLabel>
+                                                <FormLabel>Hora inicio</FormLabel>
                                                 <FormControl>
-                                                    <Input type="date" {...field} className="rounded-lg border-blue-300 shadow bg-blue-100/70 text-blue-900 font-semibold focus:ring-2 focus:ring-blue-400" />
+                                                    <Input type="time" {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
                                         )}
                                     />
                                     
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <FormField
-                                            control={excepcionForm.control}
-                                            name="hora_inicio"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="font-bold text-blue-700">Hora inicio</FormLabel>
-                                                    <FormControl>
-                                                        <Input type="time" {...field} className="rounded-lg border-blue-300 shadow bg-blue-100/70 text-blue-900 font-semibold focus:ring-2 focus:ring-blue-400" />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        
-                                        <FormField
-                                            control={excepcionForm.control}
-                                            name="hora_fin"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="font-bold text-blue-700">Hora fin</FormLabel>
-                                                    <FormControl>
-                                                        <Input type="time" {...field} className="rounded-lg border-blue-300 shadow bg-blue-100/70 text-blue-900 font-semibold focus:ring-2 focus:ring-blue-400" />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-
                                     <FormField
                                         control={excepcionForm.control}
-                                        name="motivo"
+                                        name="hora_fin"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="font-bold text-blue-700">Motivo</FormLabel>
+                                                <FormLabel>Hora fin</FormLabel>
                                                 <FormControl>
-                                                    <Input {...field} placeholder="Ingrese el motivo de la excepción" className="rounded-lg border-blue-300 shadow bg-blue-100/70 text-blue-900 font-semibold focus:ring-2 focus:ring-blue-400" />
+                                                    <Input type="time" {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
                                         )}
                                     />
-
-                                    <FormField
-                                        control={excepcionForm.control}
-                                        name="activo"
-                                        render={({ field }) => (
-                                            <FormItem className="flex items-center justify-between">
-                                                <FormLabel className="font-bold text-blue-700">Activo</FormLabel>
-                                                <FormControl>
-                                                    <Switch
-                                                        checked={field.value}
-                                                        onCheckedChange={field.onChange}
-                                                        className="data-[state=checked]:bg-blue-600"
-                                                    />
-                                                </FormControl>
-                                            </FormItem>
-                                        )}
-                                    />
                                 </div>
+
+                                <FormField
+                                    control={excepcionForm.control}
+                                    name="motivo"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Motivo</FormLabel>
+                                            <FormControl>
+                                                <Input {...field} placeholder="Ingrese el motivo de la excepción" />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={excepcionForm.control}
+                                    name="activo"
+                                    render={({ field }) => (
+                                        <FormItem className="flex items-center justify-between">
+                                            <FormLabel>Activo</FormLabel>
+                                            <FormControl>
+                                                <Switch
+                                                    checked={field.value}
+                                                    onCheckedChange={field.onChange}
+                                                />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+
                                 <DialogFooter>
-                                    <Button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-500 text-white rounded-xl shadow-lg font-bold tracking-wide transition-all duration-200">
-                                        Guardar
-                                    </Button>
+                                    <Button type="submit">Guardar</Button>
                                 </DialogFooter>
                             </form>
                         </FormProvider>
