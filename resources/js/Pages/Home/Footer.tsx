@@ -295,7 +295,7 @@ const Footer = () => {
               <img src="https://cdn.brandfetch.io/id08GK8vip/w/960/h/960/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B" alt="Yape" className="h-8 opacity-70 hover:opacity-100 transition-opacity rounded-lg" />
               <img src="https://plin.pe/wp-content/themes/plin/favicon/apple-icon-57x57.png" alt="Plin" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
               <img src="https://play-lh.googleusercontent.com/gBpVaCpZsbBrLufT06aRpuLQvsUq1KAZUCEof_ps76mtB8_llJg3xv24mey8I0m3dUE=w240-h480-rw" alt="BCP" className="h-8 opacity-70 hover:opacity-100 transition-opacity rounded-lg" />
-              <img src="https://www.cmac-cusco.com.pe/images/logo-cajacuzco.svg" alt="Caja Cusco" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
+              <img src="https://logosandtypes.com/wp-content/uploads/2023/11/caja-cusco.svg" alt="Caja Cusco" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
               <img src="https://play-lh.googleusercontent.com/SQpDeQodE-GEQkSYJNcZL6oGxCDZO4QZ6HLiW0zA1RQGrg-BnDPES47CG3NMWSbkDKk=w240-h480-rw" alt="Wayki" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
               <img src="https://cdn.aglty.io/scotiabank-peru/imagenes/2022/logos/logo-scotiabank-symbol.svg" alt="Scotiabank" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
             </div>

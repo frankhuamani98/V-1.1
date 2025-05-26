@@ -115,7 +115,7 @@ export default function MetodosPago({ pedido, metodos }: Props) {
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
             {/* BCP */}
             <div className="flex flex-col items-center border-2 border-blue-400 rounded-3xl shadow-2xl bg-white/60 backdrop-blur-lg p-6 transition hover:scale-105 hover:shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] hover:border-blue-500 duration-200 min-h-[340px] animate-fade-in-glass">
-              <img src="/pagos/bcp.png" alt="BCP" className="w-20 h-14 object-contain mb-3 opacity-95 drop-shadow-xl" />
+              <img src="https://play-lh.googleusercontent.com/gBpVaCpZsbBrLufT06aRpuLQvsUq1KAZUCEof_ps76mtB8_llJg3xv24mey8I0m3dUE=w240-h480-rw" alt="BCP" className="w-20 h-14 object-contain mb-3 opacity-95 drop-shadow-xl" />
               <div className="w-full">
                 <div className="font-bold text-lg text-blue-700 mb-1 text-center drop-shadow">Depósito o transferencia BCP</div>
                 <div className="text-blue-500 mb-3 text-center text-sm">Realiza la transferencia a la cuenta BCP y sube el comprobante.</div>
@@ -156,7 +156,7 @@ export default function MetodosPago({ pedido, metodos }: Props) {
             </div>
             {/* Yape */}
             <div className="flex flex-col items-center border-2 border-purple-400 rounded-3xl shadow-2xl bg-white/60 backdrop-blur-lg p-6 transition hover:scale-105 hover:shadow-[0_8px_32px_0_rgba(131,24,255,0.25)] hover:border-purple-500 duration-200 min-h-[340px] animate-fade-in-glass">
-              <img src="/pagos/yape-bcp-4390.jpg" alt="Yape" className="w-20 h-14 object-contain mb-3 opacity-95 drop-shadow-xl" />
+              <img src="https://cdn.brandfetch.io/id08GK8vip/w/960/h/960/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B" alt="Yape" className="w-20 h-14 object-contain mb-3 opacity-95 drop-shadow-xl" />
               <div className="w-full">
                 <div className="font-bold text-lg text-purple-700 mb-1 text-center drop-shadow">Yape</div>
                 <div className="text-purple-500 mb-3 text-center text-sm">Escanea el QR o transfiere al número Yape y sube el comprobante.</div>
@@ -201,7 +201,7 @@ export default function MetodosPago({ pedido, metodos }: Props) {
             </div>
             {/* Plin */}
             <div className="flex flex-col items-center border-2 border-cyan-400 rounded-3xl shadow-2xl bg-white/60 backdrop-blur-lg p-6 transition hover:scale-105 hover:shadow-[0_8px_32px_0_rgba(6,182,212,0.25)] hover:border-cyan-500 duration-200 min-h-[340px] animate-fade-in-glass">
-              <img src="/pagos/plin.jpg" alt="Plin" className="w-20 h-14 object-contain mb-3 opacity-95 drop-shadow-xl" />
+              <img src="https://plin.pe/wp-content/themes/plin/favicon/apple-icon-57x57.png" alt="Plin" className="w-20 h-14 object-contain mb-3 opacity-95 drop-shadow-xl" />
               <div className="w-full">
                 <div className="font-bold text-lg text-cyan-700 mb-1 text-center drop-shadow">Plin</div>
                 <div className="text-cyan-500 mb-3 text-center text-sm">Escanea el QR o transfiere al número Plin y sube el comprobante.</div>
@@ -247,7 +247,7 @@ export default function MetodosPago({ pedido, metodos }: Props) {
             {/* Waiky */}
             <div className="flex flex-col items-center border-2 border-pink-400 rounded-3xl shadow-2xl bg-white/60 backdrop-blur-lg p-6 transition hover:scale-105 hover:shadow-[0_8px_32px_0_rgba(236,72,153,0.25)] hover:border-pink-500 duration-200 relative overflow-hidden min-h-[340px] animate-fade-in-glass">
               <span className="absolute right-2 top-2 text-pink-200 text-5xl opacity-30 pointer-events-none select-none">W</span>
-              <img src="/pagos/wayki.png" alt="Waiky" className="w-20 h-14 object-contain mb-3 opacity-95 drop-shadow-xl" />
+              <img src="https://play-lh.googleusercontent.com/SQpDeQodE-GEQkSYJNcZL6oGxCDZO4QZ6HLiW0zA1RQGrg-BnDPES47CG3NMWSbkDKk=w240-h480-rw" alt="Waiky" className="w-20 h-14 object-contain mb-3 opacity-95 drop-shadow-xl" />
               <div className="w-full">
                 <div className="font-bold text-lg text-pink-700 mb-1 text-center drop-shadow">Waiky</div>
                 <div className="text-pink-500 mb-3 text-center text-sm">Escanea el QR o transfiere al número Waiky y sube el comprobante.</div>
@@ -292,7 +292,7 @@ export default function MetodosPago({ pedido, metodos }: Props) {
             </div>
             {/* Caja Cusco */}
             <div className="flex flex-col items-center border-2 border-red-400 rounded-3xl shadow-2xl bg-white/60 backdrop-blur-lg p-6 transition hover:scale-105 hover:shadow-[0_8px_32px_0_rgba(239,68,68,0.25)] hover:border-red-500 duration-200 min-h-[340px] animate-fade-in-glass">
-              <img src="/pagos/cajacusco.webp" alt="Caja Cusco" className="w-20 h-14 object-contain mb-3 opacity-95 drop-shadow-xl" />
+              <img src="https://logosandtypes.com/wp-content/uploads/2023/11/caja-cusco.svg" alt="Caja Cusco" className="w-20 h-14 object-contain mb-3 opacity-95 drop-shadow-xl" />
               <div className="w-full">
                 <div className="font-bold text-lg text-red-700 mb-1 text-center drop-shadow">Caja Cusco</div>
                 <div className="text-red-500 mb-3 text-center text-sm">Realiza la transferencia a la cuenta Caja Cusco y sube el comprobante.</div>
@@ -333,7 +333,7 @@ export default function MetodosPago({ pedido, metodos }: Props) {
             </div>
             {/* Scotiabank */}
             <div className="flex flex-col items-center border-2 border-orange-400 rounded-3xl shadow-2xl bg-white/60 backdrop-blur-lg p-6 transition hover:scale-105 hover:shadow-[0_8px_32px_0_rgba(251,146,60,0.25)] hover:border-orange-500 duration-200 min-h-[340px] animate-fade-in-glass">
-              <img src="/pagos/scotianbank.png" alt="Scotiabank" className="w-20 h-14 object-contain mb-3 opacity-95 drop-shadow-xl" />
+              <img src="https://cdn.aglty.io/scotiabank-peru/imagenes/2022/logos/logo-scotiabank-symbol.svg" alt="Scotiabank" className="w-20 h-14 object-contain mb-3 opacity-95 drop-shadow-xl" />
               <div className="w-full">
                 <div className="font-bold text-lg text-orange-700 mb-1 text-center drop-shadow">Scotiabank</div>
                 <div className="text-orange-500 mb-3 text-center text-sm">Realiza la transferencia a la cuenta Scotiabank y sube el comprobante.</div>
