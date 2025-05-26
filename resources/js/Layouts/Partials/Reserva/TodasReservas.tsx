@@ -240,7 +240,7 @@ const TodasReservas = ({ reservas: initialReservas }: TodasReservasProps) => {
                                                             onClick={() => openDetalleModal(reserva)}
                                                             className="text-xs font-semibold border-gray-300 hover:bg-primary/10 hover:shadow transition-all duration-150"
                                                         >
-                                                            <CalendarCheck className="h-4 w-4 mr-1" />
+                                                            <FileText className="h-4 w-4 mr-1 text-primary" />
                                                             Ver detalle
                                                         </Button>
                                                         <div className="flex gap-1">
