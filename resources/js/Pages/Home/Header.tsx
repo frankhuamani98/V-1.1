@@ -326,6 +326,8 @@ export default function Header() {
   const [searchSelected, setSearchSelected] = useState<number>(-1);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const page = usePage();
+  const currentUrl = page.url || (page as any).location?.pathname || window.location.pathname;
 
   useEffect(() => {
     if (user) {
@@ -815,6 +817,17 @@ export default function Header() {
     return <span className="font-semibold text-primary">{prod.precio_final || prod.price || ""}</span>;
   };
 
+  // Detectar si estamos en sección de carrito o compra
+  function isCartSection(url: string) {
+    // Normaliza la url (quita query params)
+    const cleanUrl = url.split('?')[0];
+    return (
+      cleanUrl === "/cart" ||
+      cleanUrl === "/checkout/informacion" ||
+      cleanUrl === "/checkout/metodos-pago"
+    );
+  }
+
   return (
     <>
       <header
@@ -1208,12 +1221,21 @@ export default function Header() {
                           <span className="font-bold text-lg">{formatPrice(cartTotal)}</span>
                         </div>
                         <div className="flex flex-col gap-2">
-                          <Button asChild className="w-full bg-white text-gray-700 border border-gray-200 hover:border-gray-300 rounded-lg group hover:bg-gray-50 transition-all duration-200">
-                            <a href="/cart" className="flex items-center justify-center gap-1.5 py-1.5">
-                              <ShoppingBagIcon className="h-4 w-4 text-primary/70 group-hover:text-primary transition-colors duration-200" />
-                              <span className="font-medium group-hover:text-gray-900 transition-colors duration-200">Ver Carrito</span>
-                            </a>
-                          </Button>
+                          {isCartSection(currentUrl) ? (
+                            <Button
+                              className="w-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 cursor-not-allowed"
+                              disabled
+                            >
+                              Ya estás en la sección de compra o carrito
+                            </Button>
+                          ) : (
+                            <Button asChild className="w-full bg-white text-gray-700 border border-gray-200 hover:border-gray-300 rounded-lg group hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700 dark:hover:bg-gray-800 transition-all duration-200">
+                              <a href="/cart" className="flex items-center justify-center gap-1.5 py-1.5">
+                                <ShoppingBagIcon className="h-4 w-4 text-primary/70 group-hover:text-primary transition-colors duration-200" />
+                                <span className="font-medium group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors duration-200">Ver Carrito</span>
+                              </a>
+                            </Button>
+                          )}
                         </div>
                       </div>
                     )}
@@ -1415,9 +1437,18 @@ export default function Header() {
                     <span className="font-bold text-lg">{formatPrice(cartTotal)}</span>
                   </div>
                   <div className="space-y-3">
-                    <Button className="w-full" asChild>
-                      <a href="/cart">Ver Carrito</a>
-                    </Button>
+                    {isCartSection(currentUrl) ? (
+                      <Button
+                        className="w-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 cursor-not-allowed"
+                        disabled
+                      >
+                        Ya estás en la sección de compra o carrito
+                      </Button>
+                    ) : (
+                      <Button className="w-full dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700 dark:hover:bg-gray-800" asChild>
+                        <a href="/cart">Ver Carrito</a>
+                      </Button>
+                    )}
                   </div>
                 </div>
               )}
