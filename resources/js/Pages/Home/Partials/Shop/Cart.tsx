@@ -217,7 +217,7 @@ export default function Cart({ cartItems: initialCartItems, total: initialTotal 
                                 </Link>
                               </h3>
                             </div>
-                            {item.descuento > 0 && (
+                            {(item.precio > item.precio_final) && (
                               <div className="flex items-center mt-1">
                                 <span className="text-sm text-red-600">-{item.descuento}%</span>
                                 <span className="ml-2 text-sm text-gray-500 dark:text-gray-300 line-through">

@@ -129,6 +129,9 @@ const CartItem = ({
   onRemove: (id: number) => void;
 }) => {
   const subtotal = product.precio_final * product.quantity;
+
+  // Nueva lógica para mostrar descuento y precio base
+  const showDiscount = product.precio > product.precio_final;
   
   return (
     <div className="group flex items-start py-3 gap-3 rounded-lg transition-all duration-200 hover:bg-accent/30">
@@ -158,7 +161,7 @@ const CartItem = ({
           <span className="text-sm font-medium">
             {formatPrice(product.precio_final)}
           </span>
-          {product.descuento > 0 && (
+          {showDiscount && (
             <>
               <span className="ml-2 text-xs line-through text-muted-foreground">{formatPrice(product.precio)}</span>
               <Badge variant="destructive" className="ml-1 text-[10px] h-4 px-1">
@@ -192,8 +195,11 @@ const FavoriteItem = ({
   onRemove: (id: number) => void;
   onAddToCart: (product: FavoriteItem) => void;
 }) => {
+  // Nueva lógica para mostrar descuento y precio base
+  const showDiscount = (product.precio ?? 0) > (product.precio_final ?? 0);
+
   const getDisplayPrice = () => {
-    if (product.descuento && product.descuento > 0) {
+    if (showDiscount) {
       return (
         <div className="flex items-center">
           <span className="font-medium">{formatPrice(product.precio_final)}</span>
