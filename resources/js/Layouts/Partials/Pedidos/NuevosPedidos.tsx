@@ -18,14 +18,28 @@ import {
 import { Button } from "@/Components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-const NuevosPedidos = () => {
-  const [pedidos, setPedidos] = useState([
-    { id: 1, cliente: "Juan Pérez", moto: "Honda CBR 600", servicio: "Cambio de aceite", fecha: "2024-03-10", estado: "Pendiente" },
-    { id: 2, cliente: "María Gómez", moto: "Yamaha R3", servicio: "Revisión general", fecha: "2024-03-12", estado: "En reparación" },
-    { id: 3, cliente: "Carlos Ruiz", moto: "Suzuki GSX-R750", servicio: "Cambio de frenos", fecha: "2024-03-14", estado: "Listo para entrega" },
-    { id: 4, cliente: "Ana López", moto: "Kawasaki Ninja 400", servicio: "Reparación de motor", fecha: "2024-03-15", estado: "Cancelado" },
-  ]);
+interface PedidoItem {
+  nombre_producto: string;
+  cantidad: number;
+  precio_unitario: number;
+  subtotal: number;
+  imagen?: string;
+}
 
+interface Pedido {
+  id: number;
+  cliente: string;
+  fecha: string;
+  estado: string;
+  metodo_pago?: string;
+  items?: PedidoItem[];
+}
+
+interface Props {
+  pedidos: Pedido[];
+}
+
+const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
 
   const toggleRow = (id: number) => {
@@ -34,12 +48,20 @@ const NuevosPedidos = () => {
     );
   };
 
+  const formatPrice = (price: number): string =>
+    price?.toLocaleString("es-PE", {
+      style: "currency",
+      currency: "PEN",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).replace("PEN", "S/");
+
   return (
     <div className="p-4 sm:p-6">
       <Card>
         <CardHeader>
           <CardTitle>Nuevos Pedidos</CardTitle>
-          <CardDescription>Gestión de reparaciones y mantenimientos.</CardDescription>
+          <CardDescription>Gestión de pedidos recientes.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -48,29 +70,27 @@ const NuevosPedidos = () => {
                 <TableRow>
                   <TableHead>ID</TableHead>
                   <TableHead>Cliente</TableHead>
-                  <TableHead>Motocicleta</TableHead>
-                  <TableHead>Servicio</TableHead>
                   <TableHead>Fecha</TableHead>
                   <TableHead>Estado</TableHead>
+                  <TableHead>Método de Pago</TableHead>
+                  <TableHead>Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {pedidos.map((pedido) => (
+                {pedidosProp.map((pedido) => (
                   <React.Fragment key={pedido.id}>
                     <TableRow className="sm:table-row hidden">
                       <TableCell>{pedido.id}</TableCell>
                       <TableCell>{pedido.cliente}</TableCell>
-                      <TableCell>{pedido.moto}</TableCell>
-                      <TableCell>{pedido.servicio}</TableCell>
                       <TableCell>{pedido.fecha}</TableCell>
                       <TableCell>
                         <Badge
                           variant={
                             pedido.estado === "Pendiente"
                               ? "secondary"
-                              : pedido.estado === "En reparación"
+                              : pedido.estado === "Procesando"
                               ? "outline"
-                              : pedido.estado === "Listo para entrega"
+                              : pedido.estado === "Completado"
                               ? "default"
                               : "destructive"
                           }
@@ -78,12 +98,51 @@ const NuevosPedidos = () => {
                           {pedido.estado}
                         </Badge>
                       </TableCell>
+                      <TableCell>
+                        {pedido.metodo_pago ? pedido.metodo_pago : <span className="text-gray-400">-</span>}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => toggleRow(pedido.id)}
+                          aria-label="Ver detalles"
+                        >
+                          Detalles del pedido{" "}
+                          {expandedRows.includes(pedido.id) ? (
+                            <ChevronUp className="h-4 w-4 ml-1" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4 ml-1" />
+                          )}
+                        </Button>
+                      </TableCell>
                     </TableRow>
 
-                    {/* Diseño de tarjeta en móvil */}
+                    {/* Móvil: Tarjeta */}
                     <div className="sm:hidden bg-white rounded-lg shadow-md p-4 mb-2">
                       <div className="flex justify-between items-center">
-                        <p className="font-medium">{pedido.cliente}</p>
+                        <div>
+                          <p className="font-medium">{pedido.cliente}</p>
+                          <p className="text-xs text-gray-500">{pedido.fecha}</p>
+                          <p className="text-xs">
+                            <Badge
+                              variant={
+                                pedido.estado === "Pendiente"
+                                  ? "secondary"
+                                  : pedido.estado === "Procesando"
+                                  ? "outline"
+                                  : pedido.estado === "Completado"
+                                  ? "default"
+                                  : "destructive"
+                              }
+                            >
+                              {pedido.estado}
+                            </Badge>
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Método de pago: {pedido.metodo_pago ? pedido.metodo_pago : <span className="text-gray-400">-</span>}
+                          </p>
+                        </div>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -97,30 +156,58 @@ const NuevosPedidos = () => {
                           )}
                         </Button>
                       </div>
-                      {expandedRows.includes(pedido.id) && (
-                        <div className="mt-2 space-y-2">
-                          <p className="text-sm"><strong>Motocicleta:</strong> {pedido.moto}</p>
-                          <p className="text-sm"><strong>Servicio:</strong> {pedido.servicio}</p>
-                          <p className="text-sm"><strong>Fecha:</strong> {pedido.fecha}</p>
-                          <p className="text-sm">
-                            <strong>Estado:</strong>{" "}
-                            <Badge
-                              variant={
-                                pedido.estado === "Pendiente"
-                                  ? "secondary"
-                                  : pedido.estado === "En reparación"
-                                  ? "outline"
-                                  : pedido.estado === "Listo para entrega"
-                                  ? "default"
-                                  : "destructive"
-                              }
-                            >
-                              {pedido.estado}
-                            </Badge>
-                          </p>
-                        </div>
-                      )}
                     </div>
+
+                    {/* Detalles del pedido (expandible) */}
+                    {expandedRows.includes(pedido.id) && (
+                      <TableRow>
+                        <TableCell colSpan={6} className="bg-gray-50">
+                          <div className="p-2">
+                            <div className="font-semibold mb-2">Productos del pedido:</div>
+                            <div className="overflow-x-auto">
+                              <table className="min-w-full text-sm">
+                                <thead>
+                                  <tr>
+                                    <th className="text-left p-2">Foto</th>
+                                    <th className="text-left p-2">Producto</th>
+                                    <th className="text-left p-2">Precio</th>
+                                    <th className="text-left p-2">Cantidad</th>
+                                    <th className="text-left p-2">Subtotal</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {pedido.items?.map((item, idx) => (
+                                    <tr key={idx}>
+                                      <td className="p-2">
+                                        <img
+                                          src={
+                                            item.imagen
+                                              ? (item.imagen.startsWith("http")
+                                                  ? item.imagen
+                                                  : `/storage/${item.imagen}`)
+                                              : "/images/placeholder.png"
+                                          }
+                                          alt={item.nombre_producto}
+                                          className="w-12 h-12 object-cover rounded"
+                                          onError={e => {
+                                            const target = e.currentTarget as HTMLImageElement;
+                                            target.src = "/images/placeholder.png";
+                                          }}
+                                        />
+                                      </td>
+                                      <td className="p-2">{item.nombre_producto}</td>
+                                      <td className="p-2">{formatPrice(item.precio_unitario)}</td>
+                                      <td className="p-2">{item.cantidad}</td>
+                                      <td className="p-2">{formatPrice(item.subtotal)}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </React.Fragment>
                 ))}
               </TableBody>

@@ -9,12 +9,13 @@ interface NuevosPedidosPageProps {
       email: string;
     };
   };
+  pedidos: any[]; // Agregado para recibir los pedidos
 }
 
-const NuevosPedidosPage = ({ auth }: NuevosPedidosPageProps) => {
+const NuevosPedidosPage = ({ auth, pedidos }: NuevosPedidosPageProps) => {
   return (
     <DashboardLayout auth={auth}>
-      <NuevosPedidos />
+      <NuevosPedidos pedidos={pedidos} /> {/* Pasando los pedidos a NuevosPedidos */}
     </DashboardLayout>
   );
 };
