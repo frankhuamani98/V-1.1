@@ -109,12 +109,6 @@ export default function Cart({ cartItems: initialCartItems, total: initialTotal 
           
           toast.success('Producto eliminado del carrito', {
             duration: 3000,
-            style: {
-              position: 'fixed',
-              top: '64px',
-              right: '10px',
-              zIndex: 9999,
-            },
           });
           
           const event = new CustomEvent('cart-updated');
@@ -125,12 +119,6 @@ export default function Cart({ cartItems: initialCartItems, total: initialTotal 
         console.error('Error removing item:', error);
         toast.error('Error al eliminar producto', {
           duration: 3000,
-          style: {
-            position: 'fixed',
-            top: '64px',
-            right: '10px',
-            zIndex: 9999,
-          },
         });
       })
       .finally(() => {
@@ -148,12 +136,6 @@ export default function Cart({ cartItems: initialCartItems, total: initialTotal 
           
           toast.success('Carrito vaciado', {
             duration: 3000,
-            style: {
-              position: 'fixed',
-              top: '64px',
-              right: '10px',
-              zIndex: 9999,
-            },
           });
           
           const event = new CustomEvent('cart-updated');
@@ -164,12 +146,6 @@ export default function Cart({ cartItems: initialCartItems, total: initialTotal 
         console.error('Error clearing cart:', error);
         toast.error('Error al vaciar el carrito', {
           duration: 3000,
-          style: {
-            position: 'fixed',
-            top: '64px',
-            right: '10px',
-            zIndex: 9999,
-          },
         });
       })
       .finally(() => {
