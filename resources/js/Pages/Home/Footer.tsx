@@ -85,8 +85,8 @@ const Footer = () => {
               <CreditCardIcon className="h-6 w-6 text-white" />
             </div>
             <div className="text-center sm:text-left">
-              <h4 className="font-semibold text-sm">Métodos de Pago</h4>
-              <p className="text-xs text-neutral-400">Yape, Plin y efectivo</p>
+              <h4 className="font-semibold text-sm">Pagos Seguros</h4>
+              <p className="text-xs text-neutral-400">Pagos digitales y en tienda</p>
             </div>
           </div>
 
@@ -95,8 +95,8 @@ const Footer = () => {
               <TruckIcon className="h-6 w-6 text-white" />
             </div>
             <div className="text-center sm:text-left">
-              <h4 className="font-semibold text-sm">Retiro en Tienda</h4>
-              <p className="text-xs text-neutral-400">Disponibilidad inmediata</p>
+              <h4 className="font-semibold text-sm">Envío y Retiro</h4>
+              <p className="text-xs text-neutral-400">Entrega rápida y segura</p>
             </div>
           </div>
 
@@ -105,8 +105,8 @@ const Footer = () => {
               <ShieldCheckIcon className="h-6 w-6 text-white" />
             </div>
             <div className="text-center sm:text-left">
-              <h4 className="font-semibold text-sm">Garantía Original</h4>
-              <p className="text-xs text-neutral-400">Repuestos certificados</p>
+              <h4 className="font-semibold text-sm">Garantía de Calidad</h4>
+              <p className="text-xs text-neutral-400">Productos originales garantizados</p>
             </div>
           </div>
 
@@ -115,8 +115,8 @@ const Footer = () => {
               <HeadphonesIcon className="h-6 w-6 text-white" />
             </div>
             <div className="text-center sm:text-left">
-              <h4 className="font-semibold text-sm">Asesoría Técnica</h4>
-              <p className="text-xs text-neutral-400">Expertos en repuestos</p>
+              <h4 className="font-semibold text-sm">Soporte Especializado</h4>
+              <p className="text-xs text-neutral-400">Asesoría profesional en motos</p>
             </div>
           </div>
         </div>
@@ -287,7 +287,7 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-neutral-800">
           <div className="text-left mb-4 md:mb-0 md:w-1/3">
             <p className="text-xs text-neutral-500">
-              © {currentYear} Rudolf Motos. Especialistas en Repuestos y Accesorios para Motos.
+              © {currentYear} Rudolf Motos. Todos los derechos reservados.
             </p>
           </div>
           <div className="flex flex-col items-center mb-4 md:mb-0 md:w-1/3">
@@ -302,9 +302,14 @@ const Footer = () => {
           </div>
           <div className="text-center mb-4 md:mb-0 md:w-1/3">
             <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 mt-2 sm:mt-4">
-              <a href="#" className="text-xs text-neutral-500 hover:text-[var(--custom-blue)] transition-colors">Términos de Servicio</a>
-              <a href="#" className="text-xs text-neutral-500 hover:text-[var(--custom-blue)] transition-colors">Política de Privacidad</a>
-              <a href="#" className="text-xs text-neutral-500 hover:text-[var(--custom-blue)] transition-colors">Garantía y Devoluciones</a>
+              <a 
+                href="/pdf/terminosycondiciones.pdf" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-xs text-neutral-500 hover:text-[var(--custom-blue)] transition-colors"
+              >
+                Términos y condiciones
+              </a>
             </div>
           </div>
         </div>

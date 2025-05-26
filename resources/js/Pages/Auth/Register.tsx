@@ -331,7 +331,16 @@ export default function Register() {
                   Aceptar términos y condiciones
                 </label>
                 <p className="text-sm text-muted-foreground">
-                  Usted acepta nuestros Términos de Servicio y Política de Privacidad.
+                  He leído y acepto los{' '}
+                  <a 
+                    href="/pdf/terminosycondiciones.pdf" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-primary hover:underline"
+                  >
+                    términos y condiciones
+                  </a>{' '}
+                  de Rudolf Motos.
                 </p>
               </div>
               {errors.terms && <p className="text-sm text-red-500">{errors.terms}</p>}
