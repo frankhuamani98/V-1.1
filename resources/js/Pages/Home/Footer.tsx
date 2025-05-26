@@ -256,30 +256,34 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 py-6 border-t border-neutral-800">
+        </div>          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 py-6 border-t border-neutral-800">
           <div className="flex items-center justify-center sm:justify-start gap-3">
             <div className="w-10 h-10 bg-[var(--custom-blue)] rounded-full flex items-center justify-center">
               <MapPinIcon className="h-5 w-5 text-white" />
             </div>
             <span className="text-sm text-neutral-400">
-              <a href="https://maps.app.goo.gl/aihry7fG7kKrb5xp6"
-                target="_blank" rel="noopener noreferrer" className="hover:text-neutral-200 transition-colors">Av. Huayna Capac 168, Cusco - Perú</a>
+              <a 
+                href="https://www.google.com/maps/search/?api=1&query=-13.521869713279548,-71.96909860496798" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-neutral-200 transition-colors"
+              >
+                <div>Taller Técnico Rudolf Motos</div>
+              </a>
             </span>
           </div>
           <div className="flex items-center justify-center gap-3">
             <div className="w-10 h-10 bg-[var(--custom-blue)] rounded-full flex items-center justify-center">
               <PhoneIcon className="h-5 w-5 text-white" />
             </div>
-            <span className="text-sm text-neutral-400">+51 997 205 032</span>
+            <span className="text-sm text-neutral-400">+51 913 223 471</span>
           </div>
           <div className="flex items-center justify-center sm:justify-end gap-3">
             <div className="w-10 h-10 bg-[var(--custom-blue)] rounded-full flex items-center justify-center">
               <MailIcon className="h-5 w-5 text-white" />
             </div>
             <span className="text-sm text-neutral-400">
-              <a href="mailto:rogeralfarohuaman@gmail.com" className="hover:text-neutral-200 transition-colors">rogeralfarohuaman@gmail.com </a>
+              <a href="mailto:rogeralfarohuaman@gmail.com" className="hover:text-neutral-200 transition-colors">rogeralfarohuaman@gmail.com</a>
             </span>
           </div>
         </div>
