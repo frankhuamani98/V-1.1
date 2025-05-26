@@ -1106,15 +1106,33 @@ export default function Header() {
                               cleanUrl === "/checkout/informacion" ||
                               cleanUrl === "/checkout/metodos-pago"
                             ) {
-                              // Solo muestra el botón deshabilitado igual que carrito
+                              // Solo muestra el mensaje, con efecto carrusel (marquee)
                               return (
-                                <Button
-                                  className="w-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 cursor-not-allowed"
-                                  variant="outline"
-                                  disabled
-                                >
-                                  No puedes agregar favoritos ni ver todos aquí durante el proceso de compra
-                                </Button>
+                                <div className="w-full flex flex-col items-center justify-center gap-2">
+                                  <div className="overflow-hidden w-full">
+                                    <div
+                                      className="whitespace-nowrap animate-marquee text-sm text-center text-blue-700 dark:text-blue-200 font-semibold"
+                                      style={{
+                                        display: "inline-block",
+                                        minWidth: "100%",
+                                        animation: "marquee 8s linear infinite"
+                                      }}
+                                    >
+                                      Finaliza o cancela tu compra antes de agregar productos al carrito o ver tus favoritos.
+                                    </div>
+                                  </div>
+                                  <style>
+                                    {`
+                                      @keyframes marquee {
+                                        0% { transform: translateX(100%); }
+                                        100% { transform: translateX(-100%); }
+                                      }
+                                      .animate-marquee {
+                                        animation: marquee 8s linear infinite;
+                                      }
+                                    `}
+                                  </style>
+                                </div>
                               );
                             }
                             // ...botones normales si no está en checkout...
@@ -1143,17 +1161,14 @@ export default function Header() {
                                     toast.success(`${itemsToAdd.length} producto(s) añadido(s) al carrito`, {
                                       duration: 3000,
                                     });
-                                    setIsFavoritesOpen(false);
+                                    setIsFavoritesSheetOpen(false);
                                   }}
                                 >
                                   <ShoppingCartIcon className="h-4 w-4 mr-2" />
                                   Agregar Todo al Carrito
                                 </Button>
-                                <Button asChild className="w-full bg-white text-gray-700 border border-gray-200 hover:border-gray-300 rounded-lg group hover:bg-gray-50 transition-all duration-200">
-                                  <a href="/favorites" className="flex items-center justify-center gap-1.5 py-1.5">
-                                    <HeartIcon className="h-4 w-4 text-rose-400 group-hover:text-rose-500 transition-colors duration-200" />
-                                    <span className="font-medium group-hover:text-gray-900 transition-colors duration-200">Ver todos los favoritos</span>
-                                  </a>
+                                <Button asChild variant="ghost" className="w-full">
+                                  <a href="/favorites">Ver Todos los Favoritos</a>
                                 </Button>
                               </>
                             );
@@ -1455,15 +1470,15 @@ export default function Header() {
 
               {cart.length > 0 && (
                 <div className="border-t bg-muted/30 p-4">
-                  <div className="flex justify-between mb-2">
-                    <span className="text-muted-foreground">Subtotal</span>
+                  <div className="flex justify-between mb-3">
+                    <span className="text-muted-foreground">Subtotal:</span>
                     <span className="font-medium">{formatPrice(cartTotal)}</span>
                   </div>
                   <div className="flex justify-between mb-4">
-                    <span className="font-medium">Total</span>
+                    <span className="font-medium">Total:</span>
                     <span className="font-bold text-lg">{formatPrice(cartTotal)}</span>
                   </div>
-                  <div className="space-y-3">
+                  <div className="flex flex-col gap-2">
                     {isCartSection(currentUrl) ? (
                       <Button
                         className="w-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 cursor-not-allowed"
@@ -1472,8 +1487,11 @@ export default function Header() {
                         Ya estás en la sección de compra o carrito
                       </Button>
                     ) : (
-                      <Button className="w-full dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700 dark:hover:bg-gray-800" asChild>
-                        <a href="/cart">Ver Carrito</a>
+                      <Button asChild className="w-full bg-white text-gray-700 border border-gray-200 hover:border-gray-300 rounded-lg group hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700 dark:hover:bg-gray-800 transition-all duration-200">
+                        <a href="/cart" className="flex items-center justify-center gap-1.5 py-1.5">
+                          <ShoppingBagIcon className="h-4 w-4 text-primary/70 group-hover:text-primary transition-colors duration-200" />
+                          <span className="font-medium group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors duration-200">Ver Carrito</span>
+                        </a>
                       </Button>
                     )}
                   </div>
@@ -1544,15 +1562,33 @@ export default function Header() {
                         cleanUrl === "/checkout/informacion" ||
                         cleanUrl === "/checkout/metodos-pago"
                       ) {
-                        // Solo muestra el botón deshabilitado igual que carrito
+                        // Solo muestra el mensaje, con efecto carrusel (marquee)
                         return (
-                          <Button
-                            className="w-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 cursor-not-allowed"
-                            variant="outline"
-                            disabled
-                          >
-                            No puedes agregar favoritos ni ver todos aquí durante el proceso de compra
-                          </Button>
+                          <div className="w-full flex flex-col items-center justify-center gap-2">
+                            <div className="overflow-hidden w-full">
+                              <div
+                                className="whitespace-nowrap animate-marquee text-sm text-center text-blue-700 dark:text-blue-200 font-semibold"
+                                style={{
+                                  display: "inline-block",
+                                  minWidth: "100%",
+                                  animation: "marquee 8s linear infinite"
+                                }}
+                              >
+                                Finaliza o cancela tu compra antes de agregar productos al carrito o ver tus favoritos.
+                              </div>
+                            </div>
+                            <style>
+                              {`
+                                @keyframes marquee {
+                                  0% { transform: translateX(100%); }
+                                  100% { transform: translateX(-100%); }
+                                }
+                                .animate-marquee {
+                                  animation: marquee 8s linear infinite;
+                                }
+                              `}
+                            </style>
+                          </div>
                         );
                       }
                       // ...botones normales si no está en checkout...
