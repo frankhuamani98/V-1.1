@@ -213,6 +213,19 @@ const FavoriteItem = ({
     return <span className="font-medium">{formatPrice(product.precio_final || product.precio)}</span>;
   };
 
+  // Detectar si estamos en checkout para deshabilitar el botón
+  const page = usePage();
+  let currentUrl = page.url || (page as any).location?.pathname || window.location.pathname;
+  let cleanUrl = (currentUrl || "").split("?")[0];
+  if (cleanUrl.startsWith("http")) {
+    try {
+      cleanUrl = new URL(cleanUrl).pathname;
+    } catch {}
+  }
+  const isCheckout =
+    cleanUrl === "/checkout/informacion" ||
+    cleanUrl === "/checkout/metodos-pago";
+
   return (
     <div className="group flex items-start py-3 gap-3 rounded-lg transition-all duration-200 hover:bg-accent/30">
       <div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0 bg-gray-100 border border-border shadow-sm transition-transform duration-200 group-hover:scale-105">
@@ -241,6 +254,7 @@ const FavoriteItem = ({
           size="sm"
           className="mt-2 h-8 text-xs font-medium bg-primary/5 hover:bg-primary/10 text-primary hover:text-primary border-primary/20 transition-all duration-200 group-hover:translate-y-[-2px]"
           onClick={() => onAddToCart(product)}
+          disabled={isCheckout}
         >
           <ShoppingCartIcon className="h-3 w-3 mr-1" />
           Añadir al carrito
