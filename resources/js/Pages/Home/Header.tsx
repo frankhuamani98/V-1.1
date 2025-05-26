@@ -1076,7 +1076,6 @@ export default function Header() {
                               onRemove={removeFromFavorites} 
                               onAddToCart={addToCartFromFavorites} 
                             />
-                            {/* No separator needed with the new design */}
                           </div>
                         ))
                       ) : (
@@ -1095,41 +1094,70 @@ export default function Header() {
                     {favorites.length > 0 && (
                       <div className="p-4 bg-muted/30 border-t">
                         <div className="flex flex-col gap-2">
-                          <Button 
-                            variant="outline" 
-                            className="w-full bg-rose-500/5 hover:bg-rose-500/10 text-rose-600 border-rose-200 hover:text-rose-700"
-                            onClick={() => {
-                              const itemsToAdd = favorites.filter(item => 
-                                !cart.some(cartItem => cartItem.producto_id === item.producto_id)
+                          {(() => {
+                            // Normaliza la ruta actual para asegurar coincidencia exacta
+                            let cleanUrl = (currentUrl || "").split("?")[0];
+                            if (cleanUrl.startsWith("http")) {
+                              try {
+                                cleanUrl = new URL(cleanUrl).pathname;
+                              } catch {}
+                            }
+                            if (
+                              cleanUrl === "/checkout/informacion" ||
+                              cleanUrl === "/checkout/metodos-pago"
+                            ) {
+                              // Solo muestra el botón deshabilitado igual que carrito
+                              return (
+                                <Button
+                                  className="w-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 cursor-not-allowed"
+                                  variant="outline"
+                                  disabled
+                                >
+                                  No puedes agregar favoritos ni ver todos aquí durante el proceso de compra
+                                </Button>
                               );
-                              
-                              if (itemsToAdd.length === 0) {
-                                toast.info("Todos los favoritos ya están en el carrito", {
-                                  duration: 3000,
-                                });
-                                return;
-                              }
-                              
-                              itemsToAdd.forEach(item => {
-                                const event = new CustomEvent('add-to-cart', { detail: {...item, quantity: 1} });
-                                window.dispatchEvent(event);
-                              });
-                              
-                              toast.success(`${itemsToAdd.length} producto(s) añadido(s) al carrito`, {
-                                duration: 3000,
-                              });
-                              setIsFavoritesOpen(false);
-                            }}
-                          >
-                            <ShoppingCartIcon className="h-4 w-4 mr-2" />
-                            Agregar Todo al Carrito
-                          </Button>
-                          <Button asChild className="w-full bg-white text-gray-700 border border-gray-200 hover:border-gray-300 rounded-lg group hover:bg-gray-50 transition-all duration-200">
-                            <a href="/favorites" className="flex items-center justify-center gap-1.5 py-1.5">
-                              <HeartIcon className="h-4 w-4 text-rose-400 group-hover:text-rose-500 transition-colors duration-200" />
-                              <span className="font-medium group-hover:text-gray-900 transition-colors duration-200">Ver todos los favoritos</span>
-                            </a>
-                          </Button>
+                            }
+                            // ...botones normales si no está en checkout...
+                            return (
+                              <>
+                                <Button 
+                                  variant="outline" 
+                                  className="w-full bg-rose-500/5 hover:bg-rose-500/10 text-rose-600 border-rose-200 hover:text-rose-700"
+                                  onClick={() => {
+                                    const itemsToAdd = favorites.filter(item => 
+                                      !cart.some(cartItem => cartItem.producto_id === item.producto_id)
+                                    );
+                                    
+                                    if (itemsToAdd.length === 0) {
+                                      toast.info("Todos los favoritos ya están en el carrito", {
+                                        duration: 3000,
+                                      });
+                                      return;
+                                    }
+                                    
+                                    itemsToAdd.forEach(item => {
+                                      const event = new CustomEvent('add-to-cart', { detail: {...item, quantity: 1} });
+                                      window.dispatchEvent(event);
+                                    });
+                                    
+                                    toast.success(`${itemsToAdd.length} producto(s) añadido(s) al carrito`, {
+                                      duration: 3000,
+                                    });
+                                    setIsFavoritesOpen(false);
+                                  }}
+                                >
+                                  <ShoppingCartIcon className="h-4 w-4 mr-2" />
+                                  Agregar Todo al Carrito
+                                </Button>
+                                <Button asChild className="w-full bg-white text-gray-700 border border-gray-200 hover:border-gray-300 rounded-lg group hover:bg-gray-50 transition-all duration-200">
+                                  <a href="/favorites" className="flex items-center justify-center gap-1.5 py-1.5">
+                                    <HeartIcon className="h-4 w-4 text-rose-400 group-hover:text-rose-500 transition-colors duration-200" />
+                                    <span className="font-medium group-hover:text-gray-900 transition-colors duration-200">Ver todos los favoritos</span>
+                                  </a>
+                                </Button>
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
                     )}
@@ -1194,7 +1222,6 @@ export default function Header() {
                         cart.map((product) => (
                           <div key={product.id} className="mb-2 last:mb-0">
                             <CartItem product={product} onRemove={removeFromCart} />
-                            {/* No separator needed with the new design */}
                           </div>
                         ))
                       ) : (
@@ -1505,38 +1532,67 @@ export default function Header() {
               {favorites.length > 0 && (
                 <div className="border-t bg-muted/30 p-4">
                   <div className="space-y-3">
-                    <Button 
-                      variant="outline" 
-                      className="w-full bg-rose-500/5 hover:bg-rose-500/10 text-rose-600 border-rose-200 hover:text-rose-700"
-                      onClick={() => {
-                        const itemsToAdd = favorites.filter(item => 
-                          !cart.some(cartItem => cartItem.producto_id === item.producto_id)
+                    {(() => {
+                      // Normaliza la ruta actual para asegurar coincidencia exacta
+                      let cleanUrl = (currentUrl || "").split("?")[0];
+                      if (cleanUrl.startsWith("http")) {
+                        try {
+                          cleanUrl = new URL(cleanUrl).pathname;
+                        } catch {}
+                      }
+                      if (
+                        cleanUrl === "/checkout/informacion" ||
+                        cleanUrl === "/checkout/metodos-pago"
+                      ) {
+                        // Solo muestra el botón deshabilitado igual que carrito
+                        return (
+                          <Button
+                            className="w-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 cursor-not-allowed"
+                            variant="outline"
+                            disabled
+                          >
+                            No puedes agregar favoritos ni ver todos aquí durante el proceso de compra
+                          </Button>
                         );
-                        
-                        if (itemsToAdd.length === 0) {
-                          toast.info("Todos los favoritos ya están en el carrito", {
-                            duration: 3000,
-                          });
-                          return;
-                        }
-                        
-                        itemsToAdd.forEach(item => {
-                          const event = new CustomEvent('add-to-cart', { detail: {...item, quantity: 1} });
-                          window.dispatchEvent(event);
-                        });
-                        
-                        toast.success(`${itemsToAdd.length} producto(s) añadido(s) al carrito`, {
-                          duration: 3000,
-                        });
-                        setIsFavoritesSheetOpen(false);
-                      }}
-                    >
-                      <ShoppingCartIcon className="h-4 w-4 mr-2" />
-                      Agregar Todo al Carrito
-                    </Button>
-                    <Button asChild variant="ghost" className="w-full">
-                      <a href="/favorites">Ver Todos los Favoritos</a>
-                    </Button>
+                      }
+                      // ...botones normales si no está en checkout...
+                      return (
+                        <>
+                          <Button 
+                            variant="outline" 
+                            className="w-full bg-rose-500/5 hover:bg-rose-500/10 text-rose-600 border-rose-200 hover:text-rose-700"
+                            onClick={() => {
+                              const itemsToAdd = favorites.filter(item => 
+                                !cart.some(cartItem => cartItem.producto_id === item.producto_id)
+                              );
+                              
+                              if (itemsToAdd.length === 0) {
+                                toast.info("Todos los favoritos ya están en el carrito", {
+                                  duration: 3000,
+                                });
+                                return;
+                              }
+                              
+                              itemsToAdd.forEach(item => {
+                                const event = new CustomEvent('add-to-cart', { detail: {...item, quantity: 1} });
+                                window.dispatchEvent(event);
+                              });
+                              
+                              toast.success(`${itemsToAdd.length} producto(s) añadido(s) al carrito`, {
+                                duration: 3000,
+                              });
+                              setIsFavoritesSheetOpen(false);
+                            }}
+                          >
+                            <ShoppingCartIcon className="h-4 w-4 mr-2" />
+                            Agregar Todo al Carrito
+                          </Button>
+                          <Button asChild variant="ghost" className="w-full">
+                            <a href="/favorites">Ver Todos los Favoritos</a>
+                          </Button>
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
               )}
