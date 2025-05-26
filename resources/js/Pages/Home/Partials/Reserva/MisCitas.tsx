@@ -200,7 +200,6 @@ export default function MisCitas({ reservas }: Props) {
                     </Card>
                 </div>
             </div>
-            <Toaster position="top-center" closeButton richColors />
             <Footer />
         </>
     );

@@ -254,23 +254,11 @@ const ProductCard = ({ product }: { product: Producto }) => {
             toast.success("Añadido a favoritos", {
               description: `${product.nombre} ha sido añadido a tus favoritos.`,
               duration: 3000,
-              style: {
-                    position: 'fixed',
-                    top: '65px',  
-                    right: '10px', 
-                    zIndex: 9999,
-                  }
             });
           } else {
             toast("Eliminado de favoritos", {
               description: `${product.nombre} ha sido eliminado de tus favoritos.`,
               duration: 3000,
-              style: {
-                    position: 'fixed',
-                    top: '65px',  
-                    right: '10px', 
-                    zIndex: 9999,
-                  }
             });
           }
           
@@ -280,14 +268,8 @@ const ProductCard = ({ product }: { product: Producto }) => {
       })
       .catch(error => {
         console.error('Error toggling favorite:', error);
-        toast.error("Error primero inicie sesión", {
+        toast.error("Error al actualizar favoritos", {
           duration: 3000,
-          style: {
-                    position: 'fixed',
-                    top: '65px',  
-                    right: '10px', 
-                    zIndex: 9999,
-                  }
         });
       });
   };
@@ -302,12 +284,6 @@ const ProductCard = ({ product }: { product: Producto }) => {
         toast.success("Producto añadido al carrito", {
           description: `${product.nombre} ha sido añadido a tu carrito.`,
           duration: 3000,
-          style: {
-                      position: 'fixed',
-                      top: '64px',  
-                      right: '10px', 
-                      zIndex: 9999,
-                  }, 
         });
         
         const event = new CustomEvent('cart-updated');
@@ -318,12 +294,6 @@ const ProductCard = ({ product }: { product: Producto }) => {
       console.error('Error adding to cart:', error);
       toast.error("Error al añadir al carrito", {
         duration: 3000,
-        style: {
-          position: 'fixed',
-          top: '64px',  
-          right: '10px', 
-          zIndex: 9999,
-        },
       });
     });
   };

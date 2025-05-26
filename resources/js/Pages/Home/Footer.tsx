@@ -85,8 +85,8 @@ const Footer = () => {
               <CreditCardIcon className="h-6 w-6 text-white" />
             </div>
             <div className="text-center sm:text-left">
-              <h4 className="font-semibold text-sm">Métodos de Pago</h4>
-              <p className="text-xs text-neutral-400">Yape, Plin y efectivo</p>
+              <h4 className="font-semibold text-sm">Pagos Seguros</h4>
+              <p className="text-xs text-neutral-400">Pagos digitales y en tienda</p>
             </div>
           </div>
 
@@ -95,8 +95,8 @@ const Footer = () => {
               <TruckIcon className="h-6 w-6 text-white" />
             </div>
             <div className="text-center sm:text-left">
-              <h4 className="font-semibold text-sm">Retiro en Tienda</h4>
-              <p className="text-xs text-neutral-400">Disponibilidad inmediata</p>
+              <h4 className="font-semibold text-sm">Envío y Retiro</h4>
+              <p className="text-xs text-neutral-400">Entrega rápida y segura</p>
             </div>
           </div>
 
@@ -105,8 +105,8 @@ const Footer = () => {
               <ShieldCheckIcon className="h-6 w-6 text-white" />
             </div>
             <div className="text-center sm:text-left">
-              <h4 className="font-semibold text-sm">Garantía Original</h4>
-              <p className="text-xs text-neutral-400">Repuestos certificados</p>
+              <h4 className="font-semibold text-sm">Garantía de Calidad</h4>
+              <p className="text-xs text-neutral-400">Productos originales garantizados</p>
             </div>
           </div>
 
@@ -115,8 +115,8 @@ const Footer = () => {
               <HeadphonesIcon className="h-6 w-6 text-white" />
             </div>
             <div className="text-center sm:text-left">
-              <h4 className="font-semibold text-sm">Asesoría Técnica</h4>
-              <p className="text-xs text-neutral-400">Expertos en repuestos</p>
+              <h4 className="font-semibold text-sm">Soporte Especializado</h4>
+              <p className="text-xs text-neutral-400">Asesoría profesional en motos</p>
             </div>
           </div>
         </div>
@@ -256,30 +256,34 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 py-6 border-t border-neutral-800">
+        </div>          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 py-6 border-t border-neutral-800">
           <div className="flex items-center justify-center sm:justify-start gap-3">
             <div className="w-10 h-10 bg-[var(--custom-blue)] rounded-full flex items-center justify-center">
               <MapPinIcon className="h-5 w-5 text-white" />
             </div>
             <span className="text-sm text-neutral-400">
-              <a href="https://maps.app.goo.gl/aihry7fG7kKrb5xp6"
-                target="_blank" rel="noopener noreferrer" className="hover:text-neutral-200 transition-colors">Av. Huayna Capac 168, Cusco - Perú</a>
+              <a 
+                href="https://www.google.com/maps/search/?api=1&query=-13.521869713279548,-71.96909860496798" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-neutral-200 transition-colors"
+              >
+                <div>Taller Técnico Rudolf Motos</div>
+              </a>
             </span>
           </div>
           <div className="flex items-center justify-center gap-3">
             <div className="w-10 h-10 bg-[var(--custom-blue)] rounded-full flex items-center justify-center">
               <PhoneIcon className="h-5 w-5 text-white" />
             </div>
-            <span className="text-sm text-neutral-400">+51 997 205 032</span>
+            <span className="text-sm text-neutral-400">+51 913 223 471</span>
           </div>
           <div className="flex items-center justify-center sm:justify-end gap-3">
             <div className="w-10 h-10 bg-[var(--custom-blue)] rounded-full flex items-center justify-center">
               <MailIcon className="h-5 w-5 text-white" />
             </div>
             <span className="text-sm text-neutral-400">
-              <a href="mailto:rogeralfarohuaman@gmail.com" className="hover:text-neutral-200 transition-colors">rogeralfarohuaman@gmail.com </a>
+              <a href="mailto:rogeralfarohuaman@gmail.com" className="hover:text-neutral-200 transition-colors">rogeralfarohuaman@gmail.com</a>
             </span>
           </div>
         </div>
@@ -287,7 +291,7 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-neutral-800">
           <div className="text-left mb-4 md:mb-0 md:w-1/3">
             <p className="text-xs text-neutral-500">
-              © {currentYear} Rudolf Motos. Especialistas en Repuestos y Accesorios para Motos.
+              © {currentYear} Rudolf Motos. Todos los derechos reservados.
             </p>
           </div>
           <div className="flex flex-col items-center mb-4 md:mb-0 md:w-1/3">
@@ -295,16 +299,21 @@ const Footer = () => {
               <img src="https://cdn.brandfetch.io/id08GK8vip/w/960/h/960/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B" alt="Yape" className="h-8 opacity-70 hover:opacity-100 transition-opacity rounded-lg" />
               <img src="https://plin.pe/wp-content/themes/plin/favicon/apple-icon-57x57.png" alt="Plin" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
               <img src="https://play-lh.googleusercontent.com/gBpVaCpZsbBrLufT06aRpuLQvsUq1KAZUCEof_ps76mtB8_llJg3xv24mey8I0m3dUE=w240-h480-rw" alt="BCP" className="h-8 opacity-70 hover:opacity-100 transition-opacity rounded-lg" />
-              <img src="https://www.cmac-cusco.com.pe/images/logo-cajacuzco.svg" alt="Caja Cusco" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
+              <img src="https://logosandtypes.com/wp-content/uploads/2023/11/caja-cusco.svg" alt="Caja Cusco" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
               <img src="https://play-lh.googleusercontent.com/SQpDeQodE-GEQkSYJNcZL6oGxCDZO4QZ6HLiW0zA1RQGrg-BnDPES47CG3NMWSbkDKk=w240-h480-rw" alt="Wayki" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
               <img src="https://cdn.aglty.io/scotiabank-peru/imagenes/2022/logos/logo-scotiabank-symbol.svg" alt="Scotiabank" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
             </div>
           </div>
           <div className="text-center mb-4 md:mb-0 md:w-1/3">
             <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 mt-2 sm:mt-4">
-              <a href="#" className="text-xs text-neutral-500 hover:text-[var(--custom-blue)] transition-colors">Términos de Servicio</a>
-              <a href="#" className="text-xs text-neutral-500 hover:text-[var(--custom-blue)] transition-colors">Política de Privacidad</a>
-              <a href="#" className="text-xs text-neutral-500 hover:text-[var(--custom-blue)] transition-colors">Garantía y Devoluciones</a>
+              <a 
+                href="/pdf/terminosycondiciones.pdf" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-xs text-neutral-500 hover:text-[var(--custom-blue)] transition-colors"
+              >
+                Términos y condiciones
+              </a>
             </div>
           </div>
         </div>

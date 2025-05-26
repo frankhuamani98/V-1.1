@@ -692,7 +692,6 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
           </div>
         </DialogContent>
       </Dialog>
-      <Toaster richColors position="top-right" />
     </>
   );
 };

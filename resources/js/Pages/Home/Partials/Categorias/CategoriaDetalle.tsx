@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { Head } from '@inertiajs/react';
+import React, { useState, useEffect } from 'react';
+import { Head, Link } from '@inertiajs/react';
 import { PageProps } from '@/types';
 import Header from '../../Header';
 import Footer from '../../Footer';
+import axios, { AxiosError } from 'axios';
 import { 
   Card, 
   CardContent, 
@@ -31,7 +32,6 @@ import {
   TabsList, 
   TabsTrigger 
 } from "@/Components/ui/tabs";
-import { Link } from '@inertiajs/react';
 import { toast } from "sonner";
 
 interface Subcategoria {
@@ -80,6 +80,21 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
   const [displayMode, setDisplayMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<string>('newest');
 
+  useEffect(() => {
+    if (productos.length > 0) {
+      axios.get('/favorites')
+        .then(response => {
+          if (response.data.success && response.data.data) {
+            const favoriteProductIds = response.data.data.map((item: any) => item.producto_id);
+            setFavorites(favoriteProductIds);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching favorites:', error);
+        });
+    }
+  }, [productos]);
+
   const handleImageUrl = (image: string): string => {
     return image.startsWith('http') ? image : `/storage/${image}`;
   };
@@ -95,55 +110,58 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
   };
 
   const toggleFavorite = (productId: number) => {
-    setFavorites(prev => {
-      const newFavorites = prev.includes(productId)
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId];
-
-      if (newFavorites.includes(productId)) {
-        toast.success("Añadido a favoritos", {
-          description: `${productos.find(p => p.id === productId)?.nombre} ha sido añadido a tus favoritos.`,
+    axios.post('/favorites/toggle', { producto_id: productId })
+      .then(response => {
+        if (response.data.success) {
+          if (response.data.isFavorite) {
+            setFavorites(prev => [...prev, productId]);
+            toast.success("Añadido a favoritos", {
+              description: `${productos.find(p => p.id === productId)?.nombre} ha sido añadido a tus favoritos.`,
+              duration: 3000,
+            });
+          } else {
+            setFavorites(prev => prev.filter(id => id !== productId));
+            toast("Eliminado de favoritos", {
+              description: `${productos.find(p => p.id === productId)?.nombre} ha sido eliminado de tus favoritos.`,
+              duration: 3000,
+            });
+          }
+          
+          const event = new CustomEvent('favorites-updated');
+          window.dispatchEvent(event);
+        }
+      })
+      .catch(error => {
+        console.error('Error toggling favorite:', error);
+        toast.error("Error al actualizar favoritos", {
           duration: 3000,
-          style: {
-            position: 'fixed',
-            top: '64px',
-            right: '10px',
-            zIndex: 9999,
-          },
         });
-      } else {
-        toast("Eliminado de favoritos", {
-          description: `${productos.find(p => p.id === productId)?.nombre} ha sido eliminado de tus favoritos.`,
-          duration: 3000,
-          style: {
-            position: 'fixed',
-            top: '64px',
-            right: '10px', 
-            zIndex: 9999,
-          },
-        });
-      }
-
-      return newFavorites;
-    });
+      });
   };
 
   const addToCart = (productId: number) => {
-    setCart(prev => {
-      const newCart = [...prev, productId];
-
-      toast.success("Añadido al carrito", {
-        description: `${productos.find(p => p.id === productId)?.nombre} ha sido añadido a tu carrito.`,
+    axios.post('/cart/add', {
+      producto_id: productId,
+      quantity: 1
+    })
+    .then(response => {
+      if (response.data.success) {
+        setCart(prev => [...prev, productId]);
+        
+        toast.success("Añadido al carrito", {
+          description: `${productos.find(p => p.id === productId)?.nombre} ha sido añadido a tu carrito.`,
+          duration: 3000,
+        });
+        
+        const event = new CustomEvent('cart-updated');
+        window.dispatchEvent(event);
+      }
+    })
+    .catch((error: AxiosError) => {
+      console.error('Error adding to cart:', error);
+      toast.error("Error al añadir al carrito", {
         duration: 3000,
-        style: {
-          position: 'fixed',
-          top: '64px',
-          right: '10px',
-          zIndex: 9999,
-        },
       });
-
-      return newCart;
     });
   };
 

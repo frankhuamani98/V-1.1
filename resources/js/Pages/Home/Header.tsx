@@ -129,6 +129,9 @@ const CartItem = ({
   onRemove: (id: number) => void;
 }) => {
   const subtotal = product.precio_final * product.quantity;
+
+  // Nueva lógica para mostrar descuento y precio base
+  const showDiscount = product.precio > product.precio_final;
   
   return (
     <div className="group flex items-start py-3 gap-3 rounded-lg transition-all duration-200 hover:bg-accent/30">
@@ -158,7 +161,7 @@ const CartItem = ({
           <span className="text-sm font-medium">
             {formatPrice(product.precio_final)}
           </span>
-          {product.descuento > 0 && (
+          {showDiscount && (
             <>
               <span className="ml-2 text-xs line-through text-muted-foreground">{formatPrice(product.precio)}</span>
               <Badge variant="destructive" className="ml-1 text-[10px] h-4 px-1">
@@ -192,8 +195,11 @@ const FavoriteItem = ({
   onRemove: (id: number) => void;
   onAddToCart: (product: FavoriteItem) => void;
 }) => {
+  // Nueva lógica para mostrar descuento y precio base
+  const showDiscount = (product.precio ?? 0) > (product.precio_final ?? 0);
+
   const getDisplayPrice = () => {
-    if (product.descuento && product.descuento > 0) {
+    if (showDiscount) {
       return (
         <div className="flex items-center">
           <span className="font-medium">{formatPrice(product.precio_final)}</span>
@@ -206,6 +212,19 @@ const FavoriteItem = ({
     }
     return <span className="font-medium">{formatPrice(product.precio_final || product.precio)}</span>;
   };
+
+  // Detectar si estamos en checkout para deshabilitar el botón
+  const page = usePage();
+  let currentUrl = page.url || (page as any).location?.pathname || window.location.pathname;
+  let cleanUrl = (currentUrl || "").split("?")[0];
+  if (cleanUrl.startsWith("http")) {
+    try {
+      cleanUrl = new URL(cleanUrl).pathname;
+    } catch {}
+  }
+  const isCheckout =
+    cleanUrl === "/checkout/informacion" ||
+    cleanUrl === "/checkout/metodos-pago";
 
   return (
     <div className="group flex items-start py-3 gap-3 rounded-lg transition-all duration-200 hover:bg-accent/30">
@@ -235,6 +254,7 @@ const FavoriteItem = ({
           size="sm"
           className="mt-2 h-8 text-xs font-medium bg-primary/5 hover:bg-primary/10 text-primary hover:text-primary border-primary/20 transition-all duration-200 group-hover:translate-y-[-2px]"
           onClick={() => onAddToCart(product)}
+          disabled={isCheckout}
         >
           <ShoppingCartIcon className="h-3 w-3 mr-1" />
           Añadir al carrito
@@ -320,6 +340,8 @@ export default function Header() {
   const [searchSelected, setSearchSelected] = useState<number>(-1);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const page = usePage();
+  const currentUrl = page.url || (page as any).location?.pathname || window.location.pathname;
 
   useEffect(() => {
     if (user) {
@@ -369,23 +391,11 @@ export default function Header() {
         fetchCartItems();
         toast.success("Producto añadido al carrito", {
           duration: 3000,
-          style: {
-                    position: 'fixed',
-                    top: '65px',  
-                    right: '10px', 
-                    zIndex: 9999,
-                  }
         });
       } else if (response.data.message?.includes("ya está en el carrito")) {
         toast.info("Producto ya en el carrito", {
           description: `${product.nombre || 'Este producto'} ya está en tu carrito.`,
           duration: 3000,
-          style: {
-                    position: 'fixed',
-                    top: '65px',  
-                    right: '10px', 
-                    zIndex: 9999,
-                  }
         });
       }
     })
@@ -396,12 +406,6 @@ export default function Header() {
         toast.info("Producto ya en el carrito", {
           description: `${product.nombre || 'Este producto'} ya está en tu carrito.`,
           duration: 3000,
-          style: {
-                    position: 'fixed',
-                    top: '65px',  
-                    right: '10px', 
-                    zIndex: 9999,
-                  }
         });
         return;
       }
@@ -410,24 +414,12 @@ export default function Header() {
         toast.error("Stock insuficiente", {
           description: "No hay suficiente stock disponible para este producto.",
           duration: 3000,
-          style: {
-                    position: 'fixed',
-                    top: '65px',  
-                    right: '10px', 
-                    zIndex: 9999,
-                  }
         });
         return;
       }
       
       toast.error("Error al añadir al carrito", {
         duration: 3000,
-        style: {
-                    position: 'fixed',
-                    top: '65px',  
-                    right: '10px', 
-                    zIndex: 9999,
-                  }
       });
     });
   };
@@ -444,23 +436,11 @@ export default function Header() {
         fetchFavoriteItems();
         toast.success("Producto añadido a favoritos", {
           duration: 3000,
-          style: {
-                    position: 'fixed',
-                    top: '65px',  
-                    right: '10px', 
-                    zIndex: 9999,
-                  }
         });
       } else if (response.data.message?.includes("ya está en favoritos")) {
         toast.info("Producto ya en favoritos", {
           description: `${product.nombre || 'Este producto'} ya está en tus favoritos.`,
           duration: 3000,
-          style: {
-                    position: 'fixed',
-                    top: '65px',  
-                    right: '10px', 
-                    zIndex: 9999,
-                  }
         });
       }
     })
@@ -471,25 +451,12 @@ export default function Header() {
         toast.info("Producto ya en favoritos", {
           description: `${product.nombre || 'Este producto'} ya está en tus favoritos.`,
           duration: 3000,
-          style: {
-                    position: 'fixed',
-                    top: '65px',  
-                    right: '10px', 
-                    zIndex: 9999,
-                  }
         });
         return;
       }
       
       toast.error("Error al añadir a favoritos", {
         duration: 3000,
-        style: {
-                    position: 'fixed',
-                    top: '65px',  
-                    right: '10px', 
-                    zIndex: 9999,
-                  }
-          
       });
     });
   };
@@ -531,12 +498,6 @@ export default function Header() {
           fetchCartItems();
           toast.success("Producto eliminado del carrito", {
             duration: 3000,
-            style: {
-              position: 'fixed',
-              top: '64px',
-              right: '10px',
-              zIndex: 9999,
-            },
           });
         }
       })
@@ -544,12 +505,6 @@ export default function Header() {
         console.error('Error removing from cart:', error);
         toast.error("Error al eliminar del carrito", {
           duration: 3000,
-          style: {
-            position: 'fixed',
-            top: '64px',
-            right: '10px',
-            zIndex: 9999,
-          },
         });
       });
   };
@@ -561,12 +516,6 @@ export default function Header() {
           fetchFavoriteItems();
           toast.success("Producto eliminado de favoritos", {
             duration: 3000,
-            style: {
-              position: 'fixed',
-              top: '64px',
-              right: '10px',
-              zIndex: 9999,
-            },
           });
         }
       })
@@ -574,12 +523,6 @@ export default function Header() {
         console.error('Error removing from favorites:', error);
         toast.error("Error al eliminar de favoritos", {
           duration: 3000,
-          style: {
-            position: 'fixed',
-            top: '64px',
-            right: '10px',
-            zIndex: 9999,
-          },
         });
       });
   };
@@ -598,24 +541,12 @@ export default function Header() {
           toast.info("Producto ya en el carrito", {
             description: `${product.nombre} ya está en tu carrito.`,
             duration: 3000,
-            style: {
-              position: 'fixed',
-              top: '64px',
-              right: '10px',
-              zIndex: 9999,
-            },
           });
         } else {
           fetchCartItems();
           toast.success("Añadido al carrito", {
             description: `${product.nombre} ha sido añadido a tu carrito.`,
             duration: 3000,
-            style: {
-              position: 'fixed',
-              top: '64px',
-              right: '10px',
-              zIndex: 9999,
-            },
           });
         }
       } else if (response.data.message === "Product already in cart" || 
@@ -623,12 +554,6 @@ export default function Header() {
         toast.info("Producto ya en el carrito", {
           description: `${product.nombre} ya está en tu carrito.`,
           duration: 3000,
-          style: {
-            position: 'fixed',
-            top: '64px',
-            right: '10px',
-            zIndex: 9999,
-          },
         });
       }
     })
@@ -644,63 +569,27 @@ export default function Header() {
         } else if (error.response.status === 422) {
           toast.error('No se pudo añadir el producto (error de validación)', {
             duration: 3000,
-            style: {
-              position: 'fixed',
-              top: '64px',
-              right: '10px',
-              zIndex: 9999,
-            },
           });
         } else if (error.response.status === 404) {
           toast.error('El producto no está disponible actualmente', {
             duration: 3000,
-            style: {
-              position: 'fixed',
-              top: '64px',
-              right: '10px',
-              zIndex: 9999,
-            },
           });
         } else if (error.response.status === 400) {
           toast.error('No hay suficiente stock disponible', {
             duration: 3000,
-            style: {
-              position: 'fixed',
-              top: '64px',
-              right: '10px',
-              zIndex: 9999,
-            },
           });
         } else {
           toast.error(`Error al añadir al carrito: ${error.response.status}`, {
             duration: 3000,
-            style: {
-              position: 'fixed',
-              top: '64px',
-              right: '10px',
-              zIndex: 9999,
-            },
           });
         }
       } else if (error.request) {
         toast.error('No se pudo conectar con el servidor. Verifica tu conexión', {
           duration: 3000,
-          style: {
-            position: 'fixed',
-            top: '64px',
-            right: '10px',
-            zIndex: 9999,
-          },
         });
       } else {
         toast.error("Error al añadir al carrito", {
           duration: 3000,
-          style: {
-            position: 'fixed',
-            top: '64px',
-            right: '10px',
-            zIndex: 9999,
-          },
         });
       }
     });
@@ -941,6 +830,17 @@ export default function Header() {
     }
     return <span className="font-semibold text-primary">{prod.precio_final || prod.price || ""}</span>;
   };
+
+  // Detectar si estamos en sección de carrito o compra
+  function isCartSection(url: string) {
+    // Normaliza la url (quita query params)
+    const cleanUrl = url.split('?')[0];
+    return (
+      cleanUrl === "/cart" ||
+      cleanUrl === "/checkout/informacion" ||
+      cleanUrl === "/checkout/metodos-pago"
+    );
+  }
 
   return (
     <>
@@ -1190,7 +1090,6 @@ export default function Header() {
                               onRemove={removeFromFavorites} 
                               onAddToCart={addToCartFromFavorites} 
                             />
-                            {/* No separator needed with the new design */}
                           </div>
                         ))
                       ) : (
@@ -1209,41 +1108,85 @@ export default function Header() {
                     {favorites.length > 0 && (
                       <div className="p-4 bg-muted/30 border-t">
                         <div className="flex flex-col gap-2">
-                          <Button 
-                            variant="outline" 
-                            className="w-full bg-rose-500/5 hover:bg-rose-500/10 text-rose-600 border-rose-200 hover:text-rose-700"
-                            onClick={() => {
-                              const itemsToAdd = favorites.filter(item => 
-                                !cart.some(cartItem => cartItem.producto_id === item.producto_id)
+                          {(() => {
+                            // Normaliza la ruta actual para asegurar coincidencia exacta
+                            let cleanUrl = (currentUrl || "").split("?")[0];
+                            if (cleanUrl.startsWith("http")) {
+                              try {
+                                cleanUrl = new URL(cleanUrl).pathname;
+                              } catch {}
+                            }
+                            if (
+                              cleanUrl === "/checkout/informacion" ||
+                              cleanUrl === "/checkout/metodos-pago"
+                            ) {
+                              // Solo muestra el mensaje, con efecto carrusel (marquee)
+                              return (
+                                <div className="w-full flex flex-col items-center justify-center gap-2">
+                                  <div className="overflow-hidden w-full">
+                                    <div
+                                      className="whitespace-nowrap animate-marquee text-sm text-center text-blue-700 dark:text-blue-200 font-semibold"
+                                      style={{
+                                        display: "inline-block",
+                                        minWidth: "100%",
+                                        animation: "marquee 8s linear infinite"
+                                      }}
+                                    >
+                                      Finaliza o cancela tu compra antes de agregar productos al carrito o ver tus favoritos.
+                                    </div>
+                                  </div>
+                                  <style>
+                                    {`
+                                      @keyframes marquee {
+                                        0% { transform: translateX(100%); }
+                                        100% { transform: translateX(-100%); }
+                                      }
+                                      .animate-marquee {
+                                        animation: marquee 8s linear infinite;
+                                      }
+                                    `}
+                                  </style>
+                                </div>
                               );
-                              
-                              if (itemsToAdd.length === 0) {
-                                toast.info("Todos los favoritos ya están en el carrito", {
-                                  duration: 3000,
-                                });
-                                return;
-                              }
-                              
-                              itemsToAdd.forEach(item => {
-                                const event = new CustomEvent('add-to-cart', { detail: {...item, quantity: 1} });
-                                window.dispatchEvent(event);
-                              });
-                              
-                              toast.success(`${itemsToAdd.length} producto(s) añadido(s) al carrito`, {
-                                duration: 3000,
-                              });
-                              setIsFavoritesOpen(false);
-                            }}
-                          >
-                            <ShoppingCartIcon className="h-4 w-4 mr-2" />
-                            Agregar Todo al Carrito
-                          </Button>
-                          <Button asChild className="w-full bg-white text-gray-700 border border-gray-200 hover:border-gray-300 rounded-lg group hover:bg-gray-50 transition-all duration-200">
-                            <a href="/favorites" className="flex items-center justify-center gap-1.5 py-1.5">
-                              <HeartIcon className="h-4 w-4 text-rose-400 group-hover:text-rose-500 transition-colors duration-200" />
-                              <span className="font-medium group-hover:text-gray-900 transition-colors duration-200">Ver todos los favoritos</span>
-                            </a>
-                          </Button>
+                            }
+                            // ...botones normales si no está en checkout...
+                            return (
+                              <>
+                                <Button 
+                                  variant="outline" 
+                                  className="w-full bg-rose-500/5 hover:bg-rose-500/10 text-rose-600 border-rose-200 hover:text-rose-700"
+                                  onClick={() => {
+                                    const itemsToAdd = favorites.filter(item => 
+                                      !cart.some(cartItem => cartItem.producto_id === item.producto_id)
+                                    );
+                                    
+                                    if (itemsToAdd.length === 0) {
+                                      toast.info("Todos los favoritos ya están en el carrito", {
+                                        duration: 3000,
+                                      });
+                                      return;
+                                    }
+                                    
+                                    itemsToAdd.forEach(item => {
+                                      const event = new CustomEvent('add-to-cart', { detail: {...item, quantity: 1} });
+                                      window.dispatchEvent(event);
+                                    });
+                                    
+                                    toast.success(`${itemsToAdd.length} producto(s) añadido(s) al carrito`, {
+                                      duration: 3000,
+                                    });
+                                    setIsFavoritesSheetOpen(false);
+                                  }}
+                                >
+                                  <ShoppingCartIcon className="h-4 w-4 mr-2" />
+                                  Agregar Todo al Carrito
+                                </Button>
+                                <Button asChild variant="ghost" className="w-full">
+                                  <a href="/favorites">Ver Todos los Favoritos</a>
+                                </Button>
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
                     )}
@@ -1308,7 +1251,6 @@ export default function Header() {
                         cart.map((product) => (
                           <div key={product.id} className="mb-2 last:mb-0">
                             <CartItem product={product} onRemove={removeFromCart} />
-                            {/* No separator needed with the new design */}
                           </div>
                         ))
                       ) : (
@@ -1335,12 +1277,21 @@ export default function Header() {
                           <span className="font-bold text-lg">{formatPrice(cartTotal)}</span>
                         </div>
                         <div className="flex flex-col gap-2">
-                          <Button asChild className="w-full bg-white text-gray-700 border border-gray-200 hover:border-gray-300 rounded-lg group hover:bg-gray-50 transition-all duration-200">
-                            <a href="/cart" className="flex items-center justify-center gap-1.5 py-1.5">
-                              <ShoppingBagIcon className="h-4 w-4 text-primary/70 group-hover:text-primary transition-colors duration-200" />
-                              <span className="font-medium group-hover:text-gray-900 transition-colors duration-200">Ver Carrito</span>
-                            </a>
-                          </Button>
+                          {isCartSection(currentUrl) ? (
+                            <Button
+                              className="w-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 cursor-not-allowed"
+                              disabled
+                            >
+                              Ya estás en la sección de compra o carrito
+                            </Button>
+                          ) : (
+                            <Button asChild className="w-full bg-white text-gray-700 border border-gray-200 hover:border-gray-300 rounded-lg group hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700 dark:hover:bg-gray-800 transition-all duration-200">
+                              <a href="/cart" className="flex items-center justify-center gap-1.5 py-1.5">
+                                <ShoppingBagIcon className="h-4 w-4 text-primary/70 group-hover:text-primary transition-colors duration-200" />
+                                <span className="font-medium group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors duration-200">Ver Carrito</span>
+                              </a>
+                            </Button>
+                          )}
                         </div>
                       </div>
                     )}
@@ -1533,18 +1484,30 @@ export default function Header() {
 
               {cart.length > 0 && (
                 <div className="border-t bg-muted/30 p-4">
-                  <div className="flex justify-between mb-2">
-                    <span className="text-muted-foreground">Subtotal</span>
+                  <div className="flex justify-between mb-3">
+                    <span className="text-muted-foreground">Subtotal:</span>
                     <span className="font-medium">{formatPrice(cartTotal)}</span>
                   </div>
                   <div className="flex justify-between mb-4">
-                    <span className="font-medium">Total</span>
+                    <span className="font-medium">Total:</span>
                     <span className="font-bold text-lg">{formatPrice(cartTotal)}</span>
                   </div>
-                  <div className="space-y-3">
-                    <Button className="w-full" asChild>
-                      <a href="/cart">Ver Carrito</a>
-                    </Button>
+                  <div className="flex flex-col gap-2">
+                    {isCartSection(currentUrl) ? (
+                      <Button
+                        className="w-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 cursor-not-allowed"
+                        disabled
+                      >
+                        Ya estás en la sección de compra o carrito
+                      </Button>
+                    ) : (
+                      <Button asChild className="w-full bg-white text-gray-700 border border-gray-200 hover:border-gray-300 rounded-lg group hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700 dark:hover:bg-gray-800 transition-all duration-200">
+                        <a href="/cart" className="flex items-center justify-center gap-1.5 py-1.5">
+                          <ShoppingBagIcon className="h-4 w-4 text-primary/70 group-hover:text-primary transition-colors duration-200" />
+                          <span className="font-medium group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors duration-200">Ver Carrito</span>
+                        </a>
+                      </Button>
+                    )}
                   </div>
                 </div>
               )}
@@ -1601,38 +1564,85 @@ export default function Header() {
               {favorites.length > 0 && (
                 <div className="border-t bg-muted/30 p-4">
                   <div className="space-y-3">
-                    <Button 
-                      variant="outline" 
-                      className="w-full bg-rose-500/5 hover:bg-rose-500/10 text-rose-600 border-rose-200 hover:text-rose-700"
-                      onClick={() => {
-                        const itemsToAdd = favorites.filter(item => 
-                          !cart.some(cartItem => cartItem.producto_id === item.producto_id)
+                    {(() => {
+                      // Normaliza la ruta actual para asegurar coincidencia exacta
+                      let cleanUrl = (currentUrl || "").split("?")[0];
+                      if (cleanUrl.startsWith("http")) {
+                        try {
+                          cleanUrl = new URL(cleanUrl).pathname;
+                        } catch {}
+                      }
+                      if (
+                        cleanUrl === "/checkout/informacion" ||
+                        cleanUrl === "/checkout/metodos-pago"
+                      ) {
+                        // Solo muestra el mensaje, con efecto carrusel (marquee)
+                        return (
+                          <div className="w-full flex flex-col items-center justify-center gap-2">
+                            <div className="overflow-hidden w-full">
+                              <div
+                                className="whitespace-nowrap animate-marquee text-sm text-center text-blue-700 dark:text-blue-200 font-semibold"
+                                style={{
+                                  display: "inline-block",
+                                  minWidth: "100%",
+                                  animation: "marquee 8s linear infinite"
+                                }}
+                              >
+                                Finaliza o cancela tu compra antes de agregar productos al carrito o ver tus favoritos.
+                              </div>
+                            </div>
+                            <style>
+                              {`
+                                @keyframes marquee {
+                                  0% { transform: translateX(100%); }
+                                  100% { transform: translateX(-100%); }
+                                }
+                                .animate-marquee {
+                                  animation: marquee 8s linear infinite;
+                                }
+                              `}
+                            </style>
+                          </div>
                         );
-                        
-                        if (itemsToAdd.length === 0) {
-                          toast.info("Todos los favoritos ya están en el carrito", {
-                            duration: 3000,
-                          });
-                          return;
-                        }
-                        
-                        itemsToAdd.forEach(item => {
-                          const event = new CustomEvent('add-to-cart', { detail: {...item, quantity: 1} });
-                          window.dispatchEvent(event);
-                        });
-                        
-                        toast.success(`${itemsToAdd.length} producto(s) añadido(s) al carrito`, {
-                          duration: 3000,
-                        });
-                        setIsFavoritesSheetOpen(false);
-                      }}
-                    >
-                      <ShoppingCartIcon className="h-4 w-4 mr-2" />
-                      Agregar Todo al Carrito
-                    </Button>
-                    <Button asChild variant="ghost" className="w-full">
-                      <a href="/favorites">Ver Todos los Favoritos</a>
-                    </Button>
+                      }
+                      // ...botones normales si no está en checkout...
+                      return (
+                        <>
+                          <Button 
+                            variant="outline" 
+                            className="w-full bg-rose-500/5 hover:bg-rose-500/10 text-rose-600 border-rose-200 hover:text-rose-700"
+                            onClick={() => {
+                              const itemsToAdd = favorites.filter(item => 
+                                !cart.some(cartItem => cartItem.producto_id === item.producto_id)
+                              );
+                              
+                              if (itemsToAdd.length === 0) {
+                                toast.info("Todos los favoritos ya están en el carrito", {
+                                  duration: 3000,
+                                });
+                                return;
+                              }
+                              
+                              itemsToAdd.forEach(item => {
+                                const event = new CustomEvent('add-to-cart', { detail: {...item, quantity: 1} });
+                                window.dispatchEvent(event);
+                              });
+                              
+                              toast.success(`${itemsToAdd.length} producto(s) añadido(s) al carrito`, {
+                                duration: 3000,
+                              });
+                              setIsFavoritesSheetOpen(false);
+                            }}
+                          >
+                            <ShoppingCartIcon className="h-4 w-4 mr-2" />
+                            Agregar Todo al Carrito
+                          </Button>
+                          <Button asChild variant="ghost" className="w-full">
+                            <a href="/favorites">Ver Todos los Favoritos</a>
+                          </Button>
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
               )}

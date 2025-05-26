@@ -64,11 +64,6 @@ export default function MotorcycleSearch({ motoData }: Props) {
         toast.success("¡Bienvenido a Rudolf Motos!", {
           description: "Piezas originales y compatibles con garantía asegurada.",
           duration: 5000,
-          style: {
-            marginTop: '40px',
-            zIndex: 100
-          },
-          position: "top-right",
         })
         sessionStorage.setItem("hasSeenWelcome", "true")
       }, 1500)
@@ -144,12 +139,6 @@ export default function MotorcycleSearch({ motoData }: Props) {
 
     toast.success("Buscando piezas", {
       description: `Localizando componentes para tu ${brand} ${model} ${year}`,
-      style: {
-        position: 'fixed',
-        top: '65px',  
-        right: '10px', 
-        zIndex: 9999,
-      }
     })
 
     setTimeout(() => {
@@ -165,12 +154,6 @@ export default function MotorcycleSearch({ motoData }: Props) {
     setLoading(true)
     toast.success("Búsqueda rápida", {
       description: `Localizando componentes para tu ${search.brand} ${search.model} ${search.year}`,
-      style: {
-        position: 'fixed',
-        top: '65px',  
-        right: '10px', 
-        zIndex: 9999,
-      }
     })
 
     setTimeout(() => {

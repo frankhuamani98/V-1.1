@@ -109,12 +109,6 @@ export default function Cart({ cartItems: initialCartItems, total: initialTotal 
           
           toast.success('Producto eliminado del carrito', {
             duration: 3000,
-            style: {
-              position: 'fixed',
-              top: '64px',
-              right: '10px',
-              zIndex: 9999,
-            },
           });
           
           const event = new CustomEvent('cart-updated');
@@ -125,12 +119,6 @@ export default function Cart({ cartItems: initialCartItems, total: initialTotal 
         console.error('Error removing item:', error);
         toast.error('Error al eliminar producto', {
           duration: 3000,
-          style: {
-            position: 'fixed',
-            top: '64px',
-            right: '10px',
-            zIndex: 9999,
-          },
         });
       })
       .finally(() => {
@@ -148,12 +136,6 @@ export default function Cart({ cartItems: initialCartItems, total: initialTotal 
           
           toast.success('Carrito vaciado', {
             duration: 3000,
-            style: {
-              position: 'fixed',
-              top: '64px',
-              right: '10px',
-              zIndex: 9999,
-            },
           });
           
           const event = new CustomEvent('cart-updated');
@@ -164,12 +146,6 @@ export default function Cart({ cartItems: initialCartItems, total: initialTotal 
         console.error('Error clearing cart:', error);
         toast.error('Error al vaciar el carrito', {
           duration: 3000,
-          style: {
-            position: 'fixed',
-            top: '64px',
-            right: '10px',
-            zIndex: 9999,
-          },
         });
       })
       .finally(() => {
@@ -241,7 +217,7 @@ export default function Cart({ cartItems: initialCartItems, total: initialTotal 
                                 </Link>
                               </h3>
                             </div>
-                            {item.descuento > 0 && (
+                            {(item.precio > item.precio_final) && (
                               <div className="flex items-center mt-1">
                                 <span className="text-sm text-red-600">-{item.descuento}%</span>
                                 <span className="ml-2 text-sm text-gray-500 dark:text-gray-300 line-through">
