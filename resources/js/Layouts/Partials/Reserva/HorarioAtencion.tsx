@@ -41,7 +41,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/Comp
 import { cn } from "@/lib/utils";
 
 const diasSemana: DiaSemana[] = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"];
-const colorCeleste = "bg-blue-50 text-blue-800";
 
 const horarioRecurrenteSchema = z.object({
     dia_semana: z.enum(["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"] as const),
@@ -149,120 +148,107 @@ const CalendarioHorarios: React.FC<{
         }
     };
     
-    const weekDays = [
-        { label: 'Lun' },
-        { label: 'Mar' },
-        { label: 'Mié' },
-        { label: 'Jue' },
-        { label: 'Vie' },
-        { label: 'Sáb' },
-        { label: 'Dom' },
-    ];
-
+    const weekDays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+    
     return (
-        <div className="space-y-6">
-            <div className="flex flex-wrap items-center justify-center gap-4 mb-2">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={prevMonth}
-                    className="w-10 h-10 rounded-full border border-blue-200 shadow hover:bg-blue-100 transition"
-                >
-                    <ChevronLeft className="h-5 w-5" />
-                </Button>
-                <div className="font-extrabold text-xl sm:text-2xl tracking-tight text-blue-800 drop-shadow-sm uppercase letter-spacing-wider">
-                    {format(currentDate, 'MMMM yyyy', { locale: es })}
+        <div className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" onClick={prevMonth} className="w-8 h-8 p-0">
+                        <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <div className="font-medium text-sm sm:text-base">
+                        {format(currentDate, 'MMMM yyyy', { locale: es })}
+                    </div>
+                    <Button variant="outline" size="sm" onClick={nextMonth} className="w-8 h-8 p-0">
+                        <ChevronRight className="h-4 w-4" />
+                    </Button>
                 </div>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={nextMonth}
-                    className="w-10 h-10 rounded-full border border-blue-200 shadow hover:bg-blue-100 transition"
-                >
-                    <ChevronRight className="h-5 w-5" />
-                </Button>
             </div>
-            <div className="rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-blue-50 to-blue-100 shadow-xl p-3 sm:p-6">
-                <div className="grid grid-cols-7 gap-1 text-xs sm:text-sm">
-                    {weekDays.map((day, i) => (
-                        <div
-                            key={i}
-                            className={`text-center font-bold py-2 border-b border-blue-200 uppercase tracking-wider rounded-t-lg ${colorCeleste}`}
+            
+            <div className="grid grid-cols-7 gap-1 text-xs sm:text-sm">
+                {weekDays.map((day, i) => (
+                    <div key={i} className="text-center font-semibold py-2 border-b">
+                        {day}
+                    </div>
+                ))}
+                
+                {calendarDays.map((day, i) => {
+                    const isCurrentMonth = isSameMonth(day, currentDate);
+                    const dayStatus = getDayStatus(day);
+                    const exceptions = getDayExceptions(day);
+                    
+                    const dayClasses = cn(
+                        "min-h-[2.5rem] sm:min-h-[4rem] p-1 border rounded-md relative cursor-pointer transition-colors",
+                        {
+                            "opacity-40 bg-gray-50": !isCurrentMonth,
+                            "bg-blue-50": isToday(day),
+                            "hover:bg-gray-100": isCurrentMonth && !isToday(day),
+                            "ring-2 ring-blue-500": selectedDate && isSameDay(day, selectedDate),
+                            "bg-red-50 bg-[repeating-linear-gradient(45deg,#fee2e2,#fee2e2_4px,transparent_4px,transparent_8px)]": dayStatus.type === 'exception',
+                        }
+                    );
+                    
+                    return (
+                        <div 
+                            key={i} 
+                            className={dayClasses}
+                            onClick={() => handleDayClick(day)}
                         >
-                            {day.label}
-                        </div>
-                    ))}
-                    {calendarDays.map((day, i) => {
-                        const isCurrentMonth = isSameMonth(day, currentDate);
-                        const dayStatus = getDayStatus(day);
-                        const dayClasses = cn(
-                            "min-h-[2.5rem] sm:min-h-[4rem] p-1 border rounded-xl relative cursor-pointer transition-all duration-150 flex flex-col items-center justify-between group",
-                            colorCeleste,
-                            {
-                                "opacity-40 bg-gray-50": !isCurrentMonth,
-                                "bg-blue-200 ring-2 ring-blue-400": isToday(day),
-                                "hover:bg-blue-300": isCurrentMonth && !isToday(day),
-                                "ring-2 ring-blue-500": selectedDate && isSameDay(day, selectedDate),
-                                "bg-red-50 bg-[repeating-linear-gradient(45deg,#fee2e2,#fee2e2_4px,transparent_4px,transparent_8px)]": dayStatus.type === 'exception',
-                                "shadow-md": isToday(day) || (selectedDate && isSameDay(day, selectedDate)),
-                            }
-                        );
-                        return (
-                            <div
-                                key={i}
-                                className={dayClasses}
-                                onClick={() => handleDayClick(day)}
-                                tabIndex={0}
-                                aria-label={`Día ${format(day, 'd')} ${format(day, 'MMMM', { locale: es })}`}
-                            >
-                                <div className="w-full flex justify-end">
-                                    <span className="text-xs font-bold">{format(day, 'd')}</span>
+                            <div className="flex flex-col h-full">
+                                <div className="text-right text-sm font-medium">
+                                    {format(day, 'd')}
                                 </div>
-                                <div className="flex-grow flex items-center justify-center mt-1">
+                                
+                                <div className="flex-grow mt-1">
                                     {dayStatus.type !== 'undefined' && (
-                                        <Badge className={cn(
-                                            "text-xs px-2 py-0.5 rounded-full shadow font-semibold transition",
-                                            {
-                                                "bg-green-100 text-green-800 border border-green-200": dayStatus.status === 'open',
-                                                "bg-red-100 text-red-800 border border-red-200": dayStatus.status === 'closed',
-                                            }
-                                        )}>
-                                            {dayStatus.status === 'open' ? 'Abierto' : 'No Laboral'}
-                                        </Badge>
+                                        <div className="flex justify-center">
+                                            <Badge className={cn(
+                                                "text-xs px-1 py-0 truncate",
+                                                {
+                                                    "bg-green-100 text-green-800": dayStatus.status === 'open',
+                                                    "bg-red-100 text-red-800 font-medium": dayStatus.status === 'closed',
+                                                }
+                                            )}>
+                                                {dayStatus.status === 'open' ? 'Abierto' : 'No Laboral'}
+                                            </Badge>
+                                        </div>
+                                    )}
+                                    
+                                    {dayStatus.type === 'exception' && dayStatus.data && (
+                                        <div className="absolute bottom-1 right-1">
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger>
+                                                        <AlertCircle className="h-3 w-3 text-red-600" />
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p className="text-xs">
+                                                            {((dayStatus.data as HorarioExcepcion).motivo) || 'Día no laboral'}
+                                                        </p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                        </div>
                                     )}
                                 </div>
-                                {dayStatus.type === 'exception' && dayStatus.data && (
-                                    <div className="absolute bottom-1 right-1">
-                                        <TooltipProvider>
-                                            <Tooltip>
-                                                <TooltipTrigger>
-                                                    <AlertCircle className="h-3 w-3 text-red-600" />
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p className="text-xs">
-                                                        {((dayStatus.data as HorarioExcepcion).motivo) || 'Día no laboral'}
-                                                    </p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-                                    </div>
-                                )}
                             </div>
-                        );
-                    })}
-                </div>
+                        </div>
+                    );
+                })}
             </div>
-            <div className="flex flex-wrap gap-6 mt-6 text-xs sm:text-sm text-gray-600 justify-center">
-                <div className="flex items-center gap-2">
-                    <Badge className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full shadow border border-green-200">Abierto</Badge>
+            
+            <div className="flex flex-wrap gap-2 mt-4 text-xs sm:text-sm text-gray-600">
+                <div className="flex items-center">
+                    <Badge className="bg-green-100 text-green-800 mr-2">Abierto</Badge>
                     <span>Horario de atención</span>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Badge className="bg-red-100 text-red-800 px-2 py-0.5 rounded-full shadow border border-red-200">Cerrado</Badge>
+                <div className="flex items-center">
+                    <Badge className="bg-red-100 text-red-800 mr-2">Cerrado</Badge>
                     <span>Sin atención</span>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Info className="h-4 w-4 text-blue-600" />
+                <div className="flex items-center">
+                    <Info className="h-4 w-4 text-blue-600 mr-2" />
                     <span>Horario con excepción</span>
                 </div>
             </div>
@@ -492,44 +478,36 @@ const HorarioAtencion = ({ horariosRecurrentes, excepciones }: HorarioAtencionPr
     return (
         <div className="p-2 sm:p-4 md:p-6">
             <Card className="border-0 sm:border shadow-md rounded-xl overflow-hidden">
-                <CardHeader className="px-3 sm:px-6 py-4 bg-gradient-to-r from-blue-100 via-white to-blue-50 border-b">
+                <CardHeader className="px-3 sm:px-6 py-4 bg-white border-b">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div className="flex items-center gap-3">
                             <div className="bg-blue-100 p-2 rounded-full hidden sm:block">
                                 <Clock className="h-5 w-5 text-blue-600" />
                             </div>
                             <div>
-                                <CardTitle className="text-base sm:text-xl font-bold text-blue-900">
+                                <CardTitle className="text-base sm:text-xl font-bold text-gray-800">
                                     Horarios de Atención
                                 </CardTitle>
-                                <CardDescription className="text-xs sm:text-sm text-blue-600">
+                                <CardDescription className="text-xs sm:text-sm text-gray-500">
                                     Gestiona los horarios semanales y excepciones
                                 </CardDescription>
                             </div>
                         </div>
                     </div>
                 </CardHeader>
+
                 <CardContent className="p-2 sm:p-6">
                     <Tabs defaultValue="calendario" value={activeTab} onValueChange={setActiveTab} className="w-full">
-                        <TabsList className="mb-4 grid grid-cols-3 h-auto gap-2 bg-blue-50 rounded-xl p-1 shadow border border-blue-100">
-                            <TabsTrigger
-                                value="calendario"
-                                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-lg font-bold text-blue-800 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-blue-400 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all"
-                            >
+                        <TabsList className="mb-4 grid grid-cols-3 h-auto gap-2">
+                            <TabsTrigger value="calendario" className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2">
                                 <CalendarIcon className="h-4 w-4" />
                                 <span className="text-xs sm:text-sm">Calendario</span>
                             </TabsTrigger>
-                            <TabsTrigger
-                                value="semanal"
-                                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-lg font-bold text-blue-800 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-blue-400 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all"
-                            >
+                            <TabsTrigger value="semanal" className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2">
                                 <Clock className="h-4 w-4" />
                                 <span className="text-xs sm:text-sm">Horario</span>
                             </TabsTrigger>
-                            <TabsTrigger
-                                value="excepciones"
-                                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-lg font-bold text-blue-800 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-blue-400 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all"
-                            >
+                            <TabsTrigger value="excepciones" className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2">
                                 <AlertCircle className="h-4 w-4" />
                                 <span className="text-xs sm:text-sm">Excepciones</span>
                             </TabsTrigger>
@@ -549,10 +527,10 @@ const HorarioAtencion = ({ horariosRecurrentes, excepciones }: HorarioAtencionPr
                             <div className="flex justify-end mb-4">
                                 <Button 
                                     onClick={handleCreateHorario}
-                                    className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm rounded-lg shadow px-4 py-2 flex items-center gap-2"
+                                    className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm"
                                 >
-                                    <Plus className="h-4 w-4" />
-                                    <span>Agregar Horario</span>
+                                    <Plus className="h-4 w-4 mr-1 sm:mr-2" />
+                                    Agregar Horario
                                 </Button>
                             </div>
                             <div className="overflow-x-auto">
@@ -569,15 +547,13 @@ const HorarioAtencion = ({ horariosRecurrentes, excepciones }: HorarioAtencionPr
                                         {diasSemana.map((dia) => {
                                             const horario = horariosRecurrentes.find(h => h.dia_semana === dia);
                                             return (
-                                                <TableRow key={dia} className={colorCeleste}>
+                                                <TableRow key={dia}>
                                                     <TableCell className="font-medium text-xs sm:text-sm">
-                                                        <span className={`px-2 py-1 rounded ${colorCeleste} font-semibold`}>
-                                                            {capitalizarPrimeraLetra(dia)}
-                                                        </span>
+                                                        {capitalizarPrimeraLetra(dia)}
                                                     </TableCell>
                                                     <TableCell className="text-xs sm:text-sm">
                                                         {horario ? (
-                                                            <span className="font-mono">{horario.hora_inicio} - {horario.hora_fin}</span>
+                                                            `${horario.hora_inicio} - ${horario.hora_fin}`
                                                         ) : (
                                                             <span className="text-gray-400">No configurado</span>
                                                         )}

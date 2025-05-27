@@ -6,7 +6,8 @@ import CompleteCarousel from "./Home/CompleteCarousel";
 import Products from "./Home/Productos";
 import Opiniones from "./Home/Opiniones";
 import Footer from "./Home/Footer";
-import WhatsAppButton from "@/Components/WhatsAppButton";
+import WelcomeAlert from '@/Components/WelcomeAlert';
+import WhatsAppButton from '@/Components/WhatsAppButton';
 
 interface WelcomeProps extends PageProps {
     motoData: {
@@ -122,12 +123,12 @@ export default function Welcome({
                 todosProductos={todosProductos}
                 productosRelacionadosPorSubcategoria={productosRelacionadosPorSubcategoria}
             />
+            <WelcomeAlert />
+            <WhatsAppButton />
 
             <Opiniones opiniones={opiniones} auth={auth} />
 
             <Footer />
-
-            <WhatsAppButton />
         </>
     );
 }
