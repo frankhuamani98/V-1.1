@@ -96,7 +96,7 @@ class MetodosPagoController extends Controller
                 'direccion_alternativa' => $datos['direccion_alternativa'],
                 'subtotal' => $total,
                 'total' => $total, // Guardar el total calculado
-                'estado' => 'procesando',
+                'estado' => 'pendiente', // Cambiado de 'procesando' a 'pendiente'
                 'metodo_pago' => $request->metodo,
                 'referencia_pago' => $referenciaPath,
             ]);

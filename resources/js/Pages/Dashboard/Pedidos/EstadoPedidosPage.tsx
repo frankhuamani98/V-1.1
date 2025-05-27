@@ -9,12 +9,13 @@ interface EstadoPedidosPageProps {
       email: string;
     };
   };
+  pedidos: any[]; // Puedes tipar mejor si lo deseas
 }
 
-const EstadoPedidosPage = ({ auth }: EstadoPedidosPageProps) => {
+const EstadoPedidosPage = ({ auth, pedidos }: EstadoPedidosPageProps) => {
   return (
     <DashboardLayout auth={auth}>
-      <EstadoPedidos />
+      <EstadoPedidos pedidos={pedidos} />
     </DashboardLayout>
   );
 };

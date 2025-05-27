@@ -17,6 +17,7 @@ import {
 } from "@/Components/ui/card";
 import { Button } from "@/Components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { useForm } from '@inertiajs/react';
 
 interface PedidoItem {
   nombre_producto: string;
@@ -44,6 +45,8 @@ interface Props {
 
 const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
+  const [pedidos, setPedidos] = useState<Pedido[]>(pedidosProp); // Nuevo estado local para pedidos
+  const { post, processing, setData } = useForm<{ estado: string }>({ estado: "" });
 
   const toggleRow = (id: number) => {
     setExpandedRows((prev) =>
@@ -60,6 +63,27 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
         .toFixed(2)
         .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
     );
+  };
+
+  // Nuevo: función para actualizar el estado del pedido
+  const handleEstadoChange = (pedidoId: number, nuevoEstado: string) => {
+    setData('estado', nuevoEstado);
+    post(`/pedidos/nuevos/${pedidoId}/actualizar-estado`, {
+      preserveScroll: true,
+      onSuccess: () => {
+        setPedidos(prev =>
+          prev.map(p =>
+            p.id === pedidoId
+              ? { ...p, estado: nuevoEstado.charAt(0).toUpperCase() + nuevoEstado.slice(1) }
+              : p
+          )
+        );
+      },
+      onError: () => {
+        // Opcional: mostrar error
+      },
+      only: [], // No recargar props
+    });
   };
 
   return (
@@ -86,7 +110,7 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {pedidosProp.map((pedido) => (
+                {pedidos.map((pedido) => (
                   <React.Fragment key={pedido.id}>
                     <TableRow className="hidden sm:table-row">
                       <TableCell>{pedido.id}</TableCell>
@@ -94,14 +118,17 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                       <TableCell>{pedido.fecha}</TableCell>
                       <TableCell>{pedido.hora ?? '-'}</TableCell>
                       <TableCell>
-                        <Badge variant={
-                          pedido.estado === "Pendiente" ? "secondary" : 
-                          pedido.estado === "Procesando" ? "outline" : 
-                          pedido.estado === "Completado" ? "default" : 
-                          "destructive"
-                        }>
-                          {pedido.estado}
-                        </Badge>
+                        {/* Selector de estado */}
+                        <select
+                          className="border rounded px-2 py-1 text-xs"
+                          value={pedido.estado.toLowerCase()}
+                          onChange={e => handleEstadoChange(pedido.id, e.target.value)}
+                        >
+                          <option value="pendiente">Pendiente</option>
+                          <option value="procesando">Procesando</option>
+                          <option value="completado">Completado</option>
+                          <option value="cancelado">Cancelado</option>
+                        </select>
                       </TableCell>
                       <TableCell>
                         {pedido.metodo_pago ? pedido.metodo_pago : <span className="text-gray-400">-</span>}
@@ -200,7 +227,7 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
 
             {/* Tarjetas móviles */}
             <div className="sm:hidden">
-              {pedidosProp.map((pedido) => (
+              {pedidos.map((pedido) => (
                 <div key={pedido.id} className="bg-white rounded-lg shadow-md p-4 mb-2">
                   <div className="flex justify-between items-center">
                     <div>

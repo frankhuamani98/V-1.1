@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Pedidos;
 use Inertia\Inertia;
 use App\Http\Controllers\Controller;
 use App\Models\Pedido;
+use Illuminate\Http\Request;
 
 class NuevosPedidosController extends Controller
 {
     public function index()
     {
         $pedidos = Pedido::with(['user', 'items'])
-            ->whereIn('estado', ['procesando', 'completado']) // Solo pedidos finalizados
+            ->where('estado', 'pendiente') // Solo pedidos pendientes
             ->orderByDesc('created_at')
             ->get()
             ->map(function ($pedido) {
@@ -19,11 +20,11 @@ class NuevosPedidosController extends Controller
                     'id' => $pedido->id,
                     'cliente' => $pedido->nombre . ' ' . $pedido->apellidos,
                     'fecha' => $pedido->created_at->format('Y-m-d'),
-                    'hora' => $pedido->created_at->format('H:i'), // <-- Añadido
+                    'hora' => $pedido->created_at->format('H:i'),
                     'estado' => ucfirst($pedido->estado),
                     'metodo_pago' => $pedido->metodo_pago,
                     'total' => $pedido->total,
-                    'referencia_pago' => $pedido->referencia_pago, // <-- Añadido para mostrar comprobante
+                    'referencia_pago' => $pedido->referencia_pago,
                     'items' => $pedido->items->map(function ($item) {
                         return [
                             'nombre_producto' => $item->nombre_producto,
@@ -38,6 +39,25 @@ class NuevosPedidosController extends Controller
 
         return Inertia::render('Dashboard/Pedidos/NuevosPedidosPage', [
             'pedidos' => $pedidos,
+        ]);
+    }
+
+    // Nuevo método para actualizar el estado del pedido
+    public function actualizarEstado(Request $request, $id)
+    {
+        $request->validate([
+            'estado' => 'required|in:pendiente,procesando,completado,cancelado',
+        ]);
+
+        $pedido = Pedido::findOrFail($id);
+        $pedido->estado = $request->estado;
+        $pedido->save();
+
+        // Respuesta JSON para evitar redirección
+        return response()->json([
+            'success' => true,
+            'message' => 'Estado del pedido actualizado correctamente.',
+            'estado' => $pedido->estado,
         ]);
     }
 }
