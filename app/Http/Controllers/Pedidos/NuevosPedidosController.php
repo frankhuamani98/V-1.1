@@ -21,6 +21,8 @@ class NuevosPedidosController extends Controller
                     'fecha' => $pedido->created_at->format('Y-m-d'),
                     'estado' => ucfirst($pedido->estado),
                     'metodo_pago' => $pedido->metodo_pago,
+                    // Usar el total guardado en la base de datos
+                    'total' => $pedido->total,
                     'items' => $pedido->items->map(function ($item) {
                         return [
                             'nombre_producto' => $item->nombre_producto,

@@ -79,6 +79,9 @@ export default function MetodosPago({ pedido, metodos }: Props) {
   // Estado para controlar cuál método está procesando
   const [processingMetodo, setProcessingMetodo] = useState<string | null>(null);
 
+  // Nuevo estado para el modal de advertencia
+  const [showWarning, setShowWarning] = useState(true);
+
   // Asegura que el método seleccionado se guarde correctamente
   const handleSeleccionar = (id: string) => {
     setSeleccionado(id);
@@ -105,6 +108,42 @@ export default function MetodosPago({ pedido, metodos }: Props) {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Modal de advertencia legal */}
+      {showWarning && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black bg-opacity-80">
+          <div
+            className="bg-gradient-to-br from-yellow-100 via-red-100 to-yellow-50 border-4 border-red-600 rounded-3xl shadow-2xl p-8 max-w-md w-full relative animate-pulse mt-24"
+          >
+            <div className="flex flex-col items-center">
+              <svg className="w-20 h-20 text-red-600 mb-4 animate-bounce" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/>
+                <path d="M12 8v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <h2 className="text-2xl font-extrabold text-red-700 mb-3 text-center drop-shadow-lg uppercase tracking-wider">
+                ¡Advertencia Legal!
+              </h2>
+              <p className="text-red-900 text-center mb-6 font-semibold text-lg">
+                <span className="block mb-2">
+                  <span className="text-red-700 font-bold">ATENCIÓN:</span> El envío de comprobantes de pago <span className="underline decoration-wavy decoration-red-500">falsos</span> constituye un <span className="font-bold">delito grave</span>.
+                </span>
+                <span className="block mb-2">
+                  Si intentas realizar una compra fraudulenta, tu información será <span className="font-bold text-red-700">denunciada ante las autoridades</span> y podrías enfrentar <span className="font-bold text-red-700">procesos legales</span> y <span className="font-bold text-red-700">multas superiores a S/ 5,000</span>.
+                </span>
+                <span className="block">
+                  <span className="text-red-700 font-bold">NO ARRIESGUES TU LIBERTAD NI TU DINERO.</span>
+                </span>
+              </p>
+              <button
+                className="px-8 py-3 rounded-xl bg-gradient-to-r from-red-600 to-yellow-500 text-white font-bold shadow-lg hover:from-red-700 hover:to-yellow-600 active:scale-95 transition text-lg"
+                onClick={() => setShowWarning(false)}
+              >
+                Entiendo y acepto las consecuencias
+              </button>
+            </div>
+            <span className="absolute top-2 right-4 text-4xl text-red-200 opacity-30 select-none pointer-events-none">⚠️</span>
+          </div>
+        </div>
+      )}
       <Head title="Selecciona tu método de pago" />
       <Header />
       <main className="flex-grow flex flex-col justify-center z-10 relative">

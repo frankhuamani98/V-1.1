@@ -75,6 +75,11 @@ class MetodosPagoController extends Controller
             return redirect()->route('checkout.informacion')->with('error', 'Faltan datos o el carrito está vacío.');
         }
 
+        // Calcular el total real sumando los subtotales de los productos
+        $total = $cart->reduce(function ($carry, $item) {
+            return $carry + ($item->producto->precio_final * $item->quantity);
+        }, 0);
+
         // Procesar archivo comprobante
         $referenciaPath = $request->file('referencia_pago')->store('pagos/referencias', 'public');
 
@@ -89,8 +94,8 @@ class MetodosPagoController extends Controller
                 'dni' => $datos['dni'],
                 'direccion' => $datos['direccion'],
                 'direccion_alternativa' => $datos['direccion_alternativa'],
-                'subtotal' => $cart->sum(fn($item) => $item->producto->precio_final * $item->quantity),
-                'total' => $cart->sum(fn($item) => $item->producto->precio_final * $item->quantity),
+                'subtotal' => $total,
+                'total' => $total, // Guardar el total calculado
                 'estado' => 'procesando',
                 'metodo_pago' => $request->metodo,
                 'referencia_pago' => $referenciaPath,

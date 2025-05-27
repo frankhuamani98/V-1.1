@@ -20,7 +20,7 @@ return new class extends Migration
             $table->text('direccion');
             $table->text('direccion_alternativa')->nullable();
             $table->decimal('subtotal', 10, 2);
-            $table->decimal('total', 10, 2);
+            $table->decimal('total', 10, 2); // El campo total YA existe aquí
             $table->string('estado')->default('pendiente'); // pendiente, procesando, completado, cancelado
             $table->string('metodo_pago')->nullable(); // almacena el método de pago seleccionado
             $table->string('referencia_pago')->nullable(); // almacena el comprobante o referencia

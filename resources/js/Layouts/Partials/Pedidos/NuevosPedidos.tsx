@@ -32,6 +32,7 @@ interface Pedido {
   fecha: string;
   estado: string;
   metodo_pago?: string;
+  total?: number; // <-- Añadido
   items?: PedidoItem[];
 }
 
@@ -54,7 +55,11 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
       currency: "PEN",
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).replace("PEN", "S/");
+    })
+    .replace("PEN", "S/")
+    .replace(/\./g, "#")
+    .replace(/,/g, ".")
+    .replace(/#/g, ",");
 
   return (
     <div className="p-4 sm:p-6">
@@ -73,6 +78,7 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                   <TableHead>Fecha</TableHead>
                   <TableHead>Estado</TableHead>
                   <TableHead>Método de Pago</TableHead>
+                  <TableHead>Total</TableHead> {/* Nueva columna */}
                   <TableHead>Acciones</TableHead>
                 </TableRow>
               </TableHeader>
@@ -100,6 +106,9 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                       </TableCell>
                       <TableCell>
                         {pedido.metodo_pago ? pedido.metodo_pago : <span className="text-gray-400">-</span>}
+                      </TableCell>
+                      <TableCell>
+                        {pedido.total !== undefined ? formatPrice(pedido.total) : <span className="text-gray-400">-</span>}
                       </TableCell>
                       <TableCell>
                         <Button
@@ -141,6 +150,9 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                           </p>
                           <p className="text-xs text-gray-500">
                             Método de pago: {pedido.metodo_pago ? pedido.metodo_pago : <span className="text-gray-400">-</span>}
+                          </p>
+                          <p className="text-xs text-gray-700 font-bold">
+                            Total: {pedido.total !== undefined ? formatPrice(pedido.total) : <span className="text-gray-400">-</span>}
                           </p>
                         </div>
                         <Button
