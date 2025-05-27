@@ -182,7 +182,6 @@ const NosotrosPage: React.FC<Props> = ({ equipo }) => {
                 {[
                   { 
                     role: "GERENTE",
-                    name: "RODOLFO ALFARO H.",
                     description: "Dirección estratégica y liderazgo empresarial",
                     icon: <User className="w-10 h-10" />
                   },
@@ -211,11 +210,6 @@ const NosotrosPage: React.FC<Props> = ({ equipo }) => {
                     <h3 className="text-2xl font-bold text-white mb-2 font-['Bebas_Neue'] text-center">
                       {member.role}
                     </h3>
-                    {member.name && (
-                      <h4 className="text-[#00a99d] text-lg mb-2 font-['Bebas_Neue'] text-center">
-                        {member.name}
-                      </h4>
-                    )}
                     <p className="text-gray-300 text-sm leading-relaxed text-center">
                       {member.description}
                     </p>

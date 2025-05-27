@@ -297,8 +297,9 @@ const DetalleReserva = ({ reserva: initialReserva }: DetalleReservaProps) => {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => setShowReprogramar(true)}
-                                className="text-xs font-medium text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                                className="text-xs font-medium text-teal-600 border-teal-200 hover:bg-teal-50 flex items-center"
                             >
+                                <CalendarIcon className="h-3.5 w-3.5 mr-1" />
                                 Reprogramar
                             </Button>
                             {reserva.estado !== "pendiente" && (
