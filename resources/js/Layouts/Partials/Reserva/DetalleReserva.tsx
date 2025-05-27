@@ -9,14 +9,12 @@ import { router } from "@inertiajs/react";
 interface Usuario {
     id: number;
     name: string;
-    email: string;
+    telefono: string;
 }
 
 interface Servicio {
     id: number;
     nombre: string;
-    precio_base: number;
-    duracion_estimada: number;
 }
 
 interface Horario {
@@ -40,7 +38,7 @@ interface Reserva {
     usuario: Usuario | null;
     moto: Moto;
     placa: string;
-    servicio: Servicio | null;
+    servicios: Servicio[];
     horario_id: number;
     horario: Horario | null;
     fecha: string;
@@ -141,7 +139,7 @@ const DetalleReserva = ({ reserva: initialReserva }: DetalleReservaProps) => {
                                             {reserva.usuario ? reserva.usuario.name : 'Usuario eliminado'}
                                         </h4>
                                         {reserva.usuario && (
-                                            <p className="text-sm text-gray-500 mt-1">{reserva.usuario.email}</p>
+                                            <p className="text-sm text-gray-500 mt-1">{reserva.usuario.telefono}</p>
                                         )}
                                     </div>
                                 </div>
@@ -167,9 +165,9 @@ const DetalleReserva = ({ reserva: initialReserva }: DetalleReservaProps) => {
                         <div>
                             <h3 className="text-sm font-medium text-gray-500 mb-1">Detalles del Servicio</h3>
                             <div className="bg-gray-50 p-4 rounded-lg">
-                                {reserva.servicio ? (
+                                {reserva.servicios.length > 0 ? (
                                     <div>
-                                        <h4 className="font-medium text-gray-800">{reserva.servicio.nombre}</h4>
+                                        <h4 className="font-medium text-gray-800">{reserva.servicios.map(s => s.nombre).join(', ')}</h4>
                                     </div>
                                 ) : (
                                     <p className="text-gray-600">Servicio no disponible</p>

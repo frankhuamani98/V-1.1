@@ -38,6 +38,6 @@ class Servicio extends Model
 
     public function reservas()
     {
-        return $this->hasMany(Reserva::class);
+        return $this->belongsToMany(Reserva::class, 'reserva_servicio')->withTimestamps();
     }
 }

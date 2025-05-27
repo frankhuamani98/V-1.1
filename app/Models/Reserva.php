@@ -14,7 +14,6 @@ class Reserva extends Model
         'user_id',
         'moto_id',
         'placa',
-        'servicio_id',
         'horario_id',
         'fecha',
         'hora',
@@ -44,9 +43,10 @@ class Reserva extends Model
         return $this->belongsTo(Moto::class);
     }
 
-    public function servicio(): BelongsTo
+    public function servicios()
     {
-        return $this->belongsTo(Servicio::class);
+        return $this->belongsToMany(Servicio::class, 'reserva_servicio')
+            ->withTimestamps();
     }
 
     public function horario(): BelongsTo

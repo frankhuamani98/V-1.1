@@ -10,6 +10,11 @@ import { Button } from '@/Components/ui/button';
 import { Calendar, Clock, Bike, Tag, Edit2, XCircle, Info } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 
+interface Servicio {
+    id: number;
+    nombre: string;
+}
+
 interface Moto {
     año: number;
     marca: string;
@@ -19,7 +24,7 @@ interface Moto {
 interface Reserva {
     id: number;
     placa: string;
-    servicio: string;
+    servicios: Servicio[];
     moto: Moto | null;
     fecha: string;
     hora: string;
@@ -142,7 +147,17 @@ export default function MisCitas({ reservas }: Props) {
                                                         <div className="bg-slate-100 p-2 rounded-md">
                                                             <Tag className="h-5 w-5 text-indigo-600" />
                                                         </div>
-                                                        <p className="text-base text-slate-700">{reserva.servicio}</p>
+                                                        <div>
+                                                            {reserva.servicios && reserva.servicios.length > 0 ? (
+                                                                reserva.servicios.map((servicio, idx) => (
+                                                                    <span key={servicio.id} className="text-base text-slate-700">
+                                                                        {servicio.nombre}{idx < reserva.servicios.length - 1 ? ', ' : ''}
+                                                                    </span>
+                                                                ))
+                                                            ) : (
+                                                                <span className="text-base text-slate-500">Sin servicios</span>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                     
                                                     <div className="flex items-start gap-3">

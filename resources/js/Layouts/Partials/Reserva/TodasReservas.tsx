@@ -7,6 +7,11 @@ import { ChevronDown, ChevronUp, Calendar, CalendarCheck, CheckCircle, Clock, XC
 import { Toaster, toast } from "sonner";
 import { router } from "@inertiajs/react";
 
+interface Servicio {
+    id: number;
+    nombre: string;
+}
+
 interface Reserva {
     id: number;
     usuario: string;
@@ -16,7 +21,7 @@ interface Reserva {
         año: number;
     };
     placa: string;
-    servicio: string;
+    servicios: Servicio[];
     horario_id: number;
     horario: {
         id: number;
@@ -117,7 +122,7 @@ const TodasReservas = ({ reservas: initialReservas }: TodasReservasProps) => {
                                     <TableRow>
                                         <TableHead className="px-4 py-3 text-gray-600">Cliente</TableHead>
                                         <TableHead className="px-4 py-3 text-gray-600">Moto</TableHead>
-                                        <TableHead className="px-4 py-3 text-gray-600">Servicio</TableHead>
+                                        <TableHead className="px-4 py-3 text-gray-600">Servicios</TableHead>
                                         <TableHead className="px-4 py-3 text-gray-600">Fecha</TableHead>
                                         <TableHead className="px-4 py-3 text-gray-600">Hora</TableHead>
                                         <TableHead className="px-4 py-3 text-gray-600">Estado</TableHead>
@@ -131,7 +136,7 @@ const TodasReservas = ({ reservas: initialReservas }: TodasReservasProps) => {
                                             <TableRow className="hidden sm:table-row hover:bg-gray-50 transition-colors">
                                                 <TableCell className="px-4 py-4 font-medium">{reserva.usuario}</TableCell>
                                                 <TableCell className="px-4 py-4">{`${reserva.moto.marca} ${reserva.moto.modelo} ${reserva.moto.año}`} - {reserva.placa}</TableCell>
-                                                <TableCell className="px-4 py-4">{reserva.servicio}</TableCell>
+                                                <TableCell className="px-4 py-4">{reserva.servicios.map(s => s.nombre).join(', ')}</TableCell>
                                                 <TableCell className="px-4 py-4">{formatFecha(reserva.fecha)}</TableCell>
                                                 <TableCell className="px-4 py-4">{reserva.hora}</TableCell>
                                                 <TableCell className="px-4 py-4">
@@ -186,7 +191,7 @@ const TodasReservas = ({ reservas: initialReservas }: TodasReservasProps) => {
                                                             {reserva.usuario}
                                                         </p>
                                                         <p className="text-sm text-gray-600 truncate mt-0.5">
-                                                            {reserva.servicio}
+                                                            {reserva.servicios.map(s => s.nombre).join(', ')}
                                                         </p>
                                                         <div className="flex items-center gap-2 mt-1">
                                                             <Badge

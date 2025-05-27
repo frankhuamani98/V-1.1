@@ -23,6 +23,12 @@ import {
   BadgeInfo 
 } from 'lucide-react';
 
+interface Categoria {
+  id: number;
+  nombre: string;
+  descripcion: string;
+}
+
 interface Moto {
   id: number;
   año: number;
@@ -34,6 +40,8 @@ interface Servicio {
   id: number;
   nombre: string;
   descripcion: string;
+  categoria_servicio_id: number;
+  categoriaServicio: Categoria | null;
 }
 
 interface Reserva {
@@ -51,6 +59,12 @@ interface Reserva {
     año: number;
     marca: string;
     modelo: string;
+  };
+  servicio?: {
+    id: number;
+    nombre: string;
+    descripcion: string;
+    categoria_servicio_id: number;
   };
 }
 
@@ -106,12 +120,30 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
   const [dateErrorMessage, setDateErrorMessage] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
+  const [selectedCategoriaId, setSelectedCategoriaId] = useState<string>(reserva?.servicio?.categoria_servicio_id?.toString() || "");
   const [filteredModels, setFilteredModels] = useState(motoData.models);
+
+  const categorias = React.useMemo(() => {
+    const categoriasMap = new Map();
+    servicios.forEach(servicio => {
+      if (servicio.categoriaServicio && !categoriasMap.has(servicio.categoriaServicio.id)) {
+        categoriasMap.set(servicio.categoriaServicio.id, servicio.categoriaServicio);
+      }
+    });
+    return Array.from(categoriasMap.values());
+  }, [servicios]);
+
+  const serviciosFiltrados = React.useMemo(() => {
+    if (!selectedCategoriaId) return [];
+    return servicios.filter(servicio => 
+      servicio.categoria_servicio_id.toString() === selectedCategoriaId
+    );
+  }, [servicios, selectedCategoriaId]);
 
   const { data, setData, post, put, processing, errors, reset } = useForm({
     moto_id: reserva?.moto_id?.toString() || "",
     placa: reserva?.placa || "",
-    servicio_id: reserva?.servicio_id?.toString() || "",
+    servicios_ids: [] as string[],
     fecha: reserva?.fecha || "",
     hora: reserva?.hora || "",
     detalles: reserva?.detalles || "",
@@ -191,7 +223,7 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
     const validations = {
       moto_id: "Por favor seleccione una motocicleta",
       placa: "Por favor ingrese la placa de la motocicleta",
-      servicio_id: "Por favor seleccione un servicio",
+      servicios_ids: "Por favor seleccione al menos un servicio",
       fecha: "Por favor seleccione una fecha",
       hora: "Por favor seleccione una hora disponible",
       horario_id: "Por favor seleccione una fecha y hora válidas"
@@ -201,7 +233,12 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
     let hasErrors = false;
 
     Object.entries(validations).forEach(([field, message]) => {
-      if (!data[field as keyof typeof data]) {
+      if (field === 'servicios_ids') {
+        if (!data.servicios_ids || data.servicios_ids.length === 0) {
+          newErrors[field] = message;
+          hasErrors = true;
+        }
+      } else if (!data[field as keyof typeof data]) {
         newErrors[field] = message;
         hasErrors = true;
       }
@@ -322,7 +359,7 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
             </CardHeader>
             <CardContent className="p-8">
               {successMessage && (
-                <div className="mb-6 flex items-center gap-3 bg-emerald-50 border border-emerald-200 p-5 rounded-lg">
+                <div className="mb-4 flex items-center gap-3 bg-emerald-50 border border-emerald-200 p-5 rounded-lg">
                   <div className="bg-emerald-100 p-2 rounded-md">
                     <CheckCircle className="text-emerald-600 h-5 w-5" />
                   </div>
@@ -331,276 +368,354 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
               )}
               
               {errorMessage && (
-                <div className="mb-6 flex items-center gap-3 bg-rose-50 border border-rose-200 p-5 rounded-lg">
+                <div className="mb-4 flex items-center gap-3 bg-rose-50 border border-rose-200 p-5 rounded-lg">
                   <div className="bg-rose-100 p-2 rounded-md">
                     <AlertCircle className="text-rose-600 h-5 w-5" />
                   </div>
                   <span className="text-base text-rose-800 whitespace-pre-line">{errorMessage}</span>
                 </div>
               )}
-              <form onSubmit={handleSubmit} className="flex flex-col">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-5">
+              <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+                {/* Sección: Datos de la Motocicleta */}
+                <fieldset className="border border-slate-200 rounded-lg p-6 mb-4">
+                  <legend className="text-lg font-semibold text-indigo-700 px-2">Datos de la Motocicleta</legend>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-4">
+                    {/* Año */}
                     <div>
-                    <label className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
-                      <div className="bg-slate-100 p-1.5 rounded-md">
-                        <BadgeInfo className="h-4 w-4 text-indigo-600" />
-                      </div>
-                      Año del Modelo
-                    </label>
-                    <select
-                      className={`mt-1 block w-full border ${errors.moto_id ? 'border-rose-200' : 'border-slate-200'} rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white`}
-                      value={selectedYear}
-                      onChange={(e) => handleYearChange(e.target.value)}
-                      required
-                    >
-                      <option value="">Seleccione un año</option>
-                      {motoData.years.map((year) => (
-                        <option key={year} value={year}>{year}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
-                      <div className="bg-slate-100 p-1.5 rounded-md">
-                        <Bike className="h-4 w-4 text-indigo-600" />
-                      </div>
-                      Marca
-                    </label>
-                    <select
-                      className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
-                      value={selectedBrand}
-                      onChange={(e) => handleBrandChange(e.target.value)}
-                      required
-                    >
-                      <option value="">Seleccione una marca</option>
-                      {motoData.brands.map((brand) => (
-                        <option key={brand} value={brand}>{brand}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
-                      <div className="bg-slate-100 p-1.5 rounded-md">
-                        <Tag className="h-4 w-4 text-indigo-600" />
-                      </div>
-                      Modelo
-                    </label>
-                    <select
-                      className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
-                      value={data.moto_id}
-                      onChange={(e) => handleModelSelect(e.target.value)}
-                      required
-                      disabled={!selectedBrand || !selectedYear}
-                    >
-                      <option value="">
-                        {!selectedBrand || !selectedYear
-                          ? "Primero seleccione año y marca"
-                          : "Seleccione un modelo"}
-                      </option>
-                      {filteredModels.map((moto) => (
-                        <option key={moto.id} value={moto.id}>{moto.modelo}</option>
-                      ))}
-                    </select>
-                    {errors.moto_id && (
-                      <p className="mt-1.5 text-sm text-rose-600">{errors.moto_id}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label htmlFor="placa" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
-                      <div className="bg-slate-100 p-1.5 rounded-md">
-                        <Hash className="h-4 w-4 text-indigo-600" />
-                      </div>
-                      Placa
-                    </label>
-                    <input
-                      type="text"
-                      id="placa"
-                      className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
-                      value={data.placa}
-                      onChange={(e) => setData("placa", e.target.value)}
-                      required
-                      maxLength={10}
-                      placeholder="Ej: ABC-123"
-                    />
-                    {errors.placa && (
-                      <p className="mt-1.5 text-sm text-rose-600">{errors.placa}</p>
-                    )}
-                  </div>
-                  </div>
-                  
-                  <div className="space-y-5">
-                    <div>
-                    <label htmlFor="servicio_id" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
-                      <div className="bg-slate-100 p-1.5 rounded-md">
-                        <Wrench className="h-4 w-4 text-indigo-600" />
-                      </div>
-                      Servicio
-                    </label>
-                    <select
-                      id="servicio_id"
-                      className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
-                      value={data.servicio_id}
-                      onChange={(e) => setData("servicio_id", e.target.value)}
-                      required
-                    >
-                      <option value="">Seleccione un servicio</option>
-                      {servicios.map((servicio) => (
-                        <option key={servicio.id} value={servicio.id}>{servicio.nombre}</option>
-                      ))}
-                    </select>
-                    {errors.servicio_id && (
-                      <p className="mt-1.5 text-sm text-rose-600">{errors.servicio_id}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label htmlFor="detalles" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
-                      <div className="bg-slate-100 p-1.5 rounded-md">
-                        <AlertCircle className="h-4 w-4 text-indigo-600" />
-                      </div>
-                      ¿Qué problema presenta tu moto?
-                    </label>
-                    <div className="relative">
-                      <textarea
-                        id="detalles"
-                        rows={3}
-                        className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 pr-8 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
-                        value={data.detalles}
-                        onChange={(e) => setData("detalles", e.target.value)}
-                        placeholder="Describe el problema o servicio requerido"
-                      />
-                      <AlertCircle className="absolute right-3 top-3 h-4 w-4 text-slate-300 pointer-events-none" />
-                    </div>
-                  </div>
-                  <div>
-                    <label htmlFor="fecha" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
-                      <div className="bg-slate-100 p-1.5 rounded-md">
-                        <CalendarDays className="h-4 w-4 text-indigo-600" />
-                      </div>
-                      Fecha
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="date"
-                        id="fecha"
-                        className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 pr-8 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
-                        value={data.fecha}
-                        onChange={(e) => {
-                          setData("fecha", e.target.value);
-                          setSelectedDate(e.target.value);
-                        }}
-                        min={new Date().toISOString().split('T')[0]}
+                      <label htmlFor="year" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
+                        <div className="bg-slate-100 p-1.5 rounded-md">
+                          <BadgeInfo className="h-4 w-4 text-indigo-600" />
+                        </div>
+                        Año del Modelo
+                      </label>
+                      <select
+                        id="year"
+                        className={`mt-1 block w-full border ${errors.moto_id ? 'border-rose-200' : 'border-slate-200'} rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white`}
+                        value={selectedYear}
+                        onChange={(e) => handleYearChange(e.target.value)}
                         required
-                      />
-                      <CalendarDays className="absolute right-3 top-3 h-4 w-4 text-slate-300 pointer-events-none" />
+                        aria-invalid={!!errors.moto_id}
+                      >
+                        <option value="">Seleccione un año</option>
+                        {motoData.years.map((year) => (
+                          <option key={year} value={year}>{year}</option>
+                        ))}
+                      </select>
                     </div>
-                    {errors.fecha && (
-                      <p className="mt-1.5 text-sm text-rose-600">{errors.fecha}</p>
-                    )}
-                    {dateErrorMessage && (
-                      <p className="mt-1.5 text-sm text-rose-600">{dateErrorMessage}</p>
-                    )}
+                    {/* Marca */}
+                    <div>
+                      <label htmlFor="brand" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
+                        <div className="bg-slate-100 p-1.5 rounded-md">
+                          <Bike className="h-4 w-4 text-indigo-600" />
+                        </div>
+                        Marca
+                      </label>
+                      <select
+                        id="brand"
+                        className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
+                        value={selectedBrand}
+                        onChange={(e) => handleBrandChange(e.target.value)}
+                        required
+                      >
+                        <option value="">Seleccione una marca</option>
+                        {motoData.brands.map((brand) => (
+                          <option key={brand} value={brand}>{brand}</option>
+                        ))}
+                      </select>
+                    </div>
+                    {/* Modelo */}
+                    <div>
+                      <label htmlFor="modelo" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
+                        <div className="bg-slate-100 p-1.5 rounded-md">
+                          <Tag className="h-4 w-4 text-indigo-600" />
+                        </div>
+                        Modelo
+                      </label>
+                      <select
+                        id="modelo"
+                        className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
+                        value={data.moto_id}
+                        onChange={(e) => handleModelSelect(e.target.value)}
+                        required
+                        disabled={!selectedBrand || !selectedYear}
+                        aria-invalid={!!errors.moto_id}
+                        aria-describedby={errors.moto_id ? 'moto_id-error' : undefined}
+                      >
+                        <option value="">
+                          {!selectedBrand || !selectedYear
+                            ? "Primero seleccione año y marca"
+                            : "Seleccione un modelo"}
+                        </option>
+                        {filteredModels.map((moto) => (
+                          <option key={moto.id} value={moto.id}>{moto.modelo}</option>
+                        ))}
+                      </select>
+                      {errors.moto_id && (
+                        <p id="moto_id-error" className="mt-1.5 text-sm text-rose-600">{errors.moto_id}</p>
+                      )}
+                    </div>
+                    {/* Placa */}
+                    <div>
+                      <label htmlFor="placa" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
+                        <div className="bg-slate-100 p-1.5 rounded-md">
+                          <Hash className="h-4 w-4 text-indigo-600" />
+                        </div>
+                        Placa
+                      </label>
+                      <input
+                        type="text"
+                        id="placa"
+                        className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
+                        value={data.placa}
+                        onChange={(e) => setData("placa", e.target.value)}
+                        required
+                        maxLength={10}
+                        placeholder="Ej: ABC-123"
+                        aria-invalid={!!errors.placa}
+                        aria-describedby={errors.placa ? 'placa-error' : undefined}
+                      />
+                      {errors.placa && (
+                        <p id="placa-error" className="mt-1.5 text-sm text-rose-600">{errors.placa}</p>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <label htmlFor="hora" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
+                </fieldset>
+
+                {/* Sección: Servicio */}
+                <fieldset className="border border-slate-200 rounded-lg p-6 mb-4">
+                  <legend className="text-lg font-semibold text-indigo-700 px-2">Servicio</legend>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                    {/* Categoría */}
+                    <div>
+                      <label htmlFor="categoria" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
+                        <div className="bg-slate-100 p-1.5 rounded-md">
+                          <Wrench className="h-4 w-4 text-indigo-600" />
+                        </div>
+                        Tipo de Servicio
+                      </label>
+                      <select
+                        id="categoria"
+                        className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
+                        value={selectedCategoriaId}
+                        onChange={(e) => {
+                          setSelectedCategoriaId(e.target.value);
+                          setData("servicios_ids", []);
+                        }}
+                        required
+                      >
+                        <option value="">Seleccione una categoría</option>
+                        {categorias.map((categoria) => (
+                          <option key={categoria.id} value={categoria.id}>{categoria.nombre}</option>
+                        ))}
+                      </select>
+                    </div>
+                    {/* Servicios */}
+                    <div>
+                      <label className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
+                        <div className="bg-slate-100 p-1.5 rounded-md">
+                          <Wrench className="h-4 w-4 text-indigo-600" />
+                        </div>
+                        Servicios
+                      </label>
+                      <div className="mt-2 space-y-2 border border-slate-200 rounded-lg p-4 bg-slate-50">
+                        {!selectedCategoriaId ? (
+                          <p className="text-slate-500">Primero seleccione una categoría</p>
+                        ) : serviciosFiltrados.length === 0 ? (
+                          <p className="text-slate-500">No hay servicios disponibles en esta categoría</p>
+                        ) : (
+                          serviciosFiltrados.map((servicio) => (
+                            <div key={servicio.id} className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                id={`servicio-${servicio.id}`}
+                                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 rounded"
+                                checked={data.servicios_ids.includes(servicio.id.toString())}
+                                onChange={(e) => {
+                                  const servicioId = servicio.id.toString();
+                                  if (e.target.checked) {
+                                    setData("servicios_ids", [...data.servicios_ids, servicioId]);
+                                  } else {
+                                    setData("servicios_ids", data.servicios_ids.filter(id => id !== servicioId));
+                                  }
+                                }}
+                                aria-describedby={errors.servicios_ids ? 'servicios_ids-error' : undefined}
+                              />
+                              <label htmlFor={`servicio-${servicio.id}`} className="text-sm text-slate-700">
+                                {servicio.nombre}
+                              </label>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                      {errors.servicios_ids && (
+                        <p id="servicios_ids-error" className="mt-1.5 text-sm text-rose-600">{errors.servicios_ids}</p>
+                      )}
+                    </div>
+                    {/* Detalles */}
+                    <div className="md:col-span-2">
+                      <label htmlFor="detalles" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
+                        <div className="bg-slate-100 p-1.5 rounded-md">
+                          <AlertCircle className="h-4 w-4 text-indigo-600" />
+                        </div>
+                        ¿Qué problema presenta tu moto?
+                      </label>
+                      <div className="relative">
+                        <textarea
+                          id="detalles"
+                          rows={3}
+                          className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 pr-8 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
+                          value={data.detalles}
+                          onChange={(e) => setData("detalles", e.target.value)}
+                          placeholder="Describe el problema o servicio requerido"
+                        />
+                        <AlertCircle className="absolute right-3 top-3 h-4 w-4 text-slate-300 pointer-events-none" />
+                      </div>
+                    </div>
+                  </div>
+                </fieldset>
+
+                {/* Sección: Fecha y Hora */}
+                <fieldset className="border border-slate-200 rounded-lg p-6 mb-4">
+                  <legend className="text-lg font-semibold text-indigo-700 px-2">Fecha y Hora</legend>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                    {/* Fecha */}
+                    <div>
+                      <label htmlFor="fecha" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
+                        <div className="bg-slate-100 p-1.5 rounded-md">
+                          <CalendarDays className="h-4 w-4 text-indigo-600" />
+                        </div>
+                        Fecha
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="date"
+                          id="fecha"
+                          className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 pr-8 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
+                          value={data.fecha}
+                          onChange={(e) => {
+                            setData("fecha", e.target.value);
+                            setSelectedDate(e.target.value);
+                          }}
+                          min={new Date().toISOString().split('T')[0]}
+                          required
+                          aria-invalid={!!errors.fecha}
+                          aria-describedby={errors.fecha ? 'fecha-error' : undefined}
+                        />
+                        <CalendarDays className="absolute right-3 top-3 h-4 w-4 text-slate-300 pointer-events-none" />
+                      </div>
+                      {errors.fecha && (
+                        <p id="fecha-error" className="mt-1.5 text-sm text-rose-600">{errors.fecha}</p>
+                      )}
+                      {dateErrorMessage && (
+                        <p className="mt-1.5 text-sm text-rose-600">{dateErrorMessage}</p>
+                      )}
+                    </div>
+                    {/* Hora */}
+                    <div>
+                      <label htmlFor="hora" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
+                        <div className="bg-slate-100 p-1.5 rounded-md">
+                          <Clock className="h-4 w-4 text-indigo-600" />
+                        </div>
+                        Hora
+                      </label>
+                      <div className="relative">
+                        <select
+                          id="hora"
+                          className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 pr-8 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
+                          value={data.hora}
+                          onChange={(e) => setData("hora", e.target.value)}
+                          required
+                          disabled={!selectedDate || loadingHours || availableHours.length === 0}
+                          aria-invalid={!!errors.hora}
+                          aria-describedby={errors.hora ? 'hora-error' : undefined}
+                        >
+                          <option value="">
+                            {loadingHours
+                              ? "Cargando horarios..."
+                              : availableHours.length === 0 && selectedDate
+                              ? "No hay horarios disponibles"
+                              : "Seleccione una hora"}
+                          </option>
+                          {availableHours.map((hora) => (
+                            <option key={hora} value={hora}>{hora}</option>
+                          ))}
+                        </select>
+                        <Clock className="absolute right-3 top-3 h-4 w-4 text-slate-300 pointer-events-none" />
+                      </div>
+                      {errors.hora && (
+                        <p id="hora-error" className="mt-1.5 text-sm text-rose-600">{errors.hora}</p>
+                      )}
+                    </div>
+                  </div>
+                  {/* Horarios de atención */}
+                  <div className="bg-slate-50 p-5 rounded-lg mt-8 mb-6 border border-slate-200 shadow-sm">
+                    <h3 className="text-sm font-medium text-slate-700 mb-3 flex items-center gap-2">
                       <div className="bg-slate-100 p-1.5 rounded-md">
                         <Clock className="h-4 w-4 text-indigo-600" />
                       </div>
-                      Hora
-                    </label>
-                    <div className="relative">
-                      <select
-                        id="hora"
-                        className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 pr-8 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
-                        value={data.hora}
-                        onChange={(e) => setData("hora", e.target.value)}
-                        required
-                        disabled={!selectedDate || loadingHours || availableHours.length === 0}
-                      >
-                        <option value="">
-                          {loadingHours
-                            ? "Cargando horarios..."
-                            : availableHours.length === 0 && selectedDate
-                            ? "No hay horarios disponibles"
-                            : "Seleccione una hora"}
-                        </option>
-                        {availableHours.map((hora) => (
-                          <option key={hora} value={hora}>{hora}</option>
+                      Horarios de Atención
+                    </h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-2">
+                      {Object.entries({
+                        'Lunes': horarios.horarios['Lunes'] || '',
+                        'Martes': horarios.horarios['Martes'] || '',
+                        'Miércoles': horarios.horarios['Miércoles'] || '',
+                        'Jueves': horarios.horarios['Jueves'] || '',
+                        'Viernes': horarios.horarios['Viernes'] || '',
+                        'Sábado': horarios.horarios['Sábado'] || '',
+                        'Domingo': horarios.horarios['Domingo'] || ''
+                      })
+                        .filter(([_, horario]) => horario !== '')
+                        .map(([dia, horario]) => (
+                          <div key={dia} className="text-sm text-slate-600 flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-indigo-400"></div>
+                            <span className="font-medium">{dia}:</span> {horario}
+                          </div>
                         ))}
-                      </select>
-                      <Clock className="absolute right-3 top-3 h-4 w-4 text-slate-300 pointer-events-none" />
                     </div>
-                    {errors.hora && (
-                      <p className="mt-1.5 text-sm text-rose-600">{errors.hora}</p>
-                    )}
                   </div>
-                </div>
-              </div>
-                <div className="bg-slate-50 p-5 rounded-lg mt-8 mb-6 border border-slate-200 shadow-sm">
-                  <h3 className="text-sm font-medium text-slate-700 mb-3 flex items-center gap-2">
-                  <div className="bg-slate-100 p-1.5 rounded-md">
-                    <Clock className="h-4 w-4 text-indigo-600" />
-                  </div>
-                  Horarios de Atención
-                </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-2">
-                  {Object.entries({
-                    'Lunes': horarios.horarios['Lunes'] || '',
-                    'Martes': horarios.horarios['Martes'] || '',
-                    'Miércoles': horarios.horarios['Miércoles'] || '',
-                    'Jueves': horarios.horarios['Jueves'] || '',
-                    'Viernes': horarios.horarios['Viernes'] || '',
-                    'Sábado': horarios.horarios['Sábado'] || '',
-                    'Domingo': horarios.horarios['Domingo'] || ''
-                  })
-                    .filter(([_, horario]) => horario !== '')
-                    .map(([dia, horario]) => (
-                      <div key={dia} className="text-sm text-slate-600 flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-indigo-400"></div>
-                        <span className="font-medium">{dia}:</span> {horario}
-                      </div>
-                    ))}
-                </div>
-              </div>
-                <div className="mt-10 flex flex-col sm:flex-row justify-end gap-4">
+                </fieldset>
+
+                {/* Acciones */}
+                <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
                   {isEditing && (
-                  <Button
-                    variant="outline"
-                    className="gap-2 border-slate-200 text-slate-700 hover:bg-slate-50 h-11 px-5"
-                    asChild
-                  >
-                    <a href={route('reservas.index')}>
-                      <ChevronLeft className="h-5 w-5" />
-                      Cancelar
-                    </a>
-                  </Button>
-                )}
+                    <Button
+                      variant="outline"
+                      className="gap-2 border-slate-200 text-slate-700 hover:bg-slate-50 h-11 px-5"
+                      asChild
+                    >
+                      <a href={route('reservas.index')}>
+                        <ChevronLeft className="h-5 w-5" />
+                        Cancelar
+                      </a>
+                    </Button>
+                  )}
                   <Button
                     type="submit"
                     className="gap-2 bg-indigo-500 hover:bg-indigo-600 h-11 px-5"
                     disabled={processing || Boolean(availableHours.length === 0 && selectedDate)}
                   >
-                  {processing ? (
-                    <>
-                      <svg className="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Procesando...
-                    </>
-                  ) : isEditing ? (
-                    <>
-                      <Save className="h-4 w-4" />
-                      Guardar Cambios
-                    </>
-                  ) : (
-                    <>
-                      <ClipboardList className="h-4 w-4" />
-                      Agendar Cita
-                    </>
-                  )}
+                    {processing ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Procesando...
+                      </>
+                    ) : isEditing ? (
+                      <>
+                        <Save className="h-4 w-4" />
+                        Guardar Cambios
+                      </>
+                    ) : (
+                      <>
+                        <ClipboardList className="h-4 w-4" />
+                        Agendar Cita
+                      </>
+                    )}
                   </Button>
-              </div>
+                </div>
               </form>
             </CardContent>
           </Card>

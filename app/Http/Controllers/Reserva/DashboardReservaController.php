@@ -15,7 +15,7 @@ class DashboardReservaController extends Controller
 {
     public function index()
     {
-        $reservas = Reserva::with(['user', 'servicio', 'horario', 'moto'])
+        $reservas = Reserva::with(['user', 'servicios', 'horario', 'moto'])
             ->orderBy('fecha', 'desc')
             ->orderBy('hora', 'asc')
             ->get()
@@ -29,7 +29,12 @@ class DashboardReservaController extends Controller
                         'marca' => $reserva->moto->marca,
                         'modelo' => $reserva->moto->modelo
                     ] : null,
-                    'servicio' => $reserva->servicio ? $reserva->servicio->nombre : 'Servicio no disponible',
+                    'servicios' => $reserva->servicios->map(function($servicio) {
+                        return [
+                            'id' => $servicio->id,
+                            'nombre' => $servicio->nombre
+                        ];
+                    }),
                     'horario_id' => $reserva->horario_id,
                     'horario' => $reserva->horario ? [
                         'id' => $reserva->horario->id,
@@ -53,7 +58,7 @@ class DashboardReservaController extends Controller
 
     public function confirmadas()
     {
-        $reservas = Reserva::with(['user', 'servicio', 'horario', 'moto'])
+        $reservas = Reserva::with(['user', 'servicios', 'horario', 'moto'])
             ->where('estado', 'confirmada')
             ->orderBy('fecha', 'asc')
             ->orderBy('hora', 'asc')
@@ -68,7 +73,12 @@ class DashboardReservaController extends Controller
                         'marca' => $reserva->moto->marca,
                         'modelo' => $reserva->moto->modelo
                     ] : null,
-                    'servicio' => $reserva->servicio ? $reserva->servicio->nombre : 'Servicio no disponible',
+                    'servicios' => $reserva->servicios->map(function($servicio) {
+                        return [
+                            'id' => $servicio->id,
+                            'nombre' => $servicio->nombre
+                        ];
+                    }),
                     'horario_id' => $reserva->horario_id,
                     'horario' => $reserva->horario ? [
                         'id' => $reserva->horario->id,
@@ -110,14 +120,14 @@ class DashboardReservaController extends Controller
     
     public function show(Reserva $reserva)
     {
-        $reserva->load(['user', 'servicio', 'horario', 'moto']);
+        $reserva->load(['user', 'servicios', 'horario', 'moto']);
         
         $reservaFormateada = [
             'id' => $reserva->id,
             'usuario' => $reserva->user ? [
                 'id' => $reserva->user->id,
                 'name' => $reserva->user->name,
-                'email' => $reserva->user->email,
+                'telefono' => $reserva->user->phone,
             ] : null,
             'placa' => $reserva->placa,
             'moto' => $reserva->moto ? [
@@ -126,12 +136,12 @@ class DashboardReservaController extends Controller
                 'marca' => $reserva->moto->marca,
                 'modelo' => $reserva->moto->modelo
             ] : null,
-            'servicio' => $reserva->servicio ? [
-                'id' => $reserva->servicio->id,
-                'nombre' => $reserva->servicio->nombre,
-                'precio_base' => (float) $reserva->servicio->precio_base,
-                'duracion_estimada' => $reserva->servicio->duracion_estimada,
-            ] : null,
+            'servicios' => $reserva->servicios->map(function($servicio) {
+                return [
+                    'id' => $servicio->id,
+                    'nombre' => $servicio->nombre
+                ];
+            }),
             'horario_id' => $reserva->horario_id,
             'horario' => $reserva->horario ? [
                 'id' => $reserva->horario->id,
