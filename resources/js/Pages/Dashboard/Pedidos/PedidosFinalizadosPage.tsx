@@ -9,12 +9,13 @@ interface PedidosFinalizadosPageProps {
       email: string;
     };
   };
+  pedidos: any[];
 }
 
-const PedidosFinalizadosPage = ({ auth }: PedidosFinalizadosPageProps) => {
+const PedidosFinalizadosPage = ({ auth, pedidos }: PedidosFinalizadosPageProps) => {
   return (
     <DashboardLayout auth={auth}>
-      <PedidosFinalizados />
+      <PedidosFinalizados pedidos={pedidos} />
     </DashboardLayout>
   );
 };

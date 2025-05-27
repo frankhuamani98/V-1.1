@@ -18,32 +18,42 @@ import {
 import { Button } from "@/Components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-const PedidosFinalizados = () => {
-  const [pedidos, setPedidos] = useState([
-    { id: 1, cliente: "Juan Pérez", moto: "Honda CBR 600", servicio: "Cambio de aceite", fecha: "2024-03-10", estado: "Finalizado", direccion: "Calle 123, Ciudad X", numeroOrden: "ORD-12345" },
-    { id: 2, cliente: "María Gómez", moto: "Yamaha R3", servicio: "Revisión general", fecha: "2024-03-12", estado: "Cancelado", direccion: "Avenida 456, Ciudad Y", numeroOrden: "ORD-12346" },
-    { id: 3, cliente: "Carlos Ruiz", moto: "Suzuki GSX-R750", servicio: "Cambio de frenos", fecha: "2024-03-14", estado: "Finalizado", direccion: "Calle 789, Ciudad Z", numeroOrden: "ORD-12347" },
-    { id: 4, cliente: "Ana López", moto: "Kawasaki Ninja 400", servicio: "Reparación de motor", fecha: "2024-03-15", estado: "Finalizado", direccion: "Calle 101, Ciudad A", numeroOrden: "ORD-12348" },
-  ]);
+interface PedidoItem {
+  nombre_producto: string;
+  cantidad: number;
+  precio_unitario: number;
+  subtotal: number;
+  imagen?: string;
+}
 
+interface Pedido {
+  id: number;
+  cliente: string;
+  fecha: string;
+  estado: string;
+  direccion: string;
+  numeroOrden: string;
+  items?: PedidoItem[];
+}
+
+interface Props {
+  pedidos: Pedido[];
+}
+
+const PedidosFinalizados = ({ pedidos: pedidosProp = [] }: Props) => {
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const toggleRow = (id: number) => {
-    setExpandedRows((prev) =>
-      prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
-    );
-  };
-
-  const filteredPedidos = pedidos.filter(
+  const filteredPedidos = pedidosProp.filter(
     (pedido) =>
-      pedido.cliente.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pedido.moto.toLowerCase().includes(searchTerm.toLowerCase())
+      (pedido.cliente.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        pedido.numeroOrden.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      pedido.estado === "Completado"
   );
 
   const getBadgeVariant = (estado: string) => {
     switch (estado) {
-      case "Finalizado":
+      case "Completado":
         return "default";
       case "Cancelado":
         return "destructive";
@@ -52,16 +62,34 @@ const PedidosFinalizados = () => {
     }
   };
 
+  const toggleRow = (id: number) => {
+    setExpandedRows((prev) =>
+      prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
+    );
+  };
+
+  const formatPrice = (price: number | string | undefined): string => {
+    if (price === undefined || price === null) return "-";
+    const num = Number(price);
+    if (isNaN(num)) return "-";
+    return (
+      "S/ " +
+      num
+        .toFixed(2)
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+    );
+  };
+
   return (
     <div className="p-4 sm:p-6">
       <Card>
         <CardHeader>
           <CardTitle>Órdenes Finalizadas</CardTitle>
-          <CardDescription>Consulta las reparaciones completadas o canceladas en el taller.</CardDescription>
+          <CardDescription>Consulta las reparaciones completadas en el taller.</CardDescription>
           <div className="mt-4">
             <input
               type="text"
-              placeholder="Buscar por cliente o motocicleta"
+              placeholder="Buscar por cliente o número de orden"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="px-4 py-2 border rounded-md w-full sm:max-w-md"
@@ -80,24 +108,84 @@ const PedidosFinalizados = () => {
                     <TableRow>
                       <TableHead>ID</TableHead>
                       <TableHead>Cliente</TableHead>
-                      <TableHead>Motocicleta</TableHead>
-                      <TableHead>Servicio</TableHead>
                       <TableHead>Fecha</TableHead>
                       <TableHead>Estado</TableHead>
+                      <TableHead>Dirección</TableHead>
+                      <TableHead>Número de Orden</TableHead>
+                      <TableHead>Productos</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredPedidos.map((pedido) => (
-                      <TableRow key={pedido.id}>
-                        <TableCell>{pedido.id}</TableCell>
-                        <TableCell>{pedido.cliente}</TableCell>
-                        <TableCell>{pedido.moto}</TableCell>
-                        <TableCell>{pedido.servicio}</TableCell>
-                        <TableCell>{pedido.fecha}</TableCell>
-                        <TableCell>
-                          <Badge variant={getBadgeVariant(pedido.estado)}>{pedido.estado}</Badge>
-                        </TableCell>
-                      </TableRow>
+                      <React.Fragment key={pedido.id}>
+                        <TableRow>
+                          <TableCell>{pedido.id}</TableCell>
+                          <TableCell>{pedido.cliente}</TableCell>
+                          <TableCell>{pedido.fecha}</TableCell>
+                          <TableCell>
+                            <Badge variant={getBadgeVariant(pedido.estado)}>{pedido.estado}</Badge>
+                          </TableCell>
+                          <TableCell>{pedido.direccion}</TableCell>
+                          <TableCell>{pedido.numeroOrden}</TableCell>
+                          <TableCell>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => toggleRow(pedido.id)}
+                              aria-label="Ver productos"
+                            >
+                              {expandedRows.includes(pedido.id) ? "Ocultar" : "Ver"}
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                        {expandedRows.includes(pedido.id) && (
+                          <TableRow>
+                            <TableCell colSpan={7}>
+                              <div className="p-4 bg-gray-50 rounded">
+                                <div className="font-semibold mb-2">Productos del pedido:</div>
+                                <Table>
+                                  <TableHeader>
+                                    <TableRow>
+                                      <TableHead>Foto</TableHead>
+                                      <TableHead>Producto</TableHead>
+                                      <TableHead>Precio</TableHead>
+                                      <TableHead>Cantidad</TableHead>
+                                      <TableHead>Subtotal</TableHead>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody>
+                                    {pedido.items?.map((item, idx) => (
+                                      <TableRow key={idx}>
+                                        <TableCell>
+                                          <img
+                                            src={
+                                              item.imagen
+                                                ? (item.imagen.startsWith("http")
+                                                    ? item.imagen
+                                                    : `/storage/${item.imagen}`)
+                                                : "/images/placeholder.png"
+                                            }
+                                            alt={item.nombre_producto}
+                                            className="w-12 h-12 object-cover rounded"
+                                            onError={e => {
+                                              const target = e.currentTarget as HTMLImageElement;
+                                              target.src = "/images/placeholder.png";
+                                            }}
+                                          />
+                                        </TableCell>
+                                        <TableCell>{item.nombre_producto}</TableCell>
+                                        <TableCell>{formatPrice(item.precio_unitario)}</TableCell>
+                                        <TableCell>{item.cantidad}</TableCell>
+                                        <TableCell>{formatPrice(item.subtotal)}</TableCell>
+                                      </TableRow>
+                                    ))}
+                                  </TableBody>
+                                </Table>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </React.Fragment>
                     ))}
                   </TableBody>
                 </Table>
@@ -122,19 +210,66 @@ const PedidosFinalizados = () => {
                         )}
                       </Button>
                     </div>
-                    <p className="text-sm text-gray-600"><strong>Motocicleta:</strong> {pedido.moto}</p>
-                    <p className="text-sm text-gray-600"><strong>Servicio:</strong> {pedido.servicio}</p>
                     <p className="text-sm text-gray-600"><strong>Fecha:</strong> {pedido.fecha}</p>
+                    <p className="text-sm text-gray-600"><strong>Dirección:</strong> {pedido.direccion}</p>
+                    <p className="text-sm text-gray-600"><strong>Número de Orden:</strong> {pedido.numeroOrden}</p>
                     <p className="text-sm">
                       <strong>Estado:</strong>{" "}
                       <Badge variant={getBadgeVariant(pedido.estado)}>{pedido.estado}</Badge>
                     </p>
-                    
-                    {/* Detalles expandibles */}
+                    <div className="mt-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toggleRow(pedido.id)}
+                        aria-label="Ver productos"
+                      >
+                        {expandedRows.includes(pedido.id) ? "Ocultar productos" : "Ver productos"}
+                      </Button>
+                    </div>
                     {expandedRows.includes(pedido.id) && (
-                      <div className="mt-2 space-y-2">
-                        <p className="text-sm"><strong>Número de Orden:</strong> {pedido.numeroOrden}</p>
-                        <p className="text-sm"><strong>Dirección:</strong> {pedido.direccion}</p>
+                      <div className="mt-4">
+                        <div className="font-semibold mb-2">Productos del pedido:</div>
+                        <div className="overflow-x-auto">
+                          <table className="min-w-full text-sm">
+                            <thead>
+                              <tr>
+                                <th className="text-left p-2">Foto</th>
+                                <th className="text-left p-2">Producto</th>
+                                <th className="text-left p-2">Precio</th>
+                                <th className="text-left p-2">Cantidad</th>
+                                <th className="text-left p-2">Subtotal</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {pedido.items?.map((item, idx) => (
+                                <tr key={idx}>
+                                  <td className="p-2">
+                                    <img
+                                      src={
+                                        item.imagen
+                                          ? (item.imagen.startsWith("http")
+                                              ? item.imagen
+                                              : `/storage/${item.imagen}`)
+                                          : "/images/placeholder.png"
+                                      }
+                                      alt={item.nombre_producto}
+                                      className="w-12 h-12 object-cover rounded"
+                                      onError={e => {
+                                        const target = e.currentTarget as HTMLImageElement;
+                                        target.src = "/images/placeholder.png";
+                                      }}
+                                    />
+                                  </td>
+                                  <td className="p-2">{item.nombre_producto}</td>
+                                  <td className="p-2">{formatPrice(item.precio_unitario)}</td>
+                                  <td className="p-2">{item.cantidad}</td>
+                                  <td className="p-2">{formatPrice(item.subtotal)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
                     )}
                   </div>
