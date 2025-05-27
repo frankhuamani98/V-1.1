@@ -30,6 +30,7 @@ interface PedidoItem {
 
 interface Pedido {
   id: number;
+  numero_orden?: string; // Añadido
   cliente: string;
   fecha: string;
   hora?: string;
@@ -111,6 +112,7 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
               <TableHeader className="hidden sm:table-header-group">
                 <TableRow>
                   <TableHead>ID</TableHead>
+                  <TableHead>N° Orden</TableHead> {/* Nuevo */}
                   <TableHead>Cliente</TableHead>
                   <TableHead>Fecha</TableHead>
                   <TableHead>Hora</TableHead>
@@ -125,6 +127,13 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                   <React.Fragment key={pedido.id}>
                     <TableRow className="hidden sm:table-row">
                       <TableCell>{pedido.id}</TableCell>
+                      <TableCell>
+                        {pedido.numero_orden ? (
+                          <span className="font-mono text-blue-700 font-bold">{pedido.numero_orden}</span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </TableCell>
                       <TableCell>{pedido.cliente}</TableCell>
                       <TableCell>{pedido.fecha}</TableCell>
                       <TableCell>{pedido.hora ?? '-'}</TableCell>
@@ -248,6 +257,12 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                 <div key={pedido.id} className="bg-white rounded-lg shadow-md p-4 mb-2">
                   <div className="flex justify-between items-center">
                     <div>
+                      {/* Nuevo: Número de orden */}
+                      {pedido.numero_orden && (
+                        <div className="text-xs font-mono text-blue-700 font-bold mb-1">
+                          N° Orden: {pedido.numero_orden}
+                        </div>
+                      )}
                       <p className="font-medium">{pedido.cliente}</p>
                       <p className="text-xs text-gray-500">
                         {pedido.fecha}

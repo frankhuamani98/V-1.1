@@ -30,6 +30,7 @@ interface PedidoItem {
 
 interface Pedido {
   id: number;
+  numero_orden?: string; // Añadido
   cliente: string;
   fecha: string;
   estado: string;
@@ -118,6 +119,7 @@ const EstadoPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
               <TableHeader>
                 <TableRow>
                   <TableHead>ID</TableHead>
+                  <TableHead>N° Orden</TableHead> {/* Nuevo */}
                   <TableHead>Cliente</TableHead>
                   <TableHead>Fecha</TableHead>
                   <TableHead>Estado</TableHead>
@@ -133,6 +135,13 @@ const EstadoPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                   <React.Fragment key={pedido.id}>
                     <TableRow>
                       <TableCell>{pedido.id}</TableCell>
+                      <TableCell>
+                        {pedido.numero_orden ? (
+                          <span className="font-mono text-blue-700 font-bold">{pedido.numero_orden}</span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </TableCell>
                       <TableCell>{pedido.cliente}</TableCell>
                       <TableCell>{pedido.fecha}</TableCell>
                       <TableCell>
@@ -255,6 +264,12 @@ const EstadoPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
           <div className="sm:hidden space-y-4">
             {pedidos.map((pedido) => (
               <div key={pedido.id} className="bg-white rounded-lg shadow-md p-4">
+                {/* Nuevo: Número de orden */}
+                {pedido.numero_orden && (
+                  <div className="text-xs font-mono text-blue-700 font-bold mb-1">
+                    N° Orden: {pedido.numero_orden}
+                  </div>
+                )}
                 <div className="flex justify-between items-center">
                   <p className="font-medium">{pedido.cliente}</p>
                   <Badge variant={getBadgeVariant(pedido.estado)}>{pedido.estado}</Badge>

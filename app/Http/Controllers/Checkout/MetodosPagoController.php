@@ -86,6 +86,16 @@ class MetodosPagoController extends Controller
         try {
             \DB::beginTransaction();
 
+            // Obtener el último número de orden y sumarle 1, formato ORD-00001
+            $ultimoPedido = \App\Models\Pedido::orderByDesc('id')->first();
+            if ($ultimoPedido && preg_match('/ORD-(\d+)/', $ultimoPedido->numero_orden, $matches)) {
+                $ultimoNumero = intval($matches[1]);
+            } else {
+                $ultimoNumero = 0;
+            }
+            $nuevoNumero = $ultimoNumero + 1;
+            $nuevoNumeroOrden = 'ORD-' . str_pad($nuevoNumero, 5, '0', STR_PAD_LEFT);
+
             // Crear el pedido
             $pedido = \App\Models\Pedido::create([
                 'user_id' => $user->id,
@@ -99,6 +109,7 @@ class MetodosPagoController extends Controller
                 'estado' => 'pendiente', // Cambiado de 'procesando' a 'pendiente'
                 'metodo_pago' => $request->metodo,
                 'referencia_pago' => $referenciaPath,
+                'numero_orden' => $nuevoNumeroOrden, // Nuevo campo con formato
             ]);
 
             // Crear los items del pedido

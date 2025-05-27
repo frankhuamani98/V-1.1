@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('pedidos', function (Blueprint $table) {
             $table->id();
+            $table->string('numero_orden', 20)->unique(); // Cambiado a string para formato ORD-00001
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('nombre');
             $table->string('apellidos');
