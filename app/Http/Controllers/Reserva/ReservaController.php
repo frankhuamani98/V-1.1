@@ -40,7 +40,8 @@ class ReservaController extends Controller
                     'detalles' => $reserva->detalles,
                     'estado' => $reserva->estado,
                     'created_at' => $reserva->created_at,
-                    'updated_at' => $reserva->updated_at
+                    'updated_at' => $reserva->updated_at,
+                    'reprogramada_en' => $reserva->reprogramada_en ? $reserva->reprogramada_en->format('Y-m-d H:i') : null,
                 ];
             });
         

@@ -22,6 +22,7 @@ return new class extends Migration
             $table->time('hora');
             $table->text('detalles')->nullable();
             $table->enum('estado', ['pendiente', 'confirmada', 'completada', 'cancelada'])->default('pendiente');
+            $table->timestamp('reprogramada_en')->nullable();
             $table->timestamps();
         });
     }

@@ -4,7 +4,7 @@ import { Badge } from "@/Components/ui/badge";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/Components/ui/card";
 import { Button } from "@/Components/ui/button";
 import { ChevronDown, ChevronUp, CalendarCheck, CheckCircle, XCircle } from "lucide-react";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
 import { router } from "@inertiajs/react";
 
 interface Servicio {
@@ -239,7 +239,6 @@ const ReservasConfirmadas = ({ reservas: initialReservas }: ReservasConfirmadasP
                     </div>
                 </CardContent>
             </Card>
-            <Toaster position="top-right" closeButton />
         </div>
     );
 };

@@ -163,4 +163,19 @@ class DashboardReservaController extends Controller
             'reserva' => $reservaFormateada
         ]);
     }
+
+    public function reprogramar(Request $request, Reserva $reserva)
+    {
+        $validated = $request->validate([
+            'fecha' => 'required|date|after_or_equal:today',
+            'hora' => 'required|string',
+        ]);
+
+        $reserva->fecha = $validated['fecha'];
+        $reserva->hora = $validated['hora'];
+        $reserva->reprogramada_en = now();
+        $reserva->save();
+
+        return back()->with('success', 'Reserva reprogramada correctamente.');
+    }
 }

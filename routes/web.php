@@ -127,6 +127,9 @@ Route::middleware('auth')->group(function () {
         Route::patch('/{reserva}/estado', [DashboardReservaController::class, 'actualizarEstado'])
             ->where('reserva', '[0-9]+')
             ->name('actualizar-estado');
+        Route::patch('/{reserva}/reprogramar', [DashboardReservaController::class, 'reprogramar'])
+            ->where('reserva', '[0-9]+')
+            ->name('reprogramar');
             
         // Horarios de atención (debe ir antes de la ruta con parámetro wildcard)
         Route::prefix('horario-atencion')->name('horario.')->group(function () {

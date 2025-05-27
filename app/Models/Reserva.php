@@ -19,6 +19,7 @@ class Reserva extends Model
         'hora',
         'detalles',
         'estado',
+        'reprogramada_en',
     ];
 
     protected $casts = [
@@ -26,6 +27,7 @@ class Reserva extends Model
         'hora' => 'string',
         'created_at' => 'datetime:Y-m-d H:i',
         'updated_at' => 'datetime:Y-m-d H:i',
+        'reprogramada_en' => 'datetime:Y-m-d H:i',
     ];
 
     protected function serializeDate(\DateTimeInterface $date)

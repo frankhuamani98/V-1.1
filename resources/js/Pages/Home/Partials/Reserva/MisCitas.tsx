@@ -30,6 +30,7 @@ interface Reserva {
     hora: string;
     detalles: string | null;
     estado: string;
+    reprogramada_en?: string | null;
 }
 
 interface Props {
@@ -125,6 +126,11 @@ export default function MisCitas({ reservas }: Props) {
                                                     <Badge className={getEstadoBadgeClass(reserva.estado) + " px-3.5 py-1.5 text-sm font-medium rounded-full"}>
                                                         {reserva.estado.charAt(0).toUpperCase() + reserva.estado.slice(1)}
                                                     </Badge>
+                                                    {reserva.reprogramada_en && (
+                                                        <span className="inline-block bg-indigo-100 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full ml-2">
+                                                            Reprogramado
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 
                                                 <div className="space-y-4 flex-1">
@@ -204,6 +210,27 @@ export default function MisCitas({ reservas }: Props) {
                                                             <XCircle className="h-4 w-4 mr-2" />
                                                             Cancelar
                                                         </Button>
+                                                    </div>
+                                                )}
+                                                {reserva.estado === 'confirmada' && (
+                                                    <div className="mt-5 pt-4 border-t border-slate-200 text-center">
+                                                        <span className="inline-block bg-emerald-50 text-emerald-700 text-sm font-semibold px-4 py-2 rounded-lg">
+                                                            ¡Tu reserva ha sido confirmada! Te esperamos en el taller.
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                {reserva.estado === 'completada' && (
+                                                    <div className="mt-5 pt-4 border-t border-slate-200 text-center">
+                                                        <span className="inline-block bg-indigo-50 text-indigo-700 text-sm font-semibold px-4 py-2 rounded-lg">
+                                                            ¡Servicio completado! Puedes recoger tu moto.
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                {reserva.estado === 'cancelada' && (
+                                                    <div className="mt-5 pt-4 border-t border-slate-200 text-center">
+                                                        <span className="inline-block bg-rose-50 text-rose-700 text-sm font-semibold px-4 py-2 rounded-lg">
+                                                            Esta reserva ha sido cancelada.
+                                                        </span>
                                                     </div>
                                                 )}
                                             </div>
