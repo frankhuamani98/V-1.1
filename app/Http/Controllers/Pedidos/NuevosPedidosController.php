@@ -6,6 +6,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\Controller;
 use App\Models\Pedido;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Request as FacadesRequest; // Asegúrate de importar Request
 
 class NuevosPedidosController extends Controller
 {
@@ -39,6 +40,22 @@ class NuevosPedidosController extends Controller
 
         return Inertia::render('Dashboard/Pedidos/NuevosPedidosPage', [
             'pedidos' => $pedidos,
+        ]);
+    }
+
+    public function actualizarEstado(Request $request, $id)
+    {
+        $request->validate([
+            'estado' => 'required|string|in:pendiente,procesando,completado,cancelado',
+        ]);
+
+        $pedido = Pedido::findOrFail($id);
+        $pedido->estado = $request->estado;
+        $pedido->save();
+
+        return redirect()->back()->with([
+            'success' => 'Estado actualizado correctamente',
+            'estado' => ucfirst($pedido->estado),
         ]);
     }
 }

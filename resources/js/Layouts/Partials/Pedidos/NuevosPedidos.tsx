@@ -17,7 +17,8 @@ import {
 } from "@/Components/ui/card";
 import { Button } from "@/Components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { useForm } from '@inertiajs/react';
+import { useForm, router } from '@inertiajs/react';
+import { toast } from "sonner"; // Si usas Sonner para notificaciones
 
 interface PedidoItem {
   nombre_producto: string;
@@ -46,6 +47,8 @@ interface Props {
 const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
   const [pedidos, setPedidos] = useState<Pedido[]>(pedidosProp); // Nuevo estado local para pedidos
+  const [estadoEditando, setEstadoEditando] = useState<{ [key: number]: string }>({}); // Estado temporal para cada pedido
+  const [loading, setLoading] = useState<{ [key: number]: boolean }>({}); // Para mostrar loading por pedido
 
   const toggleRow = (id: number) => {
     setExpandedRows((prev) =>
@@ -61,6 +64,36 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
       num
         .toFixed(2)
         .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+    );
+  };
+
+  const handleEstadoChange = (pedidoId: number, nuevoEstado: string) => {
+    setEstadoEditando((prev) => ({
+      ...prev,
+      [pedidoId]: nuevoEstado,
+    }));
+  };
+
+  const actualizarEstadoPedido = async (pedidoId: number) => {
+    const nuevoEstado = estadoEditando[pedidoId];
+    if (!nuevoEstado) return;
+    setLoading((prev) => ({ ...prev, [pedidoId]: true }));
+
+    router.patch(
+      `/pedidos/${pedidoId}/actualizar-estado`,
+      { estado: nuevoEstado },
+      {
+        preserveScroll: true,
+        onSuccess: () => {
+          window.location.reload(); // Recarga toda la página
+        },
+        onError: () => {
+          toast.error("Error al actualizar el estado");
+        },
+        onFinish: () => {
+          setLoading((prev) => ({ ...prev, [pedidoId]: false }));
+        },
+      }
     );
   };
 
@@ -187,6 +220,27 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                                 </span>
                               </div>
                             </div>
+                            {/* Botón y selector para actualizar estado */}
+                            <div className="mt-4 flex items-center gap-2">
+                              <label className="font-semibold">Actualizar estado:</label>
+                              <select
+                                className="border rounded px-2 py-1"
+                                value={estadoEditando[pedido.id] ?? pedido.estado.toLowerCase()}
+                                onChange={e => handleEstadoChange(pedido.id, e.target.value)}
+                              >
+                                <option value="pendiente">Pendiente</option>
+                                <option value="procesando">Procesando</option>
+                                <option value="completado">Completado</option>
+                                <option value="cancelado">Cancelado</option>
+                              </select>
+                              <Button
+                                size="sm"
+                                onClick={() => actualizarEstadoPedido(pedido.id)}
+                                disabled={loading[pedido.id] || (estadoEditando[pedido.id] ?? pedido.estado.toLowerCase()) === pedido.estado.toLowerCase()}
+                              >
+                                {loading[pedido.id] ? 'Actualizando...' : 'Actualizar estado'}
+                              </Button>
+                            </div>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -307,13 +361,26 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                           />
                         </div>
                       )}
-                      <div className="mt-6 flex justify-end">
-                        <div className="bg-blue-50 border border-blue-200 rounded-xl px-6 py-3 text-right">
-                          <span className="font-bold text-blue-900 mr-2">Total del pedido:</span>
-                          <span className="font-extrabold text-blue-700 text-lg">
-                            {pedido.total !== undefined ? formatPrice(pedido.total) : "-"}
-                          </span>
-                        </div>
+                      {/* Botón y selector para actualizar estado en móvil */}
+                      <div className="mt-4 flex items-center gap-2">
+                        <label className="font-semibold">Actualizar estado:</label>
+                        <select
+                          className="border rounded px-2 py-1"
+                          value={estadoEditando[pedido.id] ?? pedido.estado.toLowerCase()}
+                          onChange={e => handleEstadoChange(pedido.id, e.target.value)}
+                        >
+                          <option value="pendiente">Pendiente</option>
+                          <option value="procesando">Procesando</option>
+                          <option value="completado">Completado</option>
+                          <option value="cancelado">Cancelado</option>
+                        </select>
+                        <Button
+                          size="sm"
+                          onClick={() => actualizarEstadoPedido(pedido.id)}
+                          disabled={loading[pedido.id] || (estadoEditando[pedido.id] ?? pedido.estado.toLowerCase()) === pedido.estado.toLowerCase()}
+                        >
+                          {loading[pedido.id] ? 'Actualizando...' : 'Actualizar estado'}
+                        </Button>
                       </div>
                     </div>
                   )}
