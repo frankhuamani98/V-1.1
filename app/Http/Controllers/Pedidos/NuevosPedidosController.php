@@ -19,10 +19,11 @@ class NuevosPedidosController extends Controller
                     'id' => $pedido->id,
                     'cliente' => $pedido->nombre . ' ' . $pedido->apellidos,
                     'fecha' => $pedido->created_at->format('Y-m-d'),
+                    'hora' => $pedido->created_at->format('H:i'), // <-- Añadido
                     'estado' => ucfirst($pedido->estado),
                     'metodo_pago' => $pedido->metodo_pago,
-                    // Usar el total guardado en la base de datos
                     'total' => $pedido->total,
+                    'referencia_pago' => $pedido->referencia_pago, // <-- Añadido para mostrar comprobante
                     'items' => $pedido->items->map(function ($item) {
                         return [
                             'nombre_producto' => $item->nombre_producto,

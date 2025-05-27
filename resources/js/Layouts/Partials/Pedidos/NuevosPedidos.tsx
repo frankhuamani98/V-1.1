@@ -30,9 +30,11 @@ interface Pedido {
   id: number;
   cliente: string;
   fecha: string;
+  hora?: string; // <-- Añadido
   estado: string;
   metodo_pago?: string;
-  total?: number; // <-- Añadido
+  total?: number;
+  referencia_pago?: string;
   items?: PedidoItem[];
 }
 
@@ -76,9 +78,10 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                   <TableHead>ID</TableHead>
                   <TableHead>Cliente</TableHead>
                   <TableHead>Fecha</TableHead>
+                  <TableHead>Hora</TableHead> {/* Asegúrate de tener esta columna */}
                   <TableHead>Estado</TableHead>
                   <TableHead>Método de Pago</TableHead>
-                  <TableHead>Total</TableHead> {/* Nueva columna */}
+                  <TableHead>Total</TableHead>
                   <TableHead>Acciones</TableHead>
                 </TableRow>
               </TableHeader>
@@ -89,6 +92,7 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                       <TableCell>{pedido.id}</TableCell>
                       <TableCell>{pedido.cliente}</TableCell>
                       <TableCell>{pedido.fecha}</TableCell>
+                      <TableCell>{pedido.hora ?? '-'}</TableCell>
                       <TableCell>
                         <Badge
                           variant={
@@ -132,7 +136,14 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                       <div className="flex justify-between items-center">
                         <div>
                           <p className="font-medium">{pedido.cliente}</p>
-                          <p className="text-xs text-gray-500">{pedido.fecha}</p>
+                          <p className="text-xs text-gray-500">
+                            {pedido.fecha}
+                            {pedido.hora && (
+                              <span className="ml-2 text-blue-700 font-semibold">
+                                {pedido.hora}
+                              </span>
+                            )}
+                          </p>
                           <p className="text-xs">
                             <Badge
                               variant={
@@ -215,6 +226,34 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                                   ))}
                                 </tbody>
                               </table>
+                            </div>
+                            {/* Mostrar comprobante si existe */}
+                            {pedido.referencia_pago && (
+                              <div className="mt-6">
+                                <div className="font-semibold mb-2 text-blue-700">Comprobante de pago:</div>
+                                <img
+                                  src={
+                                    pedido.referencia_pago.startsWith('http')
+                                      ? pedido.referencia_pago
+                                      : `/storage/${pedido.referencia_pago}`
+                                  }
+                                  alt="Comprobante de pago"
+                                  className="w-64 max-w-full rounded-lg border border-blue-200 shadow"
+                                  onError={e => {
+                                    const target = e.currentTarget as HTMLImageElement;
+                                    target.src = "/images/placeholder.png";
+                                  }}
+                                />
+                              </div>
+                            )}
+                            {/* Mostrar precio final de todos los productos y compras */}
+                            <div className="mt-6 flex justify-end">
+                              <div className="bg-blue-50 border border-blue-200 rounded-xl px-6 py-3 text-right">
+                                <span className="font-bold text-blue-900 mr-2">Total del pedido:</span>
+                                <span className="font-extrabold text-blue-700 text-lg">
+                                  {pedido.total !== undefined ? formatPrice(pedido.total) : "-"}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </TableCell>
