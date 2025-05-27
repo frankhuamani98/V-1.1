@@ -140,7 +140,7 @@ const Footer = () => {
                 </a>
               </li>
               <li className="icon instagram">
-                <a href="#" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-10 h-10">
+                <a href="https://www.instagram.com/rudolfmotos?igsh=MWRwZmJwZDRtemRtcA==" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-10 h-10">
                   <InstagramIcon className="h-5 w-5" />
                 </a>
               </li>
@@ -283,7 +283,7 @@ const Footer = () => {
               <MailIcon className="h-5 w-5 text-white" />
             </div>
             <span className="text-sm text-neutral-400">
-              <a href="mailto:rogeralfarohuaman@gmail.com" className="hover:text-neutral-200 transition-colors">rogeralfarohuaman@gmail.com</a>
+              <a href="mailto:rogeralfarohuaman@gmail.com" className="hover:text-neutral-200 transition-colors">motosrudolf10062020@gmail.com</a>
             </span>
           </div>
         </div>
@@ -291,7 +291,7 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-neutral-800">
           <div className="text-left mb-4 md:mb-0 md:w-1/3">
             <p className="text-xs text-neutral-500">
-              © {currentYear} Rudolf Motos. Todos los derechos reservados.
+              © {currentYear} DEFYMAJR. Todos los derechos reservados.
             </p>
           </div>
           <div className="flex flex-col items-center mb-4 md:mb-0 md:w-1/3">
