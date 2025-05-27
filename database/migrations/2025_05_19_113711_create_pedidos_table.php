@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('pedidos', function (Blueprint $table) {
             $table->id();
+            $table->string('numero_orden', 20)->unique(); // Cambiado a string para formato ORD-00001
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('nombre');
             $table->string('apellidos');
@@ -20,7 +21,7 @@ return new class extends Migration
             $table->text('direccion');
             $table->text('direccion_alternativa')->nullable();
             $table->decimal('subtotal', 10, 2);
-            $table->decimal('total', 10, 2);
+            $table->decimal('total', 10, 2); // El campo total YA existe aquí
             $table->string('estado')->default('pendiente'); // pendiente, procesando, completado, cancelado
             $table->string('metodo_pago')->nullable(); // almacena el método de pago seleccionado
             $table->string('referencia_pago')->nullable(); // almacena el comprobante o referencia

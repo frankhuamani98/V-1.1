@@ -261,6 +261,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/estado', [EstadoPedidosController::class, 'index'])->name('pedidos.estado');
         Route::get('/finalizados', [PedidosFinalizadosController::class, 'index'])->name('pedidos.finalizados');
         Route::get('/historial', [HistorialPedidosController::class, 'index'])->name('pedidos.historial');
+        Route::patch('/{pedido}/actualizar-estado', [NuevosPedidosController::class, 'actualizarEstado'])->name('pedidos.actualizar-estado');
     });
     
     //Opiniones

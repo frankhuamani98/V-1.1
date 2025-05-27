@@ -91,7 +91,8 @@ export default function Details({ producto, productosRelacionados }: Props) {
   };
 
   const precioFinal = producto.precio_final;
-  const hasDiscount = producto.descuento > 0;
+  // Cambia la condición para mostrar descuento solo si el precio base es mayor al precio final
+  const hasDiscount = producto.precio > precioFinal;
   const ahorro = hasDiscount ? formatPrice(producto.precio - precioFinal) : '';
 
   useEffect(() => {

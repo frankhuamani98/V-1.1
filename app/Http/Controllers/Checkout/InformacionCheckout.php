@@ -60,64 +60,19 @@ class InformacionCheckout extends Controller
             'direccion_alternativa' => 'nullable|string',
         ]);
 
-        $user = Auth::user();
-        $cart = $user->cartItems()->with('producto')->get();
-
-        // Verificar que el carrito no esté vacío
-        if ($cart->isEmpty()) {
-            return redirect()->back()->with('error', 'Tu carrito está vacío');
-        }
-
-        $subtotal = $cart->sum(function ($item) {
-            return $item->producto->precio_final * $item->quantity;
-        });
-
-        $total = $subtotal; // Aquí podrías añadir costos de envío, descuentos, etc.
-
-        try {
-            DB::beginTransaction();
-
-            // Usar dirección alternativa de la sesión si existe
-            $direccionAlternativa = $request->direccion_alternativa ?: session('direccion_alternativa');
-            $direccionFinal = $direccionAlternativa ?: $user->address;
-
-            // Crear el pedido
-            $pedido = Pedido::create([
-                'user_id' => $user->id,
+        // Guardar los datos en la sesión para usarlos en el siguiente paso
+        session([
+            'checkout_datos' => [
                 'nombre' => $request->nombre,
                 'apellidos' => $request->apellidos,
                 'dni' => $request->dni,
-                'direccion' => $direccionFinal,
-                'direccion_alternativa' => $direccionAlternativa,
-                'subtotal' => $subtotal,
-                'total' => $total,
-                'estado' => 'pendiente',
-            ]);
+                'direccion' => $request->direccion_alternativa ?: Auth::user()->address,
+                'direccion_alternativa' => $request->direccion_alternativa,
+            ]
+        ]);
 
-            // Crear los items del pedido
-            foreach ($cart as $item) {
-                PedidoItem::create([
-                    'pedido_id' => $pedido->id,
-                    'producto_id' => $item->producto->id,
-                    'nombre_producto' => $item->producto->nombre,
-                    'cantidad' => $item->quantity,
-                    'precio_unitario' => $item->producto->precio_final,
-                    'subtotal' => $item->producto->precio_final * $item->quantity,
-                ]);
-            }
-
-            // Limpiar la dirección alternativa de la sesión
-            session()->forget('direccion_alternativa');
-
-            DB::commit();
-
-            // Redireccionar a la página de métodos de pago
-            return redirect()->route('checkout.metodos', ['pedido_id' => $pedido->id]);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()->with('error', 'Ocurrió un error al procesar tu pedido: ' . $e->getMessage());
-        }
+        // Redirigir a la página de métodos de pago (sin crear pedido aún)
+        return redirect()->route('checkout.metodos');
     }
     
     /**

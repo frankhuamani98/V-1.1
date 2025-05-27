@@ -21,6 +21,7 @@ class ConfirmacionPagoController extends Controller
         // Puedes pasar datos del pedido si lo necesitas en la vista
         return Inertia::render('Home/Partials/Checkout/ConfirmacionPago', [
             'pedido' => $pedido,
+            'numero_orden' => $pedido->numero_orden, // Ya está correcto
         ]);
     }
 }
