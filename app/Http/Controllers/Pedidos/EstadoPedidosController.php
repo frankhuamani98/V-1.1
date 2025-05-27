@@ -12,7 +12,6 @@ class EstadoPedidosController extends Controller
     public function index()
     {
         $pedidos = Pedido::with(['user', 'items', 'items.producto'])
-            ->whereIn('estado', ['pendiente', 'procesando', 'completado', 'cancelado'])
             ->orderByDesc('created_at')
             ->get()
             ->map(function ($pedido) {
@@ -21,6 +20,18 @@ class EstadoPedidosController extends Controller
                     'cliente' => $pedido->nombre . ' ' . $pedido->apellidos,
                     'fecha' => $pedido->created_at->format('Y-m-d'),
                     'estado' => ucfirst($pedido->estado),
+                    'metodo_pago' => $pedido->metodo_pago,
+                    'total' => $pedido->total,
+                    'referencia_pago' => $pedido->referencia_pago,
+                    'items' => $pedido->items->map(function ($item) {
+                        return [
+                            'nombre_producto' => $item->nombre_producto,
+                            'cantidad' => $item->cantidad,
+                            'precio_unitario' => $item->precio_unitario,
+                            'subtotal' => $item->subtotal,
+                            'imagen' => $item->producto->imagen_principal ?? null,
+                        ];
+                    }),
                 ];
             });
 

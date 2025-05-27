@@ -129,10 +129,7 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                       <TableCell>{pedido.fecha}</TableCell>
                       <TableCell>{pedido.hora ?? '-'}</TableCell>
                       <TableCell>
-                        {/* Mostrar solo el estado, sin selector */}
-                        <span className="text-xs font-semibold">
-                          {pedido.estado}
-                        </span>
+                        <span className="text-xs font-semibold">{pedido.estado}</span>
                       </TableCell>
                       <TableCell>
                         {pedido.metodo_pago ? pedido.metodo_pago : <span className="text-gray-400">-</span>}
@@ -142,12 +139,7 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                       </TableCell>
                       <TableCell>
                         <Button variant="outline" size="sm" onClick={() => toggleRow(pedido.id)} aria-label="Ver detalles">
-                          Detalles del pedido{" "}
-                          {expandedRows.includes(pedido.id) ? (
-                            <ChevronUp className="h-4 w-4 ml-1" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4 ml-1" />
-                          )}
+                          Detalles del pedido{expandedRows.includes(pedido.id) ? <ChevronUp className="h-4 w-4 ml-1" /> : <ChevronDown className="h-4 w-4 ml-1" />}
                         </Button>
                       </TableCell>
                     </TableRow>
