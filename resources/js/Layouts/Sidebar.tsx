@@ -162,6 +162,13 @@ const Sidebar = ({ isOpen, toggleSidebar, activeHref = window.location.pathname 
       ],
     },
     {
+      icon: <Briefcase size={20} />,
+      label: "Gestión de Equipo",
+      subItems: [
+        { label: "Administrar Equipo", href: "/equipo/dashboard" },
+      ],
+    },
+    {
       icon: <FileText size={20} />,
       label: "Gestión de Facturación",
       subItems: [

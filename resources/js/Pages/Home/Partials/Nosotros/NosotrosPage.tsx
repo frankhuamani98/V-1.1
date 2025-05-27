@@ -3,9 +3,23 @@ import Header from "@/Pages/Home/Header"
 import Footer from "@/Pages/Home/Footer"
 import WhatsAppButton from "@/Components/WhatsAppButton"
 import { Head } from "@inertiajs/react"
-import { Award, Wrench, Target, Users, Heart, Shield } from "lucide-react"
+import { Award, Wrench, Target, Users, Heart, Shield, User, UserCog, Briefcase, Settings, BadgeCheck } from "lucide-react"
+import { Card } from "@/Components/ui/card"
 
-const NosotrosPage: React.FC = () => {
+interface MiembroEquipo {
+  id: number
+  nombre: string
+  cargo: string
+  descripcion: string
+  imagen: string
+  activo: boolean
+}
+
+interface Props {
+  equipo: MiembroEquipo[]
+}
+
+const NosotrosPage: React.FC<Props> = ({ equipo }) => {
   return (
     <>
       <Head title="Sobre Nosotros" />
@@ -136,57 +150,79 @@ const NosotrosPage: React.FC = () => {
             <p className="text-center text-gray-400 mb-16 max-w-2xl mx-auto">
               Profesionales comprometidos con la excelencia en cada servicio
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {[
-                { 
-                  role: "GERENTE",
-                  name: "RODOLFO ALFARO H.",
-                  description: "Dirección estratégica y liderazgo empresarial",
-                  image: "/equipo/gerente.jpg"
-                },
-                { 
-                  role: "ADMINISTRADOR(A)", 
-                  description: "Optimización de procesos y recursos",
-                  image: "/equipo/administrador.jpg"
-                },
-                { 
-                  role: "JEFE(A) DE VENTAS",
-                  description: "Gestión comercial y satisfacción del cliente",
-                  image: "/equipo/jefeventas.jpg"
-                },
-                { 
-                  role: "JEFE DE TALLER",
-                  description: "Excelencia técnica y control de calidad",
-                  image: "/equipo/jefetaller.jpg"
-                }
-              ].map((member, index) => (
-                <div key={index} className="group">
-                  <div className="aspect-square bg-gray-800 dark:bg-gray-700 rounded-xl overflow-hidden shadow-lg relative hover:transform hover:scale-105 transition-all duration-300">
-                    <div className="w-full h-full">
-                      <img 
-                        src={member.image}
-                        alt={`${member.role} - Rudolf Motos`}
-                        className="w-full h-full object-cover object-center"
+            
+            {equipo && equipo.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                {equipo.map((miembro) => (
+                  <Card key={miembro.id} className="bg-gray-800 border-0 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div className="relative h-56 overflow-hidden">
+                      <img
+                        src={miembro.imagen}
+                        alt={miembro.nombre}
+                        className="w-full h-full object-cover"
                       />
-                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-colors"></div>
                     </div>
-                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black via-black/80 to-transparent p-6 transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                      <h3 className="text-2xl font-bold text-white mb-2 font-['Bebas_Neue']">
-                        {member.role}
+                    <div className="p-5">
+                      <h3 className="text-xl font-bold text-white mb-1 font-['Bebas_Neue']">
+                        {miembro.nombre.toUpperCase()}
                       </h3>
-                      {member.name && (
-                        <h4 className="text-[#00a99d] text-lg mb-2 font-['Bebas_Neue']">
-                          {member.name}
-                        </h4>
-                      )}
+                      <h4 className="text-[#00a99d] text-md mb-3 flex items-center gap-1.5">
+                        <BadgeCheck className="w-4 h-4" />
+                        {miembro.cargo}
+                      </h4>
                       <p className="text-gray-300 text-sm leading-relaxed">
-                        {member.description}
+                        {miembro.descripcion}
                       </p>
                     </div>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {[
+                  { 
+                    role: "GERENTE",
+                    name: "RODOLFO ALFARO H.",
+                    description: "Dirección estratégica y liderazgo empresarial",
+                    icon: <User className="w-10 h-10" />
+                  },
+                  { 
+                    role: "ADMINISTRADOR(A)", 
+                    description: "Optimización de procesos y recursos",
+                    icon: <UserCog className="w-10 h-10" />
+                  },
+                  { 
+                    role: "JEFE(A) DE VENTAS",
+                    description: "Gestión comercial y satisfacción del cliente",
+                    icon: <Briefcase className="w-10 h-10" />
+                  },
+                  { 
+                    role: "JEFE DE TALLER",
+                    description: "Excelencia técnica y control de calidad",
+                    icon: <Settings className="w-10 h-10" />
+                  }
+                ].map((member, index) => (
+                  <div key={index} className="flex flex-col items-center p-6 bg-gray-800 dark:bg-gray-700 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+                    <div className="w-20 h-20 rounded-full bg-[#00a99d]/20 flex items-center justify-center mb-4 border-2 border-[#00a99d]">
+                      <div className="text-[#00a99d]">
+                        {member.icon}
+                      </div>
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-2 font-['Bebas_Neue'] text-center">
+                      {member.role}
+                    </h3>
+                    {member.name && (
+                      <h4 className="text-[#00a99d] text-lg mb-2 font-['Bebas_Neue'] text-center">
+                        {member.name}
+                      </h4>
+                    )}
+                    <p className="text-gray-300 text-sm leading-relaxed text-center">
+                      {member.description}
+                    </p>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       </main>

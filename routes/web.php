@@ -18,6 +18,7 @@ use App\Http\Controllers\Contacto\ContactoController;
 use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\Shop\{CartController, FavoriteController};
 use App\Http\Controllers\Checkout\{FormularioPagoController, MetodosPagoController, ConfirmacionPagoController, ProcesandoPagoController, InformacionCheckout};
+use App\Http\Controllers\Equipo\EquipoController;
 
 // Rutas Públicas
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
@@ -25,7 +26,12 @@ Route::get('/resultados', [ResultadosController::class, 'index'])->name('resulta
 Route::get('/details/{id}', [DetalleProductoController::class, 'show'])->name('productos.detalles');
 
 // Ruta para Nosotros
-Route::get('/nosotros', fn () => Inertia::render('Home/Partials/Nosotros/NosotrosPage'))->name('nosotros');
+Route::get('/nosotros', function () {
+    $equipo = \App\Models\Equipo::where('activo', true)->get();
+    return Inertia::render('Home/Partials/Nosotros/NosotrosPage', [
+        'equipo' => $equipo
+    ]);
+})->name('nosotros');
 
 // Rutas para categorias públicas
 Route::get('/categorias', [CategoriaPublicaController::class, 'index'])->name('categorias.index');
@@ -307,6 +313,15 @@ Route::middleware('auth')->group(function () {
     Route::prefix('soporte')->group(function () {
         Route::get('/manual', [ManualUsuarioController::class, 'index'])->name('soporte.manual');
         Route::get('/tecnico', [SoporteTecnicoController::class, 'index'])->name('soporte.tecnico');
+    });
+    
+    // Rutas para la gestión del equipo
+    Route::prefix('equipo')->name('equipo.')->group(function () {
+        Route::get('/dashboard', [EquipoController::class, 'index'])->name('dashboard');
+        Route::post('/store', [EquipoController::class, 'store'])->name('store');
+        Route::put('/{equipo}', [EquipoController::class, 'update'])->name('update');
+        Route::delete('/{equipo}', [EquipoController::class, 'destroy'])->name('destroy');
+        Route::put('/{equipo}/toggle-active', [EquipoController::class, 'toggleActive'])->name('toggle-active');
     });
 });
 
