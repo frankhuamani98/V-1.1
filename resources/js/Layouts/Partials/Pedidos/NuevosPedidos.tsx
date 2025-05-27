@@ -46,7 +46,6 @@ interface Props {
 const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
   const [pedidos, setPedidos] = useState<Pedido[]>(pedidosProp); // Nuevo estado local para pedidos
-  const { post, processing, setData } = useForm<{ estado: string }>({ estado: "" });
 
   const toggleRow = (id: number) => {
     setExpandedRows((prev) =>
@@ -63,27 +62,6 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
         .toFixed(2)
         .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
     );
-  };
-
-  // Nuevo: función para actualizar el estado del pedido
-  const handleEstadoChange = (pedidoId: number, nuevoEstado: string) => {
-    setData('estado', nuevoEstado);
-    post(`/pedidos/nuevos/${pedidoId}/actualizar-estado`, {
-      preserveScroll: true,
-      onSuccess: () => {
-        setPedidos(prev =>
-          prev.map(p =>
-            p.id === pedidoId
-              ? { ...p, estado: nuevoEstado.charAt(0).toUpperCase() + nuevoEstado.slice(1) }
-              : p
-          )
-        );
-      },
-      onError: () => {
-        // Opcional: mostrar error
-      },
-      only: [], // No recargar props
-    });
   };
 
   return (
@@ -118,17 +96,10 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                       <TableCell>{pedido.fecha}</TableCell>
                       <TableCell>{pedido.hora ?? '-'}</TableCell>
                       <TableCell>
-                        {/* Selector de estado */}
-                        <select
-                          className="border rounded px-2 py-1 text-xs"
-                          value={pedido.estado.toLowerCase()}
-                          onChange={e => handleEstadoChange(pedido.id, e.target.value)}
-                        >
-                          <option value="pendiente">Pendiente</option>
-                          <option value="procesando">Procesando</option>
-                          <option value="completado">Completado</option>
-                          <option value="cancelado">Cancelado</option>
-                        </select>
+                        {/* Mostrar solo el estado, sin selector */}
+                        <span className="text-xs font-semibold">
+                          {pedido.estado}
+                        </span>
                       </TableCell>
                       <TableCell>
                         {pedido.metodo_pago ? pedido.metodo_pago : <span className="text-gray-400">-</span>}

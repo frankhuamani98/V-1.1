@@ -41,23 +41,4 @@ class NuevosPedidosController extends Controller
             'pedidos' => $pedidos,
         ]);
     }
-
-    // Nuevo método para actualizar el estado del pedido
-    public function actualizarEstado(Request $request, $id)
-    {
-        $request->validate([
-            'estado' => 'required|in:pendiente,procesando,completado,cancelado',
-        ]);
-
-        $pedido = Pedido::findOrFail($id);
-        $pedido->estado = $request->estado;
-        $pedido->save();
-
-        // Respuesta JSON para evitar redirección
-        return response()->json([
-            'success' => true,
-            'message' => 'Estado del pedido actualizado correctamente.',
-            'estado' => $pedido->estado,
-        ]);
-    }
 }
