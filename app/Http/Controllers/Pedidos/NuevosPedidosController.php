@@ -10,17 +10,26 @@ class NuevosPedidosController extends Controller
 {
     public function index()
     {
-        $pedidos = Pedido::with(['user'])
+        $pedidos = Pedido::with(['user', 'items'])
+            ->whereIn('estado', ['procesando', 'completado']) // Solo pedidos finalizados
             ->orderByDesc('created_at')
             ->get()
             ->map(function ($pedido) {
                 return [
                     'id' => $pedido->id,
                     'cliente' => $pedido->nombre . ' ' . $pedido->apellidos,
-                    'servicio' => '', // Si tienes campo servicio, cámbialo aquí
-                    'moto' => '',     // Si tienes campo moto, cámbialo aquí
                     'fecha' => $pedido->created_at->format('Y-m-d'),
                     'estado' => ucfirst($pedido->estado),
+                    'metodo_pago' => $pedido->metodo_pago,
+                    'items' => $pedido->items->map(function ($item) {
+                        return [
+                            'nombre_producto' => $item->nombre_producto,
+                            'cantidad' => $item->cantidad,
+                            'precio_unitario' => $item->precio_unitario,
+                            'subtotal' => $item->subtotal,
+                            'imagen' => $item->producto->imagen_principal ?? null,
+                        ];
+                    }),
                 ];
             });
 

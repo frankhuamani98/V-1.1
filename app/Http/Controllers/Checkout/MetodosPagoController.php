@@ -11,9 +11,10 @@ class MetodosPagoController extends Controller
 {
     public function index(Request $request)
     {
-        // Puedes obtener el pedido por ID si lo necesitas
-        $pedidoId = $request->query('pedido_id');
-        $pedido = $pedidoId ? Pedido::find($pedidoId) : null;
+        // Obtener datos del usuario y carrito desde la sesión
+        $user = Auth()->user();
+        $datos = session('checkout_datos');
+        $cart = $user->cartItems()->with('producto')->get();
 
         // Métodos de pago disponibles (puedes personalizar esto)
         $metodos = [
@@ -40,7 +41,21 @@ class MetodosPagoController extends Controller
         ];
 
         return Inertia::render('Home/Partials/Checkout/MetodosPago', [
-            'pedido' => $pedido,
+            'pedido' => [
+                'user' => $datos,
+                'items' => $cart->map(function ($item) {
+                    return [
+                        'id' => $item->producto->id,
+                        'nombre' => $item->producto->nombre,
+                        'cantidad' => $item->quantity,
+                        'precio_final' => $item->producto->precio_final,
+                        'subtotal' => $item->producto->precio_final * $item->quantity,
+                        'imagen' => $item->producto->imagen_principal,
+                    ];
+                }),
+                'subtotal' => $cart->sum(fn($item) => $item->producto->precio_final * $item->quantity),
+                'total' => $cart->sum(fn($item) => $item->producto->precio_final * $item->quantity),
+            ],
             'metodos' => $metodos,
         ]);
     }
@@ -48,40 +63,63 @@ class MetodosPagoController extends Controller
     public function procesar(Request $request)
     {
         $request->validate([
-            'pedido_id' => 'required|exists:pedidos,id',
             'metodo' => 'required|string',
-            'referencia_pago' => 'nullable|image|max:5120', // hasta 5MB
+            'referencia_pago' => 'required|image|max:5120', // hasta 5MB y obligatorio
         ]);
 
-        $pedido = Pedido::findOrFail($request->pedido_id);
-        $user = $pedido->user;
+        $user = Auth()->user();
+        $datos = session('checkout_datos');
+        $cart = $user->cartItems()->with('producto')->get();
 
-        // Procesar archivo si existe
-        $referenciaPath = null;
-        if ($request->hasFile('referencia_pago')) {
-            $referenciaPath = $request->file('referencia_pago')->store('pagos/referencias', 'public');
+        if (!$datos || $cart->isEmpty()) {
+            return redirect()->route('checkout.informacion')->with('error', 'Faltan datos o el carrito está vacío.');
         }
 
-        // Aquí iría la lógica de integración con el método de pago seleccionado
-        $pagoExitoso = true; // Cambia esto según la lógica real
+        // Procesar archivo comprobante
+        $referenciaPath = $request->file('referencia_pago')->store('pagos/referencias', 'public');
 
-        if ($pagoExitoso) {
-            // Actualiza el pedido como pagado
-            $pedido->metodo_pago = $request->metodo;
-            if ($referenciaPath) {
-                $pedido->referencia_pago = $referenciaPath;
+        try {
+            \DB::beginTransaction();
+
+            // Crear el pedido
+            $pedido = \App\Models\Pedido::create([
+                'user_id' => $user->id,
+                'nombre' => $datos['nombre'],
+                'apellidos' => $datos['apellidos'],
+                'dni' => $datos['dni'],
+                'direccion' => $datos['direccion'],
+                'direccion_alternativa' => $datos['direccion_alternativa'],
+                'subtotal' => $cart->sum(fn($item) => $item->producto->precio_final * $item->quantity),
+                'total' => $cart->sum(fn($item) => $item->producto->precio_final * $item->quantity),
+                'estado' => 'procesando',
+                'metodo_pago' => $request->metodo,
+                'referencia_pago' => $referenciaPath,
+            ]);
+
+            // Crear los items del pedido
+            foreach ($cart as $item) {
+                \App\Models\PedidoItem::create([
+                    'pedido_id' => $pedido->id,
+                    'producto_id' => $item->producto->id,
+                    'nombre_producto' => $item->producto->nombre,
+                    'cantidad' => $item->quantity,
+                    'precio_unitario' => $item->producto->precio_final,
+                    'subtotal' => $item->producto->precio_final * $item->quantity,
+                ]);
             }
-            $pedido->estado = 'procesando'; // o 'completado' según tu flujo
-            $pedido->save();
 
-            // Ahora sí, borra el carrito del usuario
+            // Limpiar carrito y sesión
             $user->cartItems()->delete();
+            session()->forget('checkout_datos');
+            session()->forget('direccion_alternativa');
+
+            \DB::commit();
 
             // Redirige a confirmación de pago
             return redirect()->route('checkout.confirmacion', ['id' => $pedido->id]);
-        } else {
-            // No borra el carrito, solo muestra error
-            return redirect()->back()->with('error', 'El pago no se realizó exitosamente. Intenta nuevamente.');
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return redirect()->back()->with('error', 'Error al procesar el pago: ' . $e->getMessage());
         }
     }
 }
