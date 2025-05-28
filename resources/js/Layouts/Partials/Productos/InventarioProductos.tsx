@@ -222,7 +222,7 @@ const InventarioProductos = ({ productos }: InventarioProductosProps) => {
                                     <img
                                         src={allImages[currentImageIndex]}
                                         alt={producto.nombre}
-                                        className="h-48 w-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-110"
+                                        className="h-48 w-full object-contain rounded-lg bg-white transition-transform duration-300 group-hover:scale-105"
                                         loading="lazy"
                                         onError={(e) => {
                                             const img = e.target as HTMLImageElement;
