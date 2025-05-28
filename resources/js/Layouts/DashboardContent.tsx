@@ -53,7 +53,12 @@ interface DashboardProps {
   totalPedidosCompletados: number;
   cambioPedidosCompletados: number;
   progresoPedidosCompletados: number;
-  textoCambio?: string; // Nueva prop opcional
+  textoCambio?: string;
+  totalReservasCompletadas: number;
+  progresoReservasCompletadas: number;
+  totalNuevosUsuarios: number;
+  progresoNuevosUsuarios: number;
+  totalProductos: number;
 }
 
 const salesData = [
@@ -166,7 +171,12 @@ const Dashboard: React.FC<DashboardProps> = ({
   totalPedidosCompletados,
   cambioPedidosCompletados,
   progresoPedidosCompletados,
-  textoCambio = "del mes actual", // Valor por defecto
+  textoCambio = "del mes actual",
+  totalReservasCompletadas,
+  progresoReservasCompletadas,
+  totalNuevosUsuarios,
+  progresoNuevosUsuarios,
+  totalProductos,
 }) => {
   return (
     <div className="space-y-6 text-foreground">
@@ -195,25 +205,28 @@ const Dashboard: React.FC<DashboardProps> = ({
           textoCambio={textoCambio}
         />
         <KPICard
-          title="Motos Reparadas"
-          value="145"
+          title="Total de Reservas"
+          value={totalReservasCompletadas}
           icon={<BikeIcon className="h-4 w-4 text-muted-foreground" />}
-          change={8.2}
-          progress={68}
+          change={progresoReservasCompletadas}
+          progress={progresoReservasCompletadas}
+          textoCambio={textoCambio}
         />
         <KPICard
-          title="Nuevos Clientes"
-          value="34"
+          title="Nuevos Usuarios"
+          value={totalNuevosUsuarios}
           icon={<Users className="h-4 w-4 text-muted-foreground" />}
-          change={-4.1}
-          progress={34}
+          change={progresoNuevosUsuarios}
+          progress={progresoNuevosUsuarios}
+          textoCambio={textoCambio}
         />
         <KPICard
-          title="Valor Promedio de Venta"
-          value="$86,452"
+          title="Total de Productos"
+          value={totalProductos}
           icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
-          change={10.3}
-          progress={82}
+          change={0}
+          progress={0}
+          textoCambio={textoCambio}
         />
       </div>
 

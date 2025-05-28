@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Pedido;
+use App\Models\Reserva;
+use App\Models\User;
+use App\Models\Producto;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -22,8 +25,10 @@ class DashboardController extends Controller
 
         $user = Auth::user();
 
-        // Meta mensual de pedidos completados (ajusta este valor según tu negocio)
+        // Meta mensual de pedidos y reservas completados (ajusta este valor según tu negocio)
         $metaPedidosMes = 50;
+        $metaReservasMes = 50;
+        $metaUsuariosMes = 30; // Meta mensual de usuarios nuevos
 
         $now = Carbon::now();
         $inicioMesActual = $now->copy()->startOfMonth();
@@ -34,10 +39,31 @@ class DashboardController extends Controller
             ->whereBetween('created_at', [$inicioMesActual, $finMesActual])
             ->count();
 
-        // Porcentaje de avance respecto a la meta mensual
+        // Porcentaje de avance respecto a la meta mensual de pedidos
         $porcentajeMesActual = $metaPedidosMes > 0
             ? min(100, ($pedidosCompletadosMesActual / $metaPedidosMes) * 100)
             : 0;
+
+        // Reservas completadas este mes (SOLO MES ACTUAL)
+        $reservasCompletadasMesActual = Reserva::where('estado', 'completada')
+            ->whereBetween('created_at', [$inicioMesActual, $finMesActual])
+            ->count();
+
+        // Porcentaje de avance respecto a la meta mensual de reservas
+        $porcentajeReservasMesActual = $metaReservasMes > 0
+            ? min(100, ($reservasCompletadasMesActual / $metaReservasMes) * 100)
+            : 0;
+
+        // Nuevos usuarios registrados este mes
+        $nuevosUsuariosMesActual = User::whereBetween('created_at', [$inicioMesActual, $finMesActual])->count();
+
+        // Porcentaje de avance respecto a la meta mensual de usuarios
+        $progresoUsuariosMesActual = $metaUsuariosMes > 0
+            ? min(100, ($nuevosUsuariosMesActual / $metaUsuariosMes) * 100)
+            : 0;
+
+        // Total de productos activos
+        $totalProductos = Producto::where('estado', 'Activo')->count();
 
         return Inertia::render('Dashboard', [
             'auth' => [
@@ -46,10 +72,14 @@ class DashboardController extends Controller
                     'email' => $user->email,
                 ],
             ],
-            // SOLO pedidos completados del mes actual
+            // SOLO pedidos y reservas completados del mes actual
             'totalPedidosCompletados' => $pedidosCompletadosMesActual,
             'progresoPedidosCompletados' => round($porcentajeMesActual, 1),
-            // Elimina cualquier referencia al mes pasado
+            'totalReservasCompletadas' => $reservasCompletadasMesActual,
+            'progresoReservasCompletadas' => round($porcentajeReservasMesActual, 1),
+            'totalNuevosUsuarios' => $nuevosUsuariosMesActual,
+            'progresoNuevosUsuarios' => round($progresoUsuariosMesActual, 1),
+            'totalProductos' => $totalProductos,
         ]);
     }
 }
