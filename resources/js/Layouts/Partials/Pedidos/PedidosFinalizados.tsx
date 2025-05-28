@@ -98,7 +98,7 @@ const PedidosFinalizados = ({ pedidos: pedidosProp = [] }: Props) => {
         </CardHeader>
         <CardContent>
           {filteredPedidos.length === 0 ? (
-            <p className="text-center text-lg text-gray-500">No hay órdenes finalizadas que coincidan con la búsqueda.</p>
+            <div className="text-center text-lg text-gray-500">No hay órdenes finalizadas que coincidan con la búsqueda.</div>
           ) : (
             <>
               {/* Tabla en pantallas grandes */}
@@ -196,7 +196,7 @@ const PedidosFinalizados = ({ pedidos: pedidosProp = [] }: Props) => {
                 {filteredPedidos.map((pedido) => (
                   <div key={pedido.id} className="bg-white rounded-lg shadow-md p-4">
                     <div className="flex justify-between items-center">
-                      <p className="font-medium">{pedido.cliente}</p>
+                      <div className="font-medium">{pedido.cliente}</div>
                       <Button
                         variant="ghost"
                         size="icon"
@@ -210,13 +210,13 @@ const PedidosFinalizados = ({ pedidos: pedidosProp = [] }: Props) => {
                         )}
                       </Button>
                     </div>
-                    <p className="text-sm text-gray-600"><strong>Fecha:</strong> {pedido.fecha}</p>
-                    <p className="text-sm text-gray-600"><strong>Dirección:</strong> {pedido.direccion}</p>
-                    <p className="text-sm text-gray-600"><strong>Número de Orden:</strong> {pedido.numeroOrden}</p>
-                    <p className="text-sm">
+                    <div className="text-sm text-gray-600"><strong>Fecha:</strong> {pedido.fecha}</div>
+                    <div className="text-sm text-gray-600"><strong>Dirección:</strong> {pedido.direccion}</div>
+                    <div className="text-sm text-gray-600"><strong>Número de Orden:</strong> {pedido.numeroOrden}</div>
+                    <div className="text-sm">
                       <strong>Estado:</strong>{" "}
                       <Badge variant={getBadgeVariant(pedido.estado)}>{pedido.estado}</Badge>
-                    </p>
+                    </div>
                     <div className="mt-2">
                       <Button
                         variant="outline"

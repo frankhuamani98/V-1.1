@@ -30,7 +30,7 @@ interface PedidoItem {
 
 interface Pedido {
   id: number;
-  numero_orden?: string; // Añadido
+  numero_orden?: string;
   cliente: string;
   fecha: string;
   estado: string;
@@ -55,7 +55,6 @@ const EstadoPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
   };
 
   const actualizarEstado = (id: number, nuevoEstado: string) => {
-    // Optimista: actualiza UI primero
     setPedidos((prevPedidos) =>
       prevPedidos.map((pedido) =>
         pedido.id === id ? { ...pedido, estado: nuevoEstado } : pedido
@@ -67,11 +66,10 @@ const EstadoPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
       {
         preserveScroll: true,
         onSuccess: () => {
-          window.location.reload(); // Recarga toda la página después de actualizar
+          window.location.reload();
         },
         onError: () => {
           toast.error("Error al actualizar el estado");
-          // Revertir si hay error
           setPedidos(pedidosProp);
         },
       }
@@ -97,12 +95,7 @@ const EstadoPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
     if (price === undefined || price === null) return "-";
     const num = Number(price);
     if (isNaN(num)) return "-";
-    return (
-      "S/ " +
-      num
-        .toFixed(2)
-        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-    );
+    return "S/ " + num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
   return (
@@ -119,7 +112,7 @@ const EstadoPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
               <TableHeader>
                 <TableRow>
                   <TableHead>ID</TableHead>
-                  <TableHead>N° Orden</TableHead> {/* Nuevo */}
+                  <TableHead>N° Orden</TableHead>
                   <TableHead>Cliente</TableHead>
                   <TableHead>Fecha</TableHead>
                   <TableHead>Estado</TableHead>
@@ -201,7 +194,7 @@ const EstadoPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                     </TableRow>
                     {expandedRows.includes(pedido.id) && (
                       <TableRow>
-                        <TableCell colSpan={9}>
+                        <TableCell colSpan={10}>
                           <div className="p-4 bg-gray-50 rounded">
                             <div className="font-semibold mb-2">Productos del pedido:</div>
                             <Table>
@@ -264,7 +257,6 @@ const EstadoPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
           <div className="sm:hidden space-y-4">
             {pedidos.map((pedido) => (
               <div key={pedido.id} className="bg-white rounded-lg shadow-md p-4">
-                {/* Nuevo: Número de orden */}
                 {pedido.numero_orden && (
                   <div className="text-xs font-mono text-blue-700 font-bold mb-1">
                     N° Orden: {pedido.numero_orden}

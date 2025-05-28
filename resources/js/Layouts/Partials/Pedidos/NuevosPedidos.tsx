@@ -18,7 +18,7 @@ import {
 import { Button } from "@/Components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useForm, router } from '@inertiajs/react';
-import { toast } from "sonner"; // Si usas Sonner para notificaciones
+import { toast } from "sonner";
 
 interface PedidoItem {
   nombre_producto: string;
@@ -30,7 +30,7 @@ interface PedidoItem {
 
 interface Pedido {
   id: number;
-  numero_orden?: string; // Añadido
+  numero_orden?: string;
   cliente: string;
   fecha: string;
   hora?: string;
@@ -47,9 +47,9 @@ interface Props {
 
 const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
-  const [pedidos, setPedidos] = useState<Pedido[]>(pedidosProp); // Nuevo estado local para pedidos
-  const [estadoEditando, setEstadoEditando] = useState<{ [key: number]: string }>({}); // Estado temporal para cada pedido
-  const [loading, setLoading] = useState<{ [key: number]: boolean }>({}); // Para mostrar loading por pedido
+  const [pedidos, setPedidos] = useState<Pedido[]>(pedidosProp);
+  const [estadoEditando, setEstadoEditando] = useState<{ [key: number]: string }>({});
+  const [loading, setLoading] = useState<{ [key: number]: boolean }>({});
 
   const toggleRow = (id: number) => {
     setExpandedRows((prev) =>
@@ -60,12 +60,7 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
   const formatPrice = (price: number | string): string => {
     const num = Number(price);
     if (isNaN(num)) return "-";
-    return (
-      "S/ " +
-      num
-        .toFixed(2)
-        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-    );
+    return `S/ ${num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
   };
 
   const handleEstadoChange = (pedidoId: number, nuevoEstado: string) => {
@@ -86,7 +81,7 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
       {
         preserveScroll: true,
         onSuccess: () => {
-          window.location.reload(); // Recarga toda la página
+          window.location.reload();
         },
         onError: () => {
           toast.error("Error al actualizar el estado");
@@ -107,12 +102,12 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
-            {/* Tabla para escritorio */}
+            {/* Desktop Table */}
             <Table className="min-w-full">
               <TableHeader className="hidden sm:table-header-group">
                 <TableRow>
                   <TableHead>ID</TableHead>
-                  <TableHead>N° Orden</TableHead> {/* Nuevo */}
+                  <TableHead>N° Orden</TableHead>
                   <TableHead>Cliente</TableHead>
                   <TableHead>Fecha</TableHead>
                   <TableHead>Hora</TableHead>
@@ -154,7 +149,7 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                     </TableRow>
                     {expandedRows.includes(pedido.id) && (
                       <TableRow className="hidden sm:table-row">
-                        <TableCell colSpan={8}>
+                        <TableCell colSpan={9}>
                           <div className="p-4">
                             <div className="font-semibold mb-2">Productos del pedido:</div>
                             <Table>
@@ -181,7 +176,7 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                                         }
                                         alt={item.nombre_producto}
                                         className="w-12 h-12 object-cover rounded"
-                                        onError={e => {
+                                        onError={(e) => {
                                           const target = e.currentTarget as HTMLImageElement;
                                           target.src = "/images/placeholder.png";
                                         }}
@@ -206,7 +201,7 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                                   }
                                   alt="Comprobante de pago"
                                   className="w-64 max-w-full rounded-lg border border-blue-200 shadow"
-                                  onError={e => {
+                                  onError={(e) => {
                                     const target = e.currentTarget as HTMLImageElement;
                                     target.src = "/images/placeholder.png";
                                   }}
@@ -221,13 +216,14 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                                 </span>
                               </div>
                             </div>
-                            {/* Botón y selector para actualizar estado */}
                             <div className="mt-4 flex items-center gap-2">
-                              <label className="font-semibold">Actualizar estado:</label>
+                              <label className="font-semibold" htmlFor={`estado-select-${pedido.id}`}>Actualizar estado:</label>
                               <select
+                                id={`estado-select-${pedido.id}`}
+                                name={`estado-select-${pedido.id}`}
                                 className="border rounded px-2 py-1"
                                 value={estadoEditando[pedido.id] ?? pedido.estado.toLowerCase()}
-                                onChange={e => handleEstadoChange(pedido.id, e.target.value)}
+                                onChange={(e) => handleEstadoChange(pedido.id, e.target.value)}
                               >
                                 <option value="pendiente">Pendiente</option>
                                 <option value="procesando">Procesando</option>
@@ -251,13 +247,12 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
               </TableBody>
             </Table>
 
-            {/* Tarjetas móviles */}
-            <div className="sm:hidden">
+            {/* Mobile Cards */}
+            <div className="sm:hidden space-y-4">
               {pedidos.map((pedido) => (
-                <div key={pedido.id} className="bg-white rounded-lg shadow-md p-4 mb-2">
+                <div key={pedido.id} className="bg-white rounded-lg shadow-md p-4">
                   <div className="flex justify-between items-center">
                     <div>
-                      {/* Nuevo: Número de orden */}
                       {pedido.numero_orden && (
                         <div className="text-xs font-mono text-blue-700 font-bold mb-1">
                           N° Orden: {pedido.numero_orden}
@@ -335,7 +330,7 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                                     }
                                     alt={item.nombre_producto}
                                     className="w-12 h-12 object-cover rounded"
-                                    onError={e => {
+                                    onError={(e) => {
                                       const target = e.currentTarget as HTMLImageElement;
                                       target.src = "/images/placeholder.png";
                                     }}
@@ -361,33 +356,36 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                             }
                             alt="Comprobante de pago"
                             className="w-64 max-w-full rounded-lg border border-blue-200 shadow"
-                            onError={e => {
+                            onError={(e) => {
                               const target = e.currentTarget as HTMLImageElement;
                               target.src = "/images/placeholder.png";
                             }}
                           />
                         </div>
                       )}
-                      {/* Botón y selector para actualizar estado en móvil */}
-                      <div className="mt-4 flex items-center gap-2">
-                        <label className="font-semibold">Actualizar estado:</label>
-                        <select
-                          className="border rounded px-2 py-1"
-                          value={estadoEditando[pedido.id] ?? pedido.estado.toLowerCase()}
-                          onChange={e => handleEstadoChange(pedido.id, e.target.value)}
-                        >
-                          <option value="pendiente">Pendiente</option>
-                          <option value="procesando">Procesando</option>
-                          <option value="completado">Completado</option>
-                          <option value="cancelado">Cancelado</option>
-                        </select>
-                        <Button
-                          size="sm"
-                          onClick={() => actualizarEstadoPedido(pedido.id)}
-                          disabled={loading[pedido.id] || (estadoEditando[pedido.id] ?? pedido.estado.toLowerCase()) === pedido.estado.toLowerCase()}
-                        >
-                          {loading[pedido.id] ? 'Actualizando...' : 'Actualizar estado'}
-                        </Button>
+                      <div className="mt-4 flex flex-col gap-2">
+                        <label className="font-semibold" htmlFor={`estado-select-m-${pedido.id}`}>Actualizar estado:</label>
+                        <div className="flex gap-2">
+                          <select
+                            id={`estado-select-m-${pedido.id}`}
+                            name={`estado-select-m-${pedido.id}`}
+                            className="border rounded px-2 py-1 flex-grow"
+                            value={estadoEditando[pedido.id] ?? pedido.estado.toLowerCase()}
+                            onChange={(e) => handleEstadoChange(pedido.id, e.target.value)}
+                          >
+                            <option value="pendiente">Pendiente</option>
+                            <option value="procesando">Procesando</option>
+                            <option value="completado">Completado</option>
+                            <option value="cancelado">Cancelado</option>
+                          </select>
+                          <Button
+                            size="sm"
+                            onClick={() => actualizarEstadoPedido(pedido.id)}
+                            disabled={loading[pedido.id] || (estadoEditando[pedido.id] ?? pedido.estado.toLowerCase()) === pedido.estado.toLowerCase()}
+                          >
+                            {loading[pedido.id] ? 'Actualizando...' : 'Actualizar'}
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   )}
