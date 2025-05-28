@@ -230,6 +230,34 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
     return formatCurrency(precioConIGV - descuento);
   };
 
+  // Nueva función para obtener la URL de previsualización de la imagen principal
+  const getMainImagePreview = () => {
+    if (data.imagen_principal_file) {
+      return URL.createObjectURL(data.imagen_principal_file);
+    }
+    if (data.imagen_principal && data.imagen_principal.startsWith('http')) {
+      return data.imagen_principal;
+    }
+    return null;
+  };
+
+  // Nueva función para obtener la URL de previsualización de una imagen adicional
+  const getAdditionalImagePreview = (img: ImagenAdicional) => {
+    if (img.file && img.file.startsWith('data:')) {
+      return img.file;
+    }
+    if (img.url && img.url.startsWith('http')) {
+      return img.url;
+    }
+    return null;
+  };
+
+  // Nueva función para eliminar la imagen principal
+  const eliminarImagenPrincipal = () => {
+    setData('imagen_principal', '');
+    setData('imagen_principal_file', null);
+  };
+
   return (
     <div className="max-w-7xl mx-auto py-8 px-2 sm:px-4 lg:px-8 bg-gray-50">
       {flash?.message && (
@@ -608,11 +636,29 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                       </div>
                       
                       {(data.imagen_principal || data.imagen_principal_file) && (
-                        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                        <div className="mt-4 p-3 bg-gray-50 rounded-lg flex items-center gap-4 relative">
                           <p className="text-sm text-green-600 flex items-center">
                             <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"></span>
                             Imagen principal seleccionada
                           </p>
+                          {/* Vista previa de la imagen principal */}
+                          {getMainImagePreview() && (
+                            <div className="relative">
+                              <img
+                                src={getMainImagePreview() as string}
+                                alt="Vista previa"
+                                className="w-24 h-24 object-contain rounded border border-gray-200 bg-white"
+                              />
+                              <button
+                                type="button"
+                                onClick={eliminarImagenPrincipal}
+                                className="absolute -top-2 -right-2 bg-white border border-gray-300 rounded-full p-1 text-gray-500 hover:text-red-600 hover:bg-red-50 shadow transition-colors"
+                                title="Eliminar imagen principal"
+                              >
+                                <Trash2 className="h-5 w-5" />
+                              </button>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -681,9 +727,19 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                         {JSON.parse(data.imagenes_adicionales).map((img: ImagenAdicional, index: number) => (
                           <div key={index} className="flex items-center justify-between p-3 border rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                            <div className="truncate flex-1">
-                              <span className="text-sm font-medium">{img.url || (img.file ? 'Imagen subida' : 'Imagen')}</span>
-                              {img.estilo && <span className="text-xs text-gray-500 block"> - {img.estilo}</span>}
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              {/* Vista previa de la imagen adicional */}
+                              {getAdditionalImagePreview(img) && (
+                                <img
+                                  src={getAdditionalImagePreview(img) as string}
+                                  alt="Vista previa"
+                                  className="w-16 h-16 object-contain rounded border border-gray-200 bg-white"
+                                />
+                              )}
+                              <div className="truncate">
+                                <span className="text-sm font-medium">{img.url || (img.file ? 'Imagen subida' : 'Imagen')}</span>
+                                {img.estilo && <span className="text-xs text-gray-500 block"> - {img.estilo}</span>}
+                              </div>
                             </div>
                             <button
                               type="button"
