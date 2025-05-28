@@ -11,6 +11,7 @@ class HistorialPedidosController extends Controller
     public function index()
     {
         $pedidos = \App\Models\Pedido::with(['items.producto'])
+            ->whereIn('estado', ['completado', 'cancelado'])
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($pedido) {
