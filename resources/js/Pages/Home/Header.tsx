@@ -631,10 +631,10 @@ export default function Header() {
       ],
     },      
     {
-      title: "Nosotros",
+      title: "Contactos",
       href: "/contacto",
-      description: "Conoce más sobre nuestra empresa y cómo contactarnos",
-      icon: <GlobeIcon className="mr-2 h-4 w-4" />,
+      description: "Ponte en contacto con nosotros para cualquier consulta",
+      icon: <Phone className="mr-2 h-4 w-4" />,
       subcategories: [
         { name: "Ubicación", href: "/contacto/ubicacion" },
         { name: "Contáctanos", href: "/contacto/contactanos" },
@@ -657,7 +657,7 @@ export default function Header() {
   }
 
   const productosCategory: Category = {
-    title: "Productos",
+    title: "Categorías",
     href: "/categorias",
     description: "Explora nuestros productos y accesorios para motos",
     icon: <PackageIcon className="mr-2 h-4 w-4" />,
