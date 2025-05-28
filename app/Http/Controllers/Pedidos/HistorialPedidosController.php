@@ -10,20 +10,31 @@ class HistorialPedidosController extends Controller
 {
     public function index()
     {
-        $pedidos = Pedido::with(['items'])
-            ->select([
-                'id',
-                'numero_orden',
-                \DB::raw("CONCAT(nombre, ' ', apellidos) as cliente"),
-                'created_at as fecha',
-                'estado',
-                'metodo_pago',
-                'total',
-                'referencia_pago',
-                // Si tienes campo 'hora', inclúyelo aquí
-            ])
+        $pedidos = \App\Models\Pedido::with(['items.producto'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($pedido) {
+                return [
+                    'id' => $pedido->id,
+                    'numero_orden' => $pedido->numero_orden,
+                    'cliente' => $pedido->nombre . ' ' . $pedido->apellidos,
+                    'fecha' => $pedido->created_at->format('Y-m-d'),
+                    'hora' => $pedido->hora ?? null,
+                    'estado' => ucfirst($pedido->estado),
+                    'metodo_pago' => $pedido->metodo_pago,
+                    'total' => $pedido->total,
+                    'referencia_pago' => $pedido->referencia_pago,
+                    'items' => $pedido->items->map(function ($item) {
+                        return [
+                            'nombre_producto' => $item->nombre_producto,
+                            'cantidad' => $item->cantidad,
+                            'precio_unitario' => $item->precio_unitario,
+                            'subtotal' => $item->subtotal,
+                            'imagen' => $item->producto->imagen_principal ?? null,
+                        ];
+                    }),
+                ];
+            });
 
         return Inertia::render('Dashboard/Pedidos/HistorialPedidosPage', [
             'pedidos' => $pedidos,

@@ -157,6 +157,7 @@ const HistorialPedidos = ({ pedidos = [] }: Props) => {
                   <TableHead>Estado</TableHead>
                   <TableHead>Método de Pago</TableHead>
                   <TableHead>Total</TableHead>
+                  <TableHead>Comprobante</TableHead>
                   <TableHead>Productos</TableHead>
                 </TableRow>
               </TableHeader>
@@ -185,6 +186,25 @@ const HistorialPedidos = ({ pedidos = [] }: Props) => {
                         {pedido.total !== null && pedido.total !== undefined ? formatPrice(pedido.total) : <span className="text-gray-400">-</span>}
                       </TableCell>
                       <TableCell>
+                        {pedido.referencia_pago ? (
+                          <img
+                            src={
+                              pedido.referencia_pago.startsWith('http')
+                                ? pedido.referencia_pago
+                                : `/storage/${pedido.referencia_pago}`
+                            }
+                            alt="Comprobante de pago"
+                            className="w-16 h-16 object-cover rounded border"
+                            onError={e => {
+                              const target = e.currentTarget as HTMLImageElement;
+                              target.src = "/images/placeholder.png";
+                            }}
+                          />
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
                         <Button variant="outline" size="sm" onClick={() => toggleRow(pedido.id)}>
                           Ver productos
                         </Button>
@@ -192,7 +212,7 @@ const HistorialPedidos = ({ pedidos = [] }: Props) => {
                     </TableRow>
                     {expandedRows.includes(pedido.id) && (
                       <TableRow>
-                        <TableCell colSpan={9}>
+                        <TableCell colSpan={10}>
                           <div className="p-4">
                             <div className="font-semibold mb-2">Productos del pedido:</div>
                             <Table>
@@ -219,7 +239,7 @@ const HistorialPedidos = ({ pedidos = [] }: Props) => {
                                         }
                                         alt={item.nombre_producto}
                                         className="w-12 h-12 object-cover rounded"
-                                        onError={(e) => {
+                                        onError={e => {
                                           const target = e.currentTarget as HTMLImageElement;
                                           target.src = "/images/placeholder.png";
                                         }}
@@ -233,24 +253,6 @@ const HistorialPedidos = ({ pedidos = [] }: Props) => {
                                 ))}
                               </TableBody>
                             </Table>
-                            {pedido.referencia_pago && (
-                              <div className="mt-6">
-                                <div className="font-semibold mb-2 text-blue-700">Comprobante de pago:</div>
-                                <img
-                                  src={
-                                    pedido.referencia_pago.startsWith('http')
-                                      ? pedido.referencia_pago
-                                      : `/storage/${pedido.referencia_pago}`
-                                  }
-                                  alt="Comprobante de pago"
-                                  className="w-64 max-w-full rounded-lg border border-blue-200 shadow"
-                                  onError={(e) => {
-                                    const target = e.currentTarget as HTMLImageElement;
-                                    target.src = "/images/placeholder.png";
-                                  }}
-                                />
-                              </div>
-                            )}
                             <div className="mt-6 flex justify-end">
                               <div className="bg-blue-50 border border-blue-200 rounded-xl px-6 py-3 text-right">
                                 <span className="font-bold text-blue-900 mr-2">Total del pedido:</span>
@@ -298,6 +300,23 @@ const HistorialPedidos = ({ pedidos = [] }: Props) => {
                     <p className="text-xs text-gray-700 font-bold">
                       Total: {pedido.total !== undefined ? formatPrice(pedido.total) : <span className="text-gray-400">-</span>}
                     </p>
+                    {pedido.referencia_pago && (
+                      <div className="mt-2">
+                        <img
+                          src={
+                            pedido.referencia_pago.startsWith('http')
+                              ? pedido.referencia_pago
+                              : `/storage/${pedido.referencia_pago}`
+                          }
+                          alt="Comprobante de pago"
+                          className="w-24 h-24 object-cover rounded border"
+                          onError={e => {
+                            const target = e.currentTarget as HTMLImageElement;
+                            target.src = "/images/placeholder.png";
+                          }}
+                        />
+                      </div>
+                    )}
                   </div>
                   <Button
                     variant="ghost"
@@ -355,24 +374,6 @@ const HistorialPedidos = ({ pedidos = [] }: Props) => {
                         </tbody>
                       </table>
                     </div>
-                    {pedido.referencia_pago && (
-                      <div className="mt-6">
-                        <div className="font-semibold mb-2 text-blue-700">Comprobante de pago:</div>
-                        <img
-                          src={
-                            pedido.referencia_pago.startsWith('http')
-                              ? pedido.referencia_pago
-                              : `/storage/${pedido.referencia_pago}`
-                          }
-                          alt="Comprobante de pago"
-                          className="w-64 max-w-full rounded-lg border border-blue-200 shadow"
-                          onError={(e) => {
-                            const target = e.currentTarget as HTMLImageElement;
-                            target.src = "/images/placeholder.png";
-                          }}
-                        />
-                      </div>
-                    )}
                     <div className="mt-6 flex justify-end">
                       <div className="bg-blue-50 border border-blue-200 rounded-xl px-6 py-3 text-right">
                         <span className="font-bold text-blue-900 mr-2">Total del pedido:</span>
