@@ -49,6 +49,12 @@ interface AlertCardProps {
   onResolve: () => void;
 }
 
+interface DashboardProps {
+  totalPedidosCompletados: number;
+  cambioPedidosCompletados: number; // nuevo
+  progresoPedidosCompletados: number; // nuevo
+}
+
 const salesData = [
   { name: 'Jan', sales: 65, target: 50 },
   { name: 'Feb', sales: 59, target: 60 },
@@ -154,7 +160,11 @@ const AlertCard: React.FC<AlertCardProps> = ({ message, priority, onDismiss, onR
   </div>
 );
 
-const Dashboard: React.FC = () => {
+const Dashboard: React.FC<DashboardProps> = ({
+  totalPedidosCompletados,
+  cambioPedidosCompletados,
+  progresoPedidosCompletados,
+}) => {
   return (
     <div className="space-y-6 text-foreground">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -174,11 +184,11 @@ const Dashboard: React.FC = () => {
       {/* KPI Cards */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <KPICard
-          title="Ventas Totales"
-          value="$1,248,560"
+          title="Total de Pedidos"
+          value={totalPedidosCompletados}
           icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
-          change={12.5}
-          progress={75}
+          change={cambioPedidosCompletados}
+          progress={progresoPedidosCompletados}
         />
         <KPICard
           title="Motos Reparadas"

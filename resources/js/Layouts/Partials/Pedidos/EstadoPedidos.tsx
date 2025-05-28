@@ -256,19 +256,21 @@ const EstadoPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
           {/* Vista en tarjetas para móviles */}
           <div className="sm:hidden space-y-4">
             {pedidos.map((pedido) => (
-              <div key={pedido.id} className="bg-white rounded-lg shadow-md p-4">
+              <div key={pedido.id} className="bg-white rounded-lg shadow-md p-4 overflow-hidden">
                 {pedido.numero_orden && (
                   <div className="text-xs font-mono text-blue-700 font-bold mb-1">
                     N° Orden: {pedido.numero_orden}
                   </div>
                 )}
-                <div className="flex justify-between items-center">
-                  <p className="font-medium">{pedido.cliente}</p>
+                <div className="flex justify-between items-center mb-2">
+                  <p className="font-medium truncate mr-2">{pedido.cliente}</p>
                   <Badge variant={getBadgeVariant(pedido.estado)}>{pedido.estado}</Badge>
                 </div>
-                <p className="text-sm text-gray-600"><strong>Fecha:</strong> {pedido.fecha}</p>
-                <p className="text-sm text-gray-600"><strong>Método de pago:</strong> {pedido.metodo_pago ?? "-"}</p>
-                <p className="text-sm text-gray-600"><strong>Total:</strong> {formatPrice(pedido.total)}</p>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <p className="text-gray-600"><strong>Fecha:</strong> {pedido.fecha}</p>
+                  <p className="text-gray-600"><strong>Método:</strong> {pedido.metodo_pago ?? "-"}</p>
+                  <p className="text-gray-600 col-span-2"><strong>Total:</strong> {formatPrice(pedido.total)}</p>
+                </div>
                 {pedido.referencia_pago && (
                   <div className="mt-2">
                     <img
@@ -277,8 +279,8 @@ const EstadoPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                           ? pedido.referencia_pago
                           : `/storage/${pedido.referencia_pago}`
                       }
-                      alt="Comprobante de pago"
-                      className="w-24 h-24 object-cover rounded border"
+                      alt="Comprobante"
+                      className="w-20 h-20 object-cover rounded border"
                       onError={e => {
                         const target = e.currentTarget as HTMLImageElement;
                         target.src = "/images/placeholder.png";
@@ -286,70 +288,62 @@ const EstadoPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                     />
                   </div>
                 )}
-                <div className="mt-2">
+                <div className="mt-3 space-y-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => toggleRow(pedido.id)}
-                    aria-label="Ver productos"
+                    className="w-full"
                   >
                     {expandedRows.includes(pedido.id) ? "Ocultar productos" : "Ver productos"}
                   </Button>
                 </div>
                 {expandedRows.includes(pedido.id) && (
                   <div className="mt-4">
-                    <div className="font-semibold mb-2">Productos del pedido:</div>
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full text-sm">
-                        <thead>
-                          <tr>
-                            <th className="text-left p-2">Foto</th>
-                            <th className="text-left p-2">Producto</th>
-                            <th className="text-left p-2">Precio</th>
-                            <th className="text-left p-2">Cantidad</th>
-                            <th className="text-left p-2">Subtotal</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {pedido.items?.map((item, idx) => (
-                            <tr key={idx}>
-                              <td className="p-2">
-                                <img
-                                  src={
-                                    item.imagen
-                                      ? (item.imagen.startsWith("http")
-                                          ? item.imagen
-                                          : `/storage/${item.imagen}`)
-                                      : "/images/placeholder.png"
-                                  }
-                                  alt={item.nombre_producto}
-                                  className="w-12 h-12 object-cover rounded"
-                                  onError={e => {
-                                    const target = e.currentTarget as HTMLImageElement;
-                                    target.src = "/images/placeholder.png";
-                                  }}
-                                />
-                              </td>
-                              <td className="p-2">{item.nombre_producto}</td>
-                              <td className="p-2">{formatPrice(item.precio_unitario)}</td>
-                              <td className="p-2">{item.cantidad}</td>
-                              <td className="p-2">{formatPrice(item.subtotal)}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                    <div className="font-semibold mb-2">Productos:</div>
+                    <div className="space-y-3">
+                      {pedido.items?.map((item, idx) => (
+                        <div key={idx} className="flex items-center p-2 bg-gray-50 rounded">
+                          <img
+                            src={
+                              item.imagen
+                                ? (item.imagen.startsWith("http")
+                                    ? item.imagen
+                                    : `/storage/${item.imagen}`)
+                                : "/images/placeholder.png"
+                            }
+                            alt={item.nombre_producto}
+                            className="w-12 h-12 object-cover rounded"
+                            onError={e => {
+                              const target = e.currentTarget as HTMLImageElement;
+                              target.src = "/images/placeholder.png";
+                            }}
+                          />
+                          <div className="ml-3 flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate">{item.nombre_producto}</p>
+                            <div className="text-xs text-gray-600 mt-1">
+                              <span className="inline-block mr-2">{formatPrice(item.precio_unitario)}</span>
+                              <span className="inline-block mr-2">×</span>
+                              <span className="inline-block">{item.cantidad}</span>
+                            </div>
+                            <p className="text-sm font-semibold mt-1">{formatPrice(item.subtotal)}</p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div className="mt-4 flex justify-end">
-                      <div className="bg-blue-50 border border-blue-200 rounded-xl px-6 py-3 text-right">
-                        <span className="font-bold text-blue-900 mr-2">Total del pedido:</span>
-                        <span className="font-extrabold text-blue-700 text-lg">
-                          {pedido.total !== undefined ? formatPrice(pedido.total) : "-"}
-                        </span>
+                    <div className="mt-4">
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-bold text-blue-900">Total del pedido:</span>
+                          <span className="font-extrabold text-blue-700">
+                            {pedido.total !== undefined ? formatPrice(pedido.total) : "-"}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 )}
-                <div className="mt-2">
+                <div className="mt-3">
                   <Select
                     value={pedido.estado}
                     onValueChange={(nuevoEstado) => actualizarEstado(pedido.id, nuevoEstado)}

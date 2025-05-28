@@ -7,9 +7,9 @@ interface DashboardFooterProps {
 }
 
 const defaultProps = Object.freeze({
-  appName: "Rudolf Motor",
-  companyName: "Team Choclitos",
-  version: "1.0.2",
+  appName: "Rudolf Motos",
+  companyName: "DAFYMAJR",
+  version: "1.0",
 });
 
 const DashboardFooter: React.FC<DashboardFooterProps> = (props) => {

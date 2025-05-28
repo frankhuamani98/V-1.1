@@ -94,14 +94,14 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
   };
 
   return (
-    <div className="p-4 sm:p-6">
+    <div className="p-2 sm:p-6">
       <Card>
         <CardHeader>
           <CardTitle>Nuevos Pedidos</CardTitle>
           <CardDescription>Gestión de pedidos recientes.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
             {/* Desktop Table */}
             <Table className="min-w-full">
               <TableHeader className="hidden sm:table-header-group">
@@ -248,17 +248,17 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
             </Table>
 
             {/* Mobile Cards */}
-            <div className="sm:hidden space-y-4">
+            <div className="sm:hidden space-y-4 px-4">
               {pedidos.map((pedido) => (
-                <div key={pedido.id} className="bg-white rounded-lg shadow-md p-4">
-                  <div className="flex justify-between items-center">
-                    <div>
+                <div key={pedido.id} className="bg-white rounded-lg shadow-md p-3">
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-1 flex-1">
                       {pedido.numero_orden && (
-                        <div className="text-xs font-mono text-blue-700 font-bold mb-1">
+                        <div className="text-xs font-mono text-blue-700 font-bold">
                           N° Orden: {pedido.numero_orden}
                         </div>
                       )}
-                      <p className="font-medium">{pedido.cliente}</p>
+                      <p className="font-medium text-sm">{pedido.cliente}</p>
                       <p className="text-xs text-gray-500">
                         {pedido.fecha}
                         {pedido.hora && (
@@ -267,7 +267,7 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                           </span>
                         )}
                       </p>
-                      <span className="text-xs">
+                      <div className="flex flex-wrap gap-2 items-center">
                         <Badge
                           variant={
                             pedido.estado === "Pendiente"
@@ -278,22 +278,23 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                               ? "default"
                               : "destructive"
                           }
+                          className="text-xs"
                         >
                           {pedido.estado}
                         </Badge>
-                      </span>
-                      <p className="text-xs text-gray-500">
-                        Método de pago: {pedido.metodo_pago ? pedido.metodo_pago : <span className="text-gray-400">-</span>}
-                      </p>
-                      <p className="text-xs text-gray-700 font-bold">
-                        Total: {pedido.total !== undefined ? formatPrice(pedido.total) : <span className="text-gray-400">-</span>}
+                        <span className="text-xs text-gray-500">
+                          {pedido.metodo_pago || '-'}
+                        </span>
+                      </div>
+                      <p className="text-sm font-bold">
+                        Total: {pedido.total !== undefined ? formatPrice(pedido.total) : '-'}
                       </p>
                     </div>
                     <Button
                       variant="ghost"
-                      size="icon"
+                      size="sm"
                       onClick={() => toggleRow(pedido.id)}
-                      aria-label="Ver detalles"
+                      className="ml-2"
                     >
                       {expandedRows.includes(pedido.id) ? (
                         <ChevronUp className="h-4 w-4" />
@@ -302,74 +303,71 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                       )}
                     </Button>
                   </div>
+
                   {expandedRows.includes(pedido.id) && (
                     <div className="mt-4">
-                      <div className="font-semibold mb-2">Productos del pedido:</div>
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full text-sm">
-                          <thead>
-                            <tr>
-                              <th className="text-left p-2">Foto</th>
-                              <th className="text-left p-2">Producto</th>
-                              <th className="text-left p-2">Precio</th>
-                              <th className="text-left p-2">Cantidad</th>
-                              <th className="text-left p-2">Subtotal</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {pedido.items?.map((item, idx) => (
-                              <tr key={idx}>
-                                <td className="p-2">
-                                  <img
-                                    src={
-                                      item.imagen
-                                        ? (item.imagen.startsWith("http")
-                                            ? item.imagen
-                                            : `/storage/${item.imagen}`)
-                                        : "/images/placeholder.png"
-                                    }
-                                    alt={item.nombre_producto}
-                                    className="w-12 h-12 object-cover rounded"
-                                    onError={(e) => {
-                                      const target = e.currentTarget as HTMLImageElement;
-                                      target.src = "/images/placeholder.png";
-                                    }}
-                                  />
-                                </td>
-                                <td className="p-2">{item.nombre_producto}</td>
-                                <td className="p-2">{formatPrice(item.precio_unitario)}</td>
-                                <td className="p-2">{item.cantidad}</td>
-                                <td className="p-2">{formatPrice(item.subtotal)}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                      <div className="font-semibold mb-2 text-sm">Productos:</div>
+                      <div className="overflow-x-auto -mx-3">
+                        <div className="inline-block min-w-full align-middle">
+                          <div className="overflow-hidden">
+                            <table className="min-w-full divide-y divide-gray-200">
+                              <thead>
+                                <tr className="text-xs">
+                                  <th className="p-2 text-left">Producto</th>
+                                  <th className="p-2 text-right">Cant.</th>
+                                  <th className="p-2 text-right">Precio</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-gray-200">
+                                {pedido.items?.map((item, idx) => (
+                                  <tr key={idx} className="text-xs">
+                                    <td className="p-2">
+                                      <div className="flex items-center">
+                                        <img
+                                          src={item.imagen?.startsWith("http") ? item.imagen : `/storage/${item.imagen}`}
+                                          alt={item.nombre_producto}
+                                          className="w-8 h-8 object-cover rounded mr-2"
+                                          onError={(e) => {
+                                            (e.target as HTMLImageElement).src = "/images/placeholder.png";
+                                          }}
+                                        />
+                                        <span className="whitespace-normal break-words">
+                                          {item.nombre_producto}
+                                        </span>
+                                      </div>
+                                    </td>
+                                    <td className="p-2 text-right">{item.cantidad}</td>
+                                    <td className="p-2 text-right">{formatPrice(item.subtotal)}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
                       </div>
+
                       {pedido.referencia_pago && (
-                        <div className="mt-6">
-                          <div className="font-semibold mb-2 text-blue-700">Comprobante de pago:</div>
+                        <div className="mt-4">
+                          <div className="font-semibold mb-2 text-sm text-blue-700">Comprobante:</div>
                           <img
-                            src={
-                              pedido.referencia_pago.startsWith('http')
-                                ? pedido.referencia_pago
-                                : `/storage/${pedido.referencia_pago}`
-                            }
-                            alt="Comprobante de pago"
-                            className="w-64 max-w-full rounded-lg border border-blue-200 shadow"
+                            src={pedido.referencia_pago.startsWith('http') ? pedido.referencia_pago : `/storage/${pedido.referencia_pago}`}
+                            alt="Comprobante"
+                            className="w-full max-w-[200px] rounded-lg border border-blue-200 shadow"
                             onError={(e) => {
-                              const target = e.currentTarget as HTMLImageElement;
-                              target.src = "/images/placeholder.png";
+                              (e.target as HTMLImageElement).src = "/images/placeholder.png";
                             }}
                           />
                         </div>
                       )}
-                      <div className="mt-4 flex flex-col gap-2">
-                        <label className="font-semibold" htmlFor={`estado-select-m-${pedido.id}`}>Actualizar estado:</label>
+
+                      <div className="mt-4 space-y-2">
+                        <label className="text-sm font-semibold block" htmlFor={`estado-select-m-${pedido.id}`}>
+                          Actualizar estado:
+                        </label>
                         <div className="flex gap-2">
                           <select
                             id={`estado-select-m-${pedido.id}`}
-                            name={`estado-select-m-${pedido.id}`}
-                            className="border rounded px-2 py-1 flex-grow"
+                            className="text-sm flex-1 min-w-0 rounded-md border border-gray-300 px-2 py-1"
                             value={estadoEditando[pedido.id] ?? pedido.estado.toLowerCase()}
                             onChange={(e) => handleEstadoChange(pedido.id, e.target.value)}
                           >
@@ -380,10 +378,11 @@ const NuevosPedidos = ({ pedidos: pedidosProp = [] }: Props) => {
                           </select>
                           <Button
                             size="sm"
+                            className="whitespace-nowrap"
                             onClick={() => actualizarEstadoPedido(pedido.id)}
                             disabled={loading[pedido.id] || (estadoEditando[pedido.id] ?? pedido.estado.toLowerCase()) === pedido.estado.toLowerCase()}
                           >
-                            {loading[pedido.id] ? 'Actualizando...' : 'Actualizar'}
+                            {loading[pedido.id] ? '...' : 'Actualizar'}
                           </Button>
                         </div>
                       </div>
