@@ -9,12 +9,13 @@ interface HistorialPedidosPageProps {
       email: string;
     };
   };
+  pedidos: any; // Define the type of pedidos based on your data structure
 }
 
-const HistorialPedidosPage = ({ auth }: HistorialPedidosPageProps) => {
+const HistorialPedidosPage = ({ auth, pedidos }: HistorialPedidosPageProps) => {
   return (
     <DashboardLayout auth={auth}>
-      <HistorialPedidos />
+      <HistorialPedidos pedidos={pedidos} />
     </DashboardLayout>
   );
 };
