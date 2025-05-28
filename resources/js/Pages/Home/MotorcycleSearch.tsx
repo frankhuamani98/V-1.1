@@ -48,9 +48,11 @@ export default function MotorcycleSearch({ motoData }: Props) {
     "https://mail.nitro.pe/images/2015/noviembre/kawasaki_ninja_h2r.jpg",
     "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&h=1080&fit=crop",
     "https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=1920&h=1080&fit=crop",
-    "https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=1920&h=1080&fit=crop",
-    "https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=1920&h=1080&fit=crop"
-  ]
+    "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=1920&h=1080&fit=crop",
+    "https://images.unsplash.com/photo-1615172282427-9a57ef2d142e?w=1920&h=1080&fit=crop",
+    "https://images.unsplash.com/photo-1591637333184-19aa84b3e01f?w=1920&h=1080&fit=crop",
+    "https://images.unsplash.com/photo-1547549082-6bc09f2049ae?w=1920&h=1080&fit=crop" 
+   ]
 
   useEffect(() => {
     const savedSearches = localStorage.getItem("recentMotorcycleSearches")
