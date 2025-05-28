@@ -10,7 +10,11 @@ interface DashboardProps {
 const Dashboard: React.FC<DashboardProps> = ({ auth, totalPedidosCompletados }) => {
     return (
         <DashboardLayout auth={auth}>
-            <DashboardContent totalPedidosCompletados={totalPedidosCompletados} />
+            <DashboardContent
+                totalPedidosCompletados={totalPedidosCompletados}
+                cambioPedidosCompletados={0} // Reemplaza 0 con el valor adecuado
+                progresoPedidosCompletados={0} // Reemplaza 0 con el valor adecuado
+            />
         </DashboardLayout>
     );
 };
