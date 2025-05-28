@@ -107,11 +107,11 @@ const HistorialPedidos = ({ pedidos = [] }: Props) => {
   };
 
   return (
-    <div className="p-4 sm:p-6">
-      <Card>
+    <div className="p-2 sm:p-4">
+      <Card className="shadow-md">
         <CardHeader>
-          <CardTitle>Historial de Pedidos</CardTitle>
-          <CardDescription>Consulta todos los pedidos realizados en el taller.</CardDescription>
+          <CardTitle className="text-xl font-bold">Historial de Pedidos</CardTitle>
+          <CardDescription className="text-gray-500">Consulta todos los pedidos realizados en el taller.</CardDescription>
         </CardHeader>
         <CardContent>
           {/* Filtros */}
@@ -120,10 +120,10 @@ const HistorialPedidos = ({ pedidos = [] }: Props) => {
               placeholder="Buscar por cliente o número de orden"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full sm:w-80"
+              className="w-full sm:w-64 p-2 border rounded"
             />
             <Select value={selectedStatus} onValueChange={v => setSelectedStatus(v === "todos" ? undefined : v)}>
-              <SelectTrigger className="w-full sm:w-40">
+              <SelectTrigger className="w-full sm:w-32 p-2 border rounded">
                 <SelectValue placeholder="Estado" />
               </SelectTrigger>
               <SelectContent>
@@ -138,54 +138,54 @@ const HistorialPedidos = ({ pedidos = [] }: Props) => {
             <Button
               variant="outline"
               onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto p-2 border rounded flex items-center justify-center"
             >
-              Ordenar por fecha {sortOrder === "asc" ? <ChevronUp className="h-4 w-4 inline-block" /> : <ChevronDown className="h-4 w-4 inline-block" />}
+              Ordenar por fecha {sortOrder === "asc" ? <ChevronUp className="h-4 w-4 ml-2" /> : <ChevronDown className="h-4 w-4 ml-2" />}
             </Button>
           </div>
 
           {/* Tabla en pantallas grandes */}
           <div className="overflow-x-auto hidden sm:block">
-            <Table className="min-w-full">
+            <Table className="min-w-full bg-white rounded-lg shadow">
               <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>N° Orden</TableHead>
-                  <TableHead>Cliente</TableHead>
-                  <TableHead>Fecha</TableHead>
-                  <TableHead>Hora</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Método de Pago</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Comprobante</TableHead>
-                  <TableHead>Productos</TableHead>
+                <TableRow className="bg-gray-100">
+                  <TableHead className="p-2">ID</TableHead>
+                  <TableHead className="p-2">N° Orden</TableHead>
+                  <TableHead className="p-2">Cliente</TableHead>
+                  <TableHead className="p-2">Fecha</TableHead>
+                  <TableHead className="p-2">Hora</TableHead>
+                  <TableHead className="p-2">Estado</TableHead>
+                  <TableHead className="p-2">Método de Pago</TableHead>
+                  <TableHead className="p-2">Total</TableHead>
+                  <TableHead className="p-2">Comprobante</TableHead>
+                  <TableHead className="p-2">Productos</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {sortedPedidos.map((pedido) => (
                   <React.Fragment key={pedido.id}>
-                    <TableRow>
-                      <TableCell>{pedido.id}</TableCell>
-                      <TableCell>
+                    <TableRow className="border-b">
+                      <TableCell className="p-2">{pedido.id}</TableCell>
+                      <TableCell className="p-2">
                         {pedido.numero_orden ? (
                           <span className="font-mono text-blue-700 font-bold">{pedido.numero_orden}</span>
                         ) : (
                           <span className="text-gray-400">-</span>
                         )}
                       </TableCell>
-                      <TableCell>{pedido.cliente}</TableCell>
-                      <TableCell>{pedido.fecha}</TableCell>
-                      <TableCell>{pedido.hora ?? '-'}</TableCell>
-                      <TableCell>
+                      <TableCell className="p-2">{pedido.cliente}</TableCell>
+                      <TableCell className="p-2">{pedido.fecha}</TableCell>
+                      <TableCell className="p-2">{pedido.hora ?? '-'}</TableCell>
+                      <TableCell className="p-2">
                         <Badge variant={getBadgeVariant(pedido.estado)}>{pedido.estado}</Badge>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="p-2">
                         {pedido.metodo_pago ? pedido.metodo_pago : <span className="text-gray-400">-</span>}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="p-2">
                         {pedido.total !== null && pedido.total !== undefined ? formatPrice(pedido.total) : <span className="text-gray-400">-</span>}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="p-2">
                         {pedido.referencia_pago ? (
                           <img
                             src={
@@ -194,7 +194,7 @@ const HistorialPedidos = ({ pedidos = [] }: Props) => {
                                 : `/storage/${pedido.referencia_pago}`
                             }
                             alt="Comprobante de pago"
-                            className="w-16 h-16 object-cover rounded border"
+                            className="w-12 h-12 object-cover rounded border"
                             onError={e => {
                               const target = e.currentTarget as HTMLImageElement;
                               target.src = "/images/placeholder.png";
@@ -204,7 +204,7 @@ const HistorialPedidos = ({ pedidos = [] }: Props) => {
                           <span className="text-gray-400">-</span>
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="p-2">
                         <Button variant="outline" size="sm" onClick={() => toggleRow(pedido.id)}>
                           Ver productos
                         </Button>
@@ -213,22 +213,22 @@ const HistorialPedidos = ({ pedidos = [] }: Props) => {
                     {expandedRows.includes(pedido.id) && (
                       <TableRow>
                         <TableCell colSpan={10}>
-                          <div className="p-4">
+                          <div className="p-2 bg-gray-50 rounded-lg">
                             <div className="font-semibold mb-2">Productos del pedido:</div>
                             <Table>
                               <TableHeader>
-                                <TableRow>
-                                  <TableHead>Foto</TableHead>
-                                  <TableHead>Producto</TableHead>
-                                  <TableHead>Precio</TableHead>
-                                  <TableHead>Cantidad</TableHead>
-                                  <TableHead>Subtotal</TableHead>
+                                <TableRow className="bg-gray-100">
+                                  <TableHead className="p-2">Foto</TableHead>
+                                  <TableHead className="p-2">Producto</TableHead>
+                                  <TableHead className="p-2">Precio</TableHead>
+                                  <TableHead className="p-2">Cantidad</TableHead>
+                                  <TableHead className="p-2">Subtotal</TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
                                 {pedido.items?.map((item, idx) => (
-                                  <TableRow key={idx}>
-                                    <TableCell>
+                                  <TableRow key={idx} className="border-b">
+                                    <TableCell className="p-2">
                                       <img
                                         src={
                                           item.imagen
@@ -238,23 +238,23 @@ const HistorialPedidos = ({ pedidos = [] }: Props) => {
                                             : "/images/placeholder.png"
                                         }
                                         alt={item.nombre_producto}
-                                        className="w-12 h-12 object-cover rounded"
+                                        className="w-8 h-8 object-cover rounded"
                                         onError={e => {
                                           const target = e.currentTarget as HTMLImageElement;
                                           target.src = "/images/placeholder.png";
                                         }}
                                       />
                                     </TableCell>
-                                    <TableCell>{item.nombre_producto}</TableCell>
-                                    <TableCell>{formatPrice(item.precio_unitario)}</TableCell>
-                                    <TableCell>{item.cantidad}</TableCell>
-                                    <TableCell>{formatPrice(item.subtotal)}</TableCell>
+                                    <TableCell className="p-2">{item.nombre_producto}</TableCell>
+                                    <TableCell className="p-2">{formatPrice(item.precio_unitario)}</TableCell>
+                                    <TableCell className="p-2">{item.cantidad}</TableCell>
+                                    <TableCell className="p-2">{formatPrice(item.subtotal)}</TableCell>
                                   </TableRow>
                                 ))}
                               </TableBody>
                             </Table>
-                            <div className="mt-6 flex justify-end">
-                              <div className="bg-blue-50 border border-blue-200 rounded-xl px-6 py-3 text-right">
+                            <div className="mt-4 flex justify-end">
+                              <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2 text-right">
                                 <span className="font-bold text-blue-900 mr-2">Total del pedido:</span>
                                 <span className="font-extrabold text-blue-700 text-lg">
                                   {pedido.total !== undefined ? formatPrice(pedido.total) : "-"}
@@ -274,7 +274,7 @@ const HistorialPedidos = ({ pedidos = [] }: Props) => {
           {/* Vista en tarjetas para móviles */}
           <div className="sm:hidden space-y-4">
             {sortedPedidos.map((pedido) => (
-              <div key={pedido.id} className="bg-white rounded-lg shadow-md p-4">
+              <div key={pedido.id} className="bg-white rounded-lg shadow-sm p-2 w-full">
                 <div className="flex justify-between items-center">
                   <div>
                     {pedido.numero_orden && (
@@ -282,7 +282,7 @@ const HistorialPedidos = ({ pedidos = [] }: Props) => {
                         N° Orden: {pedido.numero_orden}
                       </div>
                     )}
-                    <p className="font-medium">{pedido.cliente}</p>
+                    <p className="font-medium text-sm">{pedido.cliente}</p>
                     <p className="text-xs text-gray-500">
                       {pedido.fecha}
                       {pedido.hora && (
@@ -309,7 +309,7 @@ const HistorialPedidos = ({ pedidos = [] }: Props) => {
                               : `/storage/${pedido.referencia_pago}`
                           }
                           alt="Comprobante de pago"
-                          className="w-24 h-24 object-cover rounded border"
+                          className="w-16 h-16 object-cover rounded border"
                           onError={e => {
                             const target = e.currentTarget as HTMLImageElement;
                             target.src = "/images/placeholder.png";
@@ -332,23 +332,23 @@ const HistorialPedidos = ({ pedidos = [] }: Props) => {
                   </Button>
                 </div>
                 {expandedRows.includes(pedido.id) && (
-                  <div className="mt-4">
-                    <div className="font-semibold mb-2">Productos del pedido:</div>
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full text-sm">
+                  <div className="mt-2 w-full">
+                    <div className="font-semibold mb-1 text-sm">Productos del pedido:</div>
+                    <div className="overflow-x-auto w-full">
+                      <table className="min-w-full text-xs">
                         <thead>
-                          <tr>
-                            <th className="text-left p-2">Foto</th>
-                            <th className="text-left p-2">Producto</th>
-                            <th className="text-left p-2">Precio</th>
-                            <th className="text-left p-2">Cantidad</th>
-                            <th className="text-left p-2">Subtotal</th>
+                          <tr className="bg-gray-100">
+                            <th className="text-left p-1">Foto</th>
+                            <th className="text-left p-1">Producto</th>
+                            <th className="text-left p-1">Precio</th>
+                            <th className="text-left p-1">Cantidad</th>
+                            <th className="text-left p-1">Subtotal</th>
                           </tr>
                         </thead>
                         <tbody>
                           {pedido.items?.map((item, idx) => (
-                            <tr key={idx}>
-                              <td className="p-2">
+                            <tr key={idx} className="border-b">
+                              <td className="p-1">
                                 <img
                                   src={
                                     item.imagen
@@ -358,26 +358,26 @@ const HistorialPedidos = ({ pedidos = [] }: Props) => {
                                       : "/images/placeholder.png"
                                   }
                                   alt={item.nombre_producto}
-                                  className="w-12 h-12 object-cover rounded"
+                                  className="w-8 h-8 object-cover rounded"
                                   onError={(e) => {
                                     const target = e.currentTarget as HTMLImageElement;
                                     target.src = "/images/placeholder.png";
                                   }}
                                 />
                               </td>
-                              <td className="p-2">{item.nombre_producto}</td>
-                              <td className="p-2">{formatPrice(item.precio_unitario)}</td>
-                              <td className="p-2">{item.cantidad}</td>
-                              <td className="p-2">{formatPrice(item.subtotal)}</td>
+                              <td className="p-1">{item.nombre_producto}</td>
+                              <td className="p-1">{formatPrice(item.precio_unitario)}</td>
+                              <td className="p-1">{item.cantidad}</td>
+                              <td className="p-1">{formatPrice(item.subtotal)}</td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
                     </div>
-                    <div className="mt-6 flex justify-end">
-                      <div className="bg-blue-50 border border-blue-200 rounded-xl px-6 py-3 text-right">
-                        <span className="font-bold text-blue-900 mr-2">Total del pedido:</span>
-                        <span className="font-extrabold text-blue-700 text-lg">
+                    <div className="mt-2 flex justify-end w-full">
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg px-2 py-1 text-right">
+                        <span className="font-bold text-blue-900 mr-1 text-xs">Total del pedido:</span>
+                        <span className="font-extrabold text-blue-700 text-sm">
                           {pedido.total !== undefined ? formatPrice(pedido.total) : "-"}
                         </span>
                       </div>
