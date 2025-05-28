@@ -198,12 +198,28 @@ class ServicioController extends Controller
                 ->with('error', 'El servicio seleccionado no está disponible.');
         }
 
+        $servicio = Servicio::with(['categoriaServicio' => function($query) {
+            $query->select('id', 'nombre', 'estado');
+        }])->find($servicio->id);
+        
         if (!$servicio->categoriaServicio || !$servicio->categoriaServicio->estado) {
             return redirect()->route('servicios.publico.index')
                 ->with('error', 'La categoría del servicio no está disponible.');
         }
         
-        $servicio->load('categoriaServicio');
+        $categoria = CategoriaServicio::find($servicio->categoria_servicio_id);
+        
+        $servicioData = [
+            'id' => $servicio->id,
+            'nombre' => $servicio->nombre,
+            'descripcion' => $servicio->descripcion,
+            'categoria_servicio_id' => $servicio->categoria_servicio_id,
+            'categoriaServicio' => [
+                'id' => $categoria->id,
+                'nombre' => $categoria->nombre,
+                'estado' => $categoria->estado
+            ]
+        ];
         
         $serviciosRelacionados = Servicio::where('estado', true)
             ->where('categoria_servicio_id', $servicio->categoria_servicio_id)
@@ -212,7 +228,7 @@ class ServicioController extends Controller
             ->get();
 
         return Inertia::render('Home/Partials/Servicio/DetalleServicio', [
-            'servicio' => $servicio,
+            'servicio' => $servicioData,
             'serviciosRelacionados' => $serviciosRelacionados
         ]);
     }

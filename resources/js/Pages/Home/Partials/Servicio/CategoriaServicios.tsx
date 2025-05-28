@@ -87,16 +87,16 @@ export default function CategoriaServicios() {
       <div className="flex-grow py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="mb-6">
-            <ol className="flex items-center flex-wrap gap-2 bg-white dark:bg-slate-800 shadow-sm rounded-full px-4 py-2 border border-slate-100 dark:border-slate-700">
+            <ol className="flex items-center flex-wrap gap-2 py-2">
               <li>
-                <Link href="/" className="text-slate-600 dark:text-slate-300 hover:text-indigo-700 dark:hover:text-indigo-400 flex items-center text-sm transition-colors duration-200">
+                <Link href="/" className="text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-white flex items-center text-sm">
                   <HomeIcon className="w-3.5 h-3.5 mr-1" />
                   Inicio
                 </Link>
               </li>
               <li className="flex items-center">
-                <span className="mx-2 text-slate-300 dark:text-slate-500">/</span>
-                <span className="text-indigo-700 dark:text-indigo-400 font-medium text-sm" title="Servicios">
+                <span className="mx-2 text-gray-400 dark:text-slate-600">/</span>
+                <span className="text-gray-800 dark:text-white font-medium text-sm" title="Servicios">
                   Servicios
                 </span>
               </li>
