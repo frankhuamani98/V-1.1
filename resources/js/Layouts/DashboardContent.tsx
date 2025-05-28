@@ -51,8 +51,9 @@ interface AlertCardProps {
 
 interface DashboardProps {
   totalPedidosCompletados: number;
-  cambioPedidosCompletados: number; // nuevo
-  progresoPedidosCompletados: number; // nuevo
+  cambioPedidosCompletados: number;
+  progresoPedidosCompletados: number;
+  textoCambio?: string; // Nueva prop opcional
 }
 
 const salesData = [
@@ -107,7 +108,9 @@ const inventoryAlerts = [
   { id: 4, message: "Ajuste de precio necesario: Kawasaki Ninja 400", priority: "media" as const },
 ];
 
-const KPICard: React.FC<KPICardProps> = ({ title, value, icon, change, progress }) => (
+const KPICard: React.FC<KPICardProps & { textoCambio?: string }> = ({
+  title, value, icon, change, progress, textoCambio = "del mes actual"
+}) => (
   <Card>
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
       <CardTitle className="text-sm font-medium">{title}</CardTitle>
@@ -116,11 +119,10 @@ const KPICard: React.FC<KPICardProps> = ({ title, value, icon, change, progress 
     <CardContent>
       <div className="text-2xl font-bold">{value}</div>
       <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-        <span className={`flex items-center ${change > 0 ? 'text-green-500' : 'text-red-500'}`}>
-          {change > 0 ? <ArrowUpRight className="mr-1 h-3 w-3" /> : <ArrowDownRight className="mr-1 h-3 w-3" />}
-          {Math.abs(change)}%
+        <span className={`flex items-center ${change > 0 ? 'text-green-500' : 'text-blue-500'}`}>
+          {change.toFixed(1)}%
         </span>
-        <span>del mes pasado</span>
+        <span>{textoCambio}</span>
       </div>
       <Progress className="mt-3" value={progress} />
     </CardContent>
@@ -164,6 +166,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   totalPedidosCompletados,
   cambioPedidosCompletados,
   progresoPedidosCompletados,
+  textoCambio = "del mes actual", // Valor por defecto
 }) => {
   return (
     <div className="space-y-6 text-foreground">
@@ -189,6 +192,7 @@ const Dashboard: React.FC<DashboardProps> = ({
           icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
           change={cambioPedidosCompletados}
           progress={progresoPedidosCompletados}
+          textoCambio={textoCambio}
         />
         <KPICard
           title="Motos Reparadas"

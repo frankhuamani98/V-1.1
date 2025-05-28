@@ -22,37 +22,22 @@ class DashboardController extends Controller
 
         $user = Auth::user();
 
-        // Fechas para el mes actual y el mes pasado
+        // Meta mensual de pedidos completados (ajusta este valor según tu negocio)
+        $metaPedidosMes = 50;
+
         $now = Carbon::now();
         $inicioMesActual = $now->copy()->startOfMonth();
         $finMesActual = $now->copy()->endOfMonth();
-        $inicioMesPasado = $now->copy()->subMonth()->startOfMonth();
-        $finMesPasado = $now->copy()->subMonth()->endOfMonth();
 
-        // Pedidos completados este mes
-        $completadosMesActual = Pedido::where('estado', 'completado')
+        // Pedidos completados este mes (SOLO MES ACTUAL)
+        $pedidosCompletadosMesActual = Pedido::where('estado', 'completado')
             ->whereBetween('created_at', [$inicioMesActual, $finMesActual])
             ->count();
 
-        // Pedidos completados el mes pasado
-        $completadosMesPasado = Pedido::where('estado', 'completado')
-            ->whereBetween('created_at', [$inicioMesPasado, $finMesPasado])
-            ->count();
-
-        // Calcular el cambio porcentual, evitando división por cero
-        if ($completadosMesPasado > 0) {
-            $cambioPedidosCompletados = (($completadosMesActual - $completadosMesPasado) / $completadosMesPasado) * 100;
-        } else {
-            $cambioPedidosCompletados = $completadosMesActual > 0 ? 100 : 0;
-        }
-
-        // Progreso respecto al mes pasado (puedes ajustar la lógica según tu necesidad)
-        $progresoPedidosCompletados = $completadosMesPasado > 0
-            ? min(100, ($completadosMesActual / $completadosMesPasado) * 100)
-            : ($completadosMesActual > 0 ? 100 : 0);
-
-        // Total de pedidos completados (histórico)
-        $totalPedidosCompletados = Pedido::where('estado', 'completado')->count();
+        // Porcentaje de avance respecto a la meta mensual
+        $porcentajeMesActual = $metaPedidosMes > 0
+            ? min(100, ($pedidosCompletadosMesActual / $metaPedidosMes) * 100)
+            : 0;
 
         return Inertia::render('Dashboard', [
             'auth' => [
@@ -61,9 +46,10 @@ class DashboardController extends Controller
                     'email' => $user->email,
                 ],
             ],
-            'totalPedidosCompletados' => $totalPedidosCompletados,
-            'cambioPedidosCompletados' => round($cambioPedidosCompletados, 1),
-            'progresoPedidosCompletados' => round($progresoPedidosCompletados, 1),
+            // SOLO pedidos completados del mes actual
+            'totalPedidosCompletados' => $pedidosCompletadosMesActual,
+            'progresoPedidosCompletados' => round($porcentajeMesActual, 1),
+            // Elimina cualquier referencia al mes pasado
         ]);
     }
 }

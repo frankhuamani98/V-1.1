@@ -5,15 +5,21 @@ import DashboardContent from "../Layouts/DashboardContent";
 interface DashboardProps {
     auth: any;
     totalPedidosCompletados: number;
+    progresoPedidosCompletados: number;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ auth, totalPedidosCompletados }) => {
+const Dashboard: React.FC<DashboardProps> = ({
+    auth,
+    totalPedidosCompletados,
+    progresoPedidosCompletados,
+}) => {
     return (
         <DashboardLayout auth={auth}>
             <DashboardContent
                 totalPedidosCompletados={totalPedidosCompletados}
-                cambioPedidosCompletados={0} // Reemplaza 0 con el valor adecuado
-                progresoPedidosCompletados={0} // Reemplaza 0 con el valor adecuado
+                cambioPedidosCompletados={progresoPedidosCompletados} // Usar progreso como porcentaje
+                progresoPedidosCompletados={progresoPedidosCompletados}
+                textoCambio="del mes actual" // Nueva prop para el texto
             />
         </DashboardLayout>
     );
