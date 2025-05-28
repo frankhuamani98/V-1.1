@@ -7,7 +7,6 @@ import Products from "./Home/Productos";
 import Opiniones from "./Home/Opiniones";
 import Footer from "./Home/Footer";
 import WelcomeAlert from '@/Components/WelcomeAlert';
-import WhatsAppButton from '@/Components/WhatsAppButton';
 
 interface WelcomeProps extends PageProps {
     motoData: {
@@ -124,7 +123,6 @@ export default function Welcome({
                 productosRelacionadosPorSubcategoria={productosRelacionadosPorSubcategoria}
             />
             <WelcomeAlert />
-            <WhatsAppButton />
 
             <Opiniones opiniones={opiniones} auth={auth} />
 
