@@ -470,7 +470,7 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                         onChange={(e) => setData("placa", e.target.value)}
                         required
                         maxLength={10}
-                        placeholder="Ej: ABC-123"
+                        placeholder="Ej: 1234-AB"
                         aria-invalid={!!errors.placa}
                         aria-describedby={errors.placa ? 'placa-error' : undefined}
                       />
