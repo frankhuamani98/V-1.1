@@ -4,12 +4,13 @@ import DashboardContent from "../Layouts/DashboardContent";
 
 interface DashboardProps {
     auth: any;
+    totalPedidosCompletados: number;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ auth }) => {
+const Dashboard: React.FC<DashboardProps> = ({ auth, totalPedidosCompletados }) => {
     return (
         <DashboardLayout auth={auth}>
-            <DashboardContent />
+            <DashboardContent totalPedidosCompletados={totalPedidosCompletados} />
         </DashboardLayout>
     );
 };

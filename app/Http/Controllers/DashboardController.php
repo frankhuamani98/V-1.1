@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Pedido;
 
 class DashboardController extends Controller
 {
@@ -20,6 +21,9 @@ class DashboardController extends Controller
 
         $user = Auth::user();
 
+        // Obtener el total de pedidos completados
+        $totalPedidosCompletados = Pedido::where('estado', 'completado')->count();
+
         return Inertia::render('Dashboard', [
             'auth' => [
                 'user' => [
@@ -27,6 +31,7 @@ class DashboardController extends Controller
                     'email' => $user->email,
                 ],
             ],
+            'totalPedidosCompletados' => $totalPedidosCompletados,
         ]);
     }
 }
