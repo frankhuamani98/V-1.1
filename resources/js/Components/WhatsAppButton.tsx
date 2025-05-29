@@ -14,17 +14,22 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
     useEffect(() => {
         const checkVisibility = () => {
             const welcomeClosed = sessionStorage.getItem('welcomeAlertClosed');
-            setIsVisible(!!welcomeClosed);
+            const isDashboard = window.location.pathname.includes('/dashboard');
+            
+            // Solo mostrar si el welcome está cerrado y NO estamos en el dashboard
+            setIsVisible(!!welcomeClosed && !isDashboard);
         };
         
         checkVisibility();
         
         window.addEventListener('storage', checkVisibility);
+        window.addEventListener('popstate', checkVisibility);
         
         const interval = setInterval(checkVisibility, 500);
         
         return () => {
             window.removeEventListener('storage', checkVisibility);
+            window.removeEventListener('popstate', checkVisibility);
             clearInterval(interval);
         };
     }, []);
