@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Reserva;
 use App\Models\Servicio;
 use App\Models\Moto;
+use App\Services\NotificacionService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
@@ -13,6 +14,12 @@ use Illuminate\Support\Facades\Auth;
 
 class ReservaController extends Controller
 {
+    protected $notificacionService;
+    
+    public function __construct(NotificacionService $notificacionService)
+    {
+        $this->notificacionService = $notificacionService;
+    }
     public function index()
     {
         $reservas = Auth::user()->reservas()
@@ -133,6 +140,8 @@ class ReservaController extends Controller
         ]);
 
         $reserva->servicios()->attach($validated['servicios_ids']);
+        
+        $this->notificacionService->crearNotificacionReserva($reserva, 'creada');
 
         return redirect()->route('reservas.index')->with('success', 'Reserva creada exitosamente.');
     }
@@ -272,6 +281,8 @@ class ReservaController extends Controller
         ]);
 
         $reserva->servicios()->sync($validated['servicios_ids']);
+        
+        $this->notificacionService->crearNotificacionReserva($reserva, 'reprogramada');
 
         return redirect()->route('reservas.index')->with('success', 'Reserva actualizada exitosamente.');
     }
@@ -287,8 +298,11 @@ class ReservaController extends Controller
                 ->with('error', 'No se puede cancelar una reserva que ya fue completada o cancelada.');
         }
 
-        $reserva->estado = 'cancelada';
-        $reserva->save();
+        $reserva->update([
+            'estado' => 'cancelada'
+        ]);
+        
+        $this->notificacionService->crearNotificacionReserva($reserva, 'cancelada');
 
         return redirect()->route('reservas.index')->with('success', 'Reserva cancelada exitosamente.');
     }

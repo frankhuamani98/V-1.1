@@ -4,19 +4,24 @@ namespace App\Http\Controllers\Checkout;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pedido;
+use App\Services\NotificacionService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class MetodosPagoController extends Controller
 {
+    protected $notificacionService;
+    
+    public function __construct(NotificacionService $notificacionService)
+    {
+        $this->notificacionService = $notificacionService;
+    }
     public function index(Request $request)
     {
-        // Obtener datos del usuario y carrito desde la sesión
         $user = Auth()->user();
         $datos = session('checkout_datos');
         $cart = $user->cartItems()->with('producto')->get();
 
-        // Métodos de pago disponibles (puedes personalizar esto)
         $metodos = [
             [
                 'id' => 'tarjeta',
@@ -64,7 +69,7 @@ class MetodosPagoController extends Controller
     {
         $request->validate([
             'metodo' => 'required|string',
-            'referencia_pago' => 'required|image|max:5120', // hasta 5MB y obligatorio
+            'referencia_pago' => 'required|image|max:5120',
         ]);
 
         $user = Auth()->user();
@@ -75,18 +80,15 @@ class MetodosPagoController extends Controller
             return redirect()->route('checkout.informacion')->with('error', 'Faltan datos o el carrito está vacío.');
         }
 
-        // Calcular el total real sumando los subtotales de los productos
         $total = $cart->reduce(function ($carry, $item) {
             return $carry + ($item->producto->precio_final * $item->quantity);
         }, 0);
 
-        // Procesar archivo comprobante
         $referenciaPath = $request->file('referencia_pago')->store('pagos/referencias', 'public');
 
         try {
             \DB::beginTransaction();
 
-            // Obtener el último número de orden y sumarle 1, formato ORD-00001
             $ultimoPedido = \App\Models\Pedido::orderByDesc('id')->first();
             if ($ultimoPedido && preg_match('/ORD-(\d+)/', $ultimoPedido->numero_orden, $matches)) {
                 $ultimoNumero = intval($matches[1]);
@@ -96,7 +98,6 @@ class MetodosPagoController extends Controller
             $nuevoNumero = $ultimoNumero + 1;
             $nuevoNumeroOrden = 'ORD-' . str_pad($nuevoNumero, 5, '0', STR_PAD_LEFT);
 
-            // Crear el pedido
             $pedido = \App\Models\Pedido::create([
                 'user_id' => $user->id,
                 'nombre' => $datos['nombre'],
@@ -105,14 +106,13 @@ class MetodosPagoController extends Controller
                 'direccion' => $datos['direccion'],
                 'direccion_alternativa' => $datos['direccion_alternativa'],
                 'subtotal' => $total,
-                'total' => $total, // Guardar el total calculado
-                'estado' => 'pendiente', // Cambiado de 'procesando' a 'pendiente'
+                'total' => $total,
+                'estado' => 'pendiente',
                 'metodo_pago' => $request->metodo,
                 'referencia_pago' => $referenciaPath,
-                'numero_orden' => $nuevoNumeroOrden, // Nuevo campo con formato
+                'numero_orden' => $nuevoNumeroOrden,
             ]);
 
-            // Crear los items del pedido
             foreach ($cart as $item) {
                 \App\Models\PedidoItem::create([
                     'pedido_id' => $pedido->id,
@@ -124,14 +124,14 @@ class MetodosPagoController extends Controller
                 ]);
             }
 
-            // Limpiar carrito y sesión
             $user->cartItems()->delete();
             session()->forget('checkout_datos');
             session()->forget('direccion_alternativa');
+            
+            $this->notificacionService->crearNotificacionPedido($pedido, 'creado');
 
             \DB::commit();
 
-            // Redirige a confirmación de pago
             return redirect()->route('checkout.confirmacion', ['id' => $pedido->id]);
         } catch (\Exception $e) {
             \DB::rollBack();

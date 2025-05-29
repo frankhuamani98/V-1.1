@@ -5,12 +5,19 @@ namespace App\Http\Controllers\Opinion;
 use App\Http\Controllers\Controller;
 use App\Models\Opinion;
 use App\Models\RespuestaOpinion;
+use App\Services\NotificacionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class OpinionController extends Controller
 {
+    protected $notificacionService;
+    
+    public function __construct(NotificacionService $notificacionService)
+    {
+        $this->notificacionService = $notificacionService;
+    }
     public function index()
     {
         $opiniones = Opinion::with(['usuario', 'respuestas.usuario'])
@@ -38,6 +45,8 @@ class OpinionController extends Controller
         ]);
 
         $opinion->load('usuario');
+        
+        $this->notificacionService->crearNotificacionOpinion($opinion, 'creada');
 
         return redirect()->back()
             ->with('message', 'Opinión publicada correctamente')
@@ -90,6 +99,8 @@ class OpinionController extends Controller
         ]);
 
         $respuesta->load('usuario');
+        
+        $this->notificacionService->crearNotificacionOpinion($opinion, 'respondida');
 
         return redirect()->back()
             ->with('message', 'Respuesta publicada correctamente')
