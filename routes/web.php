@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Http\Controllers\{DashboardController, WelcomeController, ResultadosController};
+use App\Http\Controllers\{DashboardController, WelcomeController, ResultadosController, NotificacionController};
 use App\Http\Controllers\Usuarios\{ListaUsuariosController, AdministradoresController};
 use App\Http\Controllers\Productos\{AgregarProductoController, InventarioProductosController, DetalleProductoController};
 use App\Http\Controllers\Servicio\{CategoriaServicioController, ServicioController};
@@ -66,6 +66,14 @@ require __DIR__.'/auth.php';
 Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Notificaciones
+    Route::prefix('dashboard/notificaciones')->name('notificaciones.')->group(function () {
+        Route::get('/', [NotificacionController::class, 'index'])->name('index');
+        Route::get('/obtener', [NotificacionController::class, 'obtenerNotificaciones'])->name('obtener');
+        Route::post('/marcar-leida/{id}', [NotificacionController::class, 'marcarComoLeida'])->name('marcar-leida');
+        Route::post('/marcar-todas-leidas', [NotificacionController::class, 'marcarTodasComoLeidas'])->name('marcar-todas-leidas');
+    });
     
     // Cart routes
     Route::prefix('cart')->name('cart.')->group(function () {
@@ -331,3 +339,4 @@ Route::middleware('auth')->group(function () {
 
 // Rutas API
 Route::get('/api/buscar-productos', [WelcomeController::class, 'buscarProductos']);
+Route::get('/api/notificaciones', [NotificacionController::class, 'obtenerNotificaciones'])->middleware('auth');
