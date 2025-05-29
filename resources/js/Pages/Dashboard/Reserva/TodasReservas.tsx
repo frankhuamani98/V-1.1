@@ -3,11 +3,22 @@ import DashboardLayout from '@/Layouts/DashboardLayout';
 import TodasReservas from '@/Layouts/Partials/Reserva/TodasReservas';
 import { Head } from '@inertiajs/react';
 
-interface Moto {
+interface Usuario {
     id: number;
-    año: number;
+    name: string;
+    email: string;
+    telefono: string;
+}
+
+interface Servicio {
+    id: number;
+    nombre: string;
+}
+
+interface Moto {
     marca: string;
     modelo: string;
+    año: number;
 }
 
 interface Reserva {
@@ -15,7 +26,7 @@ interface Reserva {
     usuario: string;
     moto: Moto;
     placa: string;
-    servicio: string;
+    servicios: Servicio[];
     horario_id: number;
     horario: {
         id: number;

@@ -7,6 +7,7 @@ interface Usuario {
     id: number;
     name: string;
     email: string;
+    telefono: string;
 }
 
 interface Servicio {
@@ -37,7 +38,7 @@ interface Reserva {
     usuario: Usuario | null;
     moto: Moto;
     placa: string;
-    servicio: Servicio | null;
+    servicios: Servicio[];
     horario_id: number;
     horario: Horario | null;
     fecha: string;
