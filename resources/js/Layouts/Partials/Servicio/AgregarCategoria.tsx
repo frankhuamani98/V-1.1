@@ -96,20 +96,20 @@ const AgregarCategoria = ({ categoria, isEditing = false }: AgregarCategoriaProp
     const buttonIcon = isEditing ? <Save className="h-4 w-4" /> : <PlusCircle className="h-4 w-4" />;
 
     return (
-        <div className="p-2 sm:p-4 md:p-6">
-            <Card className="border-0 sm:border shadow-md rounded-xl overflow-hidden">
-                <CardHeader className="px-4 sm:px-6 bg-white border-b">
+        <div className="p-2 sm:p-4 md:p-6 bg-gradient-to-br from-blue-100 via-white to-indigo-200 min-h-[90vh]">
+            <Card className="border-0 sm:border shadow-lg rounded-xl overflow-hidden bg-white/95">
+                <CardHeader className="px-4 sm:px-6 bg-gradient-to-r from-indigo-200 to-blue-50 border-b">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div className="flex items-center gap-3">
-                            <div className="bg-primary/10 p-2 rounded-full">
+                            <div className="bg-indigo-200 p-2 rounded-full shadow">
                                 {isEditing ? (
-                                    <Save className="h-5 w-5 text-primary" />
+                                    <Save className="h-5 w-5 text-indigo-600" />
                                 ) : (
-                                    <PlusCircle className="h-5 w-5 text-primary" />
+                                    <PlusCircle className="h-5 w-5 text-blue-600" />
                                 )}
                             </div>
                             <div>
-                                <CardTitle className="text-lg sm:text-xl font-bold text-gray-800">
+                                <CardTitle className="text-lg sm:text-xl font-bold text-indigo-800">
                                     {title}
                                 </CardTitle>
                                 <CardDescription className="text-sm text-gray-500">
@@ -126,7 +126,7 @@ const AgregarCategoria = ({ categoria, isEditing = false }: AgregarCategoriaProp
                         <div className="space-y-4">
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-2">
-                                    <Label htmlFor="nombre">Nombre *</Label>
+                                    <Label htmlFor="nombre" className="font-semibold text-indigo-700">Nombre *</Label>
                                     <Input
                                         id="nombre"
                                         name="nombre"
@@ -134,23 +134,25 @@ const AgregarCategoria = ({ categoria, isEditing = false }: AgregarCategoriaProp
                                         onChange={handleChange}
                                         placeholder="Nombre de la categoría"
                                         required
+                                        className="rounded-lg border-indigo-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="orden">Orden</Label>
+                                    <Label htmlFor="orden" className="font-semibold text-indigo-700">Orden</Label>
                                     <Input
                                         id="orden"
                                         name="orden"
                                         type="number"
-                                        value={formData.orden}
+                                        value={formData.orden === 0 ? "" : formData.orden}
                                         onChange={handleNumberChange}
                                         placeholder="Orden de visualización"
+                                        className="rounded-lg border-indigo-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition"
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="descripcion">Descripción</Label>
+                                <Label htmlFor="descripcion" className="font-semibold text-indigo-700">Descripción</Label>
                                 <Textarea
                                     id="descripcion"
                                     name="descripcion"
@@ -158,16 +160,19 @@ const AgregarCategoria = ({ categoria, isEditing = false }: AgregarCategoriaProp
                                     onChange={handleChange}
                                     placeholder="Descripción de la categoría"
                                     rows={4}
+                                    className="rounded-lg border-indigo-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition"
                                 />
                             </div>
 
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center gap-3 mt-2">
                                 <Switch
                                     id="estado"
                                     checked={formData.estado}
                                     onCheckedChange={handleSwitchChange}
                                 />
-                                <Label htmlFor="estado">Estado activo</Label>
+                                <Label htmlFor="estado" className="font-medium text-indigo-700 select-none">
+                                    Estado activo
+                                </Label>
                             </div>
                         </div>
 
@@ -175,7 +180,7 @@ const AgregarCategoria = ({ categoria, isEditing = false }: AgregarCategoriaProp
                             <Button 
                                 type="submit" 
                                 disabled={isSubmitting}
-                                className="flex items-center gap-2"
+                                className="flex items-center gap-2 px-6 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-blue-500 text-white font-semibold shadow-md hover:from-indigo-600 hover:to-blue-600 transition"
                             >
                                 {buttonIcon}
                                 {isSubmitting ? "Procesando..." : buttonText}

@@ -128,7 +128,7 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
   };
 
   return (
-    <div className="p-2 sm:p-4 md:p-6">
+    <div className="p-2 sm:p-4 md:p-6 bg-gradient-to-br from-blue-100 via-white to-indigo-200 min-h-[90vh]">
       <Toaster position="top-center" />
       
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
@@ -151,35 +151,35 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
         </AlertDialogContent>
       </AlertDialog>
 
-      <Card className="border-0 sm:border shadow-md rounded-xl overflow-hidden">
-        <CardHeader className="px-4 sm:px-6 bg-white border-b">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="flex items-center gap-3">
-              <div className="bg-primary/10 p-2 rounded-full">
-                <ListChecks className="h-5 w-5 text-primary" />
+      <Card className="border-0 sm:border shadow-lg rounded-xl overflow-hidden bg-white/95">
+        <CardHeader className="px-4 sm:px-6 bg-gradient-to-r from-indigo-200 to-blue-100 border-b">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+            <div className="flex items-center gap-4">
+              <div className="bg-indigo-300 p-3 rounded-xl shadow">
+                <ListChecks className="h-7 w-7 text-indigo-700" />
               </div>
               <div>
-                <CardTitle className="text-lg sm:text-xl font-bold text-gray-800">Servicios</CardTitle>
-                <CardDescription className="text-sm text-gray-500">
+                <CardTitle className="text-2xl sm:text-3xl font-extrabold text-gray-800 tracking-tight">Servicios</CardTitle>
+                <CardDescription className="text-base text-gray-600 mt-1">
                   Gestione las categorías y servicios de su negocio
                 </CardDescription>
               </div>
             </div>
-            <div className="flex gap-2 w-full sm:w-auto">
+            <div className="flex gap-3 w-full sm:w-auto">
               <Link href={route('servicios.categorias.crear')} className="w-1/2 sm:w-auto">
                 <Button 
                   variant="outline" 
-                  className="w-full flex items-center gap-1.5"
+                  className="w-full flex items-center gap-2 px-5 py-2 rounded-xl border-indigo-300 text-indigo-700 font-semibold hover:bg-indigo-50 transition"
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="h-5 w-5" />
                   Nueva Categoría
                 </Button>
               </Link>
               <Link href={route('servicios.crear')} className="w-1/2 sm:w-auto">
                 <Button 
-                  className="w-full flex items-center gap-1.5"
+                  className="w-full flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 text-white font-semibold shadow-md hover:from-indigo-600 hover:to-blue-600 transition"
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="h-5 w-5" />
                   Nuevo Servicio
                 </Button>
               </Link>
@@ -188,40 +188,40 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
         </CardHeader>
         <CardContent className="px-0 pt-0 pb-2">
           {categorias.length === 0 ? (
-            <div className="text-center py-12 px-4">
-              <div className="mx-auto w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-                <ListChecks className="h-6 w-6 text-gray-400" />
+            <div className="text-center py-16 px-4">
+              <div className="mx-auto w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center mb-6 shadow">
+                <ListChecks className="h-8 w-8 text-indigo-400" />
               </div>
-              <p className="text-gray-600 font-medium">No hay categorías de servicios registradas</p>
-              <p className="text-gray-500 text-sm mt-1">Agregue categorías para comenzar a organizar sus servicios</p>
+              <p className="text-indigo-700 font-bold text-lg">No hay categorías de servicios registradas</p>
+              <p className="text-gray-500 text-base mt-2">Agregue categorías para comenzar a organizar sus servicios</p>
               <Button 
-                className="mt-4 flex items-center gap-1.5"
+                className="mt-6 flex items-center gap-2 px-6 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 text-white font-semibold shadow-md hover:from-indigo-600 hover:to-blue-600 transition"
                 onClick={() => router.visit(route('servicios.categorias.crear'))}
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-5 w-5" />
                 Agregar Categoría
               </Button>
             </div>
           ) : (
-            <div className="space-y-6 p-4">
+            <div className="space-y-8 p-6">
               {categorias.map((categoria) => (
-                <div key={categoria.id} className="bg-gray-50 rounded-lg overflow-hidden">
+                <div key={categoria.id} className="bg-white rounded-2xl shadow-md overflow-hidden border border-indigo-100">
                   <div 
-                    className="flex justify-between items-center p-4 bg-gray-100 cursor-pointer"
+                    className="flex justify-between items-center p-5 bg-gradient-to-r from-indigo-50 to-blue-50 cursor-pointer"
                     onClick={() => toggleCategory(categoria.id)}
                   >
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-medium text-gray-800">{categoria.nombre}</h3>
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-bold text-indigo-800 text-lg">{categoria.nombre}</h3>
                       <Badge className={categoria.estado ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100" : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"}>
                         {categoria.estado ? "Activo" : "Inactivo"}
                       </Badge>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       <div className="flex items-center gap-1 md:hidden">
                         {expandedCategories.includes(categoria.id) ? (
-                          <ChevronUp className="h-4 w-4 text-gray-500" />
+                          <ChevronUp className="h-5 w-5 text-indigo-400" />
                         ) : (
-                          <ChevronDown className="h-4 w-4 text-gray-500" />
+                          <ChevronDown className="h-5 w-5 text-indigo-400" />
                         )}
                       </div>
                       <div className="hidden md:flex items-center gap-2">
@@ -229,29 +229,29 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
                           <Button 
                             variant="outline" 
                             size="sm" 
-                            className="h-8"
+                            className="h-9 px-4 rounded-lg border-indigo-200 text-indigo-700 font-semibold hover:bg-indigo-50 transition"
                           >
-                            <Pencil className="h-3.5 w-3.5 mr-1" />
+                            <Pencil className="h-4 w-4 mr-1" />
                             Editar
                           </Button>
                         </Link>
                         <Button 
                           variant="destructive" 
                           size="sm" 
-                          className="h-8"
+                          className="h-9 px-4 rounded-lg font-semibold"
                           onClick={(e) => {
                             e.stopPropagation();
                             openDeleteCategoriaDialog(categoria);
                           }}
                         >
-                          <Trash2 className="h-3.5 w-3.5 mr-1" />
+                          <Trash2 className="h-4 w-4 mr-1" />
                           Eliminar
                         </Button>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-end gap-2 p-2 md:hidden bg-gray-50 border-t border-gray-200">
+                  <div className="flex items-center justify-end gap-2 p-3 md:hidden bg-indigo-50 border-t border-indigo-100">
                     <Link 
                       href={route('servicios.categorias.editar', { categoriaServicio: categoria.id })}
                       className="w-1/2"
@@ -259,22 +259,22 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        className="w-full"
+                        className="w-full rounded-lg border-indigo-200 text-indigo-700 font-semibold hover:bg-indigo-50 transition"
                       >
-                        <Pencil className="h-3.5 w-3.5 mr-1" />
+                        <Pencil className="h-4 w-4 mr-1" />
                         Editar
                       </Button>
                     </Link>
                     <Button 
                       variant="destructive" 
                       size="sm" 
-                      className="w-1/2"
+                      className="w-1/2 rounded-lg font-semibold"
                       onClick={(e) => {
                         e.stopPropagation();
                         openDeleteCategoriaDialog(categoria);
                       }}
                     >
-                      <Trash2 className="h-3.5 w-3.5 mr-1" />
+                      <Trash2 className="h-4 w-4 mr-1" />
                       Eliminar
                     </Button>
                   </div>
@@ -285,15 +285,15 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
                         <Table className="min-w-full">
                           <TableHeader className="bg-white">
                             <TableRow>
-                              <TableHead>Nombre</TableHead>
-                              <TableHead className="hidden sm:table-cell">Estado</TableHead>
-                              <TableHead>Acciones</TableHead>
+                              <TableHead className="text-indigo-700 font-bold text-base">Nombre</TableHead>
+                              <TableHead className="hidden sm:table-cell text-indigo-700 font-bold text-base">Estado</TableHead>
+                              <TableHead className="text-indigo-700 font-bold text-base">Acciones</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {categoria.servicios.map((servicio) => (
-                              <TableRow key={servicio.id} className="bg-white hover:bg-gray-50">
-                                <TableCell className="font-medium">{servicio.nombre}</TableCell>
+                              <TableRow key={servicio.id} className="bg-white hover:bg-indigo-50 transition">
+                                <TableCell className="font-medium text-gray-800">{servicio.nombre}</TableCell>
                                 <TableCell className="hidden sm:table-cell">
                                   <Badge className={servicio.estado ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100" : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"}>
                                     {servicio.estado ? "Activo" : "Inactivo"}
@@ -305,22 +305,22 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
                                       <Button 
                                         variant="outline" 
                                         size="sm" 
-                                        className="h-8"
+                                        className="h-9 px-4 rounded-lg border-indigo-200 text-indigo-700 font-semibold hover:bg-indigo-50 transition"
                                       >
-                                        <Pencil className="h-3.5 w-3.5 sm:mr-1" />
+                                        <Pencil className="h-4 w-4 sm:mr-1" />
                                         <span className="hidden sm:inline">Editar</span>
                                       </Button>
                                     </Link>
                                     <Button 
                                       variant="destructive" 
                                       size="sm" 
-                                      className="h-8"
+                                      className="h-9 px-4 rounded-lg font-semibold"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         openDeleteServicioDialog(servicio, categoria.id);
                                       }}
                                     >
-                                      <Trash2 className="h-3.5 w-3.5 sm:mr-1" />
+                                      <Trash2 className="h-4 w-4 sm:mr-1" />
                                       <span className="hidden sm:inline">Eliminar</span>
                                     </Button>
                                   </div>
@@ -331,15 +331,15 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
                         </Table>
                       </div>
                     ) : (
-                      <div className="py-6 text-center bg-white">
-                        <p className="text-gray-500">No hay servicios registrados en esta categoría</p>
+                      <div className="py-8 text-center bg-white">
+                        <p className="text-gray-500 text-base">No hay servicios registrados en esta categoría</p>
                         <Link href={route('servicios.crear')}>
                           <Button 
                             variant="outline" 
                             size="sm" 
-                            className="mt-2"
+                            className="mt-3 rounded-lg border-indigo-200 text-indigo-700 font-semibold hover:bg-indigo-50 transition"
                           >
-                            <Plus className="h-3.5 w-3.5 mr-1" />
+                            <Plus className="h-4 w-4 mr-1" />
                             Agregar Servicio
                           </Button>
                         </Link>

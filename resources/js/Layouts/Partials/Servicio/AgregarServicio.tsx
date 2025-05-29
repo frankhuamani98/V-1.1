@@ -107,23 +107,23 @@ const AgregarServicio = ({ servicio, isEditing = false, categorias }: AgregarSer
     const buttonIcon = isEditing ? <Save className="h-4 w-4" /> : <Wrench className="h-4 w-4" />;
 
     return (
-        <div className="p-2 sm:p-6 md:p-10 bg-gradient-to-br from-blue-50 via-white to-indigo-100 min-h-[90vh] flex items-center justify-center">
-            <Card className="w-full max-w-2xl border-0 shadow-xl rounded-2xl overflow-hidden bg-white/95 backdrop-blur-md">
-                <CardHeader className="px-6 py-5 bg-gradient-to-r from-indigo-100 to-blue-50 border-b">
+        <div className="p-2 sm:p-4 md:p-6 bg-gradient-to-br from-blue-100 via-white to-indigo-200 min-h-[90vh]">
+            <Card className="border-0 sm:border shadow-lg rounded-xl overflow-hidden bg-white/95">
+                <CardHeader className="px-4 sm:px-6 bg-gradient-to-r from-indigo-200 to-blue-50 border-b">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div className="flex items-center gap-3">
-                            <div className="bg-indigo-200 p-3 rounded-xl shadow-sm">
+                            <div className="bg-indigo-200 p-2 rounded-full shadow">
                                 {isEditing ? (
-                                    <Save className="h-6 w-6 text-indigo-600" />
+                                    <Save className="h-5 w-5 text-indigo-600" />
                                 ) : (
-                                    <Wrench className="h-6 w-6 text-blue-600" />
+                                    <Wrench className="h-5 w-5 text-blue-600" />
                                 )}
                             </div>
                             <div>
-                                <CardTitle className="text-xl sm:text-2xl font-extrabold text-gray-800 tracking-tight">
+                                <CardTitle className="text-lg sm:text-xl font-bold text-indigo-800">
                                     {title}
                                 </CardTitle>
-                                <CardDescription className="text-base text-gray-500 mt-1">
+                                <CardDescription className="text-sm text-gray-500">
                                     {isEditing 
                                         ? "Modifique los campos necesarios" 
                                         : "Complete el formulario para agregar un nuevo servicio"}
@@ -132,16 +132,16 @@ const AgregarServicio = ({ servicio, isEditing = false, categorias }: AgregarSer
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                     {isLoadingCategorias ? (
                         <div className="flex justify-center items-center py-12">
-                            <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                            <Loader2 className="h-8 w-8 text-indigo-500 animate-spin" />
                             <span className="ml-2 text-gray-600">Cargando categorías...</span>
                         </div>
                     ) : (
-                        <form onSubmit={handleSubmit} className="space-y-8">
-                            <div className="space-y-6">
-                                <div className="grid gap-6 sm:grid-cols-2">
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="space-y-4">
+                                <div className="grid gap-4 sm:grid-cols-2">
                                     <div className="space-y-2">
                                         <Label htmlFor="nombre" className="font-semibold text-indigo-700">Nombre *</Label>
                                         <Input
