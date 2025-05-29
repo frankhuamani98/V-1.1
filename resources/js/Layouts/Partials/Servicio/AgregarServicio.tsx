@@ -107,23 +107,23 @@ const AgregarServicio = ({ servicio, isEditing = false, categorias }: AgregarSer
     const buttonIcon = isEditing ? <Save className="h-4 w-4" /> : <Wrench className="h-4 w-4" />;
 
     return (
-        <div className="p-2 sm:p-4 md:p-6">
-            <Card className="border-0 sm:border shadow-md rounded-xl overflow-hidden">
-                <CardHeader className="px-4 sm:px-6 bg-white border-b">
+        <div className="p-2 sm:p-6 md:p-10 bg-gradient-to-br from-blue-50 via-white to-indigo-100 min-h-[90vh] flex items-center justify-center">
+            <Card className="w-full max-w-2xl border-0 shadow-xl rounded-2xl overflow-hidden bg-white/95 backdrop-blur-md">
+                <CardHeader className="px-6 py-5 bg-gradient-to-r from-indigo-100 to-blue-50 border-b">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div className="flex items-center gap-3">
-                            <div className="bg-primary/10 p-2 rounded-full">
+                            <div className="bg-indigo-200 p-3 rounded-xl shadow-sm">
                                 {isEditing ? (
-                                    <Save className="h-5 w-5 text-primary" />
+                                    <Save className="h-6 w-6 text-indigo-600" />
                                 ) : (
-                                    <Wrench className="h-5 w-5 text-primary" />
+                                    <Wrench className="h-6 w-6 text-blue-600" />
                                 )}
                             </div>
                             <div>
-                                <CardTitle className="text-lg sm:text-xl font-bold text-gray-800">
+                                <CardTitle className="text-xl sm:text-2xl font-extrabold text-gray-800 tracking-tight">
                                     {title}
                                 </CardTitle>
-                                <CardDescription className="text-sm text-gray-500">
+                                <CardDescription className="text-base text-gray-500 mt-1">
                                     {isEditing 
                                         ? "Modifique los campos necesarios" 
                                         : "Complete el formulario para agregar un nuevo servicio"}
@@ -132,18 +132,18 @@ const AgregarServicio = ({ servicio, isEditing = false, categorias }: AgregarSer
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="p-4 sm:p-6">
+                <CardContent className="p-6">
                     {isLoadingCategorias ? (
                         <div className="flex justify-center items-center py-12">
                             <Loader2 className="h-8 w-8 text-primary animate-spin" />
                             <span className="ml-2 text-gray-600">Cargando categorías...</span>
                         </div>
                     ) : (
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            <div className="space-y-4">
-                                <div className="grid gap-4 sm:grid-cols-2">
+                        <form onSubmit={handleSubmit} className="space-y-8">
+                            <div className="space-y-6">
+                                <div className="grid gap-6 sm:grid-cols-2">
                                     <div className="space-y-2">
-                                        <Label htmlFor="nombre">Nombre *</Label>
+                                        <Label htmlFor="nombre" className="font-semibold text-indigo-700">Nombre *</Label>
                                         <Input
                                             id="nombre"
                                             name="nombre"
@@ -151,16 +151,17 @@ const AgregarServicio = ({ servicio, isEditing = false, categorias }: AgregarSer
                                             onChange={handleChange}
                                             placeholder="Nombre del servicio"
                                             required
+                                            className="rounded-lg border-indigo-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="categoria_servicio_id">Categoría *</Label>
+                                        <Label htmlFor="categoria_servicio_id" className="font-semibold text-indigo-700">Categoría *</Label>
                                         <Select 
                                             value={formData.categoria_servicio_id} 
                                             onValueChange={handleSelectChange}
                                             required
                                         >
-                                            <SelectTrigger>
+                                            <SelectTrigger className="rounded-lg border-indigo-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition">
                                                 <SelectValue placeholder="Seleccionar categoría" />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -181,7 +182,7 @@ const AgregarServicio = ({ servicio, isEditing = false, categorias }: AgregarSer
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="descripcion">Descripción</Label>
+                                    <Label htmlFor="descripcion" className="font-semibold text-indigo-700">Descripción</Label>
                                     <Textarea
                                         id="descripcion"
                                         name="descripcion"
@@ -189,16 +190,17 @@ const AgregarServicio = ({ servicio, isEditing = false, categorias }: AgregarSer
                                         onChange={handleChange}
                                         placeholder="Descripción del servicio"
                                         rows={4}
+                                        className="rounded-lg border-indigo-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition"
                                     />
                                 </div>
 
-                                <div className="flex items-center space-x-2">
+                                <div className="flex items-center gap-3 mt-2">
                                     <Switch
                                         id="estado"
                                         checked={formData.estado}
                                         onCheckedChange={handleSwitchChange}
                                     />
-                                    <Label htmlFor="estado">Estado activo</Label>
+                                    <Label htmlFor="estado" className="font-medium text-indigo-700 select-none">Estado activo</Label>
                                 </div>
                             </div>
 
@@ -206,7 +208,7 @@ const AgregarServicio = ({ servicio, isEditing = false, categorias }: AgregarSer
                                 <Button 
                                     type="submit" 
                                     disabled={isSubmitting || categorias.length === 0}
-                                    className="flex items-center gap-2"
+                                    className="flex items-center gap-2 px-6 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-blue-500 text-white font-semibold shadow-md hover:from-indigo-600 hover:to-blue-600 transition"
                                 >
                                     {buttonIcon}
                                     {isSubmitting ? "Procesando..." : buttonText}
