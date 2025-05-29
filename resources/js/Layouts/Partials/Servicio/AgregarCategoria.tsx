@@ -96,23 +96,23 @@ const AgregarCategoria = ({ categoria, isEditing = false }: AgregarCategoriaProp
     const buttonIcon = isEditing ? <Save className="h-4 w-4" /> : <PlusCircle className="h-4 w-4" />;
 
     return (
-        <div className="p-2 sm:p-4 md:p-6 bg-gradient-to-br from-blue-100 via-white to-indigo-200 min-h-[90vh]">
-            <Card className="border-0 sm:border shadow-lg rounded-xl overflow-hidden bg-white/95">
-                <CardHeader className="px-4 sm:px-6 bg-gradient-to-r from-indigo-200 to-blue-50 border-b">
+        <div className="p-2 sm:p-4 md:p-6 bg-gradient-to-br from-blue-200 via-blue-50 to-blue-100 min-h-[90vh]">
+            <Card className="border-0 sm:border shadow-xl rounded-2xl overflow-hidden bg-white/95 backdrop-blur-md ring-2 ring-blue-200">
+                <CardHeader className="px-4 sm:px-8 bg-gradient-to-r from-blue-100 via-blue-200 to-blue-300 border-b-2 border-blue-300">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div className="flex items-center gap-3">
-                            <div className="bg-indigo-200 p-2 rounded-full shadow">
+                            <div className="bg-gradient-to-br from-blue-200 to-blue-400 p-3 rounded-full shadow-lg border border-blue-200">
                                 {isEditing ? (
-                                    <Save className="h-5 w-5 text-indigo-600" />
+                                    <Save className="h-6 w-6 text-blue-800" />
                                 ) : (
-                                    <PlusCircle className="h-5 w-5 text-blue-600" />
+                                    <PlusCircle className="h-6 w-6 text-blue-700" />
                                 )}
                             </div>
                             <div>
-                                <CardTitle className="text-lg sm:text-xl font-bold text-indigo-800">
+                                <CardTitle className="text-xl sm:text-2xl font-extrabold text-blue-900 tracking-tight drop-shadow">
                                     {title}
                                 </CardTitle>
-                                <CardDescription className="text-sm text-gray-500">
+                                <CardDescription className="text-sm text-blue-700 font-medium">
                                     {isEditing 
                                         ? "Modifique los campos necesarios" 
                                         : "Complete el formulario para agregar una nueva categoría"}
@@ -121,12 +121,12 @@ const AgregarCategoria = ({ categoria, isEditing = false }: AgregarCategoriaProp
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="p-4 sm:p-6">
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="space-y-4">
-                            <div className="grid gap-4 sm:grid-cols-2">
+                <CardContent className="p-4 sm:p-8">
+                    <form onSubmit={handleSubmit} className="space-y-8">
+                        <div className="space-y-6">
+                            <div className="grid gap-6 sm:grid-cols-2">
                                 <div className="space-y-2">
-                                    <Label htmlFor="nombre" className="font-semibold text-indigo-700">Nombre *</Label>
+                                    <Label htmlFor="nombre" className="font-semibold text-blue-900">Nombre *</Label>
                                     <Input
                                         id="nombre"
                                         name="nombre"
@@ -134,11 +134,11 @@ const AgregarCategoria = ({ categoria, isEditing = false }: AgregarCategoriaProp
                                         onChange={handleChange}
                                         placeholder="Nombre de la categoría"
                                         required
-                                        className="rounded-lg border-indigo-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition"
+                                        className="rounded-xl border-blue-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition shadow-sm"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="orden" className="font-semibold text-indigo-700">Orden</Label>
+                                    <Label htmlFor="orden" className="font-semibold text-blue-900">Orden</Label>
                                     <Input
                                         id="orden"
                                         name="orden"
@@ -146,13 +146,13 @@ const AgregarCategoria = ({ categoria, isEditing = false }: AgregarCategoriaProp
                                         value={formData.orden === 0 ? "" : formData.orden}
                                         onChange={handleNumberChange}
                                         placeholder="Orden de visualización"
-                                        className="rounded-lg border-indigo-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition"
+                                        className="rounded-xl border-blue-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition shadow-sm"
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="descripcion" className="font-semibold text-indigo-700">Descripción</Label>
+                                <Label htmlFor="descripcion" className="font-semibold text-blue-900">Descripción</Label>
                                 <Textarea
                                     id="descripcion"
                                     name="descripcion"
@@ -160,7 +160,7 @@ const AgregarCategoria = ({ categoria, isEditing = false }: AgregarCategoriaProp
                                     onChange={handleChange}
                                     placeholder="Descripción de la categoría"
                                     rows={4}
-                                    className="rounded-lg border-indigo-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition"
+                                    className="rounded-xl border-blue-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition shadow-sm bg-blue-50 text-blue-900"
                                 />
                             </div>
 
@@ -169,8 +169,9 @@ const AgregarCategoria = ({ categoria, isEditing = false }: AgregarCategoriaProp
                                     id="estado"
                                     checked={formData.estado}
                                     onCheckedChange={handleSwitchChange}
+                                    className="data-[state=checked]:bg-blue-600"
                                 />
-                                <Label htmlFor="estado" className="font-medium text-indigo-700 select-none">
+                                <Label htmlFor="estado" className="font-medium text-blue-900 select-none">
                                     Estado activo
                                 </Label>
                             </div>
@@ -180,7 +181,7 @@ const AgregarCategoria = ({ categoria, isEditing = false }: AgregarCategoriaProp
                             <Button 
                                 type="submit" 
                                 disabled={isSubmitting}
-                                className="flex items-center gap-2 px-6 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-blue-500 text-white font-semibold shadow-md hover:from-indigo-600 hover:to-blue-600 transition"
+                                className="flex items-center gap-2 px-8 py-2 rounded-xl bg-gradient-to-r from-blue-700 to-blue-400 text-white font-bold shadow-lg hover:from-blue-800 hover:to-blue-500 transition-all duration-200 active:scale-95"
                             >
                                 {buttonIcon}
                                 {isSubmitting ? "Procesando..." : buttonText}
