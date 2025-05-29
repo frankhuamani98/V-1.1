@@ -10,15 +10,11 @@ use App\Models\User;
 
 class NotificacionService
 {
-    /**
-     * Crear una notificación para un pedido
-     */
     public function crearNotificacionPedido(Pedido $pedido, string $accion = 'creado')
     {
         $adminUsers = User::where('role', 'admin')->get();
         $cliente = $pedido->user;
         
-        // Determinar título, mensaje y prioridad según la acción
         switch ($accion) {
             case 'creado':
                 $titulo = "Nuevo pedido #{$pedido->numero_orden}";
@@ -51,7 +47,6 @@ class NotificacionService
                 $prioridad = 'media';
         }
         
-        // Crear notificación para cada administrador
         foreach ($adminUsers as $admin) {
             Notificacion::create([
                 'user_id' => $admin->id,
@@ -75,16 +70,12 @@ class NotificacionService
         }
     }
     
-    /**
-     * Crear una notificación para una reserva
-     */
     public function crearNotificacionReserva(Reserva $reserva, string $accion = 'creada')
     {
         $adminUsers = User::where('role', 'admin')->get();
         $cliente = $reserva->user;
         $servicios = $reserva->servicios->pluck('nombre')->join(', ');
         
-        // Determinar título, mensaje y prioridad según la acción
         switch ($accion) {
             case 'creada':
                 $titulo = "Nueva reserva";
@@ -117,7 +108,6 @@ class NotificacionService
                 $prioridad = 'media';
         }
         
-        // Crear notificación para cada administrador
         foreach ($adminUsers as $admin) {
             Notificacion::create([
                 'user_id' => $admin->id,
@@ -143,15 +133,11 @@ class NotificacionService
         }
     }
     
-    /**
-     * Crear una notificación para una opinión
-     */
     public function crearNotificacionOpinion(Opinion $opinion, string $accion = 'creada')
     {
         $adminUsers = User::where('role', 'admin')->get();
         $cliente = $opinion->usuario;
-        
-        // Determinar título, mensaje y prioridad según la acción y calificación
+      
         switch ($accion) {
             case 'creada':
                 $titulo = "Nueva reseña";
@@ -170,7 +156,6 @@ class NotificacionService
                 $prioridad = 'media';
         }
         
-        // Crear notificación para cada administrador
         foreach ($adminUsers as $admin) {
             Notificacion::create([
                 'user_id' => $admin->id,
@@ -194,9 +179,6 @@ class NotificacionService
         }
     }
     
-    /**
-     * Obtener notificaciones para un usuario
-     */
     public function obtenerNotificaciones(User $user, $tipo = null, $soloNoLeidas = false)
     {
         $query = Notificacion::where('user_id', $user->id)
@@ -213,9 +195,6 @@ class NotificacionService
         return $query->get();
     }
     
-    /**
-     * Marcar todas las notificaciones como leídas
-     */
     public function marcarTodasComoLeidas(User $user, $tipo = null)
     {
         $query = Notificacion::where('user_id', $user->id)
@@ -228,9 +207,6 @@ class NotificacionService
         return $query->update(['leida' => true]);
     }
     
-    /**
-     * Marcar una notificación como leída
-     */
     public function marcarComoLeida($id)
     {
         $notificacion = Notificacion::find($id);
