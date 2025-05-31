@@ -33,7 +33,7 @@ import {
   ChevronRight
 } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
-import { router } from "@inertiajs/react"
+import { router, usePage } from "@inertiajs/react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Badge } from "@/Components/ui/badge"
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/Components/ui/table"
@@ -47,6 +47,8 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/Components/ui/dropdown-menu"
+import { toast } from "sonner"
+import { Toaster } from "@/Components/ui/toaster"
 
 interface Subcategoria {
   id: number
@@ -77,9 +79,6 @@ const Subcategorias = ({ subcategorias: initialSubcategorias, categorias }: Subc
   const [editandoId, setEditandoId] = useState<number | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [showSuccess, setShowSuccess] = useState(false)
-  const [successMessage, setSuccessMessage] = useState("")
-  const [subcategorias, setSubcategorias] = useState<Subcategoria[]>(initialSubcategorias)
   const [showForm, setShowForm] = useState(false)
   const [activeTab, setActiveTab] = useState("all")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
@@ -87,16 +86,12 @@ const Subcategorias = ({ subcategorias: initialSubcategorias, categorias }: Subc
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [subcategoriaToDelete, setSubcategoriaToDelete] = useState<number | null>(null)
   const itemsPerPage = 12
+  const { errors } = usePage().props as any
+  const [subcategorias, setSubcategorias] = useState<Subcategoria[]>(initialSubcategorias)
 
   useEffect(() => {
     setSubcategorias(initialSubcategorias)
   }, [initialSubcategorias])
-
-  const showSuccessNotification = (message: string) => {
-    setSuccessMessage(message)
-    setShowSuccess(true)
-    setTimeout(() => setShowSuccess(false), 3000)
-  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -124,7 +119,9 @@ const Subcategorias = ({ subcategorias: initialSubcategorias, categorias }: Subc
         {
           onSuccess: () => {
             resetForm()
-            showSuccessNotification("Subcategoría actualizada con éxito")
+            toast.success("Subcategoría actualizada", {
+              description: "La subcategoría ha sido actualizada correctamente"
+            })
             router.reload({ only: ["subcategorias"] })
           },
           onError: (errors) => {
@@ -144,7 +141,9 @@ const Subcategorias = ({ subcategorias: initialSubcategorias, categorias }: Subc
         {
           onSuccess: () => {
             resetForm()
-            showSuccessNotification("Subcategoría creada con éxito")
+            toast.success("Subcategoría creada", {
+              description: "La subcategoría ha sido creada correctamente"
+            })
             router.reload({ only: ["subcategorias"] })
           },
           onError: (errors) => {
@@ -185,14 +184,16 @@ const Subcategorias = ({ subcategorias: initialSubcategorias, categorias }: Subc
         onSuccess: () => {
           setDeleteDialogOpen(false)
           setSubcategoriaToDelete(null)
-          showSuccessNotification("Subcategoría eliminada con éxito")
+          toast.success("Subcategoría eliminada con éxito", {
+            description: "La subcategoría ha sido eliminada correctamente"
+          })
           router.reload({ only: ["subcategorias"] })
         },
       })
     }
   }
 
-  const filteredSubcategorias = subcategorias.filter((sub) => {
+  const filteredSubcategorias = subcategorias.filter((sub: Subcategoria) => {
     const matchesSearch = sub.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
       sub.categoria.nombre.toLowerCase().includes(searchTerm.toLowerCase())
     
@@ -215,29 +216,13 @@ const Subcategorias = ({ subcategorias: initialSubcategorias, categorias }: Subc
 
   const stats = {
     total: subcategorias.length,
-    active: subcategorias.filter(s => s.estado === "Activo").length,
-    inactive: subcategorias.filter(s => s.estado === "Inactivo").length,
+    active: subcategorias.filter((s: Subcategoria) => s.estado === "Activo").length,
+    inactive: subcategorias.filter((s: Subcategoria) => s.estado === "Inactivo").length,
   }
 
   return (
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-6 py-10">
-        <AnimatePresence>
-          {showSuccess && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: -20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: -20 }}
-              className="fixed top-6 right-6 z-50 bg-white shadow-xl rounded-2xl p-4 flex items-center gap-3 border border-emerald-200"
-            >
-              <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
-                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-              </div>
-              <p className="text-sm font-medium text-slate-800">{successMessage}</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         <div className="mb-10">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Gestión de Subcategorías</h1>
@@ -426,10 +411,16 @@ const Subcategorias = ({ subcategorias: initialSubcategorias, categorias }: Subc
                   </div>
                 </div>
 
-                {error && (
+                {error && !errors?.nombre && (
                   <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
                     <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
                     <span className="text-sm text-red-700 font-medium">{error}</span>
+                  </div>
+                )}
+                {errors?.nombre && (
+                  <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl mt-2">
+                    <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+                    <span className="text-sm text-red-700 font-medium">{errors.nombre}</span>
                   </div>
                 )}
 
@@ -474,7 +465,7 @@ const Subcategorias = ({ subcategorias: initialSubcategorias, categorias }: Subc
             {filteredSubcategorias.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-6">
-                  {paginatedSubcategorias.map((subcategoria) => (
+                  {paginatedSubcategorias.map((subcategoria: Subcategoria) => (
                     <div 
                       key={subcategoria.id} 
                       className="group bg-gray-50 rounded-xl p-5 hover:bg-white hover:shadow-md border border-gray-100 hover:border-gray-200 transition-all duration-200"
@@ -612,6 +603,7 @@ const Subcategorias = ({ subcategorias: initialSubcategorias, categorias }: Subc
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <Toaster />
     </div>
   )
 }

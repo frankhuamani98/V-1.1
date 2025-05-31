@@ -57,6 +57,8 @@ const EquipoLista = ({ equipo, isDashboard = false }: Props) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [miembroToDelete, setMiembroToDelete] = useState<number | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -83,6 +85,7 @@ const EquipoLista = ({ equipo, isDashboard = false }: Props) => {
       descripcion: miembro.descripcion,
       imagen: null,
     });
+    setPreviewImage(miembro.imagen || null);
     setIsEditing(true);
     setShowForm(true);
     document.getElementById('equipo-form')?.scrollIntoView({ behavior: 'smooth' });
@@ -112,12 +115,14 @@ const EquipoLista = ({ equipo, isDashboard = false }: Props) => {
       descripcion: "",
       imagen: null,
     });
+    setPreviewImage(null);
     setIsEditing(false);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setData("imagen", e.target.files[0]);
+      setPreviewImage(URL.createObjectURL(e.target.files[0]));
     }
   };
 
@@ -279,6 +284,15 @@ const EquipoLista = ({ equipo, isDashboard = false }: Props) => {
                       required={!isEditing}
                     />
                   </div>
+                  {previewImage && (
+                    <div className="mt-3">
+                      <img
+                        src={previewImage}
+                        alt="Previsualización"
+                        className="w-32 h-32 object-cover rounded-lg border border-slate-200 shadow-sm"
+                      />
+                    </div>
+                  )}
                   {errors.imagen && <p className="text-xs text-red-500 mt-1">{errors.imagen}</p>}
                 </div>
 

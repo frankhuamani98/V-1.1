@@ -27,6 +27,16 @@ class RegistroMotosController extends Controller
             'estado' => 'required|string|in:Activo,Inactivo',
         ]);
 
+        $exists = Moto::where('año', $request->año)
+            ->where('marca', $request->marca)
+            ->where('modelo', $request->modelo)
+            ->exists();
+        if ($exists) {
+            return redirect()->back()
+                ->withErrors(['modelo' => 'Ya existe una moto con ese año, marca y modelo.'])
+                ->withInput();
+        }
+
         Moto::create($request->all());
 
         return redirect()->route('motos.registro')->with('success', 'Moto registrada correctamente.');
@@ -40,6 +50,17 @@ class RegistroMotosController extends Controller
             'marca' => 'required|string|max:255',
             'estado' => 'required|string|in:Activo,Inactivo',
         ]);
+
+        $exists = Moto::where('año', $request->año)
+            ->where('marca', $request->marca)
+            ->where('modelo', $request->modelo)
+            ->where('id', '!=', $moto->id)
+            ->exists();
+        if ($exists) {
+            return redirect()->back()
+                ->withErrors(['modelo' => 'Ya existe otra moto con ese año, marca y modelo.'])
+                ->withInput();
+        }
 
         $moto->update($request->all());
 

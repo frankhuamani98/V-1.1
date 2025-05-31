@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('marca');
             $table->string('estado');
             $table->timestamps();
+            $table->unique(['año', 'marca', 'modelo']);
         });
     }
 

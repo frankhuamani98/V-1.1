@@ -28,6 +28,13 @@ class SubcategoriasController extends Controller
             'estado' => 'required|in:Activo,Inactivo,Pendiente',
         ]);
 
+        $exists = Subcategoria::where('nombre', $request->nombre)
+            ->where('categoria_id', $request->categoria_id)
+            ->exists();
+        if ($exists) {
+            return redirect()->back()->withErrors(['nombre' => 'Ya existe una subcategoría con ese nombre en la categoría seleccionada'])->withInput();
+        }
+
         Subcategoria::create($request->all());
 
         return redirect()->back()->with('success', 'Subcategoría creada exitosamente');
@@ -40,6 +47,14 @@ class SubcategoriasController extends Controller
             'categoria_id' => 'required|exists:categorias,id',
             'estado' => 'required|in:Activo,Inactivo,Pendiente',
         ]);
+
+        $exists = Subcategoria::where('nombre', $request->nombre)
+            ->where('categoria_id', $request->categoria_id)
+            ->where('id', '!=', $subcategoria->id)
+            ->exists();
+        if ($exists) {
+            return redirect()->back()->withErrors(['nombre' => 'Ya existe una subcategoría con ese nombre en la categoría seleccionada'])->withInput();
+        }
 
         $subcategoria->update($request->all());
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useForm } from '@inertiajs/react';
+import { toast } from 'sonner';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
@@ -49,7 +50,7 @@ interface RegistroMotosProps {
 }
 
 const RegistroMotos = ({ motos }: RegistroMotosProps) => {
-    const { data, setData, post, put, delete: destroy, processing, errors } = useForm({
+    const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors } = useForm({
         id: null as number | null,
         año: '',
         modelo: '',
@@ -79,6 +80,7 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
         if (isEditing) {
             put(`/motos/registro/${data.id}`, {
                 onSuccess: () => {
+                    toast.success('Motocicleta actualizada correctamente');
                     resetForm();
                     setShowForm(false);
                 },
@@ -86,6 +88,7 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
         } else {
             post('/motos/registro', {
                 onSuccess: () => {
+                    toast.success('Motocicleta registrada correctamente');
                     resetForm();
                     setShowForm(false);
                 },
@@ -101,6 +104,7 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
             marca: moto.marca,
             estado: moto.estado,
         });
+        clearErrors();
         setIsEditing(true);
         setShowForm(true);
         document.getElementById('registro-form')?.scrollIntoView({ behavior: 'smooth' });
@@ -115,6 +119,7 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
         if (motoToDelete) {
             destroy(`/motos/registro/${motoToDelete}`, {
                 onSuccess: () => {
+                    toast.success('Motocicleta eliminada correctamente');
                     resetForm();
                     setDeleteDialogOpen(false);
                     setMotoToDelete(null);
@@ -203,6 +208,7 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
                             <Button 
                                 onClick={() => {
                                     resetForm();
+                                    clearErrors();
                                     setShowForm(!showForm);
                                     setIsEditing(false);
                                 }}
@@ -397,6 +403,7 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
                                         type="button"
                                         onClick={() => {
                                             resetForm();
+                                            clearErrors();
                                             setShowForm(false);
                                         }}
                                         variant="outline"

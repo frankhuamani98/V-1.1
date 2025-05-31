@@ -68,6 +68,13 @@ const CategoriasPrincipales: React.FC<CategoriasPrincipalesProps> = ({ categoria
     setShowForm(false)
   }
 
+  const translateError = (errorMsg: string) => {
+    if (errorMsg === "The nombre has already been taken.") {
+      return "El nombre de la categoría ya existe.";
+    }
+    return errorMsg;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!nombre.trim()) {
@@ -90,7 +97,7 @@ const CategoriasPrincipales: React.FC<CategoriasPrincipalesProps> = ({ categoria
             router.reload({ only: ["categorias"] })
           },
           onError: (errors: any) => {
-            setError(errors.nombre || "Error al actualizar la categoría")
+            setError(translateError(errors.nombre || "Error al actualizar la categoría"))
             setIsSubmitting(false)
           },
         },
@@ -108,7 +115,7 @@ const CategoriasPrincipales: React.FC<CategoriasPrincipalesProps> = ({ categoria
             router.reload({ only: ["categorias"] })
           },
           onError: (errors: any) => {
-            setError(errors.nombre || "Error al guardar la categoría")
+            setError(translateError(errors.nombre || "Error al guardar la categoría"))
             setIsSubmitting(false)
           },
         },
