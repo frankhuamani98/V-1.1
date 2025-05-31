@@ -310,9 +310,8 @@ Route::middleware('auth')->group(function () {
         // Update (toggle status)
         Route::put('/{banner}/toggle-status', [HistorialBannersController::class, 'toggleStatus'])->name('banners.toggle-status');
         
-        // Delete/Restore
+        // Delete
         Route::delete('/{banner}', [HistorialBannersController::class, 'destroy'])->name('banners.destroy');
-        Route::post('/{id}/restore', [HistorialBannersController::class, 'restore'])->name('banners.restore');
     });
     
     // Facturación

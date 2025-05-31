@@ -50,19 +50,8 @@ class HistorialBannersController extends Controller
         if ($banner->tipo_imagen === 'local') {
             Storage::disk('public')->delete($banner->imagen_principal);
         }
-        
-        $banner->delete();
-
+        $banner->forceDelete();
         return redirect()->back()
-            ->with('success', 'Banner eliminado exitosamente');
-    }
-
-    public function restore($id)
-    {
-        $banner = Banner::withTrashed()->findOrFail($id);
-        $banner->restore();
-
-        return redirect()->back()
-            ->with('success', 'Banner restaurado exitosamente');
+            ->with('success', 'Banner eliminado permanentemente');
     }
 }
