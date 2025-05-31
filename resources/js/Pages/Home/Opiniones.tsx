@@ -76,7 +76,8 @@ export default function Opiniones({ opiniones, auth }: OpinionesProps) {
     postOpinion(route("opiniones.store"), {
       preserveScroll: true,
       onSuccess: () => {
-        resetOpinion()
+        resetOpinion("contenido")
+        setOpinionData("contenido", "")
       },
     })
   }
