@@ -1,27 +1,36 @@
-"use client"
-
 import type React from "react"
 import { useState, useEffect } from "react"
 import { Button } from "@/Components/ui/button"
 import { Input } from "@/Components/ui/input"
 import { Label } from "@/Components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/Components/ui/alert-dialog"
 import {
   PlusCircle,
   Edit,
   Trash,
-  Check,
   Search,
   Loader2,
   AlertCircle,
-  X,
-  Filter,
-  ChevronDown,
-  LayoutGrid,
-  List,
-  ArrowUpDown,
   CheckCircle2,
-  XCircle,
+  Filter,
+  MoreVertical,
+  Calendar,
+  Tag,
+  X,
   Eye,
+  Archive,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import { router } from "@inertiajs/react"
@@ -31,6 +40,13 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/Components/ui/tooltip"
 import { Tabs, TabsList, TabsTrigger } from "@/Components/ui/tabs"
 import { cn } from "@/lib/utils"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/Components/ui/dropdown-menu"
 
 interface Subcategoria {
   id: number
@@ -64,13 +80,13 @@ const Subcategorias = ({ subcategorias: initialSubcategorias, categorias }: Subc
   const [showSuccess, setShowSuccess] = useState(false)
   const [successMessage, setSuccessMessage] = useState("")
   const [subcategorias, setSubcategorias] = useState<Subcategoria[]>(initialSubcategorias)
-  const [statusFilter, setStatusFilter] = useState<string>("all")
-  const [categoryFilter, setCategoryFilter] = useState<string>("all")
-  const [activeTab, setActiveTab] = useState<string>("all")
   const [showForm, setShowForm] = useState(false)
-  const [viewMode, setViewMode] = useState<"list" | "grid">("list")
-  const [sortField, setSortField] = useState<"nombre" | "categoria">("nombre")
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
+  const [activeTab, setActiveTab] = useState("all")
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [currentPage, setCurrentPage] = useState(1)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [subcategoriaToDelete, setSubcategoriaToDelete] = useState<number | null>(null)
+  const itemsPerPage = 12
 
   useEffect(() => {
     setSubcategorias(initialSubcategorias)
@@ -147,6 +163,7 @@ const Subcategorias = ({ subcategorias: initialSubcategorias, categorias }: Subc
     setError("")
     setEditandoId(null)
     setIsSubmitting(false)
+    setShowForm(false)
   }
 
   const handleEditar = (subcategoria: Subcategoria) => {
@@ -155,15 +172,19 @@ const Subcategorias = ({ subcategorias: initialSubcategorias, categorias }: Subc
     setEstado(subcategoria.estado)
     setEditandoId(subcategoria.id)
     setShowForm(true)
-    setTimeout(() => {
-      document.getElementById("form-card")?.scrollIntoView({ behavior: "smooth" })
-    }, 100)
   }
 
   const handleEliminar = (id: number) => {
-    if (confirm("¿Está seguro que desea eliminar esta subcategoría?")) {
-      router.delete(`/categorias/subcategorias/${id}`, {
+    setSubcategoriaToDelete(id)
+    setDeleteDialogOpen(true)
+  }
+
+  const confirmDelete = () => {
+    if (subcategoriaToDelete) {
+      router.delete(`/categorias/subcategorias/${subcategoriaToDelete}`, {
         onSuccess: () => {
+          setDeleteDialogOpen(false)
+          setSubcategoriaToDelete(null)
           showSuccessNotification("Subcategoría eliminada con éxito")
           router.reload({ only: ["subcategorias"] })
         },
@@ -171,695 +192,427 @@ const Subcategorias = ({ subcategorias: initialSubcategorias, categorias }: Subc
     }
   }
 
-  const handleTabChange = (value: string) => {
-    setActiveTab(value)
-    if (value === "active") {
-      setStatusFilter("Activo")
-    } else if (value === "inactive") {
-      setStatusFilter("Inactivo")
-    } else {
-      setStatusFilter("all")
-    }
+  const filteredSubcategorias = subcategorias.filter((sub) => {
+    const matchesSearch = sub.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sub.categoria.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    if (activeTab === "all") return matchesSearch
+    if (activeTab === "active") return matchesSearch && sub.estado === "Activo"
+    if (activeTab === "inactive") return matchesSearch && sub.estado === "Inactivo"
+    
+    return matchesSearch
+  })
+
+  const totalPages = Math.ceil(filteredSubcategorias.length / itemsPerPage)
+  const paginatedSubcategorias = filteredSubcategorias.slice(
+    (currentPage - 1) * itemsPerPage,
+    (currentPage - 1) * itemsPerPage + itemsPerPage
+  )
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
   }
 
-  const toggleSort = (field: "nombre" | "categoria") => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-    } else {
-      setSortField(field)
-      setSortDirection("asc")
-    }
+  const stats = {
+    total: subcategorias.length,
+    active: subcategorias.filter(s => s.estado === "Activo").length,
+    inactive: subcategorias.filter(s => s.estado === "Inactivo").length,
   }
-
-  const sortedAndFilteredSubcategorias = subcategorias
-    .filter((sub) => {
-      const matchesSearch =
-        sub.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        sub.categoria.nombre.toLowerCase().includes(searchTerm.toLowerCase())
-
-      const matchesStatus = statusFilter === "all" || sub.estado === statusFilter
-      const matchesCategory = categoryFilter === "all" || sub.categoria_id.toString() === categoryFilter
-
-      return matchesSearch && matchesStatus && matchesCategory
-    })
-    .sort((a, b) => {
-      if (sortField === "nombre") {
-        return sortDirection === "asc" ? a.nombre.localeCompare(b.nombre) : b.nombre.localeCompare(a.nombre)
-      } else {
-        return sortDirection === "asc"
-          ? a.categoria.nombre.localeCompare(b.categoria.nombre)
-          : b.categoria.nombre.localeCompare(a.categoria.nombre)
-      }
-    })
-
-  const toggleForm = () => {
-    setShowForm(!showForm)
-    resetForm()
-    if (!showForm) {
-      setTimeout(() => {
-        document.getElementById("form-card")?.scrollIntoView({ behavior: "smooth" })
-      }, 100)
-    }
-  }
-
-  const toggleViewMode = () => {
-    setViewMode(viewMode === "list" ? "grid" : "list")
-  }
-
-  // Calcular estadísticas
-  const totalActivas = subcategorias.filter((s) => s.estado === "Activo").length
-  const totalInactivas = subcategorias.filter((s) => s.estado === "Inactivo").length
-  const porcentajeActivas = subcategorias.length > 0 ? Math.round((totalActivas / subcategorias.length) * 100) : 0
 
   return (
-    <TooltipProvider>
-      <div className="min-h-screen bg-gradient-to-b to-slate-100/80 w-full overflow-x-hidden">
-        {/* Notificación de éxito */}
+    <div className="min-h-screen">
+      <div className="max-w-7xl mx-auto px-6 py-10">
         <AnimatePresence>
           {showSuccess && (
             <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="fixed top-4 right-4 z-50 bg-emerald-500 text-white px-5 py-3 rounded-xl shadow-xl flex items-center space-x-3 border border-emerald-600/20"
+              initial={{ opacity: 0, scale: 0.9, y: -20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: -20 }}
+              className="fixed top-6 right-6 z-50 bg-white shadow-xl rounded-2xl p-4 flex items-center gap-3 border border-emerald-200"
             >
-              <div className="bg-white/20 p-1.5 rounded-lg">
-                <Check className="h-5 w-5" />
+              <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
               </div>
-              <div>
-                <p className="font-semibold text-sm">{successMessage}</p>
-              </div>
-              <button
-                onClick={() => setShowSuccess(false)}
-                className="p-1 hover:bg-white/20 rounded-full transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
+              <p className="text-sm font-medium text-slate-800">{successMessage}</p>
             </motion.div>
           )}
         </AnimatePresence>
 
-        <div className="max-w-[1400px] mx-auto sm:px-6 lg:px-8 py-4 sm:py-8 lg:py-10 space-y-4 sm:space-y-8">
-          {/* Header */}
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200/60">
-            <div className="bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 px-4 sm:px-6 py-6 sm:py-8 lg:py-10">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div className="text-white">
-                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">Gestión de Subcategorías</h1>
-                  <p className="mt-1 sm:mt-2 text-blue-100 max-w-2xl text-sm sm:text-base">
-                    Organiza y administra las subcategorías de tu plataforma de manera eficiente
-                  </p>
-                </div>
-                <div className="flex flex-col xs:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
-                  <Button
-                    onClick={toggleForm}
-                    className="w-full xs:w-auto bg-white text-blue-700 hover:bg-blue-50 shadow-lg transition-all text-[0.875rem] sm:text-[1rem] h-[2.25rem] sm:h-[2.5rem]"
-                  >
-                    {showForm ? (
-                      <>
-                        <X className="mr-2 h-[1rem] w-[1rem]" />
-                        <span>Ocultar Formulario</span>
-                      </>
-                    ) : (
-                      <>
-                        <PlusCircle className="mr-2 h-[1rem] w-[1rem]" />
-                        <span className="hidden sm:inline">Añadir Nueva Subcategoría</span>
-                        <span className="sm:hidden">Nueva</span>
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    onClick={toggleViewMode}
-                    variant="outline"
-                    className="w-full xs:w-auto bg-white/10 text-white border-white/20 hover:bg-white/20 transition-all text-xs sm:text-sm h-9 sm:h-10"
-                  >
-                    {viewMode === "list" ? (
-                      <>
-                        <LayoutGrid className="mr-2 h-4 w-4" />
-                        <span className="hidden sm:inline">Vista Cuadrícula</span>
-                        <span className="sm:hidden">Cuadrícula</span>
-                      </>
-                    ) : (
-                      <>
-                        <List className="mr-2 h-4 w-4" />
-                        <span className="hidden sm:inline">Vista Lista</span>
-                        <span className="sm:hidden">Lista</span>
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <div className="px-6 py-4 border-t border-slate-200/60 bg-white">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
-                <div className="col-span-1 md:col-span-2">
-                  <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-                    <div className="flex items-center gap-2">
-                      <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-emerald-100">
-                        <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-slate-500">Activas</p>
-                        <p className="text-base sm:text-lg font-semibold text-slate-900">{totalActivas}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-red-100">
-                        <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-slate-500">Inactivas</p>
-                        <p className="text-base sm:text-lg font-semibold text-slate-900">{totalInactivas}</p>
-                      </div>
-                    </div>
-
-                    <div className="hidden sm:flex items-center gap-2">
-                      <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-blue-100">
-                        <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-slate-500">Total</p>
-                        <p className="text-base sm:text-lg font-semibold text-slate-900">{subcategorias.length}</p>
-                      </div>
-                    </div>
-
-                    <div className="hidden md:block h-10 w-px bg-slate-200 mx-2"></div>
-
-                    <div className="hidden md:flex items-center gap-2">
-                      <div className="w-full max-w-[120px] h-3 bg-slate-200 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-emerald-500 rounded-full"
-                          style={{ width: `${porcentajeActivas}%` }}
-                        ></div>
-                      </div>
-                      <span className="text-sm font-medium text-slate-700">{porcentajeActivas}% activas</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="col-span-1 mt-3 sm:mt-4 md:mt-0">
-                  <div className="relative w-full">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                    <Input
-                      placeholder="Buscar subcategorías..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 h-10 rounded-lg border-slate-200 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 w-full"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+        <div className="mb-10">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Gestión de Subcategorías</h1>
+            <p className="text-gray-600">Administra y organiza las subcategorías del sistema</p>
           </div>
 
-          {/* Formulario */}
-          <AnimatePresence>
-            {showForm && (
-              <motion.div
-                id="form-card"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className="overflow-hidden"
-              >
-                <div className="bg-white rounded-2xl border border-slate-200/60 shadow-xl overflow-hidden">
-                  <div className="px-6 py-5 border-b border-slate-200/60 bg-gradient-to-r from-slate-50 to-white">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-lg font-semibold text-slate-900 flex items-center">
-                        {editandoId ? (
-                          <>
-                            <div className="bg-blue-100 p-2 rounded-lg mr-3">
-                              <Edit className="h-5 w-5 text-blue-600" />
-                            </div>
-                            <span>Editar Subcategoría</span>
-                          </>
-                        ) : (
-                          <>
-                            <div className="bg-blue-100 p-2 rounded-lg mr-3">
-                              <PlusCircle className="h-5 w-5 text-blue-600" />
-                            </div>
-                            <span>Crear Nueva Subcategoría</span>
-                          </>
-                        )}
-                      </h2>
-                      {editandoId && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={resetForm}
-                          className="text-slate-500 hover:text-slate-700 group"
-                        >
-                          <X className="mr-1 h-4 w-4 group-hover:rotate-90 transition-transform" />
-                          <span>Cancelar Edición</span>
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="p-4 sm:p-6">
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[1rem] sm:gap-[1.5rem]">
-                        {/* Campo Nombre */}
-                        <div className="space-y-[0.5rem]">
-                          <Label className="text-[0.875rem] font-medium text-slate-700 flex items-center">
-                            Nombre
-                            <span className="text-red-500 ml-[0.25rem]">*</span>
-                          </Label>
-                          <Input
-                            value={nombre}
-                            onChange={(e) => setNombre(e.target.value)}
-                            placeholder="Ejm: Frenos de Disco"
-                            className="h-[2.5rem] sm:h-[2.75rem] focus:ring-2 focus:ring-blue-500/50 border-slate-200 rounded-xl text-[0.875rem]"
-                          />
-                        </div>
-
-                        {/* Selector Categoría */}
-                        <div className="space-y-[0.5rem]">
-                          <Label className="text-[0.875rem] font-medium text-slate-700 flex items-center">
-                            Categoría
-                            <span className="text-red-500 ml-[0.25rem]">*</span>
-                          </Label>
-                          <Select value={categoriaId} onValueChange={setCategoriaId}>
-                            <SelectTrigger className="h-[2.5rem] sm:h-[2.75rem] focus:ring-2 focus:ring-blue-500/50 border-slate-200 rounded-xl text-[0.875rem]">
-                              <SelectValue placeholder="Seleccione una categoría" />
-                            </SelectTrigger>
-                            <SelectContent className="rounded-xl">
-                              {categorias.map((cat) => (
-                                <SelectItem
-                                  key={cat.id}
-                                  value={cat.id.toString()}
-                                  className="rounded-lg hover:bg-slate-50"
-                                >
-                                  <div className="flex items-center">{cat.nombre}</div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        {/* Selector Estado */}
-                        <div className="space-y-[0.5rem]">
-                          <Label className="text-[0.875rem] font-medium text-slate-700">Estado</Label>
-                          <Select value={estado} onValueChange={setEstado}>
-                            <SelectTrigger className="h-[2.5rem] sm:h-[2.75rem] focus:ring-2 focus:ring-blue-500/50 border-slate-200 rounded-xl text-[0.875rem]">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="rounded-xl">
-                              <SelectItem value="Activo" className="rounded-lg hover:bg-emerald-50 group">
-                                <div className="flex items-center">
-                                  <div className="w-2 h-2 rounded-full bg-emerald-500 mr-3 group-hover:bg-emerald-600" />
-                                  <span className="text-emerald-700">Activo</span>
-                                </div>
-                              </SelectItem>
-                              <SelectItem value="Inactivo" className="rounded-lg hover:bg-red-50 group">
-                                <div className="flex items-center">
-                                  <div className="w-2 h-2 rounded-full bg-red-500 mr-3 group-hover:bg-red-600" />
-                                  <span className="text-red-700">Inactivo</span>
-                                </div>
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-
-                      {/* Mensaje de Error */}
-                      {error && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          className="bg-red-50 border border-red-100 p-4 rounded-xl flex items-start"
-                        >
-                          <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 mr-3 flex-shrink-0" />
-                          <div>
-                            <p className="text-red-700 font-medium text-base">Error de validación</p>
-                            <p className="text-red-600 text-sm">{error}</p>
-                          </div>
-                        </motion.div>
-                      )}
-
-                      {/* Botón de Envío */}
-                      <div className="flex justify-end">
-                        <Button
-                          type="submit"
-                          disabled={isSubmitting}
-                          className="h-10 sm:h-11 px-4 sm:px-8 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-lg shadow-blue-500/20 transition-all text-sm"
-                        >
-                          {isSubmitting ? (
-                            <>
-                              <Loader2 className="animate-spin mr-2 h-4 w-4" />
-                              <span>Procesando...</span>
-                            </>
-                          ) : editandoId ? (
-                            <>
-                              <Check className="mr-2 h-4 w-4" />
-                              <span>Actualizar Subcategoría</span>
-                            </>
-                          ) : (
-                            <>
-                              <PlusCircle className="mr-2 h-4 w-4" />
-                              <span>Crear Subcategoría</span>
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </form>
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-500 mb-1">Total Subcategorías</p>
+                  <p className="text-lg font-bold text-gray-900">{stats.total}</p>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Filtros y Tabs */}
-          <div className="bg-white rounded-2xl border border-slate-200/60 shadow-xl overflow-hidden p-3 sm:p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
-              <Tabs defaultValue="all" value={activeTab} onValueChange={handleTabChange} className="w-full sm:w-auto">
-                <TabsList className="bg-slate-100 p-1 rounded-lg w-full sm:w-auto">
-                  <TabsTrigger
-                    value="all"
-                    className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm"
-                  >
-                    Todas
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="active"
-                    className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm"
-                  >
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500 mr-2" />
-                      Activas
-                    </div>
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="inactive"
-                    className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm"
-                  >
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 rounded-full bg-red-500 mr-2" />
-                      Inactivas
-                    </div>
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
-
-              <div className="flex flex-col xs:flex-row gap-2 sm:gap-3 w-full sm:w-auto mt-3 sm:mt-0">
-                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                  <SelectTrigger className="h-9 sm:h-10 w-full xs:min-w-[150px] sm:min-w-[200px] rounded-lg border-slate-200 focus:ring-2 focus:ring-blue-500/50 text-xs sm:text-sm">
-                    <div className="flex items-center">
-                      <Filter className="h-4 w-4 mr-2 text-slate-500" />
-                      <span className="truncate">
-                        {categoryFilter === "all"
-                          ? "Todas las categorías"
-                          : categorias.find((c) => c.id.toString() === categoryFilter)?.nombre}
-                      </span>
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent className="rounded-xl">
-                    <SelectItem value="all" className="rounded-lg">
-                      Todas las categorías
-                    </SelectItem>
-                    {categorias.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id.toString()} className="rounded-lg hover:bg-slate-50">
-                        <div className="flex items-center">{cat.nombre}</div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-9 sm:h-10 border-slate-200 text-slate-700 hover:bg-slate-50 text-xs sm:text-sm"
-                  onClick={() => toggleSort("nombre")}
-                >
-                  <ArrowUpDown className="h-4 w-4 mr-2" />
-                  <span>Ordenar por {sortField === "nombre" ? (sortDirection === "asc" ? "↑" : "↓") : ""}</span>
-                </Button>
+                <div className="h-12 w-12 bg-blue-50 rounded-xl flex items-center justify-center">
+                  <Tag className="h-6 w-6 text-blue-600" />
+                </div>
               </div>
             </div>
-
-            {/* Resultados */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-slate-900">Subcategorías</h3>
-                <p className="text-sm text-slate-500">
-                  {sortedAndFilteredSubcategorias.length}{" "}
-                  {sortedAndFilteredSubcategorias.length === 1 ? "resultado" : "resultados"}
-                </p>
+            
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-500 mb-1">Activas</p>
+                  <p className="text-lg font-bold text-emerald-600">{stats.active}</p>
+                </div>
+                <div className="h-12 w-12 bg-emerald-50 rounded-xl flex items-center justify-center">
+                  <div className="h-6 w-6 bg-emerald-500 rounded-full"></div>
+                </div>
               </div>
-
-              {/* Vista de Lista */}
-              {viewMode === "list" && (
-                <div className="overflow-x-auto rounded-xl border border-slate-200 -mx-3 sm:mx-0">
-                  <Table className="w-full">
-                    <TableHeader className="bg-slate-50">
-                      <TableRow className="hover:bg-transparent">
-                        <TableHead className="px-[0.75rem] sm:px-[1.5rem] py-[0.75rem] sm:py-[1rem] text-slate-600 font-medium text-xs sm:text-sm border-b border-slate-200 cursor-pointer">
-                          <div className="flex items-center">
-                            Nombre
-                            {sortField === "nombre" && (
-                              <ChevronDown
-                                className={`ml-1 h-4 w-4 transition-transform ${sortDirection === "desc" ? "rotate-180" : ""}`}
-                              />
-                            )}
-                          </div>
-                        </TableHead>
-                        <TableHead className="px-[0.75rem] sm:px-[1.5rem] py-[0.75rem] sm:py-[1rem] text-slate-600 font-medium text-xs sm:text-sm border-b border-slate-200 cursor-pointer">
-                          <div className="flex items-center">
-                            Categoría
-                            {sortField === "categoria" && (
-                              <ChevronDown
-                                className={`ml-1 h-4 w-4 transition-transform ${sortDirection === "desc" ? "rotate-180" : ""}`}
-                              />
-                            )}
-                          </div>
-                        </TableHead>
-                        <TableHead className="px-[0.75rem] sm:px-[1.5rem] py-[0.75rem] sm:py-[1rem] text-slate-600 font-medium text-xs sm:text-sm border-b border-slate-200">
-                          Estado
-                        </TableHead>
-                        <TableHead className="px-[0.75rem] sm:px-[1.5rem] py-[0.75rem] sm:py-[1rem] text-slate-600 font-medium text-xs sm:text-sm border-b border-slate-200 text-right">
-                          Acciones
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-
-                    <TableBody>
-                      <AnimatePresence>
-                        {sortedAndFilteredSubcategorias.length > 0 ? (
-                          sortedAndFilteredSubcategorias.map((subcategoria) => (
-                            <motion.tr
-                              key={subcategoria.id}
-                              initial={{ opacity: 0, y: -10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -10 }}
-                              className="border-b border-slate-200 hover:bg-blue-50/10 transition-colors group"
-                            >
-                              <TableCell className="px-[0.75rem] sm:px-[1.5rem] py-[0.75rem] sm:py-[1rem] font-medium text-slate-900 text-[0.875rem] sm:text-[1rem]">
-                                {subcategoria.nombre}
-                              </TableCell>
-                              <TableCell className="px-[0.75rem] sm:px-[1.5rem] py-[0.75rem] sm:py-[1rem] text-slate-600 text-[0.875rem] sm:text-[1rem]">
-                                <Badge
-                                  variant="outline"
-                                  className="bg-slate-50 text-slate-700 border-slate-200 font-normal py-[0.25rem] px-[0.5rem] text-[0.75rem]"
-                                >
-                                  {subcategoria.categoria.nombre}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="px-[0.75rem] sm:px-[1.5rem] py-[0.75rem] sm:py-[1rem] text-[0.875rem] sm:text-[1rem]">
-                                <Badge
-                                  variant={subcategoria.estado === "Activo" ? "default" : "destructive"}
-                                  className={`rounded-full py-1 px-3 text-xs font-medium shadow-sm ${
-                                    subcategoria.estado === "Activo"
-                                      ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                                      : "bg-red-100 text-red-800 border border-red-200"
-                                  }`}
-                                >
-                                  {subcategoria.estado === "Activo" ? (
-                                    <span className="flex items-center">
-                                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5" />
-                                      {subcategoria.estado}
-                                    </span>
-                                  ) : (
-                                    <span className="flex items-center">
-                                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5" />
-                                      {subcategoria.estado}
-                                    </span>
-                                  )}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="px-[0.75rem] sm:px-[1.5rem] py-[0.75rem] sm:py-[1rem] text-right text-[0.875rem] sm:text-[1rem]">
-                                <div
-                                  className={cn(
-                                    "flex justify-end gap-2 transition-opacity",
-                                    "sm:opacity-0 sm:group-hover:opacity-100",
-                                    "opacity-100", // Siempre visible en móviles
-                                  )}
-                                >
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => handleEditar(subcategoria)}
-                                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 rounded-lg h-9 w-9 p-0"
-                                      >
-                                        <Edit className="h-4 w-4" />
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent className="bg-white border shadow-lg rounded-xl">
-                                      <p className="text-sm">Editar subcategoría</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => handleEliminar(subcategoria.id)}
-                                        className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 rounded-lg h-9 w-9 p-0"
-                                      >
-                                        <Trash className="h-4 w-4" />
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent className="bg-white border shadow-lg rounded-xl">
-                                      <p className="text-sm">Eliminar subcategoría</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </div>
-                              </TableCell>
-                            </motion.tr>
-                          ))
-                        ) : (
-                          <motion.tr
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="border-b border-slate-200"
-                          >
-                            <TableCell colSpan={4} className="px-6 py-10 text-center">
-                              <div className="text-slate-400 flex flex-col items-center justify-center">
-                                <div className="bg-slate-100 p-4 rounded-full mb-4">
-                                  <Search className="h-10 w-10 text-slate-300" />
-                                </div>
-                                <p className="text-lg font-medium">No se encontraron resultados</p>
-                                <p className="text-sm mt-1">Intenta ajustar los filtros de búsqueda</p>
-                              </div>
-                            </TableCell>
-                          </motion.tr>
-                        )}
-                      </AnimatePresence>
-                    </TableBody>
-                  </Table>
+            </div>
+            
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-500 mb-1">Inactivas</p>
+                  <p className="text-lg font-bold text-red-600">{stats.inactive}</p>
                 </div>
-              )}
-
-              {/* Vista de Cuadrícula */}
-              {viewMode === "grid" && (
-                <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-[0.75rem] sm:gap-[1rem]">
-                  <AnimatePresence>
-                    {sortedAndFilteredSubcategorias.length > 0 ? (
-                      sortedAndFilteredSubcategorias.map((subcategoria) => (
-                        <motion.div
-                          key={subcategoria.id}
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          className="bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-all overflow-hidden group"
-                        >
-                          <div
-                            className={`h-[0.5rem] w-full ${subcategoria.estado === "Activo" ? "bg-emerald-500" : "bg-red-500"}`}
-                          ></div>
-                          <div className="p-[1rem]">
-                            <div className="flex justify-between items-start mb-[0.75rem]">
-                              <h4 className="font-medium text-slate-900 truncate text-[0.875rem] sm:text-[1rem]">
-                                {subcategoria.nombre}
-                              </h4>
-                              <Badge
-                                variant={subcategoria.estado === "Activo" ? "default" : "destructive"}
-                                className={`rounded-full py-[0.125rem] px-[0.5rem] text-[0.75rem] font-medium ${
-                                  subcategoria.estado === "Activo"
-                                    ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                                    : "bg-red-100 text-red-800 border border-red-200"
-                                }`}
-                              >
-                                {subcategoria.estado}
-                              </Badge>
-                            </div>
-
-                            <div className="mb-4">
-                              <Badge
-                                variant="outline"
-                                className="bg-slate-50 text-slate-700 border-slate-200 font-normal py-[0.25rem] px-[0.5rem] text-[0.75rem]"
-                              >
-                                {subcategoria.categoria.nombre}
-                              </Badge>
-                            </div>
-
-                            <div
-                              className={cn(
-                                "flex justify-end gap-2 mt-4 transition-opacity",
-                                "sm:opacity-0 sm:group-hover:opacity-100",
-                                "opacity-100", // Siempre visible en móviles
-                              )}
-                            >
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handleEditar(subcategoria)}
-                                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 rounded-lg h-8 w-8 p-0"
-                                  >
-                                    <Edit className="h-3.5 w-3.5" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent className="bg-white border shadow-lg rounded-xl">
-                                  <p className="text-sm">Editar subcategoría</p>
-                                </TooltipContent>
-                              </Tooltip>
-
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handleEliminar(subcategoria.id)}
-                                    className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 rounded-lg h-8 w-8 p-0"
-                                  >
-                                    <Trash className="h-3.5 w-3.5" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent className="bg-white border shadow-lg rounded-xl">
-                                  <p className="text-sm">Eliminar subcategoría</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </div>
-                          </div>
-                        </motion.div>
-                      ))
-                    ) : (
-                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="col-span-full">
-                        <div className="bg-white border border-slate-200 rounded-xl p-10 text-center">
-                          <div className="text-slate-400 flex flex-col items-center justify-center">
-                            <div className="bg-slate-100 p-3 sm:p-4 rounded-full mb-3 sm:mb-4">
-                              <Search className="h-8 w-8 sm:h-10 sm:w-10 text-slate-300" />
-                            </div>
-                            <p className="text-base sm:text-lg font-medium">No se encontraron resultados</p>
-                            <p className="text-xs sm:text-sm mt-1">Intenta ajustar los filtros de búsqueda</p>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                <div className="h-12 w-12 bg-red-50 rounded-xl flex items-center justify-center">
+                  <div className="h-6 w-6 bg-red-500 rounded-full"></div>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </div>
+
+        <div className="mb-8">
+          <div className="flex flex-col lg:flex-row items-center gap-4 lg:gap-3 mb-6">
+            <div className="w-full lg:w-auto lg:min-w-[180px] order-last lg:order-first">
+              <Button
+                onClick={() => {
+                  if (showForm) {
+                    resetForm()
+                  } else {
+                    setShowForm(true)
+                  }
+                }}
+                className={`
+                  w-full h-12 px-6 rounded-xl font-medium transition-all duration-200
+                  ${showForm 
+                    ? "bg-gray-900 hover:bg-gray-800 text-white shadow-lg shadow-gray-900/25"
+                    : "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/25"
+                  }
+                `}
+              >
+                {showForm ? (
+                  <>
+                    <X className="h-5 w-5 mr-2" />
+                    Cancelar
+                  </>
+                ) : (
+                  <>
+                    <PlusCircle className="h-5 w-5 mr-2" />
+                    Nueva Subcategoría
+                  </>
+                )}
+              </Button>
+            </div>
+
+            <div className="flex flex-col sm:flex-row w-full lg:flex-1 gap-3 order-first lg:order-last">
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Input
+                  placeholder="Buscar subcategorías..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-12 h-12 rounded-xl border-gray-200 bg-white shadow-sm focus:shadow-md focus:border-blue-300 transition-all duration-200"
+                />
+              </div>
+              
+              <div className="w-full sm:w-[220px]">
+                <Select value={activeTab} onValueChange={setActiveTab}>
+                  <SelectTrigger className="w-full h-12 rounded-xl border-gray-200 bg-white shadow-sm focus:shadow-md focus:border-blue-300 transition-all duration-200">
+                    <div className="flex items-center gap-3">
+                      <Filter className="h-5 w-5 text-gray-400" />
+                      <SelectValue placeholder="Filtrar por estado" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-gray-200 shadow-xl">
+                    <SelectItem value="all" className="rounded-lg">
+                      <span className="font-medium">Todos los estados</span>
+                    </SelectItem>
+                    <SelectItem value="active" className="rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="h-2 w-2 rounded-full bg-emerald-500" />
+                        <span>Activos</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="inactive" className="rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="h-2 w-2 rounded-full bg-red-500" />
+                        <span>Inactivos</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          {showForm && (
+            <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-200 mb-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {editandoId ? 'Editar Subcategoría' : 'Nueva Subcategoría'}
+                </h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  {editandoId ? 'Modifica los datos de la subcategoría' : 'Completa la información para crear una nueva subcategoría'}
+                </p>
+              </div>
+              
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="md:col-span-2">
+                    <Label htmlFor="nombre" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Nombre de la subcategoría
+                    </Label>
+                    <Input
+                      id="nombre"
+                      value={nombre}
+                      onChange={(e) => setNombre(e.target.value)}
+                      placeholder="Ingresa el nombre"
+                      className="h-12 rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:border-blue-300 transition-all duration-200 w-full"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="categoria" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Categoría
+                    </Label>
+                    <Select value={categoriaId} onValueChange={setCategoriaId}>
+                      <SelectTrigger className="h-12 rounded-xl border-gray-200 bg-gray-50 focus:bg-white w-full">
+                        <SelectValue placeholder="Seleccionar categoría" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl">
+                        {categorias.map((cat) => (
+                          <SelectItem key={cat.id} value={cat.id.toString()} className="rounded-lg">
+                            {cat.nombre}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="estado" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Estado
+                    </Label>
+                    <Select value={estado} onValueChange={setEstado}>
+                      <SelectTrigger className="h-12 rounded-xl border-gray-200 bg-gray-50 focus:bg-white w-full">
+                        <div className="flex items-center gap-3">
+                          <div className={`h-3 w-3 rounded-full ${
+                            estado === "Activo" ? "bg-emerald-500" : "bg-red-500"
+                          }`} />
+                          <SelectValue />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl">
+                        <SelectItem value="Activo" className="rounded-lg">
+                          <span>Activo</span>
+                        </SelectItem>
+                        <SelectItem value="Inactivo" className="rounded-lg">
+                          <span>Inactivo</span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {error && (
+                  <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+                    <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+                    <span className="text-sm text-red-700 font-medium">{error}</span>
+                  </div>
+                )}
+
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-lg shadow-blue-600/25 transition-all duration-200 disabled:opacity-50 order-last sm:order-first"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                        Guardando...
+                      </>
+                    ) : editandoId ? (
+                      <>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Actualizar Subcategoría
+                      </>
+                    ) : (
+                      <>
+                        <PlusCircle className="h-4 w-4 mr-2" />
+                        Crear Subcategoría
+                      </>
+                    )}
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={resetForm}
+                    className="w-full sm:w-auto px-6 py-3 rounded-xl font-medium border-gray-200 hover:bg-gray-50 transition-all duration-200 order-first sm:order-last"
+                  >
+                    Cancelar
+                  </Button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            {filteredSubcategorias.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-6">
+                  {paginatedSubcategorias.map((subcategoria) => (
+                    <div 
+                      key={subcategoria.id} 
+                      className="group bg-gray-50 rounded-xl p-5 hover:bg-white hover:shadow-md border border-gray-100 hover:border-gray-200 transition-all duration-200"
+                    >
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <div className="h-10 w-10 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <Tag className="h-5 w-5 text-blue-600" />
+                          </div>
+                          <div className="min-w-0">
+                            <h3 className="font-semibold text-gray-900 truncate">
+                              {subcategoria.nombre}
+                            </h3>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                              Categoría: {subcategoria.categoria.nombre}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                              {new Date(subcategoria.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <span className={`
+                          px-3 py-1.5 text-xs font-semibold rounded-full flex-shrink-0 ml-3
+                          ${subcategoria.estado === "Activo"
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-red-100 text-red-700"
+                          }
+                        `}>
+                          {subcategoria.estado}
+                        </span>
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditar(subcategoria)}
+                          className="flex-1 h-10 rounded-lg border-gray-200 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200"
+                        >
+                          <Edit className="h-4 w-4 mr-2" />
+                          Editar
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEliminar(subcategoria.id)}
+                          className="flex-1 h-10 rounded-lg border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 hover:text-red-700 transition-all duration-200"
+                        >
+                          <Trash className="h-4 w-4 mr-2" />
+                          Eliminar
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {totalPages > 1 && (
+                  <div className="border-t border-gray-100 px-6 py-4">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-gray-500">
+                        Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, filteredSubcategorias.length)} de {filteredSubcategorias.length} subcategorías
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handlePageChange(currentPage - 1)}
+                          disabled={currentPage === 1}
+                          className="h-9 w-9 p-0 rounded-lg border-gray-200"
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <span className="px-4 py-2 text-sm font-medium text-gray-700">
+                          {currentPage} de {totalPages}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handlePageChange(currentPage + 1)}
+                          disabled={currentPage === totalPages}
+                          className="h-9 w-9 p-0 rounded-lg border-gray-200"
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-center py-12">
+                <Tag className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No hay subcategorías</h3>
+                <p className="text-gray-500 mb-6">
+                  {searchTerm || activeTab !== "all" 
+                    ? "No se encontraron subcategorías con los filtros aplicados"
+                    : "Comienza creando tu primera subcategoría"
+                  }
+                </p>
+                {!showForm && (!searchTerm && activeTab === "all") && (
+                  <Button
+                    onClick={() => setShowForm(true)}
+                    className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium"
+                  >
+                    <PlusCircle className="h-4 w-4 mr-2" />
+                    Crear Primera Subcategoría
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-    </TooltipProvider>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent className="rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl font-semibold">¿Eliminar subcategoría?</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-600 mt-2">
+              Esta acción no se puede deshacer. Se eliminará permanentemente la subcategoría
+              y todos sus datos asociados.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-3 mt-6">
+            <AlertDialogCancel className="rounded-xl px-6 py-2.5">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-600 text-white hover:bg-red-700 rounded-xl px-6 py-2.5"
+            >
+              <Trash className="h-4 w-4 mr-2" />
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   )
 }
 

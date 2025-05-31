@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, router } from "@inertiajs/react";
-import { Star, ThumbsUp, Trash, Reply, ChevronDown, ChevronUp, Filter, Search } from "lucide-react";
+import { Star, ThumbsUp, Trash, Reply, ChevronDown, ChevronUp, Filter, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/Components/ui/dialog";
 import { format } from "date-fns";
@@ -44,6 +44,25 @@ const ListaOpinion = ({ opiniones, showActions = false, isDashboard = false }: P
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRating, setFilterRating] = useState<number | null>(null);
   const [opinionToDelete, setOpinionToDelete] = useState<{id: number, type: 'opinion' | 'respuesta'} | null>(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  
+  const itemsPerPage = 12;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.rating-filter-dropdown')) {
+        setIsFilterOpen(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const toggleResponses = (opinionId: number) => {
     setExpandedOpinions((prev) => ({
@@ -134,6 +153,34 @@ const ListaOpinion = ({ opiniones, showActions = false, isDashboard = false }: P
     
     return matchesSearch && matchesRating;
   });
+  
+  useEffect(() => {
+    setTotalPages(Math.max(1, Math.ceil(filteredOpiniones.length / itemsPerPage)));
+    setCurrentPage(1);
+  }, [filteredOpiniones.length]);
+  
+  const paginatedOpiniones = filteredOpiniones.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+  
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+  
+  const goToPrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+  
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
   const ratingCounts = opiniones.reduce((acc, opinion) => {
     acc[opinion.calificacion] = (acc[opinion.calificacion] || 0) + 1;
     return acc;
@@ -167,22 +214,80 @@ const ListaOpinion = ({ opiniones, showActions = false, isDashboard = false }: P
                         />
                       </div>
                       
-                      <div className="flex items-center space-x-1">
-                        {[5, 4, 3, 2, 1].map((rating) => (
-                          <button
-                            key={rating}
-                            onClick={() => setFilterRating(filterRating === rating ? null : rating)}
-                            className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
-                              filterRating === rating
-                                ? "bg-primary text-white"
-                                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                            }`}
-                          >
-                            {rating}
-                            <Star size={12} className={filterRating === rating ? "fill-white" : "fill-yellow-500"} />
-                            <span className="text-xs">({ratingCounts[rating] || 0})</span>
-                          </button>
-                        ))}
+                      <div className="rating-filter-dropdown relative inline-block">
+                        <button 
+                          onClick={() => setIsFilterOpen(!isFilterOpen)}
+                          className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${filterRating !== null ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'} shadow-sm`}
+                        >
+                          <Filter size={16} className={filterRating !== null ? 'text-indigo-500' : 'text-slate-500'} />
+                          <span>
+                            {filterRating !== null 
+                              ? `${filterRating} ${filterRating === 1 ? 'estrella' : 'estrellas'}` 
+                              : 'Filtrar por calificación'}
+                          </span>
+                          {filterRating !== null && (
+                            <div className="flex ml-1">
+                              {Array.from({ length: filterRating }).map((_, i) => (
+                                <Star key={i} size={14} className="fill-yellow-400 text-yellow-400" />
+                              ))}
+                            </div>
+                          )}
+                          <ChevronDown size={16} className={`text-slate-400 transition-transform duration-200 ${isFilterOpen ? 'rotate-180' : ''}`} />
+                        </button>
+                        
+                        {isFilterOpen && (
+                          <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-slate-200 p-3 z-10">
+                            <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-100">
+                              <h4 className="text-sm font-medium text-slate-700">Calificaciones</h4>
+                              {filterRating !== null && (
+                                <button 
+                                  onClick={() => {
+                                    setFilterRating(null);
+                                    setIsFilterOpen(false);
+                                  }}
+                                  className="text-xs font-medium text-indigo-600 hover:text-indigo-800"
+                                >
+                                  Limpiar filtro
+                                </button>
+                              )}
+                            </div>
+                            <div className="space-y-2">
+                              {[5, 4, 3, 2, 1].map((rating) => {
+                                const count = ratingCounts[rating] || 0;
+                                return (
+                                  <button
+                                    key={rating}
+                                    onClick={() => {
+                                      setFilterRating(filterRating === rating ? null : rating);
+                                      setIsFilterOpen(false);
+                                    }}
+                                    disabled={count === 0}
+                                    className={`w-full flex items-center justify-between p-2 rounded-md transition-all duration-200 ${count === 0 ? 'opacity-50 cursor-not-allowed' : ''} ${
+                                      filterRating === rating
+                                        ? "bg-indigo-50 text-indigo-700 border border-indigo-200"
+                                        : "hover:bg-slate-50 text-slate-700"
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <div className="flex">
+                                        {Array.from({ length: rating }).map((_, i) => (
+                                          <Star key={i} size={16} className="fill-yellow-400 text-yellow-400" />
+                                        ))}
+                                        {Array.from({ length: 5 - rating }).map((_, i) => (
+                                          <Star key={i} size={16} className="text-slate-200" />
+                                        ))}
+                                      </div>
+                                      <span className="text-sm font-medium">{rating} {rating === 1 ? 'estrella' : 'estrellas'}</span>
+                                    </div>
+                                    <span className="flex items-center justify-center min-w-[28px] h-6 bg-slate-100 text-slate-700 text-xs font-semibold rounded-full px-1.5">
+                                      {count}
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -246,8 +351,8 @@ const ListaOpinion = ({ opiniones, showActions = false, isDashboard = false }: P
               )}
             </div>
           ) : (
-            <div className="space-y-6 max-w-3xl mx-auto">
-              {filteredOpiniones.map((opinion) => (
+            <div className="space-y-6 max-w-7xl mx-auto">
+              {paginatedOpiniones.map((opinion) => (
                 <div 
                   key={opinion.id} 
                   className="border border-gray-200 rounded-xl p-5 bg-white shadow-sm hover:shadow-md transition-shadow duration-200"
@@ -416,6 +521,66 @@ const ListaOpinion = ({ opiniones, showActions = false, isDashboard = false }: P
                   )}
                 </div>
               ))}
+              
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-2 mt-8">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={goToPrevPage}
+                    disabled={currentPage === 1}
+                    className="h-9 w-9 p-0"
+                  >
+                    <ChevronLeft size={16} />
+                  </Button>
+                  
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: Math.min(5, totalPages) }).map((_, idx) => {
+                      let pageNumber: number;
+                      
+                      if (totalPages <= 5) {
+                        pageNumber = idx + 1;
+                      } else if (currentPage <= 3) {
+                        pageNumber = idx + 1;
+                        if (idx === 4) pageNumber = totalPages;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNumber = totalPages - 4 + idx;
+                      } else {
+                        pageNumber = currentPage - 2 + idx;
+                      }
+                      
+                      if ((idx === 3 && pageNumber !== 4 && totalPages > 5) || 
+                          (idx === 1 && pageNumber !== 2 && currentPage > 3)) {
+                        return (
+                          <span key={idx} className="px-2 text-gray-500">...</span>
+                        );
+                      }
+                      
+                      return (
+                        <Button
+                          key={idx}
+                          variant={currentPage === pageNumber ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => goToPage(pageNumber)}
+                          className={`h-9 w-9 p-0 ${currentPage === pageNumber ? "bg-primary text-white" : ""}`}
+                        >
+                          {pageNumber}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={goToNextPage}
+                    disabled={currentPage === totalPages}
+                    className="h-9 w-9 p-0"
+                  >
+                    <ChevronRight size={16} />
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </div>
