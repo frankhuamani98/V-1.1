@@ -129,6 +129,21 @@ class DashboardController extends Controller
             ];
         });
 
+        // Obtener las últimas 5 reservas registradas
+        $ultimasReservas = \App\Models\Reserva::with(['user', 'moto'])
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get()
+            ->map(function($reserva) {
+                return [
+                    'id' => $reserva->id,
+                    'customer' => $reserva->user ? $reserva->user->name : 'Sin usuario',
+                    'type' => $reserva->servicio_id, // Puedes ajustar para mostrar el nombre del servicio si tienes relación
+                    'vehicle' => $reserva->moto ? "{$reserva->moto->marca} {$reserva->moto->modelo}" : 'Sin moto',
+                    'time' => $reserva->created_at->diffForHumans(),
+                ];
+            });
+
         return Inertia::render('Dashboard', [
             'auth' => [
                 'user' => [
@@ -152,7 +167,8 @@ class DashboardController extends Controller
                 ['name' => 'Más Vendidos', 'value' => $totalMasVendidos],
             ],
             'stockPorCategoriaData' => $productosPorCategoriaData, // <--- NUEVO
-            'ultimasMotos' => $ultimasMotos, // <--- NUEVO
+            'ultimasMotos' => $ultimasMotos,
+            'upcomingAppointments' => $ultimasReservas, // Cambia aquí para pasar las últimas reservas
         ]);
     }
 } // End of DashboardController class

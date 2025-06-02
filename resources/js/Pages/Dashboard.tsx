@@ -38,6 +38,13 @@ interface DashboardProps {
         estado: string;
         date: string;
     }>;
+    upcomingAppointments: Array<{
+        id: number;
+        customer: string;
+        type: string;
+        vehicle: string;
+        time: string;
+    }>;
 }
 
 const Dashboard: React.FC<DashboardProps> = ({
@@ -55,6 +62,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     stockPorCategoriaData,
     usuariosNuevosMensuales,
     ultimasMotos,
+    upcomingAppointments,
 }) => {
     return (
         <DashboardLayout auth={auth}>
@@ -74,6 +82,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 stockPorCategoriaData={stockPorCategoriaData}
                 usuariosNuevosMensuales={usuariosNuevosMensuales}
                 ultimasMotos={ultimasMotos}
+                upcomingAppointments={upcomingAppointments}
             />
         </DashboardLayout>
     );

@@ -85,6 +85,13 @@ interface DashboardProps {
     estado: string;
     date: string;
   }>;
+  upcomingAppointments: Array<{
+    id: number;
+    customer: string;
+    type: string;
+    vehicle: string;
+    time: string;
+  }>;
 }
 
 
@@ -117,12 +124,7 @@ const recentLeads = [
   { id: 5, name: "Ducati Monster 2023", vehicle: "", status: "Negociación", date: "Ayer" },
 ];
 
-const upcomingAppointments = [
-  { id: 1, customer: "Pedro Sánchez", type: "Prueba de Manejo", vehicle: "Yamaha MT-07", time: "Hoy, 2:00 PM" },
-  { id: 2, customer: "Laura Gómez", type: "Servicio", vehicle: "Honda CBR650R", time: "Hoy, 4:30 PM" },
-  { id: 3, customer: "Javier Fernández", type: "Consulta", vehicle: "Suzuki V-Strom 650", time: "Mañana, 10:00 AM" },
-  { id: 4, customer: "Sofía Ramírez", type: "Entrega", vehicle: "Kawasaki Z650", time: "Mañana, 3:00 PM" },
-];
+// Elimina el array estático de upcomingAppointments
 
 const inventoryAlerts = [
   { id: 1, message: "Bajo stock: Frenos para Yamaha YZF-R3", priority: "alta" as const },
@@ -201,6 +203,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   stockPorCategoriaData,
   usuariosNuevosMensuales,
   ultimasMotos = [],
+  upcomingAppointments = [],
 }) => {
   // Calcular el total de productos para porcentajes en el gráfico de inventario
   const totalProductosInventario = stockPorCategoriaData.reduce((acc, curr) => acc + curr.value, 0);
@@ -440,8 +443,8 @@ const Dashboard: React.FC<DashboardProps> = ({
         {/* Upcoming Appointments */}
         <Card className="lg:col-span-1">
           <CardHeader className="pb-3">
-            <CardTitle>Próximas Citas</CardTitle>
-            <CardDescription>Programadas para hoy y mañana</CardDescription>
+            <CardTitle>Nuevas Reservas</CardTitle>
+            <CardDescription>Reservas registradas hoy y mañana</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -465,8 +468,13 @@ const Dashboard: React.FC<DashboardProps> = ({
                   </div>
                 </div>
               ))}
-              <Button variant="ghost" size="sm" className="w-full mt-2">
-                Ver calendario
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full mt-2"
+                onClick={() => window.location.href = '/dashboard/reservas'}
+              >
+                Ver reservas
                 <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
             </div>
