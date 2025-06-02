@@ -75,6 +75,10 @@ interface DashboardProps {
     name: string;
     value: number;
   }>;
+  usuariosNuevosMensuales: Array<{
+    name: string;
+    nuevos: number;
+  }>;
 }
 
 
@@ -189,6 +193,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   reservasMensuales,
   topProductosData,
   stockPorCategoriaData,
+  usuariosNuevosMensuales,
 }) => {
   // Calcular el total de productos para porcentajes en el gráfico de inventario
   const totalProductosInventario = stockPorCategoriaData.reduce((acc, curr) => acc + curr.value, 0);
@@ -266,8 +271,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                     <BarChart data={ventasMensuales} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
+                      <YAxis allowDecimals={false} />
+                      <Tooltip formatter={(value: any) => Number(value).toLocaleString('es-PE', { maximumFractionDigits: 0 })} />
                       <Legend />
                       <Bar dataKey="sales" fill="hsl(var(--chart-1))" name="Ventas" />
                     </BarChart>
@@ -318,8 +323,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                   <LineChart data={reservasMensuales} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip formatter={(value: any) => Number(value).toLocaleString('es-PE', { maximumFractionDigits: 0 })} />
                     <Legend />
                     <Line type="monotone" dataKey="reservas" stroke="hsl(var(--chart-1))" activeDot={{ r: 8 }} name="Reservas Completadas" />
                   </LineChart>
@@ -367,19 +372,18 @@ const Dashboard: React.FC<DashboardProps> = ({
           <Card>
             <CardHeader>
               <CardTitle>Adquisición de Clientes</CardTitle>
-              <CardDescription>Clientes nuevos vs recurrentes</CardDescription>
+              <CardDescription>Usuarios nuevos registrados por mes</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="h-[400px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={customerData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                  <BarChart data={usuariosNuevosMensuales} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip formatter={(value: any) => Number(value).toLocaleString('es-PE', { maximumFractionDigits: 0 })} />
                     <Legend />
-                    <Bar dataKey="new" fill="hsl(var(--chart-1))" name="Clientes Nuevos" />
-                    <Bar dataKey="returning" fill="hsl(var(--chart-3))" name="Clientes Recurrentes" />
+                    <Bar dataKey="nuevos" fill="hsl(var(--chart-1))" name="Usuarios Nuevos" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>

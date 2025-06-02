@@ -87,6 +87,7 @@ class DashboardController extends Controller
         // Obtener datos de ventas mensuales para el año actual
         $ventasMensuales = [];
         $reservasMensuales = [];
+        $usuariosNuevosMensuales = [];
         $mesesDelAnio = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
         foreach ($mesesDelAnio as $index => $mes) {
@@ -101,6 +102,8 @@ class DashboardController extends Controller
                 ->whereBetween('created_at', [$inicioMes, $finMes])
                 ->count();
 
+            $usuariosNuevos = User::whereBetween('created_at', [$inicioMes, $finMes])->count();
+
             $ventasMensuales[] = [
                 'name' => $mes,
                 'sales' => $pedidosCompletados
@@ -108,6 +111,10 @@ class DashboardController extends Controller
             $reservasMensuales[] = [
                 'name' => $mes,
                 'reservas' => $reservasCompletadas
+            ];
+            $usuariosNuevosMensuales[] = [
+                'name' => $mes,
+                'nuevos' => $usuariosNuevos,
             ];
         }
 
@@ -128,6 +135,7 @@ class DashboardController extends Controller
             'totalProductos' => $totalProductos,
             'ventasMensuales' => $ventasMensuales,
             'reservasMensuales' => $reservasMensuales,
+            'usuariosNuevosMensuales' => $usuariosNuevosMensuales,
             'topProductosData' => [
                 ['name' => 'Destacados', 'value' => $totalDestacados],
                 ['name' => 'Más Vendidos', 'value' => $totalMasVendidos],
