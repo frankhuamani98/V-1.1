@@ -9,6 +9,7 @@ use App\Models\Pedido;
 use App\Models\Reserva;
 use App\Models\User;
 use App\Models\Producto;
+use App\Models\Categoria; // Asegúrate de tener este modelo
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -44,7 +45,7 @@ class DashboardController extends Controller
             ? min(100, ($pedidosCompletadosMesActual / $metaPedidosMes) * 100)
             : 0;
 
-        // Reservas completadas este mes (SOLO MES ACTUAL)
+        // Reservas Completadas este mes (SOLO MES ACTUAL)
         $reservasCompletadasMesActual = Reserva::where('estado', 'completada')
             ->whereBetween('created_at', [$inicioMesActual, $finMesActual])
             ->count();
@@ -68,6 +69,20 @@ class DashboardController extends Controller
         // Top productos: destacados y más vendidos
         $totalDestacados = Producto::where('estado', 'Activo')->where('destacado', true)->count();
         $totalMasVendidos = Producto::where('estado', 'Activo')->where('mas_vendido', true)->count();
+
+        // Obtener cantidad de productos por categoría (NO stock)
+        $productosPorCategoria = Producto::where('estado', 'Activo')
+            ->selectRaw('categoria_id, COUNT(*) as cantidad_productos')
+            ->groupBy('categoria_id')
+            ->with('categoria:id,nombre')
+            ->get();
+
+        $productosPorCategoriaData = $productosPorCategoria->map(function($item) {
+            return [
+                'name' => $item->categoria ? $item->categoria->nombre : 'Sin categoría',
+                'value' => (int) $item->cantidad_productos,
+            ];
+        });
 
         // Obtener datos de ventas mensuales para el año actual
         $ventasMensuales = [];
@@ -117,6 +132,7 @@ class DashboardController extends Controller
                 ['name' => 'Destacados', 'value' => $totalDestacados],
                 ['name' => 'Más Vendidos', 'value' => $totalMasVendidos],
             ],
+            'stockPorCategoriaData' => $productosPorCategoriaData, // <--- NUEVO
         ]);
     }
 } // End of DashboardController class
