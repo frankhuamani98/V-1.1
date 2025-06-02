@@ -68,11 +68,11 @@ interface DashboardProps {
 
 
 const partTypeData = [
-  { name: 'Frenos', value: 35 },
-  { name: 'Motor', value: 30 },
-  { name: 'Suspensión', value: 15 },
-  { name: 'Escape', value: 12 },
-  { name: 'Electrónica', value: 8 },
+  { name: 'Aceites y Lubricantes', value: 40 },
+  { name: 'Neumáticos', value: 25 },
+  { name: 'Baterías', value: 15 },
+  { name: 'Cascos', value: 12 },
+  { name: 'Accesorios', value: 8 },
 ];
 
 const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
@@ -259,8 +259,8 @@ const Dashboard: React.FC<DashboardProps> = ({
             </Card>
             <Card className="lg:col-span-3">
               <CardHeader>
-                <CardTitle>Tipos de Partes</CardTitle>
-                <CardDescription>Distribución por categoría</CardDescription>
+                <CardTitle>Top Productos</CardTitle>
+                <CardDescription>Distribución de mis productos por categoría</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-[300px] w-full">
