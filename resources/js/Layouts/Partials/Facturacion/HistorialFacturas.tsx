@@ -168,11 +168,11 @@ const HistorialFacturas = () => {
                 )}
                 <button
                   onClick={handleRefresh}
-                  className={`flex items-center gap-2 px-0.5 py-2 bg-gradient-to-r from-blue-800 to-blue-900 text-white rounded-lg hover:from-blue-900 hover:to-blue-950 transition-all shadow-lg hover:shadow-xl ${
-                    isRefreshing ? 'animate-spin' : ''
-                  }`}
+                  className="flex items-center gap-2 px-0.5 py-2 bg-gradient-to-r from-blue-800 to-blue-900 text-white rounded-lg hover:from-blue-900 hover:to-blue-950 transition-all shadow-lg hover:shadow-xl"
                 >
-                  <RefreshCw size={18} />
+                  <span className={isRefreshing ? "animate-spin" : ""}>
+    <RefreshCw size={18} />
+  </span>
                   <span className="hidden sm:inline">Actualizar</span>
                 </button>
               </div>
