@@ -63,6 +63,10 @@ interface DashboardProps {
     name: string;
     sales: number;
   }>;
+  reservasMensuales: Array<{
+    name: string;
+    reservas: number;
+  }>;
   topProductosData: Array<{
     name: string;
     value: number;
@@ -178,6 +182,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   progresoNuevosUsuarios,
   totalProductos,
   ventasMensuales,
+  reservasMensuales,
   topProductosData,
 }) => {
   return (
@@ -236,7 +241,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="w-full sm:w-auto flex flex-wrap">
           <TabsTrigger value="overview" className="flex-1 sm:flex-none">Resumen</TabsTrigger>
-          <TabsTrigger value="sales" className="flex-1 sm:flex-none">Ventas</TabsTrigger>
+          <TabsTrigger value="sales" className="flex-1 sm:flex-none">Reservas</TabsTrigger>
           <TabsTrigger value="inventory" className="flex-1 sm:flex-none">Inventario</TabsTrigger>
           <TabsTrigger value="customers" className="flex-1 sm:flex-none">Clientes</TabsTrigger>
         </TabsList>
@@ -296,19 +301,19 @@ const Dashboard: React.FC<DashboardProps> = ({
         <TabsContent value="sales" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Desempeño de Ventas</CardTitle>
-              <CardDescription>Análisis detallado de ventas mensuales</CardDescription>
+              <CardTitle>Desempeño de Reservas</CardTitle>
+              <CardDescription>Análisis detallado de reservas mensuales</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="h-[400px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={ventasMensuales} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                  <LineChart data={reservasMensuales} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Line type="monotone" dataKey="sales" stroke="hsl(var(--chart-1))" activeDot={{ r: 8 }} />
+                    <Line type="monotone" dataKey="reservas" stroke="hsl(var(--chart-1))" activeDot={{ r: 8 }} name="Reservas Completadas" />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
