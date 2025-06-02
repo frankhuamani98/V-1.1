@@ -96,82 +96,30 @@ const Administradores = ({ admins: initialAdmins }: AdministradoresProps) => {
                                 </TableHeader>
                                 <TableBody>
                                     {admins.map((admin) => (
-                                        <React.Fragment key={admin.id}>
-                                            <TableRow className="hidden sm:table-row hover:bg-gray-50 transition-colors">
-                                                <TableCell className="px-4 py-4 font-medium">{admin.first_name}</TableCell>
-                                                <TableCell className="px-4 py-4">{admin.last_name}</TableCell>
-                                                <TableCell className="px-4 py-4 text-blue-600">{admin.email}</TableCell>
-                                                <TableCell className="px-4 py-4">{admin.phone}</TableCell>
-                                                <TableCell className="px-4 py-4">
-                                                    <Badge
-                                                        className={`text-xs font-medium px-2 py-1 rounded-full ${getStatusClass(admin.status)}`}
-                                                    >
-                                                        {admin.status === "active" ? "Activo" : admin.status === "inactive" ? "Inactivo" : admin.status}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell className="px-4 py-4">
-                                                    <Button
-                                                        variant="destructive"
-                                                        size="sm"
-                                                        onClick={() => handleRemoveAdmin(admin.id)}
-                                                        className="text-xs font-medium flex items-center gap-1.5 rounded-lg"
-                                                    >
-                                                        <UserX className="h-3.5 w-3.5" />
-                                                        Quitar Admin
-                                                    </Button>
-                                                </TableCell>
-                                            </TableRow>
-
-                                            <div className="sm:hidden bg-white rounded-lg shadow-sm p-4 mb-3 border border-gray-100">
-                                                <div className="flex justify-between items-center">
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="font-medium text-gray-800 truncate">
-                                                            {admin.first_name} {admin.last_name}
-                                                        </p>
-                                                        <p className="text-sm text-blue-600 truncate mt-0.5">
-                                                            {admin.email}
-                                                        </p>
-                                                    </div>
-                                                    <div className="flex items-center gap-2 ml-2">
-                                                        <Badge
-                                                            className={`text-xs font-medium px-2 py-0.5 rounded-full ${getStatusClass(admin.status)}`}
-                                                        >
-                                                            {admin.status === "active" ? "Activo" : admin.status === "inactive" ? "Inactivo" : admin.status}
-                                                        </Badge>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-8 w-8 rounded-full hover:bg-gray-100"
-                                                            onClick={() => toggleRow(admin.id)}
-                                                            aria-label="Ver detalles"
-                                                        >
-                                                            {expandedRows.includes(admin.id) ? (
-                                                                <ChevronUp className="h-4 w-4 text-gray-500" />
-                                                            ) : (
-                                                                <ChevronDown className="h-4 w-4 text-gray-500" />
-                                                            )}
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                                {expandedRows.includes(admin.id) && (
-                                                    <div className="mt-3 space-y-3 pt-3 border-t border-gray-100">
-                                                        <div className="flex justify-between text-sm">
-                                                            <span className="text-gray-500">Teléfono:</span>
-                                                            <span className="font-medium text-gray-800">{admin.phone}</span>
-                                                        </div>
-                                                        <Button
-                                                            variant="destructive"
-                                                            size="sm"
-                                                            className="w-full mt-2 text-xs font-medium flex items-center justify-center gap-1.5 rounded-lg"
-                                                            onClick={() => handleRemoveAdmin(admin.id)}
-                                                        >
-                                                            <UserX className="h-3.5 w-3.5" />
-                                                            Quitar Rol de Administrador
-                                                        </Button>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </React.Fragment>
+                                        <TableRow key={admin.id} className="hidden sm:table-row hover:bg-gray-50 transition-colors">
+                                            <TableCell className="px-4 py-4 font-medium">{admin.first_name}</TableCell>
+                                            <TableCell className="px-4 py-4">{admin.last_name}</TableCell>
+                                            <TableCell className="px-4 py-4 text-blue-600">{admin.email}</TableCell>
+                                            <TableCell className="px-4 py-4">{admin.phone}</TableCell>
+                                            <TableCell className="px-4 py-4">
+                                                <Badge
+                                                    className={`text-xs font-medium px-2 py-1 rounded-full ${getStatusClass(admin.status)}`}
+                                                >
+                                                    {admin.status === "active" ? "Activo" : admin.status === "inactive" ? "Inactivo" : admin.status}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="px-4 py-4">
+                                                <Button
+                                                    variant="destructive"
+                                                    size="sm"
+                                                    onClick={() => handleRemoveAdmin(admin.id)}
+                                                    className="text-xs font-medium flex items-center gap-1.5 rounded-lg"
+                                                >
+                                                    <UserX className="h-3.5 w-3.5" />
+                                                    Quitar Admin
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
                                     ))}
                                 </TableBody>
                             </Table>
@@ -179,6 +127,61 @@ const Administradores = ({ admins: initialAdmins }: AdministradoresProps) => {
                     </div>
                 </CardContent>
             </Card>
+            {/* Tarjetas móviles SIEMPRE visibles en móvil */}
+            <div className="sm:hidden">
+                {admins.map((admin) => (
+                    <div key={admin.id} className="bg-white rounded-lg shadow-sm p-4 mb-3 border border-gray-100">
+                        <div className="flex justify-between items-center">
+                            <div className="flex-1 min-w-0">
+                                <p className="font-medium text-gray-800 truncate">
+                                    {admin.first_name} {admin.last_name}
+                                </p>
+                                <p className="text-sm text-blue-600 truncate mt-0.5">
+                                    {admin.email}
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-2 ml-2">
+                                <Badge
+                                    className={`text-xs font-medium px-2 py-0.5 rounded-full ${getStatusClass(admin.status)}`}
+                                >
+                                    {admin.status === "active" ? "Activo" : admin.status === "inactive" ? "Inactivo" : admin.status}
+                                </Badge>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 rounded-full hover:bg-gray-100"
+                                    onClick={() => toggleRow(admin.id)}
+                                    aria-label="Ver detalles"
+                                >
+                                    {expandedRows.includes(admin.id) ? (
+                                        <ChevronUp className="h-4 w-4 text-gray-500" />
+                                    ) : (
+                                        <ChevronDown className="h-4 w-4 text-gray-500" />
+                                    )}
+                                </Button>
+                            </div>
+                        </div>
+                        {/* Mostrar SIEMPRE los datos principales, y los detalles solo si está expandido */}
+                        {expandedRows.includes(admin.id) && (
+                            <div className="mt-3 space-y-3 pt-3 border-t border-gray-100">
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500">Teléfono:</span>
+                                    <span className="font-medium text-gray-800">{admin.phone}</span>
+                                </div>
+                                <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    className="w-full mt-2 text-xs font-medium flex items-center justify-center gap-1.5 rounded-lg"
+                                    onClick={() => handleRemoveAdmin(admin.id)}
+                                >
+                                    <UserX className="h-3.5 w-3.5" />
+                                    Quitar Rol de Administrador
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
             <Toaster position="top-right" closeButton />
         </div>
     );
