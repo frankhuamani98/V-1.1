@@ -14,7 +14,11 @@ interface DashboardProps {
     ventasMensuales: Array<{
         name: string;
         sales: number;
-        target: number;
+        target?: number;
+    }>;
+    reservasMensuales: Array<{
+        name: string;
+        reservas: number;
     }>;
     topProductosData: Array<{
         name: string;
@@ -32,6 +36,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     progresoNuevosUsuarios,
     totalProductos,
     ventasMensuales,
+    reservasMensuales,
     topProductosData,
 }) => {
     return (
@@ -47,6 +52,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 progresoNuevosUsuarios={progresoNuevosUsuarios}
                 totalProductos={totalProductos}
                 ventasMensuales={ventasMensuales}
+                reservasMensuales={reservasMensuales}
                 topProductosData={topProductosData}
             />
         </DashboardLayout>
