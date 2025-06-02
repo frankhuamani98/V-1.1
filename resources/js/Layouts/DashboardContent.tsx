@@ -25,13 +25,15 @@ import {
   Users,
   DollarSign,
   TrendingUp,
-  Calendar,
+  Calendar as CalendarIcon,
   Clock,
   AlertCircle,
   ArrowUpRight,
   ArrowDownRight,
   ChevronRight
 } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/Components/ui/popover';
+import { Calendar } from '@/Components/ui/calendar';
 
 // Definición de tipos
 interface KPICardProps {
@@ -215,16 +217,139 @@ const Dashboard: React.FC<DashboardProps> = ({
   // Calcular el total de productos para porcentajes en el gráfico de inventario
   const totalProductosInventario = stockPorCategoriaData.reduce((acc, curr) => acc + curr.value, 0);
 
+  // Estado para la fecha seleccionada en el calendario
+  const [selectedDate, setSelectedDate] = React.useState<Date | null>(new Date());
+  const [popoverOpen, setPopoverOpen] = React.useState(false);
+
+  // Formatear el mes y año para mostrar en el botón
+  const monthYear = selectedDate
+    ? selectedDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' })
+    : '';
+
+  // Exportar todo el dashboard como CSV
+  const exportarReporte = () => {
+    let csv = '';
+
+    // KPIs
+    csv += '=== KPIs ===\n';
+    csv += 'Total de Pedidos,Total de Reservas,Nuevos Usuarios,Total de Productos\n';
+    csv += `${totalPedidosCompletados},${totalReservasCompletadas},${totalNuevosUsuarios},${totalProductos}\n\n`;
+
+    // Ventas Mensuales
+    csv += '=== Ventas Mensuales ===\n';
+    csv += 'Mes,Ventas\n';
+    ventasMensuales.forEach(v => {
+      csv += `${v.name},${v.sales}\n`;
+    });
+    csv += '\n';
+
+    // Reservas Mensuales
+    csv += '=== Reservas Mensuales ===\n';
+    csv += 'Mes,Reservas\n';
+    reservasMensuales.forEach(r => {
+      csv += `${r.name},${r.reservas}\n`;
+    });
+    csv += '\n';
+
+    // Top Productos
+    csv += '=== Top Productos ===\n';
+    csv += 'Producto,Cantidad\n';
+    topProductosData.forEach(p => {
+      csv += `${p.name},${p.value}\n`;
+    });
+    csv += '\n';
+
+    // Inventario por Categoría
+    csv += '=== Inventario por Categoría ===\n';
+    csv += 'Categoría,Cantidad\n';
+    stockPorCategoriaData.forEach(s => {
+      csv += `${s.name},${s.value}\n`;
+    });
+    csv += '\n';
+
+    // Usuarios Nuevos Mensuales
+    csv += '=== Usuarios Nuevos Mensuales ===\n';
+    csv += 'Mes,Usuarios Nuevos\n';
+    usuariosNuevosMensuales.forEach(u => {
+      csv += `${u.name},${u.nuevos}\n`;
+    });
+    csv += '\n';
+
+    // Últimas Motos
+    csv += '=== Últimas Motos Registradas ===\n';
+    csv += 'ID,Nombre,Estado,Fecha\n';
+    ultimasMotos.forEach(m => {
+      csv += `${m.id},"${m.name}",${m.estado},${m.date}\n`;
+    });
+    csv += '\n';
+
+    // Próximas Reservas
+    csv += '=== Próximas Reservas ===\n';
+    csv += 'ID,Cliente,Tipo,Vehículo,Hora\n';
+    upcomingAppointments.forEach(a => {
+      csv += `${a.id},"${a.customer}",${a.type},${a.vehicle},${a.time}\n`;
+    });
+    csv += '\n';
+
+    // Opiniones
+    csv += '=== Opiniones Recientes ===\n';
+    csv += 'ID,Usuario,Calificación,Contenido,Fecha,Útil,Soporte\n';
+    opiniones.forEach(o => {
+      csv += `${o.id},"${o.user ? o.user.name : 'Anónimo'}",${o.calificacion},"${o.contenido.replace(/"/g, '""')}",${o.created_at},${o.util},${o.es_soporte ? 'Sí' : 'No'}\n`;
+    });
+
+    // Nombre de archivo con mes y año seleccionados
+    const nombreArchivo = `dashboard-${monthYear.replace(/\s/g, '-').toLowerCase()}.csv`;
+
+    // Crear y descargar archivo
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nombreArchivo;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-6 text-foreground">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Tablero</h1>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" className="w-full sm:w-auto">
-            <Calendar className="mr-2 h-4 w-4" />
-            Julio 2025
-          </Button>
-          <Button size="sm" className="w-full sm:w-auto">
+          {/* Botón con calendario */}
+          <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full sm:w-auto"
+                onClick={() => setPopoverOpen(true)}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {monthYear.charAt(0).toUpperCase() + monthYear.slice(1)}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-auto p-0">
+              <Calendar
+                mode="single"
+                selected={selectedDate ?? undefined}
+                onSelect={(date) => {
+                  setSelectedDate(date ?? null);
+                  setPopoverOpen(false);
+                }}
+                initialFocus
+                // Opcional: solo permite seleccionar mes/año, no días
+                // Puedes personalizar el componente Calendar si lo deseas
+              />
+            </PopoverContent>
+          </Popover>
+          <Button
+            size="sm"
+            className="w-full sm:w-auto"
+            onClick={exportarReporte}
+          >
             <TrendingUp className="mr-2 h-4 w-4" />
             Exportar Reporte
           </Button>
