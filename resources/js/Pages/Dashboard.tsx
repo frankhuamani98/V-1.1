@@ -16,6 +16,10 @@ interface DashboardProps {
         sales: number;
         target: number;
     }>;
+    topProductosData: Array<{
+        name: string;
+        value: number;
+    }>;
 }
 
 const Dashboard: React.FC<DashboardProps> = ({
@@ -28,6 +32,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     progresoNuevosUsuarios,
     totalProductos,
     ventasMensuales,
+    topProductosData,
 }) => {
     return (
         <DashboardLayout auth={auth}>
@@ -42,6 +47,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 progresoNuevosUsuarios={progresoNuevosUsuarios}
                 totalProductos={totalProductos}
                 ventasMensuales={ventasMensuales}
+                topProductosData={topProductosData}
             />
         </DashboardLayout>
     );

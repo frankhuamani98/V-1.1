@@ -65,6 +65,10 @@ class DashboardController extends Controller
         // Total de productos activos
         $totalProductos = Producto::where('estado', 'Activo')->count();
 
+        // Top productos: destacados y más vendidos
+        $totalDestacados = Producto::where('estado', 'Activo')->where('destacado', true)->count();
+        $totalMasVendidos = Producto::where('estado', 'Activo')->where('mas_vendido', true)->count();
+
         // Obtener datos de ventas mensuales para el año actual
         $ventasMensuales = [];
         $mesesDelAnio = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -99,6 +103,10 @@ class DashboardController extends Controller
             'progresoNuevosUsuarios' => round($progresoUsuariosMesActual, 1),
             'totalProductos' => $totalProductos,
             'ventasMensuales' => $ventasMensuales,
+            'topProductosData' => [
+                ['name' => 'Destacados', 'value' => $totalDestacados],
+                ['name' => 'Más Vendidos', 'value' => $totalMasVendidos],
+            ],
         ]);
     }
 } // End of DashboardController class

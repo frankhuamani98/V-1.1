@@ -63,6 +63,10 @@ interface DashboardProps {
     name: string;
     sales: number;
   }>;
+  topProductosData: Array<{
+    name: string;
+    value: number;
+  }>;
 }
 
 
@@ -174,6 +178,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   progresoNuevosUsuarios,
   totalProductos,
   ventasMensuales,
+  topProductosData,
 }) => {
   return (
     <div className="space-y-6 text-foreground">
@@ -267,7 +272,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
-                        data={partTypeData}
+                        data={topProductosData}
                         cx="50%"
                         cy="50%"
                         labelLine={false}
@@ -276,7 +281,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                         dataKey="value"
                         label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                       >
-                        {partTypeData.map((entry, index) => (
+                        {topProductosData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
