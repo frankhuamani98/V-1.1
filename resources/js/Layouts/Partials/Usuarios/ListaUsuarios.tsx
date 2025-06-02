@@ -204,142 +204,142 @@ const ListaUsuarios = ({ users: initialUsers }: ListaUsuariosProps) => {
                     </TableHeader>
                     <TableBody>
                       {usuariosFiltrados.map((usuario) => (
-                        <React.Fragment key={usuario.id}>
-                          <TableRow className="sm:table-row hidden hover:bg-gray-50 transition-colors">
-                            <TableCell className="font-medium">{usuario.first_name}</TableCell>
-                            <TableCell>{usuario.last_name}</TableCell>
-                            <TableCell className="text-gray-500">{usuario.dni}</TableCell>
-                            <TableCell className="text-gray-500">{usuario.phone}</TableCell>
-                            <TableCell>
-                              <Badge
-                                variant={getRoleBadgeVariant(usuario.role)}
-                                className={usuario.role === "admin" ? "bg-blue-500 hover:bg-blue-600" : ""}
+                        <TableRow key={usuario.id} className="sm:table-row hidden hover:bg-gray-50 transition-colors">
+                          <TableCell className="font-medium">{usuario.first_name}</TableCell>
+                          <TableCell>{usuario.last_name}</TableCell>
+                          <TableCell className="text-gray-500">{usuario.dni}</TableCell>
+                          <TableCell className="text-gray-500">{usuario.phone}</TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={getRoleBadgeVariant(usuario.role)}
+                              className={usuario.role === "admin" ? "bg-blue-500 hover:bg-blue-600" : ""}
+                            >
+                              {usuario.role}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={getStatusBadgeVariant(usuario.status)}
+                              className={`${
+                                usuario.status === "active" 
+                                  ? "bg-green-500 hover:bg-green-600" 
+                                  : usuario.status === "inactive" 
+                                  ? "bg-red-500 hover:bg-red-600" 
+                                  : "bg-amber-500 hover:bg-amber-600"
+                              }`}
+                            >
+                              {usuario.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex space-x-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => abrirModal(usuario, "ver")}
+                                aria-label="Ver detalles"
+                                className="h-8 rounded-md border-gray-200 hover:bg-gray-50 hover:text-primary"
                               >
-                                {usuario.role}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <Badge
-                                variant={getStatusBadgeVariant(usuario.status)}
-                                className={`${
-                                  usuario.status === "active" 
-                                    ? "bg-green-500 hover:bg-green-600" 
-                                    : usuario.status === "inactive" 
-                                    ? "bg-red-500 hover:bg-red-600" 
-                                    : "bg-amber-500 hover:bg-amber-600"
-                                }`}
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => abrirModal(usuario, "editar")}
+                                aria-label="Editar"
+                                className="h-8 rounded-md border-gray-200 hover:bg-gray-50 hover:text-primary"
                               >
-                                {usuario.status}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex space-x-2">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => abrirModal(usuario, "ver")}
-                                  aria-label="Ver detalles"
-                                  className="h-8 rounded-md border-gray-200 hover:bg-gray-50 hover:text-primary"
-                                >
-                                  <Eye className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => abrirModal(usuario, "editar")}
-                                  aria-label="Editar"
-                                  className="h-8 rounded-md border-gray-200 hover:bg-gray-50 hover:text-primary"
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-
-                          <div className="sm:hidden bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-4">
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <p className="font-semibold text-gray-800">{usuario.first_name} {usuario.last_name}</p>
-                                <p className="text-xs text-gray-500 mt-1">{usuario.email}</p>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Badge
-                                  variant={getStatusBadgeVariant(usuario.status)}
-                                  className={`${
-                                    usuario.status === "active" 
-                                      ? "bg-green-500" 
-                                      : usuario.status === "inactive" 
-                                      ? "bg-red-500" 
-                                      : "bg-amber-500"
-                                  }`}
-                                >
-                                  {usuario.status}
-                                </Badge>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => toggleRow(usuario.id)}
-                                  aria-label="Ver detalles"
-                                  className="h-8 w-8 p-0 rounded-full"
-                                >
-                                  {expandedRows.includes(usuario.id) ? (
-                                    <ChevronUp className="h-4 w-4" />
-                                  ) : (
-                                    <ChevronDown className="h-4 w-4" />
-                                  )}
-                                </Button>
-                              </div>
+                                <Edit className="h-4 w-4" />
+                              </Button>
                             </div>
-                            
-                            {expandedRows.includes(usuario.id) && (
-                              <div className="mt-4 space-y-3 pt-3 border-t border-gray-100">
-                                <div className="grid grid-cols-2 gap-2 text-sm">
-                                  <div>
-                                    <p className="text-gray-500 text-xs">DNI</p>
-                                    <p className="font-medium">{usuario.dni}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-gray-500 text-xs">Teléfono</p>
-                                    <p className="font-medium">{usuario.phone}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-gray-500 text-xs">Rol</p>
-                                    <Badge
-                                      variant={getRoleBadgeVariant(usuario.role)}
-                                      className={usuario.role === "admin" ? "bg-blue-500" : ""}
-                                    >
-                                      {usuario.role}
-                                    </Badge>
-                                  </div>
-                                </div>
-                                
-                                <div className="flex gap-2 pt-2">
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => abrirModal(usuario, "ver")}
-                                    className="h-9 flex-1 border-gray-200"
-                                  >
-                                    <Eye className="h-4 w-4 mr-2" />
-                                    Detalles
-                                  </Button>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => abrirModal(usuario, "editar")}
-                                    className="h-9 flex-1 border-gray-200 bg-primary/5 text-primary border-primary/20"
-                                  >
-                                    <Edit className="h-4 w-4 mr-2" />
-                                    Editar
-                                  </Button>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </React.Fragment>
+                          </TableCell>
+                        </TableRow>
                       ))}
                     </TableBody>
                   </Table>
+                  {/* Tarjetas móviles fuera del tbody */}
+                  <div className="sm:hidden">
+                    {usuariosFiltrados.map((usuario) => (
+                      <div key={usuario.id} className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-4">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-semibold text-gray-800">{usuario.first_name} {usuario.last_name}</p>
+                            <p className="text-xs text-gray-500 mt-1">{usuario.email}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge
+                              variant={getStatusBadgeVariant(usuario.status)}
+                              className={`${
+                                usuario.status === "active"
+                                  ? "bg-green-500"
+                                  : usuario.status === "inactive"
+                                  ? "bg-red-500"
+                                  : "bg-amber-500"
+                              }`}
+                            >
+                              {usuario.status}
+                            </Badge>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => toggleRow(usuario.id)}
+                              aria-label="Ver detalles"
+                              className="h-8 w-8 p-0 rounded-full"
+                            >
+                              {expandedRows.includes(usuario.id) ? (
+                                <ChevronUp className="h-4 w-4" />
+                              ) : (
+                                <ChevronDown className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                        {expandedRows.includes(usuario.id) && (
+                          <div className="mt-4 space-y-3 pt-3 border-t border-gray-100">
+                            <div className="grid grid-cols-2 gap-2 text-sm">
+                              <div>
+                                <p className="text-gray-500 text-xs">DNI</p>
+                                <p className="font-medium">{usuario.dni}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500 text-xs">Teléfono</p>
+                                <p className="font-medium">{usuario.phone}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500 text-xs">Rol</p>
+                                <Badge
+                                  variant={getRoleBadgeVariant(usuario.role)}
+                                  className={usuario.role === "admin" ? "bg-blue-500" : ""}
+                                >
+                                  {usuario.role}
+                                </Badge>
+                              </div>
+                            </div>
+                            <div className="flex gap-2 pt-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => abrirModal(usuario, "ver")}
+                                className="h-9 flex-1 border-gray-200"
+                              >
+                                <Eye className="h-4 w-4 mr-2" />
+                                Detalles
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => abrirModal(usuario, "editar")}
+                                className="h-9 flex-1 border-gray-200 bg-primary/5 text-primary border-primary/20"
+                              >
+                                <Edit className="h-4 w-4 mr-2" />
+                                Editar
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 
                 {usuariosFiltrados.length === 0 && (
