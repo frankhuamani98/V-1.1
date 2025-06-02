@@ -53,6 +53,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
   const [subcategorias, setSubcategorias] = useState<Subcategoria[]>([]);
   const [selectAllMotos, setSelectAllMotos] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [productoGuardado, setProductoGuardado] = useState(false);
 
   const { data, setData, reset, post, errors } = useForm({
     codigo: '',
@@ -198,6 +199,8 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
     post(route('productos.store'), {
       onSuccess: () => {
         resetForm();
+        setProductoGuardado(true);
+        setTimeout(() => setProductoGuardado(false), 2500);
       },
       onFinish: () => {
         setProcessing(false);
@@ -260,12 +263,23 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
 
   return (
     <div className="max-w-7xl mx-auto py-8 px-2 sm:px-4 lg:px-8 bg-gray-50">
+      {/* Notificación flotante en la esquina superior derecha */}
+      {productoGuardado && (
+        <div
+          className="fixed top-20 right-6 z-50"
+          style={{ minWidth: 220 }}
+        >
+          <div className="bg-green-600 text-white px-5 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-fadeIn font-semibold">
+            <Check className="h-5 w-5" />
+            Producto guardado
+          </div>
+        </div>
+      )}
       {flash?.message && (
         <div className="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded shadow-lg animate-fadeIn">
           {flash?.message}
         </div>
       )}
-
       <div className="bg-white shadow-xl rounded-xl overflow-hidden border border-gray-100">
         <div className="p-4 sm:p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
           <h1 className="text-2xl font-bold text-gray-800">Agregar Nuevo Producto</h1>
