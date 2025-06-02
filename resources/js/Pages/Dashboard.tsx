@@ -45,6 +45,15 @@ interface DashboardProps {
         vehicle: string;
         time: string;
     }>;
+    opiniones: Array<{
+        id: number;
+        user: { name: string } | null;
+        calificacion: number;
+        contenido: string;
+        created_at: string;
+        util: number;
+        es_soporte: boolean;
+    }>;
 }
 
 const Dashboard: React.FC<DashboardProps> = ({
@@ -63,6 +72,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     usuariosNuevosMensuales,
     ultimasMotos,
     upcomingAppointments,
+    opiniones,
 }) => {
     return (
         <DashboardLayout auth={auth}>
@@ -83,6 +93,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 usuariosNuevosMensuales={usuariosNuevosMensuales}
                 ultimasMotos={ultimasMotos}
                 upcomingAppointments={upcomingAppointments}
+                opiniones={opiniones}
             />
         </DashboardLayout>
     );

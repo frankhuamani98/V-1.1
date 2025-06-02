@@ -49,6 +49,18 @@ interface AlertCardProps {
   onResolve: () => void;
 }
 
+interface Opinion {
+  id: number;
+  user: {
+    name: string;
+  } | null;
+  calificacion: number;
+  contenido: string;
+  created_at: string;
+  util: number;
+  es_soporte: boolean;
+}
+
 interface DashboardProps {
   totalPedidosCompletados: number;
   cambioPedidosCompletados: number;
@@ -92,6 +104,7 @@ interface DashboardProps {
     vehicle: string;
     time: string;
   }>;
+  opiniones: Opinion[];
 }
 
 
@@ -125,13 +138,6 @@ const recentLeads = [
 ];
 
 // Elimina el array estático de upcomingAppointments
-
-const inventoryAlerts = [
-  { id: 1, message: "Bajo stock: Frenos para Yamaha YZF-R3", priority: "alta" as const },
-  { id: 2, message: "Mantenimiento necesario: Honda CB500F", priority: "media" as const },
-  { id: 3, message: "Documento por vencer: Seguro de Suzuki GSX-R600", priority: "baja" as const },
-  { id: 4, message: "Ajuste de precio necesario: Kawasaki Ninja 400", priority: "media" as const },
-];
 
 const KPICard: React.FC<KPICardProps & { textoCambio?: string }> = ({
   title, value, icon, change, progress, textoCambio = "del mes actual"
@@ -204,6 +210,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   usuariosNuevosMensuales,
   ultimasMotos = [],
   upcomingAppointments = [],
+  opiniones = [],
 }) => {
   // Calcular el total de productos para porcentajes en el gráfico de inventario
   const totalProductosInventario = stockPorCategoriaData.reduce((acc, curr) => acc + curr.value, 0);
@@ -481,25 +488,45 @@ const Dashboard: React.FC<DashboardProps> = ({
           </CardContent>
         </Card>
 
-        {/* Alerts */}
+        {/* Opiniones (antes: Alertas de Inventario) */}
         <Card className="lg:col-span-1">
           <CardHeader className="pb-3">
-            <CardTitle>Alertas de Inventario</CardTitle>
-            <CardDescription>Problemas que requieren atención</CardDescription>
+            <CardTitle>Opiniones Recientes</CardTitle>
+            <CardDescription>Comentarios y calificaciones de usuarios</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {inventoryAlerts.map((alert) => (
-                <AlertCard
-                  key={alert.id}
-                  message={alert.message}
-                  priority={alert.priority}
-                  onDismiss={() => console.log(`Dismissed: ${alert.message}`)}
-                  onResolve={() => console.log(`Resolved: ${alert.message}`)}
-                />
+              {opiniones.length === 0 && (
+                <div className="text-sm text-muted-foreground">No hay opiniones recientes.</div>
+              )}
+              {opiniones.map((opinion) => (
+                <div key={opinion.id} className="flex items-start space-x-3">
+                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Users className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="space-y-1 flex-1">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium">
+                        {opinion.user ? opinion.user.name : "Anónimo"}
+                        {opinion.es_soporte && (
+                          <Badge variant="secondary" className="ml-2 text-xs">Soporte</Badge>
+                        )}
+                      </p>
+                      <span className="text-xs text-yellow-500">
+                        {"★".repeat(opinion.calificacion)}
+                        {"☆".repeat(5 - opinion.calificacion)}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{opinion.created_at}</p>
+                    <p className="text-sm">{opinion.contenido}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="outline" className="text-xs">Útil: {opinion.util}</Badge>
+                    </div>
+                  </div>
+                </div>
               ))}
-              <Button variant="ghost" size="sm" className="w-full mt-2">
-                Ver todas las alertas
+              <Button variant="ghost" size="sm" className="w-full mt-2" onClick={() => window.location.href = '/dashboard/opiniones'}>
+                Ver todas las opiniones
                 <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
             </div>

@@ -28,4 +28,9 @@ class Opinion extends Model
     {
         return $this->hasMany(RespuestaOpinion::class, 'opinion_id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

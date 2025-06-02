@@ -144,6 +144,23 @@ class DashboardController extends Controller
                 ];
             });
 
+        // Obtener las 5 opiniones más recientes con usuario
+        $opiniones = \App\Models\Opinion::with('user')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get()
+            ->map(function($opinion) {
+                return [
+                    'id' => $opinion->id,
+                    'user' => $opinion->user ? ['name' => $opinion->user->name] : null,
+                    'calificacion' => $opinion->calificacion,
+                    'contenido' => $opinion->contenido,
+                    'created_at' => $opinion->created_at->diffForHumans(),
+                    'util' => $opinion->util,
+                    'es_soporte' => $opinion->es_soporte,
+                ];
+            });
+
         return Inertia::render('Dashboard', [
             'auth' => [
                 'user' => [
@@ -169,6 +186,7 @@ class DashboardController extends Controller
             'stockPorCategoriaData' => $productosPorCategoriaData, // <--- NUEVO
             'ultimasMotos' => $ultimasMotos,
             'upcomingAppointments' => $ultimasReservas, // Cambia aquí para pasar las últimas reservas
+            'opiniones' => $opiniones,
         ]);
     }
 } // End of DashboardController class
