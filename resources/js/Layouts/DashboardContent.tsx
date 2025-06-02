@@ -33,7 +33,6 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/Components/ui/popover';
-import { Calendar } from '@/Components/ui/calendar';
 
 // Definición de tipos
 interface KPICardProps {
@@ -217,14 +216,17 @@ const Dashboard: React.FC<DashboardProps> = ({
   // Calcular el total de productos para porcentajes en el gráfico de inventario
   const totalProductosInventario = stockPorCategoriaData.reduce((acc, curr) => acc + curr.value, 0);
 
-  // Estado para la fecha seleccionada en el calendario
-  const [selectedDate, setSelectedDate] = React.useState<Date | null>(new Date());
-  const [popoverOpen, setPopoverOpen] = React.useState(false);
+  // Quitar todo lo relacionado al calendario
+  // const [selectedDate, setSelectedDate] = React.useState<Date | null>(new Date());
+  // const [popoverOpen, setPopoverOpen] = React.useState(false);
 
   // Formatear el mes y año para mostrar en el botón
-  const monthYear = selectedDate
-    ? selectedDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' })
-    : '';
+  // const monthYear = selectedDate
+  //   ? selectedDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' })
+  //   : '';
+  // Usar la fecha actual para el nombre del archivo
+  const now = new Date();
+  const monthYear = now.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
 
   // Exportar todo el dashboard como CSV
   const exportarReporte = () => {
@@ -318,33 +320,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Tablero</h1>
         <div className="flex flex-wrap items-center gap-2">
-          {/* Botón con calendario */}
-          <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full sm:w-auto"
-                onClick={() => setPopoverOpen(true)}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {monthYear.charAt(0).toUpperCase() + monthYear.slice(1)}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align="start" className="w-auto p-0">
-              <Calendar
-                mode="single"
-                selected={selectedDate ?? undefined}
-                onSelect={(date) => {
-                  setSelectedDate(date ?? null);
-                  setPopoverOpen(false);
-                }}
-                initialFocus
-                // Opcional: solo permite seleccionar mes/año, no días
-                // Puedes personalizar el componente Calendar si lo deseas
-              />
-            </PopoverContent>
-          </Popover>
+          {/* Quitar el Popover y Calendar, dejar solo el botón de exportar */}
           <Button
             size="sm"
             className="w-full sm:w-auto"
@@ -583,7 +559,8 @@ const Dashboard: React.FC<DashboardProps> = ({
               {upcomingAppointments.map((appointment) => (
                 <div key={appointment.id} className="flex items-start space-x-3">
                   <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Calendar className="h-5 w-5 text-primary" />
+                    {/* Cambiar Calendar por CalendarIcon */}
+                    <CalendarIcon className="h-5 w-5 text-primary" />
                   </div>
                   <div className="space-y-1 flex-1">
                     <div className="flex items-center justify-between">
@@ -612,7 +589,6 @@ const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </CardContent>
         </Card>
-
         {/* Opiniones (antes: Alertas de Inventario) */}
         <Card className="lg:col-span-1">
           <CardHeader className="pb-3">
@@ -631,12 +607,13 @@ const Dashboard: React.FC<DashboardProps> = ({
                   </div>
                   <div className="space-y-1 flex-1">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium">
+                      {/* Cambia el <p> por un <span> para evitar <div> dentro de <p> */}
+                      <span className="text-sm font-medium flex items-center">
                         {opinion.user ? opinion.user.name : "Anónimo"}
                         {opinion.es_soporte && (
                           <Badge variant="secondary" className="ml-2 text-xs">Soporte</Badge>
                         )}
-                      </p>
+                      </span>
                       <span className="text-xs text-yellow-500">
                         {"★".repeat(opinion.calificacion)}
                         {"☆".repeat(5 - opinion.calificacion)}
