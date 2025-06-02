@@ -4,7 +4,7 @@ import { Badge } from "@/Components/ui/badge";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/Components/ui/card";
 import { Button } from "@/Components/ui/button";
 import { ChevronDown, ChevronUp, ListChecks, Plus, Pencil, Trash2 } from "lucide-react";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
 import { router } from "@inertiajs/react";
 import { Link } from "@inertiajs/react";
 import {
@@ -129,7 +129,6 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
 
   return (
     <div className="p-2 sm:p-4 md:p-6">
-      <Toaster position="top-center" />
       
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>

@@ -5,7 +5,7 @@ import { Input } from "@/Components/ui/input";
 import { Textarea } from "@/Components/ui/textarea";
 import { Button } from "@/Components/ui/button";
 import { Switch } from "@/Components/ui/switch";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
 import { router } from "@inertiajs/react";
 import { PlusCircle, Save } from "lucide-react";
 
@@ -184,7 +184,6 @@ const AgregarCategoria = ({ categoria, isEditing = false }: AgregarCategoriaProp
                     </form>
                 </CardContent>
             </Card>
-            <Toaster position="top-right" closeButton />
         </div>
     );
 };

@@ -6,7 +6,7 @@ import { Textarea } from "@/Components/ui/textarea";
 import { Button } from "@/Components/ui/button";
 import { Switch } from "@/Components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
 import { router } from "@inertiajs/react";
 import { Wrench, Save, Loader2 } from "lucide-react";
 
@@ -216,7 +216,6 @@ const AgregarServicio = ({ servicio, isEditing = false, categorias }: AgregarSer
                     )}
                 </CardContent>
             </Card>
-            <Toaster position="top-right" closeButton />
         </div>
     );
 };
