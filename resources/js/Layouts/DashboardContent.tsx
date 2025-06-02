@@ -71,6 +71,10 @@ interface DashboardProps {
     name: string;
     value: number;
   }>;
+  stockPorCategoriaData: Array<{
+    name: string;
+    value: number;
+  }>;
 }
 
 
@@ -184,7 +188,11 @@ const Dashboard: React.FC<DashboardProps> = ({
   ventasMensuales,
   reservasMensuales,
   topProductosData,
+  stockPorCategoriaData,
 }) => {
+  // Calcular el total de productos para porcentajes en el gráfico de inventario
+  const totalProductosInventario = stockPorCategoriaData.reduce((acc, curr) => acc + curr.value, 0);
+
   return (
     <div className="space-y-6 text-foreground">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -331,17 +339,20 @@ const Dashboard: React.FC<DashboardProps> = ({
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={partTypeData}
+                      data={stockPorCategoriaData}
                       cx="50%"
                       cy="50%"
                       labelLine={true}
                       outerRadius={120}
                       fill="#8884d8"
                       dataKey="value"
-                      label={({ name, value }) => `${name}: ${value} unidades`}
+                      label={({ name, value }) => {
+                        const percent = totalProductosInventario > 0 ? (value / totalProductosInventario) * 100 : 0;
+                        return `${name}: ${value} (${percent.toFixed(1)}%)`;
+                      }}
                     >
-                      {partTypeData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      {stockPorCategoriaData.map((entry, index) => (
+                        <Cell key={`cell-cat-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
                     <Tooltip />
