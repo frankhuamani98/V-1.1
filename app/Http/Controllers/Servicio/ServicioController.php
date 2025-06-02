@@ -41,29 +41,31 @@ class ServicioController extends Controller
             ->orderBy('orden')
             ->orderBy('nombre')
             ->get();
+            
+        $servicios = Servicio::with('categoriaServicio')
+            ->orderBy('nombre')
+            ->get()
+            ->map(function ($servicio) {
+                return [
+                    'id' => $servicio->id,
+                    'nombre' => $servicio->nombre,
+                    'descripcion' => $servicio->descripcion,
+                    'categoria_servicio_id' => $servicio->categoria_servicio_id,
+                    'estado' => $servicio->estado,
+                    'categoria_nombre' => $servicio->categoriaServicio ? $servicio->categoriaServicio->nombre : ''
+                ];
+            });
 
         return Inertia::render('Dashboard/Servicio/AgregarServicio', [
-            'categorias' => $categorias
+            'categorias' => $categorias,
+            'servicios' => $servicios
         ]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nombre' => [
-                'required',
-                'string',
-                'max:255',
-                function ($attribute, $value, $fail) use ($request) {
-                    $exists = Servicio::where('nombre', $value)
-                        ->where('categoria_servicio_id', $request->categoria_servicio_id)
-                        ->exists();
-                    
-                    if ($exists) {
-                        $fail('Ya existe un servicio con este nombre en la categoría seleccionada.');
-                    }
-                },
-            ],
+            'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'categoria_servicio_id' => 'required|exists:categorias_servicios,id',
             'estado' => 'boolean'
@@ -71,8 +73,7 @@ class ServicioController extends Controller
 
         Servicio::create($validated);
 
-        return redirect()->route('servicios.lista')
-            ->with('message', 'Servicio creado exitosamente');
+        return back();
     }
 
     public function edit(Servicio $servicio)
@@ -81,10 +82,25 @@ class ServicioController extends Controller
             ->orderBy('orden')
             ->orderBy('nombre')
             ->get();
+            
+        $servicios = Servicio::with('categoriaServicio')
+            ->orderBy('nombre')
+            ->get()
+            ->map(function ($servicio) {
+                return [
+                    'id' => $servicio->id,
+                    'nombre' => $servicio->nombre,
+                    'descripcion' => $servicio->descripcion,
+                    'categoria_servicio_id' => $servicio->categoria_servicio_id,
+                    'estado' => $servicio->estado,
+                    'categoria_nombre' => $servicio->categoriaServicio ? $servicio->categoriaServicio->nombre : ''
+                ];
+            });
 
         return Inertia::render('Dashboard/Servicio/AgregarServicio', [
             'servicio' => $servicio,
             'categorias' => $categorias,
+            'servicios' => $servicios,
             'isEditing' => true
         ]);
     }
@@ -92,21 +108,7 @@ class ServicioController extends Controller
     public function update(Request $request, Servicio $servicio)
     {
         $validated = $request->validate([
-            'nombre' => [
-                'required',
-                'string',
-                'max:255',
-                function ($attribute, $value, $fail) use ($request, $servicio) {
-                    $exists = Servicio::where('nombre', $value)
-                        ->where('categoria_servicio_id', $request->categoria_servicio_id)
-                        ->where('id', '!=', $servicio->id)
-                        ->exists();
-                    
-                    if ($exists) {
-                        $fail('Ya existe un servicio con este nombre en la categoría seleccionada.');
-                    }
-                },
-            ],
+            'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'categoria_servicio_id' => 'required|exists:categorias_servicios,id',
             'estado' => 'boolean'
@@ -114,21 +116,49 @@ class ServicioController extends Controller
 
         $servicio->update($validated);
 
-        return redirect()->route('servicios.lista')
-            ->with('message', 'Servicio actualizado exitosamente');
+        return back();
     }
 
     public function destroy(Servicio $servicio)
     {
         if ($servicio->reservas()->count() > 0) {
-            return redirect()->route('servicios.lista')
-                ->with('error', 'No se puede eliminar el servicio porque tiene reservas asociadas.');
+            return back()->withErrors(['message' => 'No se puede eliminar el servicio porque tiene reservas asociadas']);
         }
 
         $servicio->delete();
+        
+        return back();
+    }
 
-        return redirect()->route('servicios.lista')
-            ->with('message', 'Servicio eliminado exitosamente');
+    public function getAll()
+    {
+        $servicios = Servicio::with('categoriaServicio')
+            ->orderBy('nombre')
+            ->get()
+            ->map(function ($servicio) {
+                return [
+                    'id' => $servicio->id,
+                    'nombre' => $servicio->nombre,
+                    'descripcion' => $servicio->descripcion,
+                    'categoria_servicio_id' => $servicio->categoria_servicio_id,
+                    'estado' => $servicio->estado,
+                    'categoria_nombre' => $servicio->categoriaServicio ? $servicio->categoriaServicio->nombre : ''
+                ];
+            });
+
+        if (request()->wantsJson()) {
+            return response()->json($servicios);
+        }
+        
+        $categorias = CategoriaServicio::where('estado', true)
+            ->orderBy('orden')
+            ->orderBy('nombre')
+            ->get();
+            
+        return Inertia::render('Dashboard/Servicio/AgregarServicio', [
+            'servicios' => $servicios,
+            'categorias' => $categorias
+        ]);
     }
 
     private function mapearServicios($servicios)

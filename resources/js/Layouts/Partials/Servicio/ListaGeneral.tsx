@@ -2,28 +2,12 @@ import React, { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table";
 import { Badge } from "@/Components/ui/badge";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/Components/ui/card";
-import { Button } from "@/Components/ui/button";
-import { ChevronDown, ChevronUp, ListChecks, Plus, Pencil, Trash2 } from "lucide-react";
-import { toast } from "sonner";
-import { router } from "@inertiajs/react";
-import { Link } from "@inertiajs/react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/Components/ui/alert-dialog";
+import { ChevronDown, ChevronUp, ListChecks } from "lucide-react";
 
 interface Servicio {
   id: number;
   nombre: string;
   descripcion: string | null;
-  precio_base: string;
-  duracion_estimada: number;
   estado: boolean;
 }
 
@@ -41,14 +25,8 @@ interface ListaGeneralProps {
 }
 
 const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
-  const [categorias, setCategorias] = useState<CategoriaServicio[]>(initialCategorias);
+  const [categorias] = useState<CategoriaServicio[]>(initialCategorias);
   const [expandedCategories, setExpandedCategories] = useState<number[]>([]);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [categoriaToDelete, setCategoriaToDelete] = useState<number | null>(null);
-  const [servicioToDelete, setServicioToDelete] = useState<{id: number, categoriaId: number} | null>(null);
-  const [deleteDialogTitle, setDeleteDialogTitle] = useState("");
-  const [deleteDialogDescription, setDeleteDialogDescription] = useState("");
-  const [deleteAction, setDeleteAction] = useState<"categoria" | "servicio">("categoria");
 
   const toggleCategory = (id: number) => {
     setExpandedCategories((prev) =>
@@ -56,100 +34,8 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
     );
   };
 
-  const openDeleteCategoriaDialog = (categoria: CategoriaServicio, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    setCategoriaToDelete(categoria.id);
-    setDeleteDialogTitle("Eliminar Categoría");
-    setDeleteDialogDescription(`¿Estás seguro de que deseas eliminar la categoría "${categoria.nombre}"? Esta acción no se puede deshacer.`);
-    setDeleteAction("categoria");
-    setIsDeleteDialogOpen(true);
-  };
-
-  const openDeleteServicioDialog = (servicio: Servicio, categoriaId: number) => {
-    setServicioToDelete({id: servicio.id, categoriaId});
-    setDeleteDialogTitle("Eliminar Servicio");
-    setDeleteDialogDescription(`¿Estás seguro de que deseas eliminar el servicio "${servicio.nombre}"? Esta acción no se puede deshacer.`);
-    setDeleteAction("servicio");
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleDeleteCategoria = () => {
-    if (!categoriaToDelete) return;
-
-    router.delete(`/servicios/categorias/${categoriaToDelete}`, {
-      preserveScroll: true,
-      onSuccess: () => {
-        setCategorias(categorias.filter(categoria => categoria.id !== categoriaToDelete));
-        toast.success("Categoría eliminada correctamente");
-        setCategoriaToDelete(null);
-      },
-      onError: (errors: any) => {
-        const errorMessage = errors.message || "No se pudo eliminar la categoría porque tiene servicios asociados. Elimine primero todos los servicios de esta categoría.";
-        toast.error(errorMessage);
-      }
-    });
-  };
-
-  const handleDeleteServicio = () => {
-    if (!servicioToDelete) return;
-
-    router.delete(`/servicios/${servicioToDelete.id}`, {
-      preserveScroll: true,
-      onSuccess: () => {
-        setCategorias(categorias.map(categoria => {
-          if (categoria.id === servicioToDelete.categoriaId) {
-            return {
-              ...categoria,
-              servicios: categoria.servicios.filter(servicio => servicio.id !== servicioToDelete.id)
-            };
-          }
-          return categoria;
-        }));
-        toast.success("Servicio eliminado correctamente");
-        setServicioToDelete(null);
-      },
-      onError: (errors) => {
-        if (errors.message) {
-          toast.error(errors.message);
-        } else {
-          toast.error("Error al eliminar el servicio");
-        }
-      }
-    });
-  };
-
-  const handleConfirmDelete = () => {
-    if (deleteAction === "categoria") {
-      handleDeleteCategoria();
-    } else {
-      handleDeleteServicio();
-    }
-    setIsDeleteDialogOpen(false);
-  };
-
   return (
     <div className="p-2 sm:p-4 md:p-6">
-      
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{deleteDialogTitle}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {deleteDialogDescription}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleConfirmDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Eliminar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
       <Card className="border-0 sm:border shadow-md rounded-xl overflow-hidden">
         <CardHeader className="px-4 sm:px-6 bg-white border-b">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -160,28 +46,9 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
               <div>
                 <CardTitle className="text-lg sm:text-xl font-bold text-gray-800">Servicios</CardTitle>
                 <CardDescription className="text-sm text-gray-500">
-                  Gestione las categorías y servicios de su negocio
+                  Listado detallado de categorías y servicios disponibles
                 </CardDescription>
               </div>
-            </div>
-            <div className="flex gap-2 w-full sm:w-auto">
-              <Link href={route('servicios.categorias.crear')} className="w-1/2 sm:w-auto">
-                <Button 
-                  variant="outline" 
-                  className="w-full flex items-center gap-1.5"
-                >
-                  <Plus className="h-4 w-4" />
-                  Nueva Categoría
-                </Button>
-              </Link>
-              <Link href={route('servicios.crear')} className="w-1/2 sm:w-auto">
-                <Button 
-                  className="w-full flex items-center gap-1.5"
-                >
-                  <Plus className="h-4 w-4" />
-                  Nuevo Servicio
-                </Button>
-              </Link>
             </div>
           </div>
         </CardHeader>
@@ -192,14 +59,7 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
                 <ListChecks className="h-6 w-6 text-gray-400" />
               </div>
               <p className="text-gray-600 font-medium">No hay categorías de servicios registradas</p>
-              <p className="text-gray-500 text-sm mt-1">Agregue categorías para comenzar a organizar sus servicios</p>
-              <Button 
-                className="mt-4 flex items-center gap-1.5"
-                onClick={() => router.visit(route('servicios.categorias.crear'))}
-              >
-                <Plus className="h-4 w-4" />
-                Agregar Categoría
-              </Button>
+              <p className="text-gray-500 text-sm mt-1">No hay categorías disponibles para mostrar</p>
             </div>
           ) : (
             <div className="space-y-6 p-4">
@@ -209,11 +69,19 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
                     className="flex justify-between items-center p-4 bg-gray-100 cursor-pointer"
                     onClick={() => toggleCategory(categoria.id)}
                   >
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-medium text-gray-800">{categoria.nombre}</h3>
-                      <Badge className={categoria.estado ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100" : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"}>
-                        {categoria.estado ? "Activo" : "Inactivo"}
-                      </Badge>
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-medium text-gray-800">{categoria.nombre}</h3>
+                        <Badge className={categoria.estado ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100" : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"}>
+                          {categoria.estado ? "Activo" : "Inactivo"}
+                        </Badge>
+                      </div>
+                      {categoria.descripcion && (
+                        <p className="text-sm text-gray-600">{categoria.descripcion}</p>
+                      )}
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs text-gray-500">Orden de visualización: {categoria.orden}</span>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="flex items-center gap-1 md:hidden">
@@ -223,59 +91,7 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
                           <ChevronDown className="h-4 w-4 text-gray-500" />
                         )}
                       </div>
-                      <div className="hidden md:flex items-center gap-2">
-                        <Link href={route('servicios.categorias.editar', { categoriaServicio: categoria.id })}>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="h-8"
-                          >
-                            <Pencil className="h-3.5 w-3.5 mr-1" />
-                            Editar
-                          </Button>
-                        </Link>
-                        <Button 
-                          variant="destructive" 
-                          size="sm" 
-                          className="h-8"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openDeleteCategoriaDialog(categoria);
-                          }}
-                        >
-                          <Trash2 className="h-3.5 w-3.5 mr-1" />
-                          Eliminar
-                        </Button>
-                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-end gap-2 p-2 md:hidden bg-gray-50 border-t border-gray-200">
-                    <Link 
-                      href={route('servicios.categorias.editar', { categoriaServicio: categoria.id })}
-                      className="w-1/2"
-                    >
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="w-full"
-                      >
-                        <Pencil className="h-3.5 w-3.5 mr-1" />
-                        Editar
-                      </Button>
-                    </Link>
-                    <Button 
-                      variant="destructive" 
-                      size="sm" 
-                      className="w-1/2"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openDeleteCategoriaDialog(categoria);
-                      }}
-                    >
-                      <Trash2 className="h-3.5 w-3.5 mr-1" />
-                      Eliminar
-                    </Button>
                   </div>
 
                   <div className={`${expandedCategories.includes(categoria.id) ? 'block' : 'hidden md:block'}`}>
@@ -285,44 +101,37 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
                           <TableHeader className="bg-white">
                             <TableRow>
                               <TableHead>Nombre</TableHead>
+                              <TableHead className="hidden md:table-cell">Descripción</TableHead>
                               <TableHead className="hidden sm:table-cell">Estado</TableHead>
-                              <TableHead>Acciones</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {categoria.servicios.map((servicio) => (
                               <TableRow key={servicio.id} className="bg-white hover:bg-gray-50">
-                                <TableCell className="font-medium">{servicio.nombre}</TableCell>
+                                <TableCell className="font-medium">
+                                  <div className="flex flex-col">
+                                    <span>{servicio.nombre}</span>
+                                    <div className="md:hidden flex flex-col gap-1 mt-1">
+                                      {servicio.descripcion && (
+                                        <span className="text-xs text-gray-600">{servicio.descripcion}</span>
+                                      )}
+                                      <Badge className={`w-fit ${servicio.estado ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100" : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"}`}>
+                                        {servicio.estado ? "Activo" : "Inactivo"}
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                </TableCell>
+                                <TableCell className="hidden md:table-cell">
+                                  {servicio.descripcion ? (
+                                    <span className="text-sm">{servicio.descripcion}</span>
+                                  ) : (
+                                    <span className="text-sm text-gray-400">Sin descripción</span>
+                                  )}
+                                </TableCell>
                                 <TableCell className="hidden sm:table-cell">
                                   <Badge className={servicio.estado ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100" : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"}>
                                     {servicio.estado ? "Activo" : "Inactivo"}
                                   </Badge>
-                                </TableCell>
-                                <TableCell>
-                                  <div className="flex items-center gap-2">
-                                    <Link href={route('servicios.editar', { servicio: servicio.id })}>
-                                      <Button 
-                                        variant="outline" 
-                                        size="sm" 
-                                        className="h-8"
-                                      >
-                                        <Pencil className="h-3.5 w-3.5 sm:mr-1" />
-                                        <span className="hidden sm:inline">Editar</span>
-                                      </Button>
-                                    </Link>
-                                    <Button 
-                                      variant="destructive" 
-                                      size="sm" 
-                                      className="h-8"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        openDeleteServicioDialog(servicio, categoria.id);
-                                      }}
-                                    >
-                                      <Trash2 className="h-3.5 w-3.5 sm:mr-1" />
-                                      <span className="hidden sm:inline">Eliminar</span>
-                                    </Button>
-                                  </div>
                                 </TableCell>
                               </TableRow>
                             ))}
@@ -332,16 +141,6 @@ const ListaGeneral = ({ categorias: initialCategorias }: ListaGeneralProps) => {
                     ) : (
                       <div className="py-6 text-center bg-white">
                         <p className="text-gray-500">No hay servicios registrados en esta categoría</p>
-                        <Link href={route('servicios.crear')}>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="mt-2"
-                          >
-                            <Plus className="h-3.5 w-3.5 mr-1" />
-                            Agregar Servicio
-                          </Button>
-                        </Link>
                       </div>
                     )}
                   </div>

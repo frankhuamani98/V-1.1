@@ -86,8 +86,6 @@ Route::middleware('auth')->group(function () {
     
     // Checkout routes
     Route::prefix('checkout')->name('checkout.')->group(function () {
-        // Route::get('/formulario', [FormularioPagoController::class, 'index'])->name('formulario');
-        // Route::post('/formulario', [FormularioPagoController::class, 'store'])->name('formulario.store');
         
         Route::get('/metodos-pago', [MetodosPagoController::class, 'index'])->name('metodos');
         Route::post('/metodos-pago/procesar', [MetodosPagoController::class, 'procesar'])->name('metodos.procesar');
@@ -224,6 +222,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [ServicioController::class, 'index'])->name('lista');
         Route::get('/crear', [ServicioController::class, 'create'])->name('crear');
         Route::post('/', [ServicioController::class, 'store'])->name('store');
+        Route::get('/todos', [ServicioController::class, 'getAll'])->name('todos');
         
         // Categorías de Servicios
         Route::prefix('categorias')->name('categorias.')->group(function () {

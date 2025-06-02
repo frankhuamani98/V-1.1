@@ -11,7 +11,13 @@ class CategoriaServicioController extends Controller
 {
     public function create()
     {
-        return Inertia::render('Dashboard/Servicio/AgregarCategoria');
+        $categorias = CategoriaServicio::orderBy('orden')
+            ->orderBy('nombre')
+            ->get();
+            
+        return Inertia::render('Dashboard/Servicio/AgregarCategoria', [
+            'categorias' => $categorias
+        ]);
     }
 
     public function store(Request $request)
@@ -25,14 +31,18 @@ class CategoriaServicioController extends Controller
 
         CategoriaServicio::create($validated);
 
-        return redirect()->route('servicios.lista')
-            ->with('message', 'Categoría de servicio creada exitosamente');
+        return back();
     }
 
     public function edit(CategoriaServicio $categoriaServicio)
     {
+        $categorias = CategoriaServicio::orderBy('orden')
+            ->orderBy('nombre')
+            ->get();
+            
         return Inertia::render('Dashboard/Servicio/AgregarCategoria', [
             'categoria' => $categoriaServicio,
+            'categorias' => $categorias,
             'isEditing' => true
         ]);
     }
@@ -49,33 +59,25 @@ class CategoriaServicioController extends Controller
         if ($categoriaServicio->estado && isset($validated['estado']) && !$validated['estado']) {
             $serviciosActivos = $categoriaServicio->servicios()->where('estado', true)->count();
             if ($serviciosActivos > 0) {
-                return redirect()->back()
-                    ->with('warning', "Esta categoría tiene {$serviciosActivos} servicios activos. Desactivar la categoría afectará la visibilidad de estos servicios en el catálogo público.")
-                    ->withInput();
+                return back()->withErrors(['warning' => "Esta categoría tiene {$serviciosActivos} servicios activos. Desactivar la categoría afectará la visibilidad de estos servicios en el catálogo público."]);
             }
         }
 
         $categoriaServicio->update($validated);
 
-        return redirect()->route('servicios.lista')
-            ->with('message', 'Categoría de servicio actualizada exitosamente');
+        return back();
     }
 
     public function destroy(CategoriaServicio $categoriaServicio)
     {
         $cantidadServicios = $categoriaServicio->servicios()->count();
         if ($cantidadServicios > 0) {
-            $mensaje = "No se puede eliminar la categoría '{$categoriaServicio->nombre}' porque tiene {$cantidadServicios} servicio(s) asociado(s). Debe eliminar primero todos los servicios de esta categoría.";
-            
-            return back()->withErrors([
-                'message' => $mensaje
-            ]);
+            return back()->withErrors(['message' => "No se puede eliminar la categoría porque tiene servicios asociados."]);
         }
 
         $categoriaServicio->delete();
         
-        return redirect()->route('servicios.lista')
-            ->with('message', 'Categoría de servicio eliminada exitosamente');
+        return back();
     }
 
     public function getAll()
@@ -85,6 +87,12 @@ class CategoriaServicioController extends Controller
             ->orderBy('nombre')
             ->get();
             
-        return response()->json($categorias);
+        if (request()->wantsJson()) {
+            return response()->json($categorias);
+        }
+        
+        return Inertia::render('Dashboard/Servicio/AgregarCategoria', [
+            'categorias' => $categorias
+        ]);
     }
 }
