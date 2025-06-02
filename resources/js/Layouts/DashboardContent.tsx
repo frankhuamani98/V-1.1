@@ -79,6 +79,12 @@ interface DashboardProps {
     name: string;
     nuevos: number;
   }>;
+  ultimasMotos: Array<{
+    id: number;
+    name: string;
+    estado: string;
+    date: string;
+  }>;
 }
 
 
@@ -104,11 +110,11 @@ const customerData = [
 ];
 
 const recentLeads = [
-  { id: 1, name: "Juan Pérez", vehicle: "Yamaha YZF-R3 2023", status: "Nuevo", date: "Hace 10 min" },
-  { id: 2, name: "Carlos López", vehicle: "Honda CB500F 2022", status: "Contactado", date: "Hace 1 hora" },
-  { id: 3, name: "Ana Martínez", vehicle: "Suzuki GSX-R600 2023", status: "Interesado", date: "Hace 3 horas" },
-  { id: 4, name: "Luis García", vehicle: "Kawasaki Ninja 400 2022", status: "Prueba de Manejo", date: "Ayer" },
-  { id: 5, name: "María Rodríguez", vehicle: "Ducati Monster 2023", status: "Negociación", date: "Ayer" },
+  { id: 1, name: "Yamaha YZF-R3 2023", vehicle: "", status: "Nuevo", date: "Hace 10 min" },
+  { id: 2, name: "Honda CB500F 2022", vehicle: "", status: "Contactado", date: "Hace 1 hora" },
+  { id: 3, name: "Suzuki GSX-R600 2023", vehicle: "", status: "Interesado", date: "Hace 3 horas" },
+  { id: 4, name: "Kawasaki Ninja 400 2022", vehicle: "", status: "Prueba de Manejo", date: "Ayer" },
+  { id: 5, name: "Ducati Monster 2023", vehicle: "", status: "Negociación", date: "Ayer" },
 ];
 
 const upcomingAppointments = [
@@ -194,6 +200,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   topProductosData,
   stockPorCategoriaData,
   usuariosNuevosMensuales,
+  ultimasMotos = [],
 }) => {
   // Calcular el total de productos para porcentajes en el gráfico de inventario
   const totalProductosInventario = stockPorCategoriaData.reduce((acc, curr) => acc + curr.value, 0);
@@ -394,38 +401,36 @@ const Dashboard: React.FC<DashboardProps> = ({
 
       {/* Activity Section */}
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {/* Recent Leads */}
+        {/* Motos Nuevas */}
         <Card className="lg:col-span-1">
           <CardHeader className="pb-3">
-            <CardTitle>Leads Recientes</CardTitle>
-            <CardDescription>Últimas consultas de clientes</CardDescription>
+            <CardTitle>Motos Nuevas</CardTitle>
+            <CardDescription>Últimas motos registradas</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentLeads.map((lead) => (
-                <div key={lead.id} className="flex items-start space-x-3">
+              {ultimasMotos.map((moto) => (
+                <div key={moto.id} className="flex items-start space-x-3">
                   <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Users className="h-5 w-5 text-primary" />
+                    <BikeIcon className="h-5 w-5 text-primary" />
                   </div>
                   <div className="space-y-1 flex-1">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium">{lead.name}</p>
-                      <Badge variant={
-                        lead.status === "Nuevo" ? "default" :
-                        lead.status === "Contactado" ? "secondary" :
-                        lead.status === "Interesado" ? "outline" :
-                        lead.status === "Prueba de Manejo" ? "destructive" : "default"
-                      } className="text-xs">
-                        {lead.status}
-                      </Badge>
+                      <p className="text-sm font-medium">{moto.name}</p>
+                      {/* Puedes mostrar el estado si lo deseas */}
+                      {/* <Badge variant="outline" className="text-xs">{moto.estado}</Badge> */}
                     </div>
-                    <p className="text-xs text-muted-foreground">{lead.vehicle}</p>
-                    <p className="text-xs text-muted-foreground">{lead.date}</p>
+                    <p className="text-xs text-muted-foreground">{moto.date}</p>
                   </div>
                 </div>
               ))}
-              <Button variant="ghost" size="sm" className="w-full mt-2">
-                Ver todos los leads
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full mt-2"
+                onClick={() => window.location.href = '/motos/registro'}
+              >
+                Ver todas las motos
                 <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
             </div>

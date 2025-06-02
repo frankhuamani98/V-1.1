@@ -10,6 +10,7 @@ use App\Models\Reserva;
 use App\Models\User;
 use App\Models\Producto;
 use App\Models\Categoria; // Asegúrate de tener este modelo
+use App\Models\Moto;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -118,6 +119,16 @@ class DashboardController extends Controller
             ];
         }
 
+        // Obtener las últimas 5 motos registradas
+        $ultimasMotos = Moto::orderBy('created_at', 'desc')->take(5)->get()->map(function($moto) {
+            return [
+                'id' => $moto->id,
+                'name' => "{$moto->marca} {$moto->modelo} {$moto->año}",
+                'estado' => $moto->estado,
+                'date' => $moto->created_at->diffForHumans(),
+            ];
+        });
+
         return Inertia::render('Dashboard', [
             'auth' => [
                 'user' => [
@@ -141,6 +152,7 @@ class DashboardController extends Controller
                 ['name' => 'Más Vendidos', 'value' => $totalMasVendidos],
             ],
             'stockPorCategoriaData' => $productosPorCategoriaData, // <--- NUEVO
+            'ultimasMotos' => $ultimasMotos, // <--- NUEVO
         ]);
     }
 } // End of DashboardController class
