@@ -65,6 +65,24 @@ class DashboardController extends Controller
         // Total de productos activos
         $totalProductos = Producto::where('estado', 'Activo')->count();
 
+        // Obtener datos de ventas mensuales para el año actual
+        $ventasMensuales = [];
+        $mesesDelAnio = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        foreach ($mesesDelAnio as $index => $mes) {
+            $inicioMes = Carbon::now()->startOfYear()->addMonths($index)->startOfMonth();
+            $finMes = $inicioMes->copy()->endOfMonth();
+
+            $pedidosCompletados = Pedido::where('estado', 'completado')
+                ->whereBetween('created_at', [$inicioMes, $finMes])
+                ->count();
+
+            $ventasMensuales[] = [
+                'name' => $mes,
+                'sales' => $pedidosCompletados
+            ];
+        }
+
         return Inertia::render('Dashboard', [
             'auth' => [
                 'user' => [
@@ -80,6 +98,8 @@ class DashboardController extends Controller
             'totalNuevosUsuarios' => $nuevosUsuariosMesActual,
             'progresoNuevosUsuarios' => round($progresoUsuariosMesActual, 1),
             'totalProductos' => $totalProductos,
+            'ventasMensuales' => $ventasMensuales,
         ]);
     }
-}
+} // End of DashboardController class
+

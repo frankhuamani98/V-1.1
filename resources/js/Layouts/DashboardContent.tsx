@@ -59,17 +59,13 @@ interface DashboardProps {
   totalNuevosUsuarios: number;
   progresoNuevosUsuarios: number;
   totalProductos: number;
+  ventasMensuales: Array<{
+    name: string;
+    sales: number;
+  }>;
 }
 
-const salesData = [
-  { name: 'Jan', sales: 65, target: 50 },
-  { name: 'Feb', sales: 59, target: 60 },
-  { name: 'Mar', sales: 80, target: 70 },
-  { name: 'Apr', sales: 81, target: 80 },
-  { name: 'May', sales: 56, target: 90 },
-  { name: 'Jun', sales: 55, target: 100 },
-  { name: 'Jul', sales: 40, target: 110 },
-];
+
 
 const partTypeData = [
   { name: 'Frenos', value: 35 },
@@ -177,6 +173,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   totalNuevosUsuarios,
   progresoNuevosUsuarios,
   totalProductos,
+  ventasMensuales,
 }) => {
   return (
     <div className="space-y-6 text-foreground">
@@ -243,19 +240,18 @@ const Dashboard: React.FC<DashboardProps> = ({
             <Card className="lg:col-span-4">
               <CardHeader>
                 <CardTitle>Resumen de Ventas</CardTitle>
-                <CardDescription>Desempeño mensual de ventas vs objetivo</CardDescription>
+                <CardDescription>Desempeño mensual de ventas</CardDescription>
               </CardHeader>
               <CardContent className="pl-2">
                 <div className="h-[300px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={salesData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                    <BarChart data={ventasMensuales} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" />
                       <YAxis />
                       <Tooltip />
                       <Legend />
                       <Bar dataKey="sales" fill="hsl(var(--chart-1))" name="Ventas" />
-                      <Bar dataKey="target" fill="hsl(var(--chart-2))" name="Objetivo" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -301,14 +297,13 @@ const Dashboard: React.FC<DashboardProps> = ({
             <CardContent>
               <div className="h-[400px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={salesData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                  <LineChart data={ventasMensuales} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
                     <Tooltip />
                     <Legend />
                     <Line type="monotone" dataKey="sales" stroke="hsl(var(--chart-1))" activeDot={{ r: 8 }} />
-                    <Line type="monotone" dataKey="target" stroke="hsl(var(--chart-2))" />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
