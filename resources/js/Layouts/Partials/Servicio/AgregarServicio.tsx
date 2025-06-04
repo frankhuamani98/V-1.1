@@ -424,7 +424,6 @@ const AgregarServicio = ({ servicio, isEditing = false, categorias, servicios = 
                                                         disabled={!categoria.estado}
                                                         className="flex items-center gap-2"
                                                     >
-                                                        <div className={`h-2 w-2 rounded-full ${categoria.estado ? 'bg-emerald-500' : 'bg-gray-300'}`} />
                                                         {categoria.nombre}
                                                     </SelectItem>
                                                 ))}
