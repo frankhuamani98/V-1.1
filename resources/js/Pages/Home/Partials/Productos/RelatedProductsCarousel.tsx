@@ -278,7 +278,8 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
     );
   };
 
-  const visibleProducts = products.slice(0, 10);
+  // Mostrar hasta 20 productos relacionados (ajusta el número si deseas más o menos)
+  const visibleProducts = products.slice(0, 20);
 
   return (
     <div className="space-y-4 py-6">
