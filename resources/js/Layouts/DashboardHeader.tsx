@@ -145,9 +145,11 @@ const Header = ({ toggleSidebar, auth }: HeaderProps) => {
       });
   };
   
-  const filteredNotifications = activeFilter === 'todas' 
-    ? notifications 
-    : notifications.filter(notification => notification.tipo === activeFilter);
+  const filteredNotifications = notifications.filter(notification => {
+    if (notification.leida) return false; 
+    if (activeFilter === 'todas') return true;
+    return notification.tipo === activeFilter;
+  });
 
   const unreadCount = notifications.filter(
     (notification) => !notification.leida
