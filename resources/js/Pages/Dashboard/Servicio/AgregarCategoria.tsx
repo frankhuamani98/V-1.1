@@ -26,7 +26,6 @@ interface AgregarCategoriaPageProps {
 const AgregarCategoriaPage = ({ auth, categoria, categorias = [] }: AgregarCategoriaPageProps) => {
     const [listaCategorias, setListaCategorias] = useState<CategoriaServicio[]>(categorias);
 
-    // Ya no necesitamos este useEffect porque ahora las categorías siempre se pasan desde el servidor
     useEffect(() => {
         setListaCategorias(categorias);
     }, [categorias]);
