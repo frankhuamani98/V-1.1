@@ -60,19 +60,19 @@ export default function Ubicacion({ ubicacionData }: Props) {
     <>
       <Header />
       <ContactoNavigation currentPage="ubicacion" />
-      <div className="w-full min-h-screen bg-white flex items-start justify-center py-10 px-4">
+      <div className="w-full min-h-screen bg-white dark:bg-slate-900 flex items-start justify-center py-10 px-4">
         <div className="w-full max-w-7xl mx-auto">
           <Tabs defaultValue="tienda" value={activeTab} onValueChange={setActiveTab}>
-            <Card className="border border-slate-200 shadow-md overflow-hidden bg-white rounded-lg">
-              <CardHeader className="border-b border-slate-100 bg-white px-4 sm:px-6 md:px-8 py-6">
+            <Card className="border border-slate-200 dark:border-slate-700 shadow-md overflow-hidden bg-white dark:bg-slate-900 rounded-lg">
+              <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 sm:px-6 md:px-8 py-6">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div className="flex items-center gap-3 md:gap-4">
-                    <div className="bg-indigo-100 p-2.5 md:p-3.5 rounded-full flex-shrink-0">
-                      <MapPin className="h-5 w-5 md:h-6 md:w-6 text-indigo-600" />
+                    <div className="bg-indigo-100 dark:bg-indigo-900 p-2.5 md:p-3.5 rounded-full flex-shrink-0">
+                      <MapPin className="h-5 w-5 md:h-6 md:w-6 text-indigo-600 dark:text-indigo-400" />
                     </div>
                     <div>
-                      <CardTitle className="text-xl md:text-2xl font-semibold text-slate-800">Nuestras Ubicaciones</CardTitle>
-                      <CardDescription className="text-sm text-slate-500 mt-1">
+                      <CardTitle className="text-xl md:text-2xl font-semibold text-slate-800 dark:text-slate-100">Nuestras Ubicaciones</CardTitle>
+                      <CardDescription className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                         Visítanos en cualquiera de nuestros locales especializados
                       </CardDescription>
                     </div>
@@ -168,8 +168,8 @@ function LocationContent({
   return (
     <div className="grid lg:grid-cols-2 gap-8">
       <div className="space-y-6">
-        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-          <div className="relative aspect-video bg-slate-100">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
+          <div className="relative aspect-video bg-slate-100 dark:bg-slate-800">
             <AnimatePresence mode="wait">
               <motion.img
                 key={currentImageIndex}
@@ -187,7 +187,7 @@ function LocationContent({
               <Button
                 variant="secondary"
                 size="icon"
-                className="rounded-full bg-white/80 hover:bg-white/90 border border-slate-200/30 text-slate-700 shadow-sm h-8 w-8"
+                className="rounded-full bg-white/80 dark:bg-slate-900/80 hover:bg-white/90 dark:hover:bg-slate-900/90 border border-slate-200/30 dark:border-slate-700/30 text-slate-700 dark:text-slate-200 shadow-sm h-8 w-8"
                 onClick={prevImage}
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -196,7 +196,7 @@ function LocationContent({
               <Button
                 variant="secondary"
                 size="icon"
-                className="rounded-full bg-white/80 hover:bg-white/90 border border-slate-200/30 text-slate-700 shadow-sm h-8 w-8"
+                className="rounded-full bg-white/80 dark:bg-slate-900/80 hover:bg-white/90 dark:hover:bg-slate-900/90 border border-slate-200/30 dark:border-slate-700/30 text-slate-700 dark:text-slate-200 shadow-sm h-8 w-8"
                 onClick={nextImage}
               >
                 <ChevronRight className="h-4 w-4" />
@@ -209,7 +209,7 @@ function LocationContent({
                 <div
                   key={index}
                   className={`h-1 rounded-full transition-all ${
-                    index === currentImageIndex ? "w-5 bg-indigo-500" : "w-1 bg-white/60"
+                    index === currentImageIndex ? "w-5 bg-indigo-500" : "w-1 bg-white/60 dark:bg-slate-700/60"
                   }`}
                 />
               ))}
@@ -217,24 +217,24 @@ function LocationContent({
           </div>
         </div>
         
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-          <h2 className="text-lg font-medium text-slate-800 mb-5 flex items-center gap-3">
-            <div className="bg-indigo-100 p-2 rounded-md">
-              <MapPin className="h-5 w-5 text-indigo-600" />
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-sm">
+          <h2 className="text-lg font-medium text-slate-800 dark:text-slate-100 mb-5 flex items-center gap-3">
+            <div className="bg-indigo-100 dark:bg-indigo-900 p-2 rounded-md">
+              <MapPin className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
             </div>
             Información del Local
           </h2>
           
           <div className="space-y-4">
-            <div className="pb-4 border-b border-slate-100">
-              <h3 className="font-medium text-base mb-3 text-slate-800">{establecimiento.nombre}</h3>
+            <div className="pb-4 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="font-medium text-base mb-3 text-slate-800 dark:text-slate-100">{establecimiento.nombre}</h3>
               <div className="flex items-start gap-3 mb-3">
-                <MapPin className="h-4 w-4 text-indigo-500 mt-0.5 flex-shrink-0" />
-                <p className="text-slate-600">{establecimiento.direccion}</p>
+                <MapPin className="h-4 w-4 text-indigo-500 dark:text-indigo-400 mt-0.5 flex-shrink-0" />
+                <p className="text-slate-600 dark:text-slate-300">{establecimiento.direccion}</p>
               </div>
               <div className="flex items-start gap-3 mb-3">
-                <Info className="h-4 w-4 text-indigo-500 mt-0.5 flex-shrink-0" />
-                <p className="text-slate-600">
+                <Info className="h-4 w-4 text-indigo-500 dark:text-indigo-400 mt-0.5 flex-shrink-0" />
+                <p className="text-slate-600 dark:text-slate-300">
                   {activeTab === "tienda" ? "A unos pasos del Colegio GALILEO" : "En un callejón"}
                 </p>
               </div>
@@ -255,7 +255,7 @@ function LocationContent({
         </div>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm h-full">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm h-full">
         <iframe
           src={mapSrc}
           width="100%"

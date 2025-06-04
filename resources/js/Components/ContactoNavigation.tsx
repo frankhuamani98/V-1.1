@@ -38,7 +38,7 @@ export default function ContactoNavigation({ currentPage }: ContactoNavigationPr
 
   return (
     <div className="flex justify-center py-2">
-      <div className="inline-flex bg-gray-100 rounded-lg p-1 max-w-fit">
+      <div className="inline-flex bg-gray-100 dark:bg-slate-800 rounded-lg p-1 max-w-fit">
         {navItems.map((item) => (
           <Link
             key={item.key}
@@ -46,8 +46,8 @@ export default function ContactoNavigation({ currentPage }: ContactoNavigationPr
             className={cn(
               "px-4 py-1.5 text-sm font-medium transition-all duration-200 rounded-md",
               isActive(item)
-                ? "bg-white text-gray-800 shadow-sm"
-                : "text-gray-600 hover:text-gray-800 hover:bg-gray-200/50"
+                ? "bg-white dark:bg-slate-900 text-gray-800 dark:text-slate-100 shadow-sm"
+                : "text-gray-600 dark:text-slate-300 hover:text-gray-800 dark:hover:text-slate-100 hover:bg-gray-200/50 dark:hover:bg-slate-700/50"
             )}
           >
             {item.name}

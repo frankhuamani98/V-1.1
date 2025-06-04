@@ -339,19 +339,19 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
       <Head title={isEditing ? "Editar Reserva" : "Agendar Servicio"} />
       <Header />
       <ReservaNavigation currentPage="Agendar Servicio" />
-      <div className="w-full min-h-screen bg-white py-10 px-4">
+      <div className="w-full min-h-screen bg-white dark:bg-slate-900 py-10 px-4">
         <div className="w-full max-w-7xl mx-auto">
-          <Card className="border border-slate-200 shadow-md overflow-hidden bg-white rounded-lg">
-            <CardHeader className="border-b border-slate-100 bg-white px-8 py-6">
+          <Card className="border border-slate-200 dark:border-slate-700 shadow-md overflow-hidden bg-white dark:bg-slate-900 rounded-lg">
+            <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 px-8 py-6">
               <div className="flex items-center gap-4">
-                <div className="bg-indigo-100 p-3.5 rounded-full">
-                  <CalendarDays className="h-6 w-6 text-indigo-600" />
+                <div className="bg-indigo-100 dark:bg-indigo-900 p-3.5 rounded-full">
+                  <CalendarDays className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div>
-                  <CardTitle className="text-2xl font-semibold text-slate-800">
+                  <CardTitle className="text-2xl font-semibold text-slate-800 dark:text-slate-100">
                     {isEditing ? "Editar Reserva" : "Agendar Servicio"}
                   </CardTitle>
-                  <CardDescription className="text-sm text-slate-500 mt-1">
+                  <CardDescription className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                     Completa los datos para reservar tu cita
                   </CardDescription>
                 </div>
@@ -359,38 +359,38 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
             </CardHeader>
             <CardContent className="p-8">
               {successMessage && (
-                <div className="mb-4 flex items-center gap-3 bg-emerald-50 border border-emerald-200 p-5 rounded-lg">
-                  <div className="bg-emerald-100 p-2 rounded-md">
-                    <CheckCircle className="text-emerald-600 h-5 w-5" />
+                <div className="mb-4 flex items-center gap-3 bg-emerald-50 dark:bg-emerald-900 border border-emerald-200 dark:border-emerald-700 p-5 rounded-lg">
+                  <div className="bg-emerald-100 dark:bg-emerald-800 p-2 rounded-md">
+                    <CheckCircle className="text-emerald-600 dark:text-emerald-300 h-5 w-5" />
                   </div>
-                  <span className="text-base text-emerald-800">{successMessage}</span>
+                  <span className="text-base text-emerald-800 dark:text-emerald-100">{successMessage}</span>
                 </div>
               )}
               
               {errorMessage && (
-                <div className="mb-4 flex items-center gap-3 bg-rose-50 border border-rose-200 p-5 rounded-lg">
-                  <div className="bg-rose-100 p-2 rounded-md">
-                    <AlertCircle className="text-rose-600 h-5 w-5" />
+                <div className="mb-4 flex items-center gap-3 bg-rose-50 dark:bg-rose-900 border border-rose-200 dark:border-rose-700 p-5 rounded-lg">
+                  <div className="bg-rose-100 dark:bg-rose-800 p-2 rounded-md">
+                    <AlertCircle className="text-rose-600 dark:text-rose-300 h-5 w-5" />
                   </div>
-                  <span className="text-base text-rose-800 whitespace-pre-line">{errorMessage}</span>
+                  <span className="text-base text-rose-800 dark:text-rose-100 whitespace-pre-line">{errorMessage}</span>
                 </div>
               )}
               <form onSubmit={handleSubmit} className="flex flex-col gap-8">
                 {/* Sección: Datos de la Motocicleta */}
-                <fieldset className="border border-slate-200 rounded-lg p-6 mb-4">
-                  <legend className="text-lg font-semibold text-indigo-700 px-2">Datos de la Motocicleta</legend>
+                <fieldset className="border border-slate-200 dark:border-slate-700 rounded-lg p-6 mb-4">
+                  <legend className="text-lg font-semibold text-indigo-700 dark:text-indigo-400 px-2">Datos de la Motocicleta</legend>
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-4">
                     {/* Año */}
                     <div>
-                      <label htmlFor="year" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
-                        <div className="bg-slate-100 p-1.5 rounded-md">
-                          <BadgeInfo className="h-4 w-4 text-indigo-600" />
+                      <label htmlFor="year" className="text-base font-medium text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-2">
+                        <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-md">
+                          <BadgeInfo className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                         </div>
                         Año del Modelo
                       </label>
                       <select
                         id="year"
-                        className={`mt-1 block w-full border ${errors.moto_id ? 'border-rose-200' : 'border-slate-200'} rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white`}
+                        className={`mt-1 block w-full border ${errors.moto_id ? 'border-rose-200 dark:border-rose-700' : 'border-slate-200 dark:border-slate-700'} rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white dark:bg-slate-900 dark:text-slate-100`}
                         value={selectedYear}
                         onChange={(e) => handleYearChange(e.target.value)}
                         required
@@ -404,15 +404,15 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                     </div>
                     {/* Marca */}
                     <div>
-                      <label htmlFor="brand" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
-                        <div className="bg-slate-100 p-1.5 rounded-md">
-                          <Bike className="h-4 w-4 text-indigo-600" />
+                      <label htmlFor="brand" className="text-base font-medium text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-2">
+                        <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-md">
+                          <Bike className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                         </div>
                         Marca
                       </label>
                       <select
                         id="brand"
-                        className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
+                        className="mt-1 block w-full border border-slate-200 dark:border-slate-700 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white dark:bg-slate-900 dark:text-slate-100"
                         value={selectedBrand}
                         onChange={(e) => handleBrandChange(e.target.value)}
                         required
@@ -425,15 +425,15 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                     </div>
                     {/* Modelo */}
                     <div>
-                      <label htmlFor="modelo" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
-                        <div className="bg-slate-100 p-1.5 rounded-md">
-                          <Tag className="h-4 w-4 text-indigo-600" />
+                      <label htmlFor="modelo" className="text-base font-medium text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-2">
+                        <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-md">
+                          <Tag className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                         </div>
                         Modelo
                       </label>
                       <select
                         id="modelo"
-                        className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
+                        className="mt-1 block w-full border border-slate-200 dark:border-slate-700 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white dark:bg-slate-900 dark:text-slate-100"
                         value={data.moto_id}
                         onChange={(e) => handleModelSelect(e.target.value)}
                         required
@@ -451,21 +451,21 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                         ))}
                       </select>
                       {errors.moto_id && (
-                        <p id="moto_id-error" className="mt-1.5 text-sm text-rose-600">{errors.moto_id}</p>
+                        <p id="moto_id-error" className="mt-1.5 text-sm text-rose-600 dark:text-rose-400">{errors.moto_id}</p>
                       )}
                     </div>
                     {/* Placa */}
                     <div>
-                      <label htmlFor="placa" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
-                        <div className="bg-slate-100 p-1.5 rounded-md">
-                          <Hash className="h-4 w-4 text-indigo-600" />
+                      <label htmlFor="placa" className="text-base font-medium text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-2">
+                        <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-md">
+                          <Hash className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                         </div>
                         Placa
                       </label>
                       <input
                         type="text"
                         id="placa"
-                        className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
+                        className="mt-1 block w-full border border-slate-200 dark:border-slate-700 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white dark:bg-slate-900 dark:text-slate-100"
                         value={data.placa}
                         onChange={(e) => setData("placa", e.target.value)}
                         required
@@ -475,27 +475,27 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                         aria-describedby={errors.placa ? 'placa-error' : undefined}
                       />
                       {errors.placa && (
-                        <p id="placa-error" className="mt-1.5 text-sm text-rose-600">{errors.placa}</p>
+                        <p id="placa-error" className="mt-1.5 text-sm text-rose-600 dark:text-rose-400">{errors.placa}</p>
                       )}
                     </div>
                   </div>
                 </fieldset>
 
                 {/* Sección: Servicio */}
-                <fieldset className="border border-slate-200 rounded-lg p-6 mb-4">
-                  <legend className="text-lg font-semibold text-indigo-700 px-2">Servicio</legend>
+                <fieldset className="border border-slate-200 dark:border-slate-700 rounded-lg p-6 mb-4">
+                  <legend className="text-lg font-semibold text-indigo-700 dark:text-indigo-400 px-2">Servicio</legend>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                     {/* Categoría */}
                     <div>
-                      <label htmlFor="categoria" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
-                        <div className="bg-slate-100 p-1.5 rounded-md">
-                          <Wrench className="h-4 w-4 text-indigo-600" />
+                      <label htmlFor="categoria" className="text-base font-medium text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-2">
+                        <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-md">
+                          <Wrench className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                         </div>
                         Tipo de Servicio
                       </label>
                       <select
                         id="categoria"
-                        className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
+                        className="mt-1 block w-full border border-slate-200 dark:border-slate-700 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white dark:bg-slate-900 dark:text-slate-100"
                         value={selectedCategoriaId}
                         onChange={(e) => {
                           setSelectedCategoriaId(e.target.value);
@@ -511,24 +511,24 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                     </div>
                     {/* Servicios */}
                     <div>
-                      <label className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
-                        <div className="bg-slate-100 p-1.5 rounded-md">
-                          <Wrench className="h-4 w-4 text-indigo-600" />
+                      <label className="text-base font-medium text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-2">
+                        <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-md">
+                          <Wrench className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                         </div>
                         Servicios
                       </label>
-                      <div className="mt-2 space-y-2 border border-slate-200 rounded-lg p-4 bg-slate-50">
+                      <div className="mt-2 space-y-2 border border-slate-200 dark:border-slate-700 rounded-lg p-4 bg-slate-50 dark:bg-slate-800">
                         {!selectedCategoriaId ? (
-                          <p className="text-slate-500">Primero seleccione una categoría</p>
+                          <p className="text-slate-500 dark:text-slate-400">Primero seleccione una categoría</p>
                         ) : serviciosFiltrados.length === 0 ? (
-                          <p className="text-slate-500">No hay servicios disponibles en esta categoría</p>
+                          <p className="text-slate-500 dark:text-slate-400">No hay servicios disponibles en esta categoría</p>
                         ) : (
                           serviciosFiltrados.map((servicio) => (
                             <div key={servicio.id} className="flex items-center gap-2">
                               <input
                                 type="checkbox"
                                 id={`servicio-${servicio.id}`}
-                                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 rounded"
+                                className="h-4 w-4 text-indigo-600 dark:text-indigo-400 focus:ring-indigo-500 border-slate-300 dark:border-slate-600 rounded"
                                 checked={data.servicios_ids.includes(servicio.id.toString())}
                                 onChange={(e) => {
                                   const servicioId = servicio.id.toString();
@@ -540,7 +540,7 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                                 }}
                                 aria-describedby={errors.servicios_ids ? 'servicios_ids-error' : undefined}
                               />
-                              <label htmlFor={`servicio-${servicio.id}`} className="text-sm text-slate-700">
+                              <label htmlFor={`servicio-${servicio.id}`} className="text-sm text-slate-700 dark:text-slate-200">
                                 {servicio.nombre}
                               </label>
                             </div>
@@ -548,14 +548,14 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                         )}
                       </div>
                       {errors.servicios_ids && (
-                        <p id="servicios_ids-error" className="mt-1.5 text-sm text-rose-600">{errors.servicios_ids}</p>
+                        <p id="servicios_ids-error" className="mt-1.5 text-sm text-rose-600 dark:text-rose-400">{errors.servicios_ids}</p>
                       )}
                     </div>
                     {/* Detalles */}
                     <div className="md:col-span-2">
-                      <label htmlFor="detalles" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
-                        <div className="bg-slate-100 p-1.5 rounded-md">
-                          <AlertCircle className="h-4 w-4 text-indigo-600" />
+                      <label htmlFor="detalles" className="text-base font-medium text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-2">
+                        <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-md">
+                          <AlertCircle className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                         </div>
                         ¿Qué problema presenta tu moto?
                       </label>
@@ -563,26 +563,26 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                         <textarea
                           id="detalles"
                           rows={3}
-                          className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 pr-8 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
+                          className="mt-1 block w-full border border-slate-200 dark:border-slate-700 rounded-lg py-2.5 px-3 pr-8 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white dark:bg-slate-900 dark:text-slate-100"
                           value={data.detalles}
                           onChange={(e) => setData("detalles", e.target.value)}
                           placeholder="Describe el problema o servicio requerido"
                         />
-                        <AlertCircle className="absolute right-3 top-3 h-4 w-4 text-slate-300 pointer-events-none" />
+                        <AlertCircle className="absolute right-3 top-3 h-4 w-4 text-slate-300 dark:text-slate-600 pointer-events-none" />
                       </div>
                     </div>
                   </div>
                 </fieldset>
 
                 {/* Sección: Fecha y Hora */}
-                <fieldset className="border border-slate-200 rounded-lg p-6 mb-4">
-                  <legend className="text-lg font-semibold text-indigo-700 px-2">Fecha y Hora</legend>
+                <fieldset className="border border-slate-200 dark:border-slate-700 rounded-lg p-6 mb-4">
+                  <legend className="text-lg font-semibold text-indigo-700 dark:text-indigo-400 px-2">Fecha y Hora</legend>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                     {/* Fecha */}
                     <div>
-                      <label htmlFor="fecha" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
-                        <div className="bg-slate-100 p-1.5 rounded-md">
-                          <CalendarDays className="h-4 w-4 text-indigo-600" />
+                      <label htmlFor="fecha" className="text-base font-medium text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-2">
+                        <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-md">
+                          <CalendarDays className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                         </div>
                         Fecha
                       </label>
@@ -590,7 +590,7 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                         <input
                           type="date"
                           id="fecha"
-                          className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 pr-8 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
+                          className="mt-1 block w-full border border-slate-200 dark:border-slate-700 rounded-lg py-2.5 px-3 pr-8 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white dark:bg-slate-900 dark:text-slate-100"
                           value={data.fecha}
                           onChange={(e) => {
                             setData("fecha", e.target.value);
@@ -601,27 +601,27 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                           aria-invalid={!!errors.fecha}
                           aria-describedby={errors.fecha ? 'fecha-error' : undefined}
                         />
-                        <CalendarDays className="absolute right-3 top-3 h-4 w-4 text-slate-300 pointer-events-none" />
+                        <CalendarDays className="absolute right-3 top-3 h-4 w-4 text-slate-300 dark:text-slate-600 pointer-events-none" />
                       </div>
                       {errors.fecha && (
-                        <p id="fecha-error" className="mt-1.5 text-sm text-rose-600">{errors.fecha}</p>
+                        <p id="fecha-error" className="mt-1.5 text-sm text-rose-600 dark:text-rose-400">{errors.fecha}</p>
                       )}
                       {dateErrorMessage && (
-                        <p className="mt-1.5 text-sm text-rose-600">{dateErrorMessage}</p>
+                        <p className="mt-1.5 text-sm text-rose-600 dark:text-rose-400">{dateErrorMessage}</p>
                       )}
                     </div>
                     {/* Hora */}
                     <div>
-                      <label htmlFor="hora" className="text-base font-medium text-slate-700 mb-2 flex items-center gap-2">
-                        <div className="bg-slate-100 p-1.5 rounded-md">
-                          <Clock className="h-4 w-4 text-indigo-600" />
+                      <label htmlFor="hora" className="text-base font-medium text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-2">
+                        <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-md">
+                          <Clock className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                         </div>
                         Hora
                       </label>
                       <div className="relative">
                         <select
                           id="hora"
-                          className="mt-1 block w-full border border-slate-200 rounded-lg py-2.5 px-3 pr-8 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white"
+                          className="mt-1 block w-full border border-slate-200 dark:border-slate-700 rounded-lg py-2.5 px-3 pr-8 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 text-base bg-white dark:bg-slate-900 dark:text-slate-100"
                           value={data.hora}
                           onChange={(e) => setData("hora", e.target.value)}
                           required
@@ -640,18 +640,18 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                             <option key={hora} value={hora}>{hora}</option>
                           ))}
                         </select>
-                        <Clock className="absolute right-3 top-3 h-4 w-4 text-slate-300 pointer-events-none" />
+                        <Clock className="absolute right-3 top-3 h-4 w-4 text-slate-300 dark:text-slate-600 pointer-events-none" />
                       </div>
                       {errors.hora && (
-                        <p id="hora-error" className="mt-1.5 text-sm text-rose-600">{errors.hora}</p>
+                        <p id="hora-error" className="mt-1.5 text-sm text-rose-600 dark:text-rose-400">{errors.hora}</p>
                       )}
                     </div>
                   </div>
                   {/* Horarios de atención */}
-                  <div className="bg-slate-50 p-5 rounded-lg mt-8 mb-6 border border-slate-200 shadow-sm">
-                    <h3 className="text-sm font-medium text-slate-700 mb-3 flex items-center gap-2">
-                      <div className="bg-slate-100 p-1.5 rounded-md">
-                        <Clock className="h-4 w-4 text-indigo-600" />
+                  <div className="bg-slate-50 dark:bg-slate-800 p-5 rounded-lg mt-8 mb-6 border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <h3 className="text-sm font-medium text-slate-700 dark:text-slate-200 mb-3 flex items-center gap-2">
+                      <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-md">
+                        <Clock className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                       </div>
                       Horarios de Atención
                     </h3>
@@ -667,7 +667,7 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
                       })
                         .filter(([_, horario]) => horario !== '')
                         .map(([dia, horario]) => (
-                          <div key={dia} className="text-sm text-slate-600 flex items-center gap-2">
+                          <div key={dia} className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full bg-indigo-400"></div>
                             <span className="font-medium">{dia}:</span> {horario}
                           </div>

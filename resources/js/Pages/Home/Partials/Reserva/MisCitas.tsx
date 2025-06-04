@@ -84,17 +84,17 @@ export default function MisCitas({ reservas }: Props) {
             <Head title="Mis Citas" />
             <Header />
             <ReservaNavigation currentPage="Mis Citas" />
-            <div className="w-full min-h-screen bg-white flex items-start justify-center py-10 px-4">
+            <div className="w-full min-h-screen bg-white dark:bg-slate-900 flex items-start justify-center py-10 px-4">
                 <div className="w-full max-w-7xl mx-auto">
-                    <Card className="border border-slate-200 shadow-md overflow-hidden bg-white rounded-lg">
-                        <CardHeader className="border-b border-slate-100 bg-white px-8 py-6">
+                    <Card className="border border-slate-200 dark:border-slate-700 shadow-md overflow-hidden bg-white dark:bg-slate-900 rounded-lg">
+                        <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 px-8 py-6">
                             <div className="flex items-center gap-4">
-                                <div className="bg-indigo-100 p-3.5 rounded-full">
-                                    <Calendar className="h-6 w-6 text-indigo-600" />
+                                <div className="bg-indigo-100 dark:bg-indigo-900 p-3.5 rounded-full">
+                                    <Calendar className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                                 </div>
                                 <div>
-                                    <CardTitle className="text-2xl font-semibold text-slate-800">Mis Citas</CardTitle>
-                                    <CardDescription className="text-sm text-slate-500 mt-1">
+                                    <CardTitle className="text-2xl font-semibold text-slate-800 dark:text-slate-100">Mis Citas</CardTitle>
+                                    <CardDescription className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                                         Gestiona tus citas programadas
                                     </CardDescription>
                                 </div>
@@ -103,11 +103,11 @@ export default function MisCitas({ reservas }: Props) {
                         <CardContent className="p-8">
                             {reservas.length === 0 ? (
                                 <div className="text-center py-16 px-4">
-                                    <div className="mx-auto w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4">
-                                        <Calendar className="h-8 w-8 text-slate-300" />
+                                    <div className="mx-auto w-16 h-16 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-4">
+                                        <Calendar className="h-8 w-8 text-slate-300 dark:text-slate-500" />
                                     </div>
-                                    <h3 className="text-slate-700 font-medium text-lg mb-2">No tienes citas programadas</h3>
-                                    <p className="text-slate-500 text-sm max-w-md mx-auto">
+                                    <h3 className="text-slate-700 dark:text-slate-200 font-medium text-lg mb-2">No tienes citas programadas</h3>
+                                    <p className="text-slate-500 dark:text-slate-400 text-sm max-w-md mx-auto">
                                         Agenda tu primera cita desde la sección de servicios disponibles
                                     </p>
                                     <Button
@@ -120,14 +120,14 @@ export default function MisCitas({ reservas }: Props) {
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
                                     {reservas.map((reserva) => (
-                                        <div key={reserva.id} className="bg-white rounded-xl border border-slate-200 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden">
+                                        <div key={reserva.id} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden">
                                             <div className="p-6 flex flex-col h-full">
                                                 <div className="flex justify-between items-center mb-5">
-                                                    <Badge className={getEstadoBadgeClass(reserva.estado) + " px-3.5 py-1.5 text-sm font-medium rounded-full"}>
+                                                    <Badge className={getEstadoBadgeClass(reserva.estado) + " px-3.5 py-1.5 text-sm font-medium rounded-full dark:bg-opacity-60"}>
                                                         {reserva.estado.charAt(0).toUpperCase() + reserva.estado.slice(1)}
                                                     </Badge>
                                                     {reserva.reprogramada_en && (
-                                                        <span className="inline-block bg-indigo-100 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full ml-2">
+                                                        <span className="inline-block bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 text-xs font-semibold px-3 py-1 rounded-full ml-2">
                                                             Reprogramado
                                                         </span>
                                                     )}
@@ -135,57 +135,57 @@ export default function MisCitas({ reservas }: Props) {
                                                 
                                                 <div className="space-y-4 flex-1">
                                                     <div className="flex items-start gap-3">
-                                                        <div className="bg-slate-100 p-2 rounded-md">
-                                                            <Bike className="h-5 w-5 text-indigo-600" />
+                                                        <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded-md">
+                                                            <Bike className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                                                         </div>
                                                         <div>
-                                                            <p className="font-medium text-slate-800 text-base">
+                                                            <p className="font-medium text-slate-800 dark:text-slate-100 text-base">
                                                                 {reserva.moto ? 
                                                                     `${reserva.moto.marca} ${reserva.moto.modelo} ${reserva.moto.año}` : 
                                                                     'Moto no disponible'
                                                                 }
                                                             </p>
-                                                            <p className="text-sm text-slate-500">{reserva.placa}</p>
+                                                            <p className="text-sm text-slate-500 dark:text-slate-400">{reserva.placa}</p>
                                                         </div>
                                                     </div>
                                                     
                                                     <div className="flex items-start gap-3">
-                                                        <div className="bg-slate-100 p-2 rounded-md">
-                                                            <Tag className="h-5 w-5 text-indigo-600" />
+                                                        <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded-md">
+                                                            <Tag className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                                                         </div>
                                                         <div>
                                                             {reserva.servicios && reserva.servicios.length > 0 ? (
                                                                 reserva.servicios.map((servicio, idx) => (
-                                                                    <span key={servicio.id} className="text-base text-slate-700">
+                                                                    <span key={servicio.id} className="text-base text-slate-700 dark:text-slate-200">
                                                                         {servicio.nombre}{idx < reserva.servicios.length - 1 ? ', ' : ''}
                                                                     </span>
                                                                 ))
                                                             ) : (
-                                                                <span className="text-base text-slate-500">Sin servicios</span>
+                                                                <span className="text-base text-slate-500 dark:text-slate-400">Sin servicios</span>
                                                             )}
                                                         </div>
                                                     </div>
                                                     
                                                     <div className="flex items-start gap-3">
-                                                        <div className="bg-slate-100 p-2 rounded-md">
-                                                            <Calendar className="h-5 w-5 text-indigo-600" />
+                                                        <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded-md">
+                                                            <Calendar className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                                                         </div>
-                                                        <p className="text-base text-slate-700">{formatFecha(reserva.fecha)}</p>
+                                                        <p className="text-base text-slate-700 dark:text-slate-200">{formatFecha(reserva.fecha)}</p>
                                                     </div>
                                                     
                                                     <div className="flex items-start gap-3">
-                                                        <div className="bg-slate-100 p-2 rounded-md">
-                                                            <Clock className="h-5 w-5 text-indigo-600" />
+                                                        <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded-md">
+                                                            <Clock className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                                                         </div>
-                                                        <p className="text-base text-slate-700">{reserva.hora}</p>
+                                                        <p className="text-base text-slate-700 dark:text-slate-200">{reserva.hora}</p>
                                                     </div>
                                                     
                                                     {reserva.detalles && (
                                                         <div className="flex items-start gap-3 mt-1">
-                                                            <div className="bg-slate-100 p-2 rounded-md">
-                                                                <Info className="h-5 w-5 text-indigo-600" />
+                                                            <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded-md">
+                                                                <Info className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                                                             </div>
-                                                            <p className="text-sm text-slate-500">
+                                                            <p className="text-sm text-slate-500 dark:text-slate-400">
                                                                 {reserva.detalles}
                                                             </p>
                                                         </div>
@@ -193,11 +193,11 @@ export default function MisCitas({ reservas }: Props) {
                                                 </div>
                                                 
                                                 {reserva.estado === 'pendiente' && (
-                                                    <div className="mt-5 pt-4 border-t border-slate-200 flex gap-4">
+                                                    <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-700 flex gap-4">
                                                         <Button
                                                             variant="outline"
                                                             onClick={() => router.visit(route('reservas.edit', reserva.id))}
-                                                            className="flex-1 border-slate-200 text-slate-700 hover:bg-slate-50 text-sm h-10"
+                                                            className="flex-1 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 text-sm h-10"
                                                         >
                                                             <Edit2 className="h-4 w-4 mr-2" />
                                                             Editar
@@ -205,7 +205,7 @@ export default function MisCitas({ reservas }: Props) {
                                                         <Button
                                                             variant="outline"
                                                             onClick={() => handleCancelar(reserva.id)}
-                                                            className="flex-1 border-slate-200 text-slate-700 hover:bg-slate-50 text-sm h-10"
+                                                            className="flex-1 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 text-sm h-10"
                                                         >
                                                             <XCircle className="h-4 w-4 mr-2" />
                                                             Cancelar
@@ -213,22 +213,22 @@ export default function MisCitas({ reservas }: Props) {
                                                     </div>
                                                 )}
                                                 {reserva.estado === 'confirmada' && (
-                                                    <div className="mt-5 pt-4 border-t border-slate-200 text-center">
-                                                        <span className="inline-block bg-emerald-50 text-emerald-700 text-sm font-semibold px-4 py-2 rounded-lg">
+                                                    <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-700 text-center">
+                                                        <span className="inline-block bg-emerald-50 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-200 text-sm font-semibold px-4 py-2 rounded-lg">
                                                             ¡Tu reserva ha sido confirmada! Te esperamos en el taller.
                                                         </span>
                                                     </div>
                                                 )}
                                                 {reserva.estado === 'completada' && (
-                                                    <div className="mt-5 pt-4 border-t border-slate-200 text-center">
-                                                        <span className="inline-block bg-indigo-50 text-indigo-700 text-sm font-semibold px-4 py-2 rounded-lg">
+                                                    <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-700 text-center">
+                                                        <span className="inline-block bg-indigo-50 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200 text-sm font-semibold px-4 py-2 rounded-lg">
                                                             ¡Servicio completado! Puedes recoger tu moto.
                                                         </span>
                                                     </div>
                                                 )}
                                                 {reserva.estado === 'cancelada' && (
-                                                    <div className="mt-5 pt-4 border-t border-slate-200 text-center">
-                                                        <span className="inline-block bg-rose-50 text-rose-700 text-sm font-semibold px-4 py-2 rounded-lg">
+                                                    <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-700 text-center">
+                                                        <span className="inline-block bg-rose-50 dark:bg-rose-900 text-rose-700 dark:text-rose-200 text-sm font-semibold px-4 py-2 rounded-lg">
                                                             Esta reserva ha sido cancelada.
                                                         </span>
                                                     </div>

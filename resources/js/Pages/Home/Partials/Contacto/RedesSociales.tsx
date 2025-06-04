@@ -50,10 +50,20 @@ export default function RedesSociales() {
       username: "@RudolfMotos",
       description: "Contenido breve y dinámico sobre nuestros servicios, novedades y tendencias en nuestra tienda.",
       url: "https://www.tiktok.com/@rudolf_motors?_t=8s9j0KmESjV&_r=1",
-      icon: <FaTiktok className="h-5 w-5" />,
+      // Cambia el color del icono según el modo
+      icon: (
+        <>
+          <span className="block dark:hidden">
+            <FaTiktok className="h-5 w-5 text-[#00f2ea]" />
+          </span>
+          <span className="hidden dark:block">
+            <FaTiktok className="h-5 w-5 text-white" />
+          </span>
+        </>
+      ),
       color: "#00f2ea",
       bgColor: "bg-gray-100",
-      textColor: "text-gray-800",
+      textColor: "text-gray-800 dark:text-white",
       buttonBg: "bg-gradient-to-r from-[#00f2ea] to-[#ff0050]",
       backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 50L50 0M50 50L100 50M50 50L0 50M50 50L50 100' stroke='%2300f2ea' stroke-opacity='0.05' stroke-width='8'/%3E%3C/svg%3E")`
     }
@@ -63,17 +73,17 @@ export default function RedesSociales() {
     <>
       <Header />
       <ContactoNavigation currentPage="redes" />
-      <div className="w-full min-h-screen bg-white flex items-start justify-center py-10 px-4">
+      <div className="w-full min-h-screen bg-white dark:bg-slate-900 flex items-start justify-center py-10 px-4">
         <div className="w-full max-w-7xl mx-auto">
-          <Card className="border border-slate-200 shadow-md overflow-hidden bg-white rounded-lg">
-            <CardHeader className="border-b border-slate-100 bg-white px-4 sm:px-6 md:px-8 py-6">
+          <Card className="border border-slate-200 dark:border-slate-700 shadow-md overflow-hidden bg-white dark:bg-slate-900 rounded-lg">
+            <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 sm:px-6 md:px-8 py-6">
               <div className="flex items-center gap-3 md:gap-4">
-                <div className="bg-indigo-100 p-2.5 md:p-3.5 rounded-full flex-shrink-0">
-                  <Share2 className="h-5 w-5 md:h-6 md:w-6 text-indigo-600" />
+                <div className="bg-indigo-100 dark:bg-indigo-900 p-2.5 md:p-3.5 rounded-full flex-shrink-0">
+                  <Share2 className="h-5 w-5 md:h-6 md:w-6 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div>
-                  <CardTitle className="text-xl md:text-2xl font-semibold text-slate-800">Redes Sociales</CardTitle>
-                  <CardDescription className="text-sm text-slate-500 mt-1">
+                  <CardTitle className="text-xl md:text-2xl font-semibold text-slate-800 dark:text-slate-100">Redes Sociales</CardTitle>
+                  <CardDescription className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                     Conecta con nosotros en todas nuestras plataformas sociales
                   </CardDescription>
                 </div>
@@ -84,7 +94,7 @@ export default function RedesSociales() {
                 {socialNetworks.map((network, index) => (
                   <div 
                     key={index} 
-                    className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300"
+                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300"
                   >
                     <div 
                       className="p-6 flex flex-col h-full relative"
@@ -95,19 +105,19 @@ export default function RedesSociales() {
                       }}
                     >
                       <div className="flex items-center mb-4">
-                        <div className={`${network.bgColor} p-3 rounded-full mr-4`}>
+                        <div className={`${network.bgColor} dark:bg-slate-800 p-3 rounded-full mr-4`}>
                           <div className={network.textColor}>{network.icon}</div>
                         </div>
                         <div>
-                          <h3 className="font-semibold text-slate-800 text-lg">{network.name}</h3>
-                          <p className="text-slate-500 text-sm">Síguenos y comparte</p>
+                          <h3 className="font-semibold text-slate-800 dark:text-slate-100 text-lg">{network.name}</h3>
+                          <p className="text-slate-500 dark:text-slate-400 text-sm">Síguenos y comparte</p>
                         </div>
                       </div>
                       
                       <p className={`font-medium text-lg mb-2`} style={{ color: network.color }}>
                         {network.username}
                       </p>
-                      <p className="text-slate-600 text-sm mb-6 flex-grow">
+                      <p className="text-slate-600 dark:text-slate-300 text-sm mb-6 flex-grow">
                         {network.description}
                       </p>
                       
