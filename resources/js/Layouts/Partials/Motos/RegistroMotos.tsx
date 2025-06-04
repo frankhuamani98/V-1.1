@@ -18,6 +18,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/Components/ui/alert-dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter
+} from '@/Components/ui/dialog';
 import { 
   Bike as Motorcycle, 
   BadgeCheck, 
@@ -68,6 +76,8 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [motoToDelete, setMotoToDelete] = useState<number | null>(null);
     
+    const [formDialogOpen, setFormDialogOpen] = useState(false);
+
     const estadoColors: Record<string, string> = {
         'Activo': 'bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-800 border-emerald-200 shadow-sm',
         'Inactivo': 'bg-gradient-to-r from-amber-50 to-amber-100 text-amber-800 border-amber-200 shadow-sm',
@@ -82,7 +92,7 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
                 onSuccess: () => {
                     toast.success('Motocicleta actualizada correctamente');
                     resetForm();
-                    setShowForm(false);
+                    setFormDialogOpen(false);
                 },
             });
         } else {
@@ -90,7 +100,7 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
                 onSuccess: () => {
                     toast.success('Motocicleta registrada correctamente');
                     resetForm();
-                    setShowForm(false);
+                    setFormDialogOpen(false);
                 },
             });
         }
@@ -106,8 +116,7 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
         });
         clearErrors();
         setIsEditing(true);
-        setShowForm(true);
-        document.getElementById('registro-form')?.scrollIntoView({ behavior: 'smooth' });
+        setFormDialogOpen(true);
     };
 
     const handleDelete = (id: number) => {
@@ -137,6 +146,7 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
             estado: 'Activo',
         });
         setIsEditing(false);
+        clearErrors();
     };
 
     const filteredMotos = motos.filter(moto => {
@@ -208,26 +218,13 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
                             <Button 
                                 onClick={() => {
                                     resetForm();
-                                    clearErrors();
-                                    setShowForm(!showForm);
+                                    setFormDialogOpen(true);
                                     setIsEditing(false);
                                 }}
-                                className={`${showForm 
-                                    ? 'bg-rose-100 text-rose-700 hover:bg-rose-200 hover:text-rose-800 border border-rose-200' 
-                                    : 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white shadow-md'
-                                } px-4 sm:px-5 py-2 h-auto text-xs sm:text-sm rounded-full transition-all duration-200 font-medium`}
+                                className="bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white shadow-md px-4 sm:px-5 py-2 h-auto text-xs sm:text-sm rounded-full transition-all duration-200 font-medium"
                             >
-                                {showForm ? (
-                                    <>
-                                        <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-                                        Cerrar
-                                    </>
-                                ) : (
-                                    <>
-                                        <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-                                        Nueva motocicleta
-                                    </>
-                                )}
+                                <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+                                Nueva motocicleta
                             </Button>
                             
                             <div className="flex items-center text-xs sm:text-sm bg-slate-100 py-1.5 px-2 sm:px-3 rounded-lg">
@@ -273,10 +270,10 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
                     </div>
                 </div>
                 
-                {showForm && (
-                    <Card id="registro-form" className="mb-6 sm:mb-8 bg-white border-0 rounded-xl overflow-hidden shadow-sm">
-                        <CardHeader className="bg-gradient-to-r from-indigo-50 to-white border-b border-slate-100 p-4 sm:p-5">
-                            <CardTitle className="text-base sm:text-lg font-medium text-slate-800 flex items-center gap-2">
+                <Dialog open={formDialogOpen} onOpenChange={setFormDialogOpen}>
+                    <DialogContent className="rounded-xl p-0 max-w-[95vw] sm:max-w-xl md:max-w-2xl lg:max-w-3xl overflow-hidden">
+                        <DialogHeader className="bg-gradient-to-r from-indigo-50 to-white border-b border-slate-100 p-4 sm:p-5">
+                            <DialogTitle className="text-base sm:text-lg font-medium text-slate-800 flex items-center gap-2">
                                 {isEditing ? (
                                     <>
                                         <Edit className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
@@ -288,10 +285,13 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
                                         Nueva Motocicleta
                                     </>
                                 )}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-4 sm:p-6 bg-white">
-                            <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                            </DialogTitle>
+                            <DialogDescription className="text-xs sm:text-sm text-slate-500">
+                                {isEditing ? 'Actualiza los detalles de la motocicleta existente.' : 'Registra una nueva motocicleta en el sistema.'}
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="p-4 sm:p-6 bg-white">
+                            <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-y-6 gap-x-8">
                                 <div>
                                     <Label htmlFor="año" className="text-xs sm:text-sm font-medium text-slate-700 block mb-1 sm:mb-1.5">
                                         Año
@@ -372,7 +372,7 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
                                     {errors.estado && <p className="text-xs text-red-500 mt-1 sm:mt-1.5">{errors.estado}</p>}
                                 </div>
                                 
-                                <div className="sm:col-span-2 lg:col-span-4 flex flex-col xs:flex-row gap-3 mt-2">
+                                <div className="sm:col-span-2 lg:col-span-2 flex flex-col xs:flex-row gap-3 mt-2">
                                     <Button
                                         type="submit"
                                         disabled={processing}
@@ -403,8 +403,7 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
                                         type="button"
                                         onClick={() => {
                                             resetForm();
-                                            clearErrors();
-                                            setShowForm(false);
+                                            setFormDialogOpen(false);
                                         }}
                                         variant="outline"
                                         className="w-full xs:w-auto rounded-full border-slate-200 hover:bg-slate-100 text-slate-700 px-5 sm:px-7 py-2 h-auto text-xs sm:text-sm font-medium"
@@ -414,9 +413,9 @@ const RegistroMotos = ({ motos }: RegistroMotosProps) => {
                                     </Button>
                                 </div>
                             </form>
-                        </CardContent>
-                    </Card>
-                )}
+                        </div>
+                    </DialogContent>
+                </Dialog>
 
                 {filteredMotos.length === 0 ? (
                     <Card className="border-0 border-dashed border-slate-200 bg-white p-6 sm:p-10 rounded-xl shadow-sm">
