@@ -302,7 +302,7 @@ const DetalleReserva = ({ reserva: initialReserva }: DetalleReservaProps) => {
                                 <CalendarIcon className="h-3.5 w-3.5 mr-1" />
                                 Reprogramar
                             </Button>
-                            {reserva.estado !== "pendiente" && (
+                            {reserva.estado === "cancelada" && (
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -312,7 +312,7 @@ const DetalleReserva = ({ reserva: initialReserva }: DetalleReservaProps) => {
                                     Pendiente
                                 </Button>
                             )}
-                            {reserva.estado !== "confirmada" && (
+                            {reserva.estado === "pendiente" && (
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -323,7 +323,7 @@ const DetalleReserva = ({ reserva: initialReserva }: DetalleReservaProps) => {
                                     Confirmar
                                 </Button>
                             )}
-                            {reserva.estado !== "completada" && (
+                            {reserva.estado === "confirmada" && (
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -333,7 +333,7 @@ const DetalleReserva = ({ reserva: initialReserva }: DetalleReservaProps) => {
                                     Completada
                                 </Button>
                             )}
-                            {reserva.estado !== "cancelada" && (
+                            {reserva.estado !== "cancelada" && reserva.estado !== "completada" && (
                                 <Button
                                     variant="outline"
                                     size="sm"

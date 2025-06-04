@@ -88,6 +88,15 @@ const TodasReservas = ({ reservas: initialReservas }: TodasReservasProps) => {
         }
     };
 
+    const getTruncatedServicesData = (services: Servicio[]) => {
+        if (services.length === 0) {
+            return { firstService: "N/A", additionalCount: 0 };
+        }
+        const firstService = services[0].nombre;
+        const additionalCount = services.length - 1;
+        return { firstService, additionalCount };
+    };
+
     return (
         <div className="p-2 sm:p-4 md:p-6">
             <Card className="border-0 sm:border shadow-md rounded-xl overflow-hidden">
@@ -136,7 +145,14 @@ const TodasReservas = ({ reservas: initialReservas }: TodasReservasProps) => {
                                             <TableRow className="hidden sm:table-row hover:bg-gray-50 transition-colors">
                                                 <TableCell className="px-4 py-4 font-medium">{reserva.usuario}</TableCell>
                                                 <TableCell className="px-4 py-4">{`${reserva.moto.marca} ${reserva.moto.modelo} ${reserva.moto.año}`} - {reserva.placa}</TableCell>
-                                                <TableCell className="px-4 py-4">{reserva.servicios.map(s => s.nombre).join(', ')}</TableCell>
+                                                <TableCell className="px-4 py-4">
+                                                    {getTruncatedServicesData(reserva.servicios).firstService}
+                                                    {getTruncatedServicesData(reserva.servicios).additionalCount > 0 && (
+                                                        <span className="font-bold text-blue-600 ml-1">
+                                                            +{getTruncatedServicesData(reserva.servicios).additionalCount}
+                                                        </span>
+                                                    )}
+                                                </TableCell>
                                                 <TableCell className="px-4 py-4">{formatFecha(reserva.fecha)}</TableCell>
                                                 <TableCell className="px-4 py-4">{reserva.hora}</TableCell>
                                                 <TableCell className="px-4 py-4">
@@ -157,7 +173,7 @@ const TodasReservas = ({ reservas: initialReservas }: TodasReservasProps) => {
                                                             Ver detalle
                                                         </Button>
                                                         <div className="flex gap-1">
-                                                            {reserva.estado !== "confirmada" && (
+                                                            {reserva.estado === "pendiente" && (
                                                                 <Button
                                                                     variant="outline"
                                                                     size="sm"
@@ -168,7 +184,7 @@ const TodasReservas = ({ reservas: initialReservas }: TodasReservasProps) => {
                                                                     Confirmar
                                                                 </Button>
                                                             )}
-                                                            {reserva.estado !== "cancelada" && (
+                                                            {reserva.estado !== "cancelada" && reserva.estado !== "completada" && (
                                                                 <Button
                                                                     variant="outline"
                                                                     size="sm"
@@ -191,7 +207,12 @@ const TodasReservas = ({ reservas: initialReservas }: TodasReservasProps) => {
                                                             {reserva.usuario}
                                                         </p>
                                                         <p className="text-sm text-gray-600 truncate mt-0.5">
-                                                            {reserva.servicios.map(s => s.nombre).join(', ')}
+                                                            {getTruncatedServicesData(reserva.servicios).firstService}
+                                                            {getTruncatedServicesData(reserva.servicios).additionalCount > 0 && (
+                                                                <span className="font-bold text-blue-600 ml-1">
+                                                                    +{getTruncatedServicesData(reserva.servicios).additionalCount}
+                                                                </span>
+                                                            )}
                                                         </p>
                                                         <div className="flex items-center gap-2 mt-1">
                                                             <Badge
@@ -241,7 +262,7 @@ const TodasReservas = ({ reservas: initialReservas }: TodasReservasProps) => {
                                                             </Button>
                                                         </div>
                                                         <div className="flex gap-2 mt-2">
-                                                            {reserva.estado !== "confirmada" && (
+                                                            {reserva.estado === "pendiente" && (
                                                                 <Button
                                                                     variant="outline"
                                                                     size="sm"
@@ -252,7 +273,7 @@ const TodasReservas = ({ reservas: initialReservas }: TodasReservasProps) => {
                                                                     Confirmar
                                                                 </Button>
                                                             )}
-                                                            {reserva.estado !== "cancelada" && (
+                                                            {reserva.estado !== "cancelada" && reserva.estado !== "completada" && (
                                                                 <Button
                                                                     variant="outline"
                                                                     size="sm"
