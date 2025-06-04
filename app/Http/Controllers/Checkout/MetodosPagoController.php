@@ -122,6 +122,11 @@ class MetodosPagoController extends Controller
                     'precio_unitario' => $item->producto->precio_final,
                     'subtotal' => $item->producto->precio_final * $item->quantity,
                 ]);
+
+                // Descontar stock del producto
+                $producto = $item->producto;
+                $producto->stock = max(0, $producto->stock - $item->quantity);
+                $producto->save();
             }
 
             $user->cartItems()->delete();

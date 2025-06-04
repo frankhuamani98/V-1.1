@@ -92,7 +92,6 @@ class CartController extends Controller
 
             $user = Auth::user();
             $producto = Producto::findOrFail($request->producto_id);
-            
             $quantity = $request->quantity ?? 1;
 
             \Log::info('Adding product to cart', [
@@ -130,40 +129,40 @@ class CartController extends Controller
                 ->first();
 
             if ($existingItem) {
-                $newQuantity = $existingItem->quantity + $quantity;
-                
-                if ($producto->stock < $newQuantity) {
+                $maxDisponible = $producto->stock;
+                $nuevaCantidad = min($existingItem->quantity + $quantity, $maxDisponible);
+
+                if ($nuevaCantidad == $existingItem->quantity) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'No hay suficiente stock disponible para la cantidad total',
-                        'debug' => [
-                            'stock_disponible' => $producto->stock,
-                            'cantidad_actual' => $existingItem->quantity,
-                            'cantidad_nueva' => $quantity,
-                            'total' => $newQuantity
-                        ]
+                        'message' => 'Ya tienes la cantidad máxima disponible en el carrito.',
                     ], 400);
                 }
-                
+
                 $existingItem->update([
-                    'quantity' => $newQuantity
+                    'quantity' => $nuevaCantidad
                 ]);
-                
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Cantidad actualizada en el carrito',
                 ]);
             }
 
+            // Si no existe, agregar nuevo item
+            $cantidadAgregar = min($quantity, $producto->stock);
+            if ($cantidadAgregar < 1) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No hay suficiente stock disponible',
+                ], 400);
+            }
+
             CartItem::create([
                 'user_id' => $user->id,
                 'producto_id' => $request->producto_id,
-                'quantity' => $quantity,
+                'quantity' => $cantidadAgregar,
             ]);
-
-            // Disminuir el stock
-            $producto->stock -= $quantity;
-            $producto->save();
 
             return response()->json([
                 'success' => true,
@@ -195,7 +194,9 @@ class CartController extends Controller
 
         $producto = Producto::findOrFail($cartItem->producto_id);
 
-        if ($producto->stock < $request->quantity) {
+        $stockDisponible = $producto->stock;
+
+        if ($request->quantity > $stockDisponible) {
             return response()->json([
                 'success' => false,
                 'message' => 'No hay suficiente stock disponible',
