@@ -7,6 +7,9 @@ import { router } from '@inertiajs/react';
 interface CategoriaServicio {
     id: number;
     nombre: string;
+    descripcion: string;
+    estado: boolean;
+    orden: number;
 }
 
 interface Servicio {
@@ -32,7 +35,6 @@ interface AgregarServicioPageProps {
 const AgregarServicioPage = ({ auth, servicio, categorias, servicios = [] }: AgregarServicioPageProps) => {
     const [listaServicios, setListaServicios] = useState<Servicio[]>(servicios);
 
-    // Ya no necesitamos este useEffect porque ahora los servicios siempre se pasan desde el servidor
     useEffect(() => {
         setListaServicios(servicios);
     }, [servicios]);

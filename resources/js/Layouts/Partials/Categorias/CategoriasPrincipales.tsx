@@ -232,11 +232,7 @@ const CategoriasPrincipales: React.FC<CategoriasPrincipalesProps> = ({ categoria
             <div className="w-full lg:w-auto lg:min-w-[180px] order-last lg:order-first">
               <Button
                 onClick={() => {
-                  if (showForm) {
-                    resetForm()
-                  } else {
-                    setShowForm(true)
-                  }
+                  setShowForm(true)
                 }}
                 className={`
                   w-full h-12 px-6 rounded-xl font-medium transition-all duration-200
@@ -301,18 +297,17 @@ const CategoriasPrincipales: React.FC<CategoriasPrincipalesProps> = ({ categoria
             </div>
           </div>
 
-          {showForm && (
-            <div ref={formRef} className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-200 mb-6">
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
+          <AlertDialog open={showForm} onOpenChange={setShowForm}>
+            <AlertDialogContent className="rounded-2xl max-w-2xl w-full">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-lg font-semibold text-gray-900">
                   {editandoCategoria ? 'Editar Categoría' : 'Nueva Categoría'}
-                </h3>
-                <p className="text-sm text-gray-500 mt-1">
+                </AlertDialogTitle>
+                <AlertDialogDescription className="text-gray-500 mt-1">
                   {editandoCategoria ? 'Modifica los datos de la categoría' : 'Completa la información para crear una nueva categoría'}
-                </p>
-              </div>
-              
-              <form onSubmit={handleSubmit} className="space-y-6">
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-6 mt-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div className="md:col-span-2">
                     <Label htmlFor="nombre" className="text-sm font-medium text-gray-700 mb-2 block">
@@ -326,7 +321,6 @@ const CategoriasPrincipales: React.FC<CategoriasPrincipalesProps> = ({ categoria
                       className="h-12 rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:border-blue-300 transition-all duration-200 w-full"
                     />
                   </div>
-                  
                   <div>
                     <Label htmlFor="estado" className="text-sm font-medium text-gray-700 mb-2 block">
                       Estado
@@ -342,23 +336,21 @@ const CategoriasPrincipales: React.FC<CategoriasPrincipalesProps> = ({ categoria
                       </SelectTrigger>
                       <SelectContent className="rounded-xl">
                         <SelectItem value="Activo" className="rounded-lg">
-                        <span>Activo</span>
-                      </SelectItem>
-                      <SelectItem value="Inactivo" className="rounded-lg">
-                        <span>Inactivo</span>
-                      </SelectItem>
+                          <span>Activo</span>
+                        </SelectItem>
+                        <SelectItem value="Inactivo" className="rounded-lg">
+                          <span>Inactivo</span>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
-
                 {error && (
                   <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
                     <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
                     <span className="text-sm text-red-700 font-medium">{error}</span>
                   </div>
                 )}
-
                 <div className="flex flex-col sm:flex-row gap-3 pt-2">
                   <Button
                     type="submit"
@@ -379,19 +371,18 @@ const CategoriasPrincipales: React.FC<CategoriasPrincipalesProps> = ({ categoria
                       </>
                     )}
                   </Button>
-                  
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={resetForm}
+                    onClick={() => { setShowForm(false); resetForm(); }}
                     className="w-full sm:w-auto px-6 py-3 rounded-xl font-medium border-gray-200 hover:bg-gray-50 transition-all duration-200 order-first sm:order-last"
                   >
                     Cancelar
                   </Button>
                 </div>
               </form>
-            </div>
-          )}
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
