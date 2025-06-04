@@ -20,7 +20,7 @@ class HistorialPedidosController extends Controller
                     'numero_orden' => $pedido->numero_orden,
                     'cliente' => $pedido->nombre . ' ' . $pedido->apellidos,
                     'fecha' => $pedido->created_at->format('Y-m-d'),
-                    'hora' => $pedido->hora ?? null,
+                    'hora' => $pedido->created_at->format('H:i'),
                     'estado' => ucfirst($pedido->estado),
                     'metodo_pago' => $pedido->metodo_pago,
                     'total' => $pedido->total,

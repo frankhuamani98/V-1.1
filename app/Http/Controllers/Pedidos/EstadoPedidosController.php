@@ -17,7 +17,7 @@ class EstadoPedidosController extends Controller
             ->map(function ($pedido) {
                 return [
                     'id' => $pedido->id,
-                    'numero_orden' => $pedido->numero_orden, // Mostrar número de orden
+                    'numero_orden' => $pedido->numero_orden,
                     'cliente' => $pedido->nombre . ' ' . $pedido->apellidos,
                     'fecha' => $pedido->created_at->format('Y-m-d'),
                     'estado' => ucfirst($pedido->estado),

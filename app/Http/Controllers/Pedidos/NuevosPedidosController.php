@@ -6,20 +6,20 @@ use Inertia\Inertia;
 use App\Http\Controllers\Controller;
 use App\Models\Pedido;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Request as FacadesRequest; // Asegúrate de importar Request
+use Illuminate\Support\Facades\Request as FacadesRequest;
 
 class NuevosPedidosController extends Controller
 {
     public function index()
     {
         $pedidos = Pedido::with(['user', 'items'])
-            ->where('estado', 'pendiente') // Solo pedidos pendientes
+            ->where('estado', 'pendiente')
             ->orderByDesc('created_at')
             ->get()
             ->map(function ($pedido) {
                 return [
                     'id' => $pedido->id,
-                    'numero_orden' => $pedido->numero_orden, // Mostrar número de orden
+                    'numero_orden' => $pedido->numero_orden,
                     'cliente' => $pedido->nombre . ' ' . $pedido->apellidos,
                     'fecha' => $pedido->created_at->format('Y-m-d'),
                     'hora' => $pedido->created_at->format('H:i'),
