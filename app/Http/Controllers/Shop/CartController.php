@@ -87,7 +87,7 @@ class CartController extends Controller
         try {
             $request->validate([
                 'producto_id' => 'required|exists:productos,id',
-                'quantity' => 'sometimes|integer|min:1',
+                'quantity' => 'required|integer|min:1',
             ]);
 
             $user = Auth::user();
@@ -160,6 +160,10 @@ class CartController extends Controller
                 'producto_id' => $request->producto_id,
                 'quantity' => $quantity,
             ]);
+
+            // Disminuir el stock
+            $producto->stock -= $quantity;
+            $producto->save();
 
             return response()->json([
                 'success' => true,
