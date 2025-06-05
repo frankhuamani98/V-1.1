@@ -1387,9 +1387,11 @@ export default function Header() {
                         <UserIcon className="mr-2 h-4 w-4" />
                         <span>Perfil</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <ShoppingBagIcon className="mr-2 h-4 w-4" />
-                        <span>Pedidos</span>
+                      <DropdownMenuItem asChild>
+                        <a href="/pedidos/mis-pedidos">
+                          <ShoppingBagIcon className="mr-2 h-4 w-4" />
+                          <span>Pedidos</span>
+                        </a>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>

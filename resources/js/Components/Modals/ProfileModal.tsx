@@ -23,7 +23,6 @@ import {
   Loader2,
   Lock,
   CreditCard,
-  Calendar,
   PencilIcon,
   CheckIcon,
   XIcon,
@@ -491,9 +490,6 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
                     <Shield className="w-4 h-4" />
                       Seguridad
                     </TabsTrigger>
-                    <TabsTrigger value="preferences" className="data-[state=active]:bg-background">
-                      Preferencias
-                    </TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="personal" className="focus:outline-none">
@@ -674,18 +670,7 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
                     </div>
                   </TabsContent>
 
-                  <TabsContent value="preferences" className="space-y-6">
-                    <div>
-                      <h3 className="text-lg font-semibold mb-4 flex items-center">
-                        <Calendar className="w-5 h-5 mr-2" />
-                        Preferencias
-                      </h3>
-                      <p className="text-muted-foreground text-sm">
-                        Las preferencias de usuario estarán disponibles próximamente.
-                      </p>
 
-                    </div>
-                  </TabsContent>
                 </Tabs>
               </div>
             </div>

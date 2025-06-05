@@ -16,7 +16,6 @@ class InformacionCheckout extends Controller
     {
         $user = Auth::user();
 
-        // Suponiendo que tienes un método para obtener el carrito del usuario
         $cart = $user->cartItems()->with('producto')->get();
 
         $pedido = [
@@ -28,7 +27,7 @@ class InformacionCheckout extends Controller
                     'cantidad' => $item->quantity,
                     'precio_final' => $precio_final,
                     'subtotal' => $precio_final * $item->quantity,
-                    'imagen' => $item->producto->imagen_principal, // <-- Añadido para mostrar imagen
+                    'imagen' => $item->producto->imagen_principal,
                 ];
             }),
             'subtotal' => $cart->sum(function ($item) {
@@ -41,7 +40,6 @@ class InformacionCheckout extends Controller
 
         return Inertia::render('Home/Partials/Checkout/InformacionCheckout', [
             'user' => [
-                // Ajusta aquí si tus columnas son diferentes
                 'nombre' => $user->nombre ?? $user->first_name ?? '',
                 'apellidos' => $user->apellidos ?? $user->last_name ?? '',
                 'dni' => $user->dni ?? '',
@@ -60,7 +58,6 @@ class InformacionCheckout extends Controller
             'direccion_alternativa' => 'nullable|string',
         ]);
 
-        // Guardar los datos en la sesión para usarlos en el siguiente paso
         session([
             'checkout_datos' => [
                 'nombre' => $request->nombre,
@@ -71,7 +68,6 @@ class InformacionCheckout extends Controller
             ]
         ]);
 
-        // Redirigir a la página de métodos de pago (sin crear pedido aún)
         return redirect()->route('checkout.metodos');
     }
     
@@ -88,7 +84,6 @@ class InformacionCheckout extends Controller
         ]);
         
         try {
-            // Almacenamos la dirección alternativa en la sesión para usarla después
             session(['direccion_alternativa' => $request->direccion_alternativa]);
             
             return response()->json([
