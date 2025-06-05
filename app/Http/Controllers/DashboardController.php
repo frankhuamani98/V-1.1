@@ -166,6 +166,12 @@ class DashboardController extends Controller
                 'user' => [
                     'username' => $user->username,
                     'email' => $user->email,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'dni' => $user->dni,
+                    'sexo' => $user->sexo,
+                    'phone' => $user->phone,
+                    'address' => $user->address,
                 ],
             ],
             // SOLO pedidos y reservas completados del mes actual
