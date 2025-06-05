@@ -79,13 +79,15 @@ export default function MisPedidos({ pedidos = [] }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
       <Head title="Mis Pedidos" />
       <Header />
       <main className="flex-grow">
         <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
           <nav className="mb-6">
-            <ol className="flex items-center space-x-2 text-sm">              <li>                <Button
+            <ol className="flex items-center space-x-2 text-sm">
+              <li>
+                <Button
                   variant="ghost"
                   size="sm"
                   asChild
@@ -104,51 +106,51 @@ export default function MisPedidos({ pedidos = [] }: Props) {
             </ol>
           </nav>
 
-          <Card className="bg-white">
+          <Card className="bg-white dark:bg-gray-800">
             <CardHeader>
-              <CardTitle className="text-2xl">Mis Pedidos</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-2xl dark:text-white">Mis Pedidos</CardTitle>
+              <CardDescription className="dark:text-gray-300">
                 Historial de todos tus pedidos realizados
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="hidden sm:block">
-                <Table>
+                <Table className="dark:bg-gray-800 dark:text-gray-100">
                   <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-20"></TableHead>
-                      <TableHead>N° Orden</TableHead>
-                      <TableHead>Fecha</TableHead>
-                      <TableHead>Estado</TableHead>
-                      <TableHead>Método de pago</TableHead>
-                      <TableHead>Total</TableHead>
-                      <TableHead className="w-20">Detalles</TableHead>
+                    <TableRow className="dark:bg-gray-800">
+                      <TableHead className="w-20 dark:text-gray-300"></TableHead>
+                      <TableHead className="dark:text-gray-300">N° Orden</TableHead>
+                      <TableHead className="dark:text-gray-300">Fecha</TableHead>
+                      <TableHead className="dark:text-gray-300">Estado</TableHead>
+                      <TableHead className="dark:text-gray-300">Método de pago</TableHead>
+                      <TableHead className="dark:text-gray-300">Total</TableHead>
+                      <TableHead className="w-20 dark:text-gray-300">Detalles</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {pedidos.map((pedido) => (
                       <React.Fragment key={pedido.id}>
-                        <TableRow className="border-b border-gray-200">
+                        <TableRow className="border-b border-gray-200 dark:border-gray-700 dark:bg-gray-900">
                           <TableCell className="text-center">
                             <button
                               onClick={() => toggleRow(pedido.id)}
-                              className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                              className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
                             >
                               {expandedRows.includes(pedido.id) ? (
-                                <ChevronUp className="w-5 h-5 text-gray-500" />
+                                <ChevronUp className="w-5 h-5 text-gray-500 dark:text-gray-300" />
                               ) : (
-                                <ChevronDown className="w-5 h-5 text-gray-500" />
+                                <ChevronDown className="w-5 h-5 text-gray-500 dark:text-gray-300" />
                               )}
                             </button>
                           </TableCell>
-                          <TableCell className="font-medium text-gray-900">
+                          <TableCell className="font-medium text-gray-900 dark:text-white">
                             {pedido.numero_orden}
                           </TableCell>
                           <TableCell>
                             <div className="text-sm">
-                              <span className="text-gray-900">{pedido.fecha}</span>
+                              <span className="text-gray-900 dark:text-white">{pedido.fecha}</span>
                               {pedido.hora && (
-                                <span className="text-gray-500"> • {pedido.hora}</span>
+                                <span className="text-gray-500 dark:text-gray-300"> • {pedido.hora}</span>
                               )}
                             </div>
                           </TableCell>
@@ -159,20 +161,24 @@ export default function MisPedidos({ pedidos = [] }: Props) {
                                 getEstadoColor(pedido.estado) +
                                 "-100 text-" +
                                 getEstadoColor(pedido.estado) +
-                                "-800"
+                                "-800 dark:bg-" +
+                                getEstadoColor(pedido.estado) +
+                                "-900 dark:text-" +
+                                getEstadoColor(pedido.estado) +
+                                "-200"
                               }
                             >
                               {pedido.estado}
                             </Badge>
                           </TableCell>
-                          <TableCell>{pedido.metodo_pago || "-"}</TableCell>
-                          <TableCell>
+                          <TableCell className="dark:text-gray-200">{pedido.metodo_pago || "-"}</TableCell>
+                          <TableCell className="dark:text-gray-200">
                             {pedido.total !== undefined ? formatPrice(pedido.total) : "-"}
                           </TableCell>
                           <TableCell>
                             <button
                               onClick={() => toggleRow(pedido.id)}
-                              className="text-blue-600 hover:text-blue-800 font-medium"
+                              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
                             >
                               {expandedRows.includes(pedido.id)
                                 ? "Ocultar"
@@ -182,23 +188,23 @@ export default function MisPedidos({ pedidos = [] }: Props) {
                         </TableRow>
                         {expandedRows.includes(pedido.id) && (
                           <TableRow>
-                            <TableCell colSpan={7} className="p-6 bg-gray-50">
+                            <TableCell colSpan={7} className="p-6 bg-gray-50 dark:bg-gray-900">
                               <div>
-                                <h4 className="font-semibold text-gray-900 mb-4">
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-4">
                                   Detalle de productos
                                 </h4>
-                                <Table>
+                                <Table className="dark:bg-gray-900">
                                   <TableHeader>
                                     <TableRow>
-                                      <TableHead>Producto</TableHead>
-                                      <TableHead>Precio unitario</TableHead>
-                                      <TableHead>Cantidad</TableHead>
-                                      <TableHead>Subtotal</TableHead>
+                                      <TableHead className="dark:text-gray-300">Producto</TableHead>
+                                      <TableHead className="dark:text-gray-300">Precio unitario</TableHead>
+                                      <TableHead className="dark:text-gray-300">Cantidad</TableHead>
+                                      <TableHead className="dark:text-gray-300">Subtotal</TableHead>
                                     </TableRow>
                                   </TableHeader>
                                   <TableBody>
                                     {pedido.items?.map((item, index) => (
-                                      <TableRow key={index}>
+                                      <TableRow key={index} className="dark:bg-gray-900">
                                         <TableCell>
                                           <div className="flex items-center">
                                             {item.imagen && (
@@ -209,19 +215,19 @@ export default function MisPedidos({ pedidos = [] }: Props) {
                                                     : `/storage/${item.imagen}`
                                                 }
                                                 alt={item.nombre_producto}
-                                                className="w-10 h-10 object-cover rounded-md border border-gray-200"
+                                                className="w-10 h-10 object-cover rounded-md border border-gray-200 dark:border-gray-700"
                                                 onError={(e) => {
                                                   const target = e.currentTarget as HTMLImageElement;
                                                   target.src = "/images/placeholder.png";
                                                 }}
                                               />
                                             )}
-                                            <span className="ml-3">{item.nombre_producto}</span>
+                                            <span className="ml-3 dark:text-gray-200">{item.nombre_producto}</span>
                                           </div>
                                         </TableCell>
-                                        <TableCell>{formatPrice(item.precio_unitario)}</TableCell>
-                                        <TableCell>{item.cantidad}</TableCell>
-                                        <TableCell>{formatPrice(item.subtotal)}</TableCell>
+                                        <TableCell className="dark:text-gray-200">{formatPrice(item.precio_unitario)}</TableCell>
+                                        <TableCell className="dark:text-gray-200">{item.cantidad}</TableCell>
+                                        <TableCell className="dark:text-gray-200">{formatPrice(item.subtotal)}</TableCell>
                                       </TableRow>
                                     ))}
                                   </TableBody>
@@ -229,7 +235,7 @@ export default function MisPedidos({ pedidos = [] }: Props) {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                                   {pedido.referencia_pago && (
                                     <div>
-                                      <div className="font-semibold mb-2 text-blue-700">Comprobante de pago:</div>
+                                      <div className="font-semibold mb-2 text-blue-700 dark:text-blue-300">Comprobante de pago:</div>
                                       <img
                                         src={
                                           pedido.referencia_pago.startsWith("http")
@@ -237,7 +243,7 @@ export default function MisPedidos({ pedidos = [] }: Props) {
                                             : `/storage/${pedido.referencia_pago}`
                                         }
                                         alt="Comprobante de pago"
-                                        className="w-64 max-w-full rounded-lg border border-blue-200 shadow-sm"
+                                        className="w-64 max-w-full rounded-lg border border-blue-200 dark:border-blue-700 shadow-sm"
                                         onError={(e) => {
                                           const target = e.currentTarget as HTMLImageElement;
                                           target.src = "/images/placeholder.png";
@@ -246,9 +252,9 @@ export default function MisPedidos({ pedidos = [] }: Props) {
                                     </div>
                                   )}
                                   <div className="md:text-right">
-                                    <div className="bg-blue-50 border border-blue-200 rounded-xl px-6 py-3 inline-block">
-                                      <span className="font-bold text-blue-900 mr-2">Total del pedido:</span>
-                                      <span className="font-extrabold text-blue-700 text-lg">
+                                    <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-xl px-6 py-3 inline-block">
+                                      <span className="font-bold text-blue-900 dark:text-blue-200 mr-2">Total del pedido:</span>
+                                      <span className="font-extrabold text-blue-700 dark:text-blue-300 text-lg">
                                         {pedido.total !== undefined ? formatPrice(pedido.total) : "-"}
                                       </span>
                                     </div>
@@ -266,18 +272,18 @@ export default function MisPedidos({ pedidos = [] }: Props) {
 
               <div className="sm:hidden space-y-4">
                 {pedidos.map((pedido) => (
-                  <div key={pedido.id} className="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
+                  <div key={pedido.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 border border-gray-100 dark:border-gray-700">
                     <div className="space-y-2">
                       {pedido.numero_orden && (
-                        <div className="text-xs font-mono text-blue-600 font-bold">
+                        <div className="text-xs font-mono text-blue-600 dark:text-blue-300 font-bold">
                           N° Orden: {pedido.numero_orden}
                         </div>
                       )}
                       <div className="flex items-center justify-between">
                         <div className="text-sm">
-                          <span className="text-gray-900">{pedido.fecha}</span>
+                          <span className="text-gray-900 dark:text-white">{pedido.fecha}</span>
                           {pedido.hora && (
-                            <span className="text-gray-500"> • {pedido.hora}</span>
+                            <span className="text-gray-500 dark:text-gray-300"> • {pedido.hora}</span>
                           )}
                         </div>
                         <Badge
@@ -286,25 +292,29 @@ export default function MisPedidos({ pedidos = [] }: Props) {
                             getEstadoColor(pedido.estado) +
                             "-100 text-" +
                             getEstadoColor(pedido.estado) +
-                            "-800"
+                            "-800 dark:bg-" +
+                            getEstadoColor(pedido.estado) +
+                            "-900 dark:text-" +
+                            getEstadoColor(pedido.estado) +
+                            "-200"
                           }
                         >
                           {pedido.estado}
                         </Badge>
                       </div>
                       {pedido.metodo_pago && (
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm text-gray-600 dark:text-gray-300">
                           Método de pago: {pedido.metodo_pago}
                         </div>
                       )}
                       <div className="text-right">
-                        <span className="text-sm font-medium text-gray-900">
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">
                           Total: {pedido.total !== undefined ? formatPrice(pedido.total) : "-"}
                         </span>
                       </div>
                       <button
                         onClick={() => toggleRow(pedido.id)}
-                        className="w-full mt-2 text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center justify-center"
+                        className="w-full mt-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium text-sm flex items-center justify-center"
                       >
                         {expandedRows.includes(pedido.id) ? (
                           <>
@@ -321,8 +331,8 @@ export default function MisPedidos({ pedidos = [] }: Props) {
                     </div>
 
                     {expandedRows.includes(pedido.id) && (
-                      <div className="mt-4 pt-4 border-t border-gray-100">
-                        <h4 className="font-semibold text-gray-900 mb-3 text-sm">
+                      <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                        <h4 className="font-semibold text-gray-900 dark:text-white mb-3 text-sm">
                           Detalle de productos
                         </h4>
                         <div className="space-y-3">
@@ -337,7 +347,7 @@ export default function MisPedidos({ pedidos = [] }: Props) {
                                         : `/storage/${item.imagen}`
                                     }
                                     alt={item.nombre_producto}
-                                    className="w-10 h-10 object-cover rounded-md border border-gray-200"
+                                    className="w-10 h-10 object-cover rounded-md border border-gray-200 dark:border-gray-700"
                                     onError={(e) => {
                                       const target = e.currentTarget as HTMLImageElement;
                                       target.src = "/images/placeholder.png";
@@ -345,16 +355,16 @@ export default function MisPedidos({ pedidos = [] }: Props) {
                                   />
                                 )}
                                 <div>
-                                  <p className="text-sm font-medium text-gray-900">
+                                  <p className="text-sm font-medium text-gray-900 dark:text-white">
                                     {item.nombre_producto}
                                   </p>
-                                  <p className="text-sm text-gray-500">
+                                  <p className="text-sm text-gray-500 dark:text-gray-300">
                                     Cantidad: {item.cantidad} x{" "}
                                     {formatPrice(item.precio_unitario)}
                                   </p>
                                 </div>
                               </div>
-                              <p className="text-sm font-medium text-gray-900">
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
                                 {formatPrice(item.subtotal)}
                               </p>
                             </div>
@@ -363,7 +373,7 @@ export default function MisPedidos({ pedidos = [] }: Props) {
 
                         {pedido.referencia_pago && (
                           <div className="mt-4">
-                            <div className="font-semibold mb-2 text-sm text-blue-700">
+                            <div className="font-semibold mb-2 text-sm text-blue-700 dark:text-blue-300">
                               Comprobante de pago:
                             </div>
                             <img
@@ -373,7 +383,7 @@ export default function MisPedidos({ pedidos = [] }: Props) {
                                   : `/storage/${pedido.referencia_pago}`
                               }
                               alt="Comprobante de pago"
-                              className="w-full max-w-[200px] rounded-lg border border-blue-200 shadow-sm"
+                              className="w-full max-w-[200px] rounded-lg border border-blue-200 dark:border-blue-700 shadow-sm"
                               onError={(e) => {
                                 const target = e.currentTarget as HTMLImageElement;
                                 target.src = "/images/placeholder.png";
@@ -383,11 +393,11 @@ export default function MisPedidos({ pedidos = [] }: Props) {
                         )}
 
                         <div className="mt-4 text-right">
-                          <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-2 inline-block">
-                            <span className="font-bold text-blue-900 mr-2 text-sm">
+                          <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-xl px-4 py-2 inline-block">
+                            <span className="font-bold text-blue-900 dark:text-blue-200 mr-2 text-sm">
                               Total del pedido:
                             </span>
-                            <span className="font-extrabold text-blue-700 text-base">
+                            <span className="font-extrabold text-blue-700 dark:text-blue-300 text-base">
                               {pedido.total !== undefined ? formatPrice(pedido.total) : "-"}
                             </span>
                           </div>
@@ -400,7 +410,7 @@ export default function MisPedidos({ pedidos = [] }: Props) {
 
               {pedidos.length === 0 && (
                 <div className="text-center py-12">
-                  <p className="text-gray-500">No tienes pedidos realizados</p>
+                  <p className="text-gray-500 dark:text-gray-300">No tienes pedidos realizados</p>
                 </div>
               )}
             </CardContent>
