@@ -200,19 +200,29 @@ const Header = ({ toggleSidebar, auth }: HeaderProps) => {
       />
       <header className="bg-card border-b sticky top-0 z-30 w-full">
         <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center">
+          <div className="flex items-center w-full justify-center">
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden mr-2"
+              className="md:hidden mr-2 absolute left-4"
               onClick={toggleSidebar}
               aria-label="Toggle sidebar"
             >
               <Menu size={20} />
             </Button>
 
-            <h1 className={cn("text-xl font-bold", showSearchInput && "hidden sm:block")}>
-              Panel de Control
+            <h1
+              className={cn(
+                "text-3xl font-extrabold text-center w-full tracking-widest uppercase",
+                "bg-gradient-to-r from-blue-900 via-blue-400 via-white via-blue-400 to-blue-900 bg-[length:400%_auto] bg-clip-text text-transparent animate-gradient-x",
+                showSearchInput && "hidden sm:block"
+              )}
+              style={{
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text"
+              }}
+            >
+              RUDOLF MOTOS - Panel de Control
             </h1>
           </div>
 
