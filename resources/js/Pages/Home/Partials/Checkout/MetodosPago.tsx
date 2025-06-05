@@ -14,7 +14,6 @@ interface Props {
   metodos: MetodoPago[];
 }
 
-// Info para BCP, Yape, Plin, Caja Cusco y Scotiabank
 const infoMetodos: Record<string, { cuentas?: string[]; instrucciones?: string; qr?: string }> = {
   bcp: {
     cuentas: [
@@ -56,17 +55,13 @@ const infoMetodos: Record<string, { cuentas?: string[]; instrucciones?: string; 
 };
 
 export default function MetodosPago({ pedido, metodos }: Props) {
-  // Filtrar solo BCP, Yape, Plin, Caja Cusco y Scotiabank
-  const metodosFiltrados = metodos.filter(
-    m => m.nombre.toLowerCase().includes('bcp') || m.id === 'bcp' ||
-         m.nombre.toLowerCase().includes('yape') || m.id === 'yape' ||
-         m.nombre.toLowerCase().includes('plin') || m.id === 'plin' ||
-         m.nombre.toLowerCase().includes('waiky') || m.id === 'waiky' ||
-         m.nombre.toLowerCase().includes('caja cusco') || m.id === 'caja_cusco' ||
-         m.nombre.toLowerCase().includes('scotiabank') || m.id === 'scotiabank'
-  );
+  const ordenDeseado = ['yape', 'plin', 'waiky', 'bcp', 'caja_cusco', 'scotiabank'];
+  const metodosFiltrados = metodos
+    .filter(m => ordenDeseado.includes(m.id))
+    .sort((a, b) => ordenDeseado.indexOf(a.id) - ordenDeseado.indexOf(b.id));
+
   const [seleccionado, setSeleccionado] = useState<string | null>(metodosFiltrados[0]?.id ?? null);
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<Record<string, File | null>>({});
   const [showQrModal, setShowQrModal] = useState(false);
   const [showQrModalPlin, setShowQrModalPlin] = useState(false);
   const [showQrModalYape, setShowQrModalYape] = useState(false);
@@ -76,351 +71,508 @@ export default function MetodosPago({ pedido, metodos }: Props) {
     referencia_pago: null as File | null,
   });
 
-  // Estado para controlar cuál método está procesando
   const [processingMetodo, setProcessingMetodo] = useState<string | null>(null);
 
-  // Nuevo estado para el modal de advertencia
   const [showWarning, setShowWarning] = useState(true);
 
-  // Asegura que el método seleccionado se guarde correctamente
   const handleSeleccionar = (id: string) => {
     setSeleccionado(id);
     setData('metodo', id);
   };
 
+  const getImagePreview = (metodo: string) => {
+    const file = files[metodo];
+    if (file) {
+      return URL.createObjectURL(file);
+    }
+    return null;
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, metodo: string) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-      setData('referencia_pago', e.target.files[0]);
-      setData('metodo', metodo); // Asegura que el método correcto se envía
+      const file = e.target.files[0];
+      setFiles(prev => ({ ...prev, [metodo]: file }));
+      setData('referencia_pago', file);
+      setData('metodo', metodo);
     }
+  };
+
+  React.useEffect(() => {
+    return () => {
+      Object.values(files).forEach(file => {
+        if (file) {
+          URL.revokeObjectURL(URL.createObjectURL(file));
+        }
+      });
+    };
+  }, [files]);
+
+  const renderUploadBox = (metodo: string, color: string) => {
+    const preview = getImagePreview(metodo);
+    return (
+      <div className="relative w-full">
+        <input
+          type="file"
+          accept="image/*"
+          onChange={e => handleFileChange(e, metodo)}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+          required
+        />
+        <div className={`w-full bg-white border border-gray-200 rounded-xl p-4 text-center hover:border-${color}-400 transition-all duration-200 relative`} style={{ minHeight: '150px' }}>
+          {preview ? (
+            <div className="relative w-full h-full" style={{ minHeight: '120px' }}>
+              <img
+                src={preview}
+                alt="Vista previa del comprobante"
+                className="absolute inset-0 w-full h-full object-contain rounded-lg"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 opacity-0 hover:opacity-100 transition-opacity duration-200 rounded-lg">
+                <p className="text-white text-sm font-medium">Cambiar imagen</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center justify-center mb-2">
+                <svg className={`w-8 h-8 text-${color}-500`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+              </div>
+              <div className="text-sm font-medium text-gray-700">Subir comprobante</div>
+              <div className="text-xs text-gray-500 mt-1">Haz clic o arrastra tu archivo aquí</div>
+            </>
+          )}
+        </div>
+      </div>
+    );
   };
 
   const handleConfirmar = (e: React.FormEvent, metodo: string) => {
     e.preventDefault();
-    setData('metodo', metodo); // Siempre actualiza el método antes de enviar
+    setData('metodo', metodo);
+    setData('referencia_pago', files[metodo]);
     setProcessingMetodo(metodo);
     post('/checkout/metodos-pago/procesar', {
       forceFormData: true,
-      onFinish: () => setProcessingMetodo(null),
+      onFinish: () => {
+        setProcessingMetodo(null);
+        setFiles(prev => ({ ...prev, [metodo]: null }));
+      },
     });
   };
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Modal de advertencia legal */}
       {showWarning && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black bg-opacity-80">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80">
           <div
-            className="bg-gradient-to-br from-yellow-100 via-red-100 to-yellow-50 border-4 border-red-600 rounded-3xl shadow-2xl p-8 max-w-md w-full relative animate-pulse mt-24"
+            className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full relative transform transition-all sm:align-middle sm:max-w-lg sm:w-full"
           >
             <div className="flex flex-col items-center">
-              <svg className="w-20 h-20 text-red-600 mb-4 animate-bounce" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/>
-                <path d="M12 8v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <svg className="w-16 h-16 text-red-500 mb-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
-              <h2 className="text-2xl font-extrabold text-red-700 mb-3 text-center drop-shadow-lg uppercase tracking-wider">
-                ¡Advertencia Legal!
+              <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center">
+                Aviso Importante
               </h2>
-              <p className="text-red-900 text-center mb-6 font-semibold text-lg">
-                <span className="block mb-2">
-                  <span className="text-red-700 font-bold">ATENCIÓN:</span> El envío de comprobantes de pago <span className="underline decoration-wavy decoration-red-500">falsos</span> constituye un <span className="font-bold">delito grave</span>.
+              <p className="text-gray-700 text-center mb-6 text-base leading-relaxed">
+                <span className="block mb-3">
+                  Le informamos que la presentación de comprobantes de pago falsificados constituye un <span className="font-semibold text-red-600">delito grave</span>.
                 </span>
-                <span className="block mb-2">
-                  Si intentas realizar una compra fraudulenta, tu información será <span className="font-bold text-red-700">denunciada ante las autoridades</span> y podrías enfrentar <span className="font-bold text-red-700">procesos legales</span> y <span className="font-bold text-red-700">multas superiores a S/ 5,000</span>.
+                <span className="block mb-3">
+                  Cualquier intento de fraude resultará en la <span className="font-semibold text-red-600">denuncia de su información</span> a las autoridades pertinentes, lo que podría acarrear <span className="font-semibold text-red-600">acciones legales</span> y <span className="font-semibold text-red-600">sanciones económicas significativas</span>.
                 </span>
-                <span className="block">
-                  <span className="text-red-700 font-bold">NO ARRIESGUES TU LIBERTAD NI TU DINERO.</span>
+                <span className="block font-semibold">
+                  Se recomienda proceder con total honestidad.
                 </span>
               </p>
               <button
-                className="px-8 py-3 rounded-xl bg-gradient-to-r from-red-600 to-yellow-500 text-white font-bold shadow-lg hover:from-red-700 hover:to-yellow-600 active:scale-95 transition text-lg"
+                className="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-6 py-3 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm transition-all"
                 onClick={() => setShowWarning(false)}
               >
-                Entiendo y acepto las consecuencias
+                Comprendo y Acepto los Términos
               </button>
             </div>
-            <span className="absolute top-2 right-4 text-4xl text-red-200 opacity-30 select-none pointer-events-none">⚠️</span>
+            <span className="absolute top-4 right-4 text-gray-300 text-4xl opacity-20 pointer-events-none select-none">
+              <svg className="w-10 h-10" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </span>
           </div>
         </div>
       )}
       <Head title="Selecciona tu método de pago" />
       <Header />
-      <main className="flex-grow flex flex-col justify-center z-10 relative">
-        <div className="w-full max-w-5xl mx-auto py-10 px-2 sm:px-6 lg:px-10">
-          <h1 className="text-4xl font-extrabold mb-10 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-purple-700 to-pink-700 tracking-tight drop-shadow-lg">
+      <main className="flex-grow bg-gray-50">
+        <div className="w-full max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+          <h1 className="text-3xl font-semibold text-gray-900 text-center mb-2">
             Selecciona tu método de pago
           </h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-            {/* BCP */}
-            <div className="flex flex-col items-center border-2 border-blue-400 rounded-3xl shadow-2xl bg-white/60 backdrop-blur-lg p-6 transition hover:scale-105 hover:shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] hover:border-blue-500 duration-200 min-h-[340px] animate-fade-in-glass">
-              <img src="https://play-lh.googleusercontent.com/gBpVaCpZsbBrLufT06aRpuLQvsUq1KAZUCEof_ps76mtB8_llJg3xv24mey8I0m3dUE=w240-h480-rw" alt="BCP" className="w-20 h-14 object-contain mb-3 opacity-95 drop-shadow-xl" />
-              <div className="w-full">
-                <div className="font-bold text-lg text-blue-700 mb-1 text-center drop-shadow">Depósito o transferencia BCP</div>
-                <div className="text-blue-500 mb-3 text-center text-sm">Realiza la transferencia a la cuenta BCP y sube el comprobante.</div>
-                <ul className="mb-3 text-blue-700 list-disc pl-5 text-center text-xs space-y-1">
-                  <li>Cuenta Soles: 19195138673067</li>
-                  <li>Cuenta Interbancaria: 00219119513867306758</li>
-                </ul>
-                <div className="flex flex-col items-center gap-3">
-                  <div className="text-xs text-blue-700 mb-1 text-center font-semibold">
-                    Por favor, envía el comprobante después de realizar el pago.
-                  </div>
-                  <form
-                    onSubmit={e => handleConfirmar(e, 'bcp')}
-                    encType="multipart/form-data"
-                    className="flex flex-col items-center gap-3"
-                  >
-                    <input type="hidden" name="metodo" value="bcp" />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={e => handleFileChange(e, 'bcp')}
-                      className="block text-xs text-blue-700 border border-blue-200 rounded-lg px-3 py-2 bg-white/80 w-full max-w-xs shadow focus:ring-2 focus:ring-blue-300 transition"
-                      required
-                    />
-                    <button
-                      type="submit"
-                      className="px-5 py-2 rounded-lg bg-gradient-to-r from-blue-400 to-blue-600 text-white font-bold shadow-lg hover:from-blue-500 hover:to-blue-700 active:scale-95 transition w-full max-w-xs text-sm"
-                      disabled={processingMetodo === 'bcp'}
-                    >
-                      {processingMetodo === 'bcp' ? 'Procesando...' : 'Finalizar compra'}
-                    </button>
-                  </form>
-                </div>
-                {errors.referencia_pago && (
-                  <div className="text-red-500 text-xs mt-2 text-center">{errors.referencia_pago}</div>
-                )}
-              </div>
-            </div>
+          <p className="text-center text-gray-600 mb-10">Elige el método que prefieras para completar tu compra</p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {/* Yape */}
-            <div className="flex flex-col items-center border-2 border-purple-400 rounded-3xl shadow-2xl bg-white/60 backdrop-blur-lg p-6 transition hover:scale-105 hover:shadow-[0_8px_32px_0_rgba(131,24,255,0.25)] hover:border-purple-500 duration-200 min-h-[340px] animate-fade-in-glass">
-              <img src="https://cdn.brandfetch.io/id08GK8vip/w/960/h/960/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B" alt="Yape" className="w-20 h-14 object-contain mb-3 opacity-95 drop-shadow-xl" />
-              <div className="w-full">
-                <div className="font-bold text-lg text-purple-700 mb-1 text-center drop-shadow">Yape</div>
-                <div className="text-purple-500 mb-3 text-center text-sm">Escanea el QR o transfiere al número Yape y sube el comprobante.</div>
-                <ul className="mb-3 text-purple-700 list-disc pl-5 text-center text-xs space-y-1">
-                  <li>Número Yape: 999 888 777</li>
-                </ul>
-                <div className="flex flex-col items-center gap-3">
+            <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden border border-gray-100">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <img src="https://cdn.brandfetch.io/id08GK8vip/w/960/h/960/theme/dark/icon.jpeg" 
+                       alt="Yape" 
+                       className="w-12 h-12 rounded-lg shadow-sm" />
+                  <span className="px-3 py-1 text-xs font-medium text-purple-600 bg-purple-50 rounded-full">
+                    Popular
+                  </span>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Yape</h3>
+                <p className="text-sm text-gray-600 mb-4">Paga de forma rápida y segura con Yape</p>
+                <div className="space-y-3 mb-4">
+                  <div className="flex items-center text-sm text-gray-600">
+                    <span className="font-medium">Número:</span>
+                    <span className="ml-2">999 888 777</span>
+                  </div>
                   <img
                     src="/pagos/qryape.jpg"
                     alt="QR Yape"
-                    className="w-40 h-40 object-contain border border-purple-200 rounded-xl bg-white mb-2 shadow"
+                    className="w-32 h-32 mx-auto rounded-lg shadow-sm bg-white p-2 border border-gray-100"
                   />
-                  <div className="text-xs text-purple-700 mb-1 text-center font-semibold">
-                    Por favor, envía el comprobante después de realizar el pago.
-                  </div>
-                  <form
-                    onSubmit={e => handleConfirmar(e, 'yape')}
-                    encType="multipart/form-data"
-                    className="flex flex-col items-center gap-3 w-full"
-                  >
-                    <input type="hidden" name="metodo" value="yape" />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={e => handleFileChange(e, 'yape')}
-                      className="block text-xs text-purple-700 border border-purple-200 rounded-lg px-3 py-2 bg-white/80 w-full max-w-xs shadow focus:ring-2 focus:ring-purple-300 transition"
-                      required
-                    />
-                    <button
-                      type="submit"
-                      className="px-5 py-2 rounded-lg bg-gradient-to-r from-purple-400 to-purple-600 text-white font-bold shadow-lg hover:from-purple-500 hover:to-purple-700 active:scale-95 transition w-full max-w-xs text-sm"
-                      disabled={processingMetodo === 'yape'}
-                    >
-                      {processingMetodo === 'yape' ? 'Procesando...' : 'Finalizar compra'}
-                    </button>
-                  </form>
                 </div>
+                <form onSubmit={e => handleConfirmar(e, 'yape')} className="space-y-3">
+                  {renderUploadBox('yape', 'purple')}
+                  <button
+                    type="submit"
+                    className="w-full bg-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors"
+                    disabled={processingMetodo === 'yape'}
+                  >
+                    {processingMetodo === 'yape' ? 
+                      <span className="flex items-center justify-center">
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Procesando...
+                      </span>
+                      : 'Pagar con Yape'
+                    }
+                  </button>
+                </form>
                 {errors.referencia_pago && (
-                  <div className="text-red-500 text-xs mt-2 text-center">{errors.referencia_pago}</div>
+                  <p className="mt-2 text-sm text-red-600">{errors.referencia_pago}</p>
                 )}
               </div>
             </div>
+
             {/* Plin */}
-            <div className="flex flex-col items-center border-2 border-cyan-400 rounded-3xl shadow-2xl bg-white/60 backdrop-blur-lg p-6 transition hover:scale-105 hover:shadow-[0_8px_32px_0_rgba(6,182,212,0.25)] hover:border-cyan-500 duration-200 min-h-[340px] animate-fade-in-glass">
-              <img src="https://plin.pe/wp-content/themes/plin/favicon/apple-icon-57x57.png" alt="Plin" className="w-20 h-14 object-contain mb-3 opacity-95 drop-shadow-xl" />
-              <div className="w-full">
-                <div className="font-bold text-lg text-cyan-700 mb-1 text-center drop-shadow">Plin</div>
-                <div className="text-cyan-500 mb-3 text-center text-sm">Escanea el QR o transfiere al número Plin y sube el comprobante.</div>
-                <ul className="mb-3 text-cyan-700 list-disc pl-5 text-center text-xs space-y-1">
-                  <li>Número Plin: 988 877 766</li>
-                </ul>
-                <div className="flex flex-col items-center gap-3">
+            <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden border border-gray-100">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <img src="https://plin.pe/wp-content/themes/plin/favicon/apple-icon-57x57.png" 
+                       alt="Plin" 
+                       className="w-12 h-12 rounded-lg shadow-sm" />
+                  <span className="px-3 py-1 text-xs font-medium text-cyan-600 bg-cyan-50 rounded-full">
+                    Rápido
+                  </span>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Plin</h3>
+                <p className="text-sm text-gray-600 mb-4">Transfiere fácilmente desde cualquier banco</p>
+                <div className="space-y-3 mb-4">
+                  <div className="flex items-center text-sm text-gray-600">
+                    <span className="font-medium">Número:</span>
+                    <span className="ml-2">988 877 766</span>
+                  </div>
                   <img
                     src="/pagos/qrplin.jpg"
                     alt="QR Plin"
-                    className="w-40 h-40 object-contain border border-cyan-200 rounded-xl bg-white mb-2 shadow"
+                    className="w-32 h-32 mx-auto rounded-lg shadow-sm bg-white p-2 border border-gray-100"
                   />
-                  <div className="text-xs text-cyan-700 mb-1 text-center font-semibold">
-                    Por favor, envía el comprobante después de realizar el pago.
-                  </div>
-                  <form
-                    onSubmit={e => handleConfirmar(e, 'plin')}
-                    encType="multipart/form-data"
-                    className="flex flex-col items-center gap-3 w-full"
-                  >
-                    <input type="hidden" name="metodo" value="plin" />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={e => handleFileChange(e, 'plin')}
-                      className="block text-xs text-cyan-700 border border-cyan-200 rounded-lg px-3 py-2 bg-white/80 w-full max-w-xs shadow focus:ring-2 focus:ring-cyan-300 transition"
-                      required
-                    />
-                    <button
-                      type="submit"
-                      className="px-5 py-2 rounded-lg bg-gradient-to-r from-cyan-400 to-cyan-600 text-white font-bold shadow-lg hover:from-cyan-500 hover:to-cyan-700 active:scale-95 transition w-full max-w-xs text-sm"
-                      disabled={processingMetodo === 'plin'}
-                    >
-                      {processingMetodo === 'plin' ? 'Procesando...' : 'Finalizar compra'}
-                    </button>
-                  </form>
                 </div>
+                <form onSubmit={e => handleConfirmar(e, 'plin')} className="space-y-3">
+                  {renderUploadBox('plin', 'cyan')}
+                  <button
+                    type="submit"
+                    className="w-full bg-cyan-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-colors"
+                    disabled={processingMetodo === 'plin'}
+                  >
+                    {processingMetodo === 'plin' ? 
+                      <span className="flex items-center justify-center">
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Procesando...
+                      </span>
+                      : 'Pagar con Plin'
+                    }
+                  </button>
+                </form>
                 {errors.referencia_pago && (
-                  <div className="text-red-500 text-xs mt-2 text-center">{errors.referencia_pago}</div>
+                  <p className="mt-2 text-sm text-red-600">{errors.referencia_pago}</p>
                 )}
               </div>
             </div>
+
             {/* Waiky */}
-            <div className="flex flex-col items-center border-2 border-pink-400 rounded-3xl shadow-2xl bg-white/60 backdrop-blur-lg p-6 transition hover:scale-105 hover:shadow-[0_8px_32px_0_rgba(236,72,153,0.25)] hover:border-pink-500 duration-200 relative overflow-hidden min-h-[340px] animate-fade-in-glass">
-              <span className="absolute right-2 top-2 text-pink-200 text-5xl opacity-30 pointer-events-none select-none">W</span>
-              <img src="https://play-lh.googleusercontent.com/SQpDeQodE-GEQkSYJNcZL6oGxCDZO4QZ6HLiW0zA1RQGrg-BnDPES47CG3NMWSbkDKk=w240-h480-rw" alt="Waiky" className="w-20 h-14 object-contain mb-3 opacity-95 drop-shadow-xl" />
-              <div className="w-full">
-                <div className="font-bold text-lg text-pink-700 mb-1 text-center drop-shadow">Waiky</div>
-                <div className="text-pink-500 mb-3 text-center text-sm">Escanea el QR o transfiere al número Waiky y sube el comprobante.</div>
-                <ul className="mb-3 text-pink-700 list-disc pl-5 text-center text-xs space-y-1">
-                  <li>Número Waiky: 977 666 555</li>
-                </ul>
-                <div className="flex flex-col items-center gap-3">
+            <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden border border-gray-100">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <img src="https://play-lh.googleusercontent.com/SQpDeQodE-GEQkSYJNcZL6oGxCDZO4QZ6HLiW0zA1RQGrg-BnDPES47CG3NMWSbkDKk=w240-h480-rw" 
+                       alt="Waiky" 
+                       className="w-12 h-12 rounded-lg shadow-sm" />
+                  <span className="px-3 py-1 text-xs font-medium text-pink-600 bg-pink-50 rounded-full">
+                    Nuevo
+                  </span>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Waiky</h3>
+                <p className="text-sm text-gray-600 mb-4">Paga de forma rápida con Waiky</p>
+                <div className="space-y-3 mb-4">
+                  <div className="flex items-center text-sm text-gray-600">
+                    <span className="font-medium">Número:</span>
+                    <span className="ml-2">977 666 555</span>
+                  </div>
                   <img
                     src="/pagos/qrwayki.jpg"
                     alt="QR Waiky"
-                    className="w-40 h-40 object-contain border border-pink-200 rounded-xl bg-white mb-2 shadow"
+                    className="w-32 h-32 mx-auto rounded-lg shadow-sm bg-white p-2 border border-gray-100"
                   />
-                  <div className="text-xs text-pink-700 mb-1 text-center font-semibold">
-                    Por favor, envía el comprobante después de realizar el pago.
-                  </div>
-                  <form
-                    onSubmit={e => handleConfirmar(e, 'waiky')}
-                    encType="multipart/form-data"
-                    className="flex flex-col items-center gap-3 w-full"
-                  >
-                    <input type="hidden" name="metodo" value="waiky" />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={e => handleFileChange(e, 'waiky')}
-                      className="block text-xs text-pink-700 border border-pink-200 rounded-lg px-3 py-2 bg-white/80 w-full max-w-xs shadow focus:ring-2 focus:ring-pink-300 transition"
-                      required
-                    />
-                    <button
-                      type="submit"
-                      className="px-5 py-2 rounded-lg bg-gradient-to-r from-pink-400 to-pink-600 text-white font-bold shadow-lg hover:from-pink-500 hover:to-pink-700 active:scale-95 transition w-full max-w-xs text-sm"
-                      disabled={processingMetodo === 'waiky'}
-                    >
-                      {processingMetodo === 'waiky' ? 'Procesando...' : 'Finalizar compra'}
-                    </button>
-                  </form>
                 </div>
+                <form onSubmit={e => handleConfirmar(e, 'waiky')} className="space-y-3">
+                  {renderUploadBox('waiky', 'pink')}
+                  <button
+                    type="submit"
+                    className="w-full bg-pink-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transition-colors"
+                    disabled={processingMetodo === 'waiky'}
+                  >
+                    {processingMetodo === 'waiky' ? 
+                      <span className="flex items-center justify-center">
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Procesando...
+                      </span>
+                      : 'Pagar con Waiky'
+                    }
+                  </button>
+                </form>
                 {errors.referencia_pago && (
-                  <div className="text-red-500 text-xs mt-2 text-center">{errors.referencia_pago}</div>
+                  <p className="mt-2 text-sm text-red-600">{errors.referencia_pago}</p>
                 )}
               </div>
             </div>
+
+            {/* BCP */}
+            <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden border border-gray-100">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <img src="https://play-lh.googleusercontent.com/gBpVaCpZsbBrLufT06aRpuLQvsUq1KAZUCEof_ps76mtB8_llJg3xv24mey8I0m3dUE=w240-h480-rw" 
+                       alt="BCP" 
+                       className="w-12 h-12 rounded-lg shadow-sm" />
+                  <span className="px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-full">
+                    Seguro
+                  </span>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">BCP</h3>
+                <p className="text-sm text-gray-600 mb-4">Transferencia o depósito bancario</p>
+                <div className="space-y-3 mb-4 bg-gray-50 p-4 rounded-lg">
+                  <div className="space-y-2">
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium text-gray-500">Cuenta Soles</span>
+                      <span className="text-sm text-gray-900">19195138673067</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium text-gray-500">CCI</span>
+                      <span className="text-sm text-gray-900">00219119513867306758</span>
+                    </div>
+                  </div>
+                </div>
+                <form onSubmit={e => handleConfirmar(e, 'bcp')} className="space-y-3">
+                  {renderUploadBox('bcp', 'blue')}
+                  <button
+                    type="submit"
+                    className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                    disabled={processingMetodo === 'bcp'}
+                  >
+                    {processingMetodo === 'bcp' ? 
+                      <span className="flex items-center justify-center">
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Procesando...
+                      </span>
+                      : 'Pagar con BCP'
+                    }
+                  </button>
+                </form>
+                {errors.referencia_pago && (
+                  <p className="mt-2 text-sm text-red-600">{errors.referencia_pago}</p>
+                )}
+              </div>
+            </div>
+
             {/* Caja Cusco */}
-            <div className="flex flex-col items-center border-2 border-red-400 rounded-3xl shadow-2xl bg-white/60 backdrop-blur-lg p-6 transition hover:scale-105 hover:shadow-[0_8px_32px_0_rgba(239,68,68,0.25)] hover:border-red-500 duration-200 min-h-[340px] animate-fade-in-glass">
-              <img src="https://logosandtypes.com/wp-content/uploads/2023/11/caja-cusco.svg" alt="Caja Cusco" className="w-20 h-14 object-contain mb-3 opacity-95 drop-shadow-xl" />
-              <div className="w-full">
-                <div className="font-bold text-lg text-red-700 mb-1 text-center drop-shadow">Caja Cusco</div>
-                <div className="text-red-500 mb-3 text-center text-sm">Realiza la transferencia a la cuenta Caja Cusco y sube el comprobante.</div>
-                <ul className="mb-3 text-red-700 list-disc pl-5 text-center text-xs space-y-1">
-                  <li>Ahorros soles: 106352321000159247</li>
-                  <li>CCI: 80603532100015924728</li>
-                </ul>
-                <div className="flex flex-col items-center gap-3">
-                  <div className="text-xs text-red-700 mb-1 text-center font-semibold">
-                    Por favor, envía el comprobante después de realizar el pago.
-                  </div>
-                  <form
-                    onSubmit={e => handleConfirmar(e, 'caja_cusco')}
-                    encType="multipart/form-data"
-                    className="flex flex-col items-center gap-3"
-                  >
-                    <input type="hidden" name="metodo" value="caja_cusco" />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={e => handleFileChange(e, 'caja_cusco')}
-                      className="block text-xs text-red-700 border border-red-200 rounded-lg px-3 py-2 bg-white/80 w-full max-w-xs shadow focus:ring-2 focus:ring-red-300 transition"
-                      required
-                    />
-                    <button
-                      type="submit"
-                      className="px-5 py-2 rounded-lg bg-gradient-to-r from-red-400 to-red-600 text-white font-bold shadow-lg hover:from-red-500 hover:to-red-700 active:scale-95 transition w-full max-w-xs text-sm"
-                      disabled={processingMetodo === 'caja_cusco'}
-                    >
-                      {processingMetodo === 'caja_cusco' ? 'Procesando...' : 'Finalizar compra'}
-                    </button>
-                  </form>
+            <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden border border-gray-100">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <img src="https://logosandtypes.com/wp-content/uploads/2023/11/caja-cusco.svg" 
+                       alt="Caja Cusco" 
+                       className="w-12 h-12 rounded-lg shadow-sm" />
+                  <span className="px-3 py-1 text-xs font-medium text-red-600 bg-red-50 rounded-full">
+                    Confiable
+                  </span>
                 </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Caja Cusco</h3>
+                <p className="text-sm text-gray-600 mb-4">Transferencia o depósito bancario</p>
+                <div className="space-y-3 mb-4 bg-gray-50 p-4 rounded-lg">
+                  <div className="space-y-2">
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium text-gray-500">Cuenta Ahorros</span>
+                      <span className="text-sm text-gray-900">106352321000159247</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium text-gray-500">CCI</span>
+                      <span className="text-sm text-gray-900">80603532100015924728</span>
+                    </div>
+                  </div>
+                </div>
+                <form onSubmit={e => handleConfirmar(e, 'caja_cusco')} className="space-y-3">
+                  {renderUploadBox('caja_cusco', 'red')}
+                  <button
+                    type="submit"
+                    className="w-full bg-red-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
+                    disabled={processingMetodo === 'caja_cusco'}
+                  >
+                    {processingMetodo === 'caja_cusco' ? 
+                      <span className="flex items-center justify-center">
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Procesando...
+                      </span>
+                      : 'Pagar con Caja Cusco'
+                    }
+                  </button>
+                </form>
                 {errors.referencia_pago && (
-                  <div className="text-red-500 text-xs mt-2 text-center">{errors.referencia_pago}</div>
+                  <p className="mt-2 text-sm text-red-600">{errors.referencia_pago}</p>
                 )}
               </div>
             </div>
+
             {/* Scotiabank */}
-            <div className="flex flex-col items-center border-2 border-orange-400 rounded-3xl shadow-2xl bg-white/60 backdrop-blur-lg p-6 transition hover:scale-105 hover:shadow-[0_8px_32px_0_rgba(251,146,60,0.25)] hover:border-orange-500 duration-200 min-h-[340px] animate-fade-in-glass">
-              <img src="https://cdn.aglty.io/scotiabank-peru/imagenes/2022/logos/logo-scotiabank-symbol.svg" alt="Scotiabank" className="w-20 h-14 object-contain mb-3 opacity-95 drop-shadow-xl" />
-              <div className="w-full">
-                <div className="font-bold text-lg text-orange-700 mb-1 text-center drop-shadow">Scotiabank</div>
-                <div className="text-orange-500 mb-3 text-center text-sm">Realiza la transferencia a la cuenta Scotiabank y sube el comprobante.</div>
-                <ul className="mb-3 text-orange-700 list-disc pl-5 text-center text-xs space-y-1">
-                  <li>Tipo de cuenta: Cuenta Ahorro Soles</li>
-                  <li>Número de cuenta: 3660168323</li>
-                  <li>Código de Cuenta Interbancario: 00936620366016832360</li>
-                </ul>
-                <div className="flex flex-col items-center gap-3">
-                  <div className="text-xs text-orange-700 mb-1 text-center font-semibold">
-                    Por favor, envía el comprobante después de realizar el pago.
-                  </div>
-                  <form
-                    onSubmit={e => handleConfirmar(e, 'scotiabank')}
-                    encType="multipart/form-data"
-                    className="flex flex-col items-center gap-3"
-                  >
-                    <input type="hidden" name="metodo" value="scotiabank" />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={e => handleFileChange(e, 'scotiabank')}
-                      className="block text-xs text-orange-700 border border-orange-200 rounded-lg px-3 py-2 bg-white/80 w-full max-w-xs shadow focus:ring-2 focus:ring-orange-300 transition"
-                      required
-                    />
-                    <button
-                      type="submit"
-                      className="px-5 py-2 rounded-lg bg-gradient-to-r from-orange-400 to-orange-600 text-white font-bold shadow-lg hover:from-orange-500 hover:to-orange-700 active:scale-95 transition w-full max-w-xs text-sm"
-                      disabled={processingMetodo === 'scotiabank'}
-                    >
-                      {processingMetodo === 'scotiabank' ? 'Procesando...' : 'Finalizar compra'}
-                    </button>
-                  </form>
+            <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden border border-gray-100">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <img src="https://cdn.aglty.io/scotiabank-peru/imagenes/2022/logos/logo-scotiabank-symbol.svg" 
+                       alt="Scotiabank" 
+                       className="w-12 h-12 rounded-lg shadow-sm" />
+                  <span className="px-3 py-1 text-xs font-medium text-orange-600 bg-orange-50 rounded-full">
+                    Internacional
+                  </span>
                 </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Scotiabank</h3>
+                <p className="text-sm text-gray-600 mb-4">Transferencia o depósito bancario</p>
+                <div className="space-y-3 mb-4 bg-gray-50 p-4 rounded-lg">
+                  <div className="space-y-2">
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium text-gray-500">Cuenta Ahorros</span>
+                      <span className="text-sm text-gray-900">3660168323</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium text-gray-500">CCI</span>
+                      <span className="text-sm text-gray-900">00936620366016832360</span>
+                    </div>
+                  </div>
+                </div>
+                <form onSubmit={e => handleConfirmar(e, 'scotiabank')} className="space-y-3">
+                  {renderUploadBox('scotiabank', 'orange')}
+                  <button
+                    type="submit"
+                    className="w-full bg-orange-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors"
+                    disabled={processingMetodo === 'scotiabank'}
+                  >
+                    {processingMetodo === 'scotiabank' ? 
+                      <span className="flex items-center justify-center">
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Procesando...
+                      </span>
+                      : 'Pagar con Scotiabank'
+                    }
+                  </button>
+                </form>
                 {errors.referencia_pago && (
-                  <div className="text-red-500 text-xs mt-2 text-center">{errors.referencia_pago}</div>
+                  <p className="mt-2 text-sm text-red-600">{errors.referencia_pago}</p>
                 )}
               </div>
             </div>
-            {/* Próximamente más métodos de pago */}
-            <div className="col-span-1 md:col-span-2 xl:col-span-3 border-2 border-dashed border-gray-300 rounded-3xl p-8 bg-white/60 backdrop-blur-lg flex flex-col items-center justify-center w-full shadow-inner animate-pulse">
-              <span className="text-3xl mb-2 animate-bounce">🚧</span>
-              <span className="font-bold text-gray-600 text-lg mb-1">Próximamente más métodos de pago</span>
-              <span className="text-gray-400 text-base">Estamos trabajando para ofrecerte más opciones.</span>
+
+            {/* Información del proceso de pago */}
+            <div className="col-span-1 md:col-span-2 xl:col-span-3 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8">
+              <div className="max-w-3xl mx-auto">
+                <div className="flex flex-col items-center mb-8">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full shadow-sm mb-4">
+                    <svg className="w-8 h-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">¿Cómo funciona el proceso de pago?</h3>
+                  <p className="text-gray-600 text-center mb-6">El proceso es simple y seguro</p>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="bg-white rounded-xl p-6 shadow-sm">
+                    <div className="flex items-center mb-4">
+                      <span className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full text-blue-600 font-semibold text-sm mr-3">1</span>
+                      <h4 className="font-medium text-gray-900">Selecciona el método</h4>
+                    </div>
+                    <p className="text-sm text-gray-600">Elige el método de pago que prefieras entre las opciones disponibles: Yape, Plin, Waiky o transferencia bancaria.</p>
+                  </div>
+
+                  <div className="bg-white rounded-xl p-6 shadow-sm">
+                    <div className="flex items-center mb-4">
+                      <span className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full text-blue-600 font-semibold text-sm mr-3">2</span>
+                      <h4 className="font-medium text-gray-900">Realiza el pago</h4>
+                    </div>
+                    <p className="text-sm text-gray-600">Transfiere el monto exacto utilizando los datos proporcionados. Guarda el comprobante de la operación.</p>
+                  </div>
+
+                  <div className="bg-white rounded-xl p-6 shadow-sm">
+                    <div className="flex items-center mb-4">
+                      <span className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full text-blue-600 font-semibold text-sm mr-3">3</span>
+                      <h4 className="font-medium text-gray-900">Sube el comprobante</h4>
+                    </div>
+                    <p className="text-sm text-gray-600">Sube la imagen o captura del comprobante de pago. Verificaremos y confirmaremos tu pedido.</p>
+                  </div>
+                </div>
+
+                <div className="mt-8 bg-blue-50 border border-blue-100 rounded-xl p-6">
+                  <div className="flex items-start">
+                    <div className="flex-shrink-0">
+                      <svg className="w-5 h-5 text-blue-600 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <h4 className="text-sm font-medium text-blue-900">Próximamente más opciones</h4>
+                      <p className="mt-1 text-sm text-blue-700">Estamos trabajando para implementar pagos en línea con tarjeta de crédito/débito y otros métodos digitales para brindarte mayor comodidad.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+
           <div className="mt-12 text-center">
-            <Link href="/cart" className="text-gray-700 hover:underline font-bold text-lg transition">Volver al carrito</Link>
+            <Link 
+              href="/cart" 
+              className="inline-flex items-center text-gray-600 hover:text-gray-900 font-medium transition-colors"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Volver al carrito
+            </Link>
           </div>
         </div>
       </main>

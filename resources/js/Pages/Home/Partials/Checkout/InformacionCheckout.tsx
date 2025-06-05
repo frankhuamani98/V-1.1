@@ -41,12 +41,11 @@ export default function InformacionCheckout({ user, pedido }: Props) {
   const [loading, setLoading] = useState(false);
   const [mensaje, setMensaje] = useState('');
 
-  // Nuevo: useForm para el envío del pedido
   const { post, processing, setData } = useForm({
     nombre: user.nombre,
     apellidos: user.apellidos,
     dni: user.dni,
-    direccion_alternativa: '', // se actualizará si el usuario la ingresa
+    direccion_alternativa: '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -61,7 +60,6 @@ export default function InformacionCheckout({ user, pedido }: Props) {
       if (response.data.success) {
         setUsarDireccionAlternativa(true);
         setMensaje('Dirección alternativa guardada correctamente');
-        // Actualiza el campo en useForm
         setData('direccion_alternativa', direccionAlternativa);
         setTimeout(() => {
           setShowModal(false);
@@ -75,12 +73,10 @@ export default function InformacionCheckout({ user, pedido }: Props) {
     }
   };
 
-  // Nuevo: manejar el submit del pedido
   const handlePedidoSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     post('/checkout/informacion', {
       onSuccess: () => {
-        // Redirige a métodos de pago automáticamente por el backend
       },
     });
   };
@@ -90,52 +86,52 @@ export default function InformacionCheckout({ user, pedido }: Props) {
       <Head title="Información de tu pedido" />
       <Header />
 
-      <div className="container mx-auto py-12 px-0 sm:px-2 lg:px-4 flex-grow">
-        <div className="w-full bg-white/90 dark:bg-gray-900/95 rounded-3xl shadow-2xl p-4 sm:p-10 md:p-14 border border-gray-100 dark:border-blue-900 transition-all backdrop-blur-md">
-          <h1 className="text-4xl font-extrabold mb-10 text-blue-900 dark:text-blue-100 text-center tracking-tight flex items-center justify-center gap-3">
-            <svg className="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M12 8v4l3 3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      <div className="container mx-auto py-8 px-4 flex-grow">
+        <div className="w-full bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 md:p-10 border border-gray-100 dark:border-gray-800 backdrop-blur-sm">
+          <h1 className="text-3xl font-extrabold mb-8 text-gray-900 dark:text-gray-100 text-center tracking-tight flex items-center justify-center gap-3">
+            <svg className="w-9 h-9 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round"/></svg>
             Información de tu pedido
           </h1>
           
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold text-blue-800 dark:text-blue-200 mb-4 border-b-2 border-blue-100 dark:border-blue-800 pb-2 flex items-center gap-2">
-              <svg className="w-6 h-6 text-blue-500 dark:text-blue-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          <div className="mb-10">
+            <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-5 border-b border-gray-200 dark:border-gray-700 pb-3 flex items-center gap-2">
+              <svg className="w-6 h-6 text-blue-500 dark:text-blue-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" strokeLinecap="round" strokeLinejoin="round"/></svg>
               Datos personales
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div className="bg-blue-50 dark:bg-blue-950 rounded-xl p-4 border border-blue-100 dark:border-blue-800 flex items-center gap-3 shadow-sm">
-                <svg className="w-5 h-5 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 flex items-center gap-3 shadow-sm">
+                <svg className="w-5 h-5 text-green-500 dark:text-green-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 <div>
-                  <span className="font-semibold text-blue-700 dark:text-blue-300 text-xs">Nombre</span>
-                  <div className="text-blue-900 dark:text-blue-100 text-base">{user.nombre}</div>
+                  <span className="font-medium text-gray-600 dark:text-gray-300 text-sm">Nombre</span>
+                  <div className="text-gray-900 dark:text-gray-100 text-base">{user.nombre}</div>
                 </div>
               </div>
-              <div className="bg-blue-50 dark:bg-blue-950 rounded-xl p-4 border border-blue-100 dark:border-blue-800 flex items-center gap-3 shadow-sm">
-                <svg className="w-5 h-5 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 flex items-center gap-3 shadow-sm">
+                <svg className="w-5 h-5 text-green-500 dark:text-green-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 <div>
-                  <span className="font-semibold text-blue-700 dark:text-blue-300 text-xs">Apellidos</span>
-                  <div className="text-blue-900 dark:text-blue-100 text-base">{user.apellidos}</div>
+                  <span className="font-medium text-gray-600 dark:text-gray-300 text-sm">Apellidos</span>
+                  <div className="text-gray-900 dark:text-gray-100 text-base">{user.apellidos}</div>
                 </div>
               </div>
-              <div className="bg-blue-50 dark:bg-blue-950 rounded-xl p-4 border border-blue-100 dark:border-blue-800 flex items-center gap-3 shadow-sm">
-                <svg className="w-5 h-5 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 flex items-center gap-3 shadow-sm">
+                <svg className="w-5 h-5 text-green-500 dark:text-green-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 <div>
-                  <span className="font-semibold text-blue-700 dark:text-blue-300 text-xs">DNI</span>
-                  <div className="text-blue-900 dark:text-blue-100 text-base">{user.dni}</div>
+                  <span className="font-medium text-gray-600 dark:text-gray-300 text-sm">DNI</span>
+                  <div className="text-gray-900 dark:text-gray-100 text-base">{user.dni}</div>
                 </div>
               </div>
-              <div className="bg-blue-50 dark:bg-blue-950 rounded-xl p-4 border border-blue-100 dark:border-blue-800 flex items-center justify-between shadow-sm">
+              <div className="bg-white dark:bg-gray-850 rounded-lg p-4 border border-gray-200 dark:border-gray-700 flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-3">
-                  <svg className="w-5 h-5 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 12.414a4 4 0 10-5.657 5.657l4.243 4.243a8 8 0 1011.314-11.314l-4.243 4.243a4 4 0 00-5.657 5.657z" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <svg className="w-5 h-5 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zM12 12c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>
                   <div>
-                    <span className="font-semibold text-blue-700 dark:text-blue-300 text-xs">Dirección</span>
-                    <div className="text-blue-900 dark:text-blue-100 text-base">{usarDireccionAlternativa ? direccionAlternativa : user.direccion}</div>
+                    <span className="font-medium text-gray-600 dark:text-gray-300 text-sm">Dirección</span>
+                    <div className="text-gray-900 dark:text-gray-100 text-base">{usarDireccionAlternativa ? direccionAlternativa : user.direccion}</div>
                   </div>
                 </div>
                 <button 
                   type="button"
                   onClick={() => setShowModal(true)}
-                  className="ml-2 px-3 py-1 text-xs font-semibold bg-gradient-to-r from-blue-600 to-blue-500 dark:from-blue-700 dark:to-blue-600 text-white rounded-lg shadow hover:from-blue-700 hover:to-blue-600 dark:hover:from-blue-800 dark:hover:to-blue-700 transition"
+                  className="ml-2 px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 transition"
                 >
                   Cambiar
                 </button>
@@ -143,17 +139,16 @@ export default function InformacionCheckout({ user, pedido }: Props) {
             </div>
           </div>
 
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold text-blue-800 dark:text-blue-200 mb-2 flex items-center gap-2">
-              <svg className="w-6 h-6 text-blue-500 dark:text-blue-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M3 7h18M3 12h18M3 17h18" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          <div className="mb-10">
+            <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-5 border-b border-gray-200 dark:border-gray-700 pb-3 flex items-center gap-2">
+              <svg className="w-6 h-6 text-blue-500 dark:text-blue-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18M3 12h18M3 17h18" strokeLinecap="round" strokeLinejoin="round"/></svg>
               Resumen de pedido
             </h2>
-            <span className="text-sm text-blue-700 dark:text-blue-300 mb-4 block">{pedido.items.length} Producto{pedido.items.length > 1 ? 's' : ''}</span>
-            <div className="bg-blue-50 dark:bg-blue-950 rounded-2xl border border-blue-100 dark:border-blue-800 p-5 mb-4">
+            <span className="text-sm text-gray-600 dark:text-gray-300 mb-4 block">{pedido.items.length} Producto{pedido.items.length > 1 ? 's' : ''}</span>
+            <div className="bg-white dark:bg-gray-850 rounded-lg border border-gray-200 dark:border-gray-700 p-5 mb-6 shadow-sm">
               {pedido.items.map((item, idx) => (
-                <div key={idx} className="flex items-center gap-4 py-3 border-b border-blue-200 dark:border-blue-800 last:border-b-0">
-                  {/* Imagen igual que en carrito */}
-                  <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-blue-900">
+                <div key={idx} className="flex items-center gap-4 py-4 border-b border-gray-200 dark:border-gray-700 last:border-b-0">
+                  <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
                     <img
                       src={
                         item.imagen
@@ -171,72 +166,66 @@ export default function InformacionCheckout({ user, pedido }: Props) {
                     />
                   </div>
                   <div className="flex-1">
-                    <div className="font-bold text-blue-900 dark:text-blue-100 text-sm">{item.nombre}</div>
-                    {/* Puedes agregar una descripción si la tienes */}
-                    {/* <div className="text-xs text-blue-700 dark:text-blue-300">Descripción corta</div> */}
-                    <div className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                    <div className="font-bold text-gray-900 dark:text-gray-100 text-sm">{item.nombre}</div>
+                    <div className="text-xs text-gray-700 dark:text-gray-300 mt-1">
                       Cantidad: {item.cantidad}
                     </div>
-                    <div className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                    <div className="text-xs text-gray-700 dark:text-gray-300 mt-1">
                       Precio unitario: {formatPrice(item.precio_final)}
                     </div>
                   </div>
-                  <div className="font-bold text-blue-900 dark:text-blue-100 text-base">{formatPrice(item.subtotal)}</div>
+                  <div className="font-bold text-gray-900 dark:text-gray-100 text-base">{formatPrice(item.subtotal)}</div>
                 </div>
               ))}
-              <div className="flex items-center gap-2 mt-4">
-                <svg className="w-5 h-5 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M3 17v-2a4 4 0 014-4h10a4 4 0 014 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+              <div className="flex items-center gap-2 mt-4 text-sm">
+                <svg className="w-5 h-5 text-blue-700 dark:text-blue-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0zM12 4v8m4-4H8" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 <Link href="/cart" className="text-blue-700 dark:text-blue-300 font-semibold hover:underline">Añadir más productos</Link>
               </div>
-              <div className="flex items-center gap-2 mt-2 text-sm text-blue-700 dark:text-blue-300">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M9 12h6M9 16h6M9 8h6" /><circle cx="12" cy="12" r="10" /></svg>
-                Si tienes un cupón agrégalo en el siguiente paso
-              </div>
             </div>
-            <div className="bg-blue-100 dark:bg-blue-900 rounded-2xl p-5">
-              <div className="flex justify-between items-center text-sm mb-2">
-                <span className="text-blue-900 dark:text-blue-100 font-semibold">Subtotal</span>
-                <span className="text-blue-900 dark:text-blue-100">{formatPrice(pedido.subtotal)}</span>
+            <div className="bg-white dark:bg-gray-850 rounded-lg p-5 shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="flex justify-between items-center text-base mb-3">
+                <span className="text-gray-800 dark:text-gray-200 font-medium">Subtotal</span>
+                <span className="text-gray-800 dark:text-gray-200 font-medium">{formatPrice(pedido.subtotal)}</span>
               </div>
-              {/* Simulación de descuento si aplica */}
               {pedido.subtotal > pedido.total && (
-                <div className="flex justify-between items-center text-sm mb-2">
-                  <span className="text-blue-700 dark:text-blue-300 font-semibold">Descuento</span>
-                  <span className="text-blue-700 dark:text-blue-300">- {formatPrice(pedido.subtotal - pedido.total)}</span>
+                <div className="flex justify-between items-center text-base mb-3">
+                  <span className="text-red-600 dark:text-red-400 font-medium">Descuento</span>
+                  <span className="text-red-600 dark:text-red-400 font-medium">- {formatPrice(pedido.subtotal - pedido.total)}</span>
                 </div>
               )}
-              <div className="flex justify-between items-center text-sm mb-2">
-                <span className="text-blue-900 dark:text-blue-100">Costo de envío</span>
-                <span className="text-blue-700 dark:text-blue-300">Revísalo en el paso Pago</span>
+              <div className="flex justify-between items-center text-base mb-3">
+                <span className="text-gray-800 dark:text-gray-200 font-medium">Costo de envío</span>
+                <span className="text-gray-600 dark:text-gray-300">Revísalo en el paso Pago</span>
               </div>
-              <div className="flex justify-between items-center text-lg font-bold mt-4">
-                <span className="text-blue-900 dark:text-blue-100">Total Pedido</span>
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4 flex justify-between items-center text-xl font-bold">
+                <span className="text-gray-900 dark:text-gray-100">Total Pedido</span>
                 <span className="text-blue-700 dark:text-blue-300">{formatPrice(pedido.total)}</span>
               </div>
             </div>
           </div>
 
           <form onSubmit={handlePedidoSubmit}>
-            <div className="flex flex-col md:flex-row justify-end gap-6 mt-12">
+            <div className="flex flex-col md:flex-row justify-end gap-4 mt-12">
               <Link
                 href="/cart"
-                className="px-7 py-3 rounded-xl border border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-200 bg-white dark:bg-blue-950 hover:bg-blue-50 dark:hover:bg-blue-900 transition font-semibold shadow"
+                className="px-6 py-3 rounded-md border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition font-semibold shadow-sm text-center flex items-center justify-center gap-2"
               >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 Volver al carrito
               </Link>
               <button
                 type="submit"
-                className="px-7 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 dark:from-blue-700 dark:to-blue-600 text-white font-bold shadow-xl hover:from-blue-700 hover:to-blue-600 dark:hover:from-blue-800 dark:hover:to-blue-700 transition disabled:opacity-75"
+                className="px-6 py-3 rounded-md bg-blue-600 text-white font-bold shadow-md hover:bg-blue-700 transition disabled:opacity-75 text-center"
                 disabled={processing}
               >
                 {processing ? (
-                  <span className="flex items-center gap-2">
-                    <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" strokeOpacity="0.25"/><path d="M4 12a8 8 0 018-8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="w-5 h-5 animate-spin text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" strokeOpacity="0.25"/><path d="M4 12a8 8 0 018-8" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     Guardando pedido...
                   </span>
                 ) : (
-                  <span className="flex items-center gap-2">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M17 9V7a5 5 0 00-10 0v2a2 2 0 00-2 2v7a2 2 0 002 2h12a2 2 0 002-2v-7a2 2 0 00-2-2z" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     Continuar con el pago
                   </span>
                 )}
@@ -249,38 +238,38 @@ export default function InformacionCheckout({ user, pedido }: Props) {
       <Footer />
 
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-900 rounded-3xl p-10 w-full max-w-lg border border-blue-200 dark:border-blue-800 shadow-2xl">
-            <div className="flex justify-between items-center mb-8">
-              <h3 className="text-2xl font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2">
-                <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 12.414a4 4 0 10-5.657 5.657l4.243 4.243a8 8 0 1011.314-11.314l-4.243 4.243a4 4 0 00-5.657 5.657z" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-xl p-8 w-full max-w-lg border border-gray-200 dark:border-gray-700 shadow-xl transform transition-all scale-100 opacity-100">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true"><path d="M17.657 16.657L13.414 12.414a4 4 0 10-5.657 5.657l4.243 4.243a8 8 0 1011.314-11.314l-4.243 4.243a4 4 0 00-5.657 5.657z" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 Dirección alternativa
               </h3>
               <button 
                 onClick={() => setShowModal(false)}
-                className="text-blue-400 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-100 transition"
+                className="text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-100 transition"
               >
-                <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
             
             {mensaje && (
-              <div className={`p-4 mb-6 rounded-xl text-center font-semibold ${mensaje.includes('Error') ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200' : 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200'}`}>
+              <div className={`p-4 mb-6 rounded-lg text-center font-medium ${mensaje.includes('Error') ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200' : 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200'}`}>
                 {mensaje}
               </div>
             )}
             
             <form onSubmit={handleSubmit}>
-              <div className="mb-8">
-                <label htmlFor="direccion" className="block text-base font-bold text-blue-800 dark:text-blue-200 mb-3">
+              <div className="mb-6">
+                <label htmlFor="direccion" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Nueva dirección de entrega
                 </label>
                 <textarea
                   id="direccion"
                   rows={3}
-                  className="w-full border border-blue-300 dark:border-blue-700 rounded-xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-blue-950 dark:text-blue-100 resize-none text-base"
+                  className="w-full border border-gray-300 dark:border-gray-700 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 resize-none text-base"
                   value={direccionAlternativa}
                   onChange={(e) => setDireccionAlternativa(e.target.value)}
                   placeholder="Ingresa la dirección completa"
@@ -288,28 +277,28 @@ export default function InformacionCheckout({ user, pedido }: Props) {
                 />
               </div>
               
-              <div className="flex justify-end gap-4">
+              <div className="flex justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-6 py-2 border border-blue-300 dark:border-blue-700 rounded-xl text-blue-700 dark:text-blue-200 bg-white dark:bg-blue-950 hover:bg-blue-50 dark:hover:bg-blue-900 transition font-semibold"
+                  className="px-5 py-2 border border-gray-300 dark:border-gray-700 rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition font-medium"
                   disabled={loading}
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-500 dark:from-blue-700 dark:to-blue-600 text-white rounded-xl font-bold hover:from-blue-700 hover:to-blue-600 dark:hover:from-blue-800 dark:hover:to-blue-700 transition disabled:opacity-75"
+                  className="px-5 py-2 bg-blue-600 text-white rounded-md font-bold hover:bg-blue-700 transition disabled:opacity-75"
                   disabled={loading}
                 >
                   {loading ? (
-                    <span className="flex items-center gap-2">
-                      <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" strokeOpacity="0.25"/><path d="M4 12a8 8 0 018-8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="w-5 h-5 animate-spin text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" strokeOpacity="0.25"/><path d="M4 12a8 8 0 018-8" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       Guardando...
                     </span>
                   ) : (
-                    <span className="flex items-center gap-2">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       Guardar
                     </span>
                   )}
