@@ -163,7 +163,15 @@ const Header = ({ toggleSidebar, auth }: HeaderProps) => {
     (notification) => !notification.leida
   ).length;
 
-  const getInitials = (username: string) => {
+  const getInitials = (username: string, first_name?: string, last_name?: string) => {
+    // Si hay nombre y apellido, usar sus iniciales
+    if (first_name && last_name) {
+      return (
+        (first_name[0] || '').toUpperCase() +
+        (last_name[0] || '').toUpperCase()
+      );
+    }
+    // Si solo hay username, usar iniciales del username
     const names = username.split(" ");
     return names
       .map((name) => name[0])
@@ -469,31 +477,42 @@ const Header = ({ toggleSidebar, auth }: HeaderProps) => {
             </Popover>
 
             {/* User profile - desktop version */}
-            <div className="hidden sm:flex items-center space-x-2">
-              <span className="text-sm font-medium">{auth.user.username}</span>
+            <div className="hidden sm:flex items-center space-x-3">
+              <span className="text-sm font-semibold text-primary/90">{auth.user.username}</span>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 p-0">
-                    <div className="bg-primary/10 rounded-full h-8 w-8 flex items-center justify-center">
-                      <span className="text-primary font-medium text-sm">
-                        {getInitials(auth.user.username)}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full h-9 w-9 p-0 shadow border border-primary/20 bg-gradient-to-br from-primary/10 to-background/80 hover:from-primary/20 transition-all"
+                  >
+                    <div className="bg-primary/10 rounded-full h-9 w-9 flex items-center justify-center">
+                      <span className="text-primary font-bold text-base tracking-wide">
+                        {getInitials(auth.user.username, auth.user.first_name, auth.user.last_name)}
                       </span>
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuContent align="end" className="w-60 rounded-xl shadow-xl border border-primary/10 bg-background/95">
                   <DropdownMenuLabel>
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium">{auth.user.username}</p>
+                      <p className="text-base font-semibold text-primary">{auth.user.username}</p>
+                      <span className="px-2 py-0.5 rounded bg-green-100 text-green-700 text-xs font-semibold w-fit">Administrador</span>
                       <p className="text-xs text-muted-foreground">{auth.user.email}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setShowProfileModal(true)}>
+                  <DropdownMenuItem
+                    className="hover:bg-primary/10 hover:text-primary rounded-md transition"
+                    onClick={() => setShowProfileModal(true)}
+                  >
                     Perfil
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive" onClick={handleLogout}>
+                  <DropdownMenuItem
+                    className="text-destructive hover:bg-red-50 hover:text-red-700 rounded-md transition"
+                    onClick={handleLogout}
+                  >
                     <LogOut size={16} className="mr-2" />
                     <span>Cerrar sesión</span>
                   </DropdownMenuItem>
@@ -504,27 +523,37 @@ const Header = ({ toggleSidebar, auth }: HeaderProps) => {
             {/* User profile - mobile version (just the avatar) */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild className="sm:hidden">
-                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 p-0">
-                  <div className="bg-primary/10 rounded-full h-8 w-8 flex items-center justify-center">
-                    <span className="text-primary font-medium text-sm">
-                      {getInitials(auth.user.username)}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full h-9 w-9 p-0 shadow border border-primary/20 bg-gradient-to-br from-primary/10 to-background/80 hover:from-primary/20 transition-all"
+                >
+                  <div className="bg-primary/10 rounded-full h-9 w-9 flex items-center justify-center">
+                    <span className="text-primary font-bold text-base tracking-wide">
+                      {getInitials(auth.user.username, auth.user.first_name, auth.user.last_name)}
                     </span>
                   </div>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent align="end" className="w-60 rounded-xl shadow-xl border border-primary/10 bg-background/95">
                 <DropdownMenuLabel>
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium">{auth.user.username}</p>
+                    <p className="text-base font-semibold text-primary">{auth.user.username}</p>
                     <p className="text-xs text-muted-foreground">{auth.user.email}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setShowProfileModal(true)}>
+                <DropdownMenuItem
+                  className="hover:bg-primary/10 hover:text-primary rounded-md transition"
+                  onClick={() => setShowProfileModal(true)}
+                >
                   Perfil
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive" onClick={handleLogout}>
+                <DropdownMenuItem
+                  className="text-destructive hover:bg-red-50 hover:text-red-700 rounded-md transition"
+                  onClick={handleLogout}
+                >
                   <LogOut size={16} className="mr-2" />
                   <span>Cerrar sesión</span>
                 </DropdownMenuItem>

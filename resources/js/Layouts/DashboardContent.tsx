@@ -220,14 +220,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Tablero</h1>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" className="w-full sm:w-auto">
-            <Calendar className="mr-2 h-4 w-4" />
-            Julio 2025
-          </Button>
-          <Button size="sm" className="w-full sm:w-auto">
-            <TrendingUp className="mr-2 h-4 w-4" />
-            Exportar Reporte
-          </Button>
+
         </div>
       </div>
 
