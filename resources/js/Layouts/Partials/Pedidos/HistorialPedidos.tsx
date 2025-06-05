@@ -140,7 +140,6 @@ const HistorialPedidos = ({ pedidos = [] }: Props) => {
                     <TableHead className="font-semibold text-gray-600 text-xs uppercase tracking-wider px-4 py-3">Estado</TableHead>
                     <TableHead className="font-semibold text-gray-600 text-xs uppercase tracking-wider px-4 py-3">Método de Pago</TableHead>
                     <TableHead className="font-semibold text-gray-600 text-xs uppercase tracking-wider px-4 py-3">Total</TableHead>
-                    <TableHead className="font-semibold text-gray-600 text-xs uppercase tracking-wider px-4 py-3">Comprobante</TableHead>
                     <TableHead className="font-semibold text-gray-600 text-xs uppercase tracking-wider px-4 py-3">Productos</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -180,25 +179,6 @@ const HistorialPedidos = ({ pedidos = [] }: Props) => {
                         </TableCell>
                         <TableCell className="px-4 py-3 text-sm text-gray-800">
                           {pedido.total !== null && pedido.total !== undefined ? formatPrice(pedido.total) : <span className="text-gray-400">-</span>}
-                        </TableCell>
-                        <TableCell className="px-4 py-3 text-sm text-gray-800">
-                          {pedido.referencia_pago ? (
-                            <img
-                              src={
-                                pedido.referencia_pago.startsWith('http')
-                                  ? pedido.referencia_pago
-                                  : `/storage/${pedido.referencia_pago}`
-                              }
-                              alt="Comprobante de pago"
-                              className="w-16 h-16 object-cover rounded-md border border-gray-200 shadow-sm"
-                              onError={e => {
-                                const target = e.currentTarget as HTMLImageElement;
-                                target.src = "/images/placeholder.png";
-                              }}
-                            />
-                          ) : (
-                            <span className="text-gray-400">-</span>
-                          )}
                         </TableCell>
                         <TableCell className="px-4 py-3 text-sm text-gray-800">
                           <Button variant="outline" size="sm" onClick={() => toggleRow(pedido.id)} aria-label="Ver detalles" className="text-blue-600 border-blue-200 hover:bg-blue-50">
