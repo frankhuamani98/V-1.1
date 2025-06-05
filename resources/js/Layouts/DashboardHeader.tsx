@@ -3,7 +3,6 @@ import { router } from "@inertiajs/react";
 import axios from "axios";
 import {
   Menu,
-  Search,
   Bell,
   Maximize,
   Minimize,
@@ -217,26 +216,12 @@ const Header = ({ toggleSidebar, auth }: HeaderProps) => {
             </h1>
           </div>
 
-          <div
-            className={cn(
-              "hidden md:flex items-center relative max-w-md",
-              "md:absolute md:left-1/2 md:transform md:-translate-x-1/2"
-            )}
-          >
-            <Input
-              type="text"
-              placeholder="Buscar..."
-              className="pl-9 w-full md:w-80 lg:w-96"
-            />
-            <Search size={16} className="absolute left-3 text-muted-foreground" />
-          </div>
-
           <div className="md:hidden flex items-center">
             {showSearchInput ? (
               <div className="absolute inset-x-0 top-0 bg-card z-50 px-4 py-2 flex items-center border-b">
                 <Input
                   type="text"
-                  placeholder="Buscar..."
+                  placeholder="Buscar productos, pedidos o clientes..."
                   className="w-full"
                   autoFocus
                 />
@@ -250,16 +235,7 @@ const Header = ({ toggleSidebar, auth }: HeaderProps) => {
                   <X size={18} />
                 </Button>
               </div>
-            ) : (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setShowSearchInput(true)}
-                aria-label="Abrir búsqueda"
-              >
-                <Search size={20} />
-              </Button>
-            )}
+            ) : null}
           </div>
 
           <div className="flex items-center space-x-1 sm:space-x-2">
