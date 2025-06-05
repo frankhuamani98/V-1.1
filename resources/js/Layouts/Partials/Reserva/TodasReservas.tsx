@@ -199,95 +199,6 @@ const TodasReservas = ({ reservas: initialReservas }: TodasReservasProps) => {
                                                     </div>
                                                 </TableCell>
                                             </TableRow>
-
-                                            <div className="sm:hidden bg-white rounded-lg shadow-sm p-4 mb-3 border border-gray-100">
-                                                <div className="flex justify-between items-center">
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="font-medium text-gray-800 truncate">
-                                                            {reserva.usuario}
-                                                        </p>
-                                                        <p className="text-sm text-gray-600 truncate mt-0.5">
-                                                            {getTruncatedServicesData(reserva.servicios).firstService}
-                                                            {getTruncatedServicesData(reserva.servicios).additionalCount > 0 && (
-                                                                <span className="font-bold text-blue-600 ml-1">
-                                                                    +{getTruncatedServicesData(reserva.servicios).additionalCount}
-                                                                </span>
-                                                            )}
-                                                        </p>
-                                                        <div className="flex items-center gap-2 mt-1">
-                                                            <Badge
-                                                                className={`text-xs font-medium px-2 py-0.5 rounded-full ${getEstadoBadgeClass(reserva.estado)}`}
-                                                            >
-                                                                {reserva.estado.charAt(0).toUpperCase() + reserva.estado.slice(1)}
-                                                            </Badge>
-                                                            <span className="text-xs text-gray-500">
-                                                                {formatFecha(reserva.fecha)} - {reserva.hora}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-8 w-8 rounded-full hover:bg-gray-100"
-                                                        onClick={() => toggleRow(reserva.id)}
-                                                        aria-label="Ver detalles"
-                                                    >
-                                                        {expandedRows.includes(reserva.id) ? (
-                                                            <ChevronUp className="h-4 w-4 text-gray-500" />
-                                                        ) : (
-                                                            <ChevronDown className="h-4 w-4 text-gray-500" />
-                                                        )}
-                                                    </Button>
-                                                </div>
-                                                {expandedRows.includes(reserva.id) && (
-                                                    <div className="mt-3 space-y-3 pt-3 border-t border-gray-100">
-                                                        <div className="flex justify-between text-sm">
-                                                            <span className="text-gray-500">Moto:</span>
-                                                            <span className="font-medium text-gray-800">{`${reserva.moto.marca} ${reserva.moto.modelo} ${reserva.moto.año}`} - {reserva.placa}</span>
-                                                        </div>
-                                                        {reserva.detalles && (
-                                                            <div className="flex justify-between text-sm">
-                                                                <span className="text-gray-500">Detalles:</span>
-                                                                <span className="font-medium text-gray-800">{reserva.detalles}</span>
-                                                            </div>
-                                                        )}
-                                                        <div className="flex gap-2 mt-3">
-                                                            <Button
-                                                                variant="outline"
-                                                                size="sm"
-                                                                onClick={() => router.visit(`/dashboard/reservas/${reserva.id}`)}
-                                                                className="text-xs font-medium flex-1"
-                                                            >
-                                                                Ver detalle
-                                                            </Button>
-                                                        </div>
-                                                        <div className="flex gap-2 mt-2">
-                                                            {reserva.estado === "pendiente" && (
-                                                                <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                    onClick={() => handleEstadoChange(reserva.id, "confirmada")}
-                                                                    className="text-xs font-medium text-green-600 border-green-200 hover:bg-green-50 flex-1"
-                                                                >
-                                                                    <CheckCircle className="h-3.5 w-3.5 mr-1" />
-                                                                    Confirmar
-                                                                </Button>
-                                                            )}
-                                                            {reserva.estado !== "cancelada" && reserva.estado !== "completada" && (
-                                                                <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                    onClick={() => handleEstadoChange(reserva.id, "cancelada")}
-                                                                    className="text-xs font-medium text-red-600 border-red-200 hover:bg-red-50 flex-1"
-                                                                >
-                                                                    <XCircle className="h-3.5 w-3.5 mr-1" />
-                                                                    Cancelar
-                                                                </Button>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
                                         </React.Fragment>
                                     ))}
                                 </TableBody>
@@ -296,6 +207,99 @@ const TodasReservas = ({ reservas: initialReservas }: TodasReservasProps) => {
                     </div>
                 </CardContent>
             </Card>
+            {/* Tarjetas móviles fuera del Table */}
+            <div className="sm:hidden">
+                {reservas.map((reserva) => (
+                    <div key={reserva.id} className="bg-white rounded-lg shadow-sm p-4 mb-3 border border-gray-100">
+                        <div className="flex justify-between items-center">
+                            <div className="flex-1 min-w-0">
+                                <p className="font-medium text-gray-800 truncate">
+                                    {reserva.usuario}
+                                </p>
+                                <p className="text-sm text-gray-600 truncate mt-0.5">
+                                    {getTruncatedServicesData(reserva.servicios).firstService}
+                                    {getTruncatedServicesData(reserva.servicios).additionalCount > 0 && (
+                                        <span className="font-bold text-blue-600 ml-1">
+                                            +{getTruncatedServicesData(reserva.servicios).additionalCount}
+                                        </span>
+                                    )}
+                                </p>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <Badge
+                                        className={`text-xs font-medium px-2 py-0.5 rounded-full ${getEstadoBadgeClass(reserva.estado)}`}
+                                    >
+                                        {reserva.estado.charAt(0).toUpperCase() + reserva.estado.slice(1)}
+                                    </Badge>
+                                    <span className="text-xs text-gray-500">
+                                        {formatFecha(reserva.fecha)} - {reserva.hora}
+                                    </span>
+                                </div>
+                            </div>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 rounded-full hover:bg-gray-100"
+                                onClick={() => toggleRow(reserva.id)}
+                                aria-label="Ver detalles"
+                            >
+                                {expandedRows.includes(reserva.id) ? (
+                                    <ChevronUp className="h-4 w-4 text-gray-500" />
+                                ) : (
+                                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                                )}
+                            </Button>
+                        </div>
+                        {expandedRows.includes(reserva.id) && (
+                            <div className="mt-3 space-y-3 pt-3 border-t border-gray-100">
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500">Moto:</span>
+                                    <span className="font-medium text-gray-800">{`${reserva.moto.marca} ${reserva.moto.modelo} ${reserva.moto.año}`} - {reserva.placa}</span>
+                                </div>
+                                {reserva.detalles && (
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-500">Detalles:</span>
+                                        <span className="font-medium text-gray-800">{reserva.detalles}</span>
+                                    </div>
+                                )}
+                                <div className="flex gap-2 mt-3">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => router.visit(`/dashboard/reservas/${reserva.id}`)}
+                                        className="text-xs font-medium flex-1"
+                                    >
+                                        Ver detalle
+                                    </Button>
+                                </div>
+                                <div className="flex gap-2 mt-2">
+                                    {reserva.estado === "pendiente" && (
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleEstadoChange(reserva.id, "confirmada")}
+                                            className="text-xs font-medium text-green-600 border-green-200 hover:bg-green-50 flex-1"
+                                        >
+                                            <CheckCircle className="h-3.5 w-3.5 mr-1" />
+                                            Confirmar
+                                        </Button>
+                                    )}
+                                    {reserva.estado !== "cancelada" && reserva.estado !== "completada" && (
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleEstadoChange(reserva.id, "cancelada")}
+                                            className="text-xs font-medium text-red-600 border-red-200 hover:bg-red-50 flex-1"
+                                        >
+                                            <XCircle className="h-3.5 w-3.5 mr-1" />
+                                            Cancelar
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };

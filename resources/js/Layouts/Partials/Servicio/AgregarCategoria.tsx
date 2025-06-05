@@ -336,6 +336,18 @@ const AgregarCategoria = ({ categoria, isEditing, categorias = [] }: AgregarCate
 
                 <Dialog open={showForm} onOpenChange={setShowForm}>
                     <DialogContent className="max-w-xl p-0 rounded-3xl shadow-2xl bg-white/95 border-0 transition-all duration-300">
+                        {/* Añadido para accesibilidad */}
+                        <DialogHeader>
+                            <DialogTitle className="sr-only">
+                                {editingCategoriaId ? "Editar Categoría" : "Nueva Categoría"}
+                            </DialogTitle>
+                            <DialogDescription className="sr-only">
+                                {editingCategoriaId
+                                    ? "Modifique los campos necesarios"
+                                    : "Complete el formulario para agregar una nueva categoría"}
+                            </DialogDescription>
+                        </DialogHeader>
+                        {/* Fin añadido */}
                         <Card className="border-0 shadow-none rounded-3xl" ref={formRef}>
                             <CardHeader className="px-4 sm:px-6 bg-white/95 border-b border-blue-50 rounded-t-3xl">
                                 <div className="flex items-center gap-3">
