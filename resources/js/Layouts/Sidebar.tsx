@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react"; // <-- importa router
 import { ChevronDown, ChevronRight, Home, LogOut, CalendarIcon, Users, BarChart as ChartBar, Cog, Menu, FileText, CreditCard, Bell, HelpCircle, UserPlus, Truck, Calendar, BarChart2, PieChart, TrendingUp, Layers, MessageCircle, Tag, Megaphone, Package, Wrench , Briefcase, Bike, MessageSquare, Hammer } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { cn } from "@/lib/utils";
@@ -92,9 +92,13 @@ const NavItem = ({ icon, label, href, subItems, isActive, activeHref }: NavItemP
                   ? "bg-[#e0e7ff] text-[#6366f1] font-bold shadow"
                   : "hover:bg-[#e3e8f0] hover:text-[#6366f1]"
               )}
-              tabIndex={0}
-              // Evita que el click en la subopción cierre el menú principal
-              onClick={e => e.stopPropagation()}
+              tabIndex={-1}
+              // Evita que el click en la subopción cierre el menú principal y el scroll automático
+              onClick={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                router.visit(item.href, { preserveScroll: true }); // <-- evita scroll automático
+              }}
             >
               {/* Bullet for active subitem */}
               {item.href === activeHref && (
