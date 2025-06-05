@@ -226,7 +226,7 @@ export default function MetodosPago({ pedido, metodos }: Props) {
                 <div className="space-y-3 mb-4">
                   <div className="flex items-center text-sm text-gray-600">
                     <span className="font-medium">Número:</span>
-                    <span className="ml-2">999 888 777</span>
+                    <span className="ml-2">982 210 984</span>
                   </div>
                   <img
                     src="/pagos/qryape.jpg"
@@ -274,8 +274,8 @@ export default function MetodosPago({ pedido, metodos }: Props) {
                 <p className="text-sm text-gray-600 mb-4">Transfiere fácilmente desde cualquier banco</p>
                 <div className="space-y-3 mb-4">
                   <div className="flex items-center text-sm text-gray-600">
-                    <span className="font-medium">Número:</span>
-                    <span className="ml-2">988 877 766</span>
+                    <span className="font-medium">Para pagar:</span>
+                    <span className="ml-2">Escanea el código QR</span>
                   </div>
                   <img
                     src="/pagos/qrplin.jpg"
@@ -319,12 +319,12 @@ export default function MetodosPago({ pedido, metodos }: Props) {
                     Nuevo
                   </span>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Waiky</h3>
-                <p className="text-sm text-gray-600 mb-4">Paga de forma rápida con Waiky</p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Wayki</h3>
+                <p className="text-sm text-gray-600 mb-4">Paga de forma rápida con Wayki</p>
                 <div className="space-y-3 mb-4">
                   <div className="flex items-center text-sm text-gray-600">
-                    <span className="font-medium">Número:</span>
-                    <span className="ml-2">977 666 555</span>
+                    <span className="font-medium">Para pagar:</span>
+                    <span className="ml-2">Escanea el código QR</span>
                   </div>
                   <img
                     src="/pagos/qrwayki.jpg"
@@ -347,7 +347,7 @@ export default function MetodosPago({ pedido, metodos }: Props) {
                         </svg>
                         Procesando...
                       </span>
-                      : 'Pagar con Waiky'
+                      : 'Pagar con Wayki'
                     }
                   </button>
                 </form>
@@ -526,7 +526,7 @@ export default function MetodosPago({ pedido, metodos }: Props) {
                       <span className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full text-blue-600 font-semibold text-sm mr-3">1</span>
                       <h4 className="font-medium text-gray-900">Selecciona el método</h4>
                     </div>
-                    <p className="text-sm text-gray-600">Elige el método de pago que prefieras entre las opciones disponibles: Yape, Plin, Waiky o transferencia bancaria.</p>
+                    <p className="text-sm text-gray-600">Elige el método de pago que prefieras entre las opciones disponibles: Yape, Plin, Wayki o transferencia bancaria.</p>
                   </div>
 
                   <div className="bg-white rounded-xl p-6 shadow-sm">
