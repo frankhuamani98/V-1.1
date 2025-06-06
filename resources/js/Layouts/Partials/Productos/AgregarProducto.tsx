@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, usePage } from '@inertiajs/react';
 import { PageProps } from '@/types';
+import { toast } from 'sonner';
 import {
   ChevronLeft,
   ChevronRight,
@@ -48,12 +49,10 @@ interface AgregarProductoProps {
 }
 
 const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
-  const flash = (usePage<PageProps>().props as any)?.flash as FlashMessage | undefined;
   const [activeTab, setActiveTab] = useState('informacion');
   const [subcategorias, setSubcategorias] = useState<Subcategoria[]>([]);
   const [selectAllMotos, setSelectAllMotos] = useState(false);
   const [processing, setProcessing] = useState(false);
-  const [productoGuardado, setProductoGuardado] = useState(false);
 
   const { data, setData, reset, post, errors } = useForm({
     codigo: '',
@@ -101,8 +100,8 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
   const handlePrecioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value.replace(/[^0-9.]/g, '');
     const parts = rawValue.split('.');
-    if (parts.length > 2) return; // Only allow one decimal point
-    if (parts[1]?.length > 2) return; // Only allow 2 decimal places
+    if (parts.length > 2) return;
+    if (parts[1]?.length > 2) return; 
     setData('precio', rawValue);
   };
 
@@ -199,8 +198,12 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
     post(route('productos.store'), {
       onSuccess: () => {
         resetForm();
-        setProductoGuardado(true);
-        setTimeout(() => setProductoGuardado(false), 2500);
+        toast.success('Producto guardado con éxito');
+      },
+      onError: (errors) => {
+        Object.values(errors).forEach((errorMessages: any) => {
+          toast.error(Array.isArray(errorMessages) ? errorMessages[0] : errorMessages);
+        });
       },
       onFinish: () => {
         setProcessing(false);
@@ -218,7 +221,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
 
   const calculatePrecioConIGV = (): number => {
     const precio = parseFloat(data.precio) || 0;
-    return data.incluye_igv ? precio * 1.18 : precio; // Si incluye IGV, se aplica el 18%
+    return data.incluye_igv ? precio * 1.18 : precio;
   };
 
   const calculateDescuento = (): number => {
@@ -233,7 +236,6 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
     return formatCurrency(precioConIGV - descuento);
   };
 
-  // Nueva función para obtener la URL de previsualización de la imagen principal
   const getMainImagePreview = () => {
     if (data.imagen_principal_file) {
       return URL.createObjectURL(data.imagen_principal_file);
@@ -244,7 +246,6 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
     return null;
   };
 
-  // Nueva función para obtener la URL de previsualización de una imagen adicional
   const getAdditionalImagePreview = (img: ImagenAdicional) => {
     if (img.file && img.file.startsWith('data:')) {
       return img.file;
@@ -255,40 +256,22 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
     return null;
   };
 
-  // Nueva función para eliminar la imagen principal
   const eliminarImagenPrincipal = () => {
     setData('imagen_principal', '');
     setData('imagen_principal_file', null);
   };
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-white via-blue-50 to-gray-100 py-8 px-0">
-      <div className="w-full px-0 sm:px-4 lg:px-8">
-        {/* Notificación flotante en la esquina superior derecha */}
-        {productoGuardado && (
-          <div
-            className="fixed top-20 right-6 z-50"
-            style={{ minWidth: 220 }}
-          >
-            <div className="bg-green-600 text-white px-5 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-fadeIn font-semibold">
-              <Check className="h-5 w-5" />
-              Producto guardado
-            </div>
-          </div>
-        )}
-        {flash?.message && (
-          <div className="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded shadow-lg animate-fadeIn">
-            {flash?.message}
-          </div>
-        )}
+    <div className="w-full min-h-screen py-4 sm:py-8">
+      <div className="w-full px-1 sm:px-4 lg:px-6">
         <div className="bg-white shadow-xl rounded-xl overflow-hidden border border-gray-100">
-          <div className="p-4 sm:p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
-            <h1 className="text-2xl font-bold text-gray-800">Agregar Nuevo Producto</h1>
+          <div className="p-2 sm:p-4 lg:p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Agregar Nuevo Producto</h1>
             <p className="text-sm text-gray-500 mt-1">Ingresa los detalles del nuevo producto para tu catálogo</p>
           </div>
 
           <form onSubmit={handleSubmit}>
-            <div className="flex overflow-x-auto border-b border-gray-200 bg-gray-50 px-2 sm:px-4">
+            <div className="flex overflow-x-auto border-b border-gray-200 bg-gray-50 px-1 sm:px-4">
               <div className="flex space-x-1 py-3 min-w-[350px] sm:min-w-0">
                 {[
                   { id: 'informacion', label: 'Información' },
@@ -318,7 +301,6 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
             </div>
 
             <div className="p-2 sm:p-6">
-              {/* Sección de Información */}
               {activeTab === 'informacion' && (
                 <div className="space-y-8 animate-fadeIn">
                   <div>
@@ -429,7 +411,7 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                           />
                           <span className="ml-2 text-sm text-gray-700">Producto Destacado</span>
                         </label>
-                        <label className="inline-flex items-center">
+                        <label className="inline-flex items-center ml-6">
                           <input
                             type="checkbox"
                             checked={data.mas_vendido}
@@ -455,7 +437,6 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                 </div>
               )}
 
-              {/* Sección de Precios */}
               {activeTab === 'precios' && (
                 <div className="space-y-8 animate-fadeIn">
                   <div>
@@ -568,8 +549,15 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                       >
                         <Minus className="h-5 w-5" />
                       </button>
-                      <div className="text-lg font-medium bg-gray-50 px-5 py-2 rounded-lg min-w-[60px] text-center">
-                        {data.stock}
+                      <div className="text-lg font-medium bg-gray-50 px-3 py-2 rounded-lg text-center flex justify-center">
+                        <input
+                          type="number"
+                          value={data.stock}
+                          onChange={(e) => setData('stock', Math.max(0, parseInt(e.target.value) || 0))}
+                          className="w-full min-w-[40px] max-w-[80px] bg-transparent text-center focus:outline-none focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none border-none"
+                          style={{ outline: 'none', border: 'none' }}
+                          min="0"
+                        />
                       </div>
                       <button
                         type="button"
@@ -603,7 +591,6 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                 </div>
               )}
 
-              {/* Sección de Imágenes */}
               {activeTab === 'imagenes' && (
                 <div className="space-y-8 animate-fadeIn">
                   <div>
@@ -656,7 +643,6 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                               <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"></span>
                               Imagen principal seleccionada
                             </p>
-                            {/* Vista previa de la imagen principal */}
                             {getMainImagePreview() && (
                               <div className="relative">
                                 <img
@@ -743,7 +729,6 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                           {JSON.parse(data.imagenes_adicionales).map((img: ImagenAdicional, index: number) => (
                             <div key={index} className="flex items-center justify-between p-3 border rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
                               <div className="flex items-center gap-3 flex-1 min-w-0">
-                                {/* Vista previa de la imagen adicional */}
                                 {getAdditionalImagePreview(img) && (
                                   <img
                                     src={getAdditionalImagePreview(img) as string}
@@ -804,7 +789,6 @@ const AgregarProducto = ({ categorias, motos }: AgregarProductoProps) => {
                 </div>
               )}
 
-              {/* Sección de Categorías */}
               {activeTab === 'categorias' && (
                 <div className="space-y-8 animate-fadeIn">
                   <div>

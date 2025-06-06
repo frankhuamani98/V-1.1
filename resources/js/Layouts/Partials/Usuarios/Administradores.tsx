@@ -4,7 +4,7 @@ import { Badge } from "@/Components/ui/badge";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/Components/ui/card";
 import { Button } from "@/Components/ui/button";
 import { ChevronDown, ChevronUp, UserX, Users } from "lucide-react";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
 import { router } from "@inertiajs/react";
 
 interface Admin {
@@ -182,7 +182,6 @@ const Administradores = ({ admins: initialAdmins }: AdministradoresProps) => {
                     </div>
                 ))}
             </div>
-            <Toaster position="top-right" closeButton />
         </div>
     );
 };
