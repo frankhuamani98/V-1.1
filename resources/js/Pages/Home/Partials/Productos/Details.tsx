@@ -142,6 +142,14 @@ export default function Details({ producto, productosRelacionados }: Props) {
   };
 
   const handleAddToCart = () => {
+    if (producto.stock <= 0) {
+      toast.error("Producto agotado", {
+        description: "Este producto no se encuentra disponible en stock.",
+        duration: 3000,
+      });
+      return;
+    }
+
     axios.post('/cart/add', {
       producto_id: producto.id,
       quantity: quantity
@@ -159,9 +167,24 @@ export default function Details({ producto, productosRelacionados }: Props) {
     })
     .catch(error => {
       console.error('Error adding to cart:', error);
-      toast.error("Error al añadir al carrito", {
-        duration: 3000,
-      });
+      const errorMessage = error.response?.data?.message?.toLowerCase() || '';
+      if (
+        errorMessage.includes('stock') ||
+        errorMessage.includes('agotado') ||
+        errorMessage.includes('disponible') ||
+        errorMessage.includes('inventario') ||
+        error.response?.status === 422
+      ) {
+        toast.error("Producto agotado", {
+          description: "No hay suficiente stock disponible para este producto.",
+          duration: 3000,
+        });
+      } else {
+        toast.error("No se pudo añadir al carrito", {
+          description: "El producto no está disponible en este momento.",
+          duration: 3000,
+        });
+      }
     });
   };
   
@@ -231,16 +254,39 @@ export default function Details({ producto, productosRelacionados }: Props) {
   };
 
   const handleBuyNow = async () => {
+    if (producto.stock <= 0) {
+      toast.error("No disponible para compra inmediata", {
+        description: "Lo sentimos, este producto está temporalmente agotado. Te notificaremos cuando esté disponible nuevamente.",
+        duration: 4000,
+      });
+      return;
+    }
+
     try {
       await axios.post('/cart/add', {
         producto_id: producto.id,
         quantity: quantity
       });
       window.location.href = '/checkout/informacion';
-    } catch (error) {
-      toast.error("Error al añadir al carrito", {
-        duration: 3000,
-      });
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message?.toLowerCase() || '';
+      if (
+        errorMessage.includes('stock') ||
+        errorMessage.includes('agotado') ||
+        errorMessage.includes('disponible') ||
+        errorMessage.includes('inventario') ||
+        error.response?.status === 422
+      ) {
+        toast.error("Stock insuficiente", {
+          description: "No hay suficiente stock para procesar tu compra inmediata. Por favor, revisa la cantidad o inténtalo más tarde.",
+          duration: 4000,
+        });
+      } else {
+        toast.error("Error en el proceso de compra", {
+          description: "Hubo un problema al procesar tu compra inmediata. Por favor, inténtalo nuevamente en unos momentos.",
+          duration: 4000,
+        });
+      }
     }
   };
 

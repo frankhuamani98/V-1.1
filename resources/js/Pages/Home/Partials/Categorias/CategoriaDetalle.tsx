@@ -58,7 +58,7 @@ interface Producto {
   subcategoria_id: number;
   precio: number;
   descuento: number;
-  precio_final: number; // Nuevo campo para el precio final
+  precio_final: number;
   imagen_principal: string;
   imagenes_adicionales: string[];
   calificacion: number;
@@ -141,6 +141,15 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
   };
 
   const addToCart = (productId: number) => {
+    const product = productos.find(p => p.id === productId);
+    if (product && product.stock <= 0) {
+      toast.error("Producto agotado", {
+        description: "Este producto no se encuentra disponible en stock.",
+        duration: 3000,
+      });
+      return;
+    }
+
     axios.post('/cart/add', {
       producto_id: productId,
       quantity: 1
@@ -160,9 +169,26 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
     })
     .catch((error: AxiosError) => {
       console.error('Error adding to cart:', error);
-      toast.error("Error al añadir al carrito", {
-        duration: 3000,
-      });
+      const errorMessage = typeof error.response?.data === 'object' && error.response?.data && 'message' in error.response.data
+        ? String((error.response.data as { message?: string }).message).toLowerCase()
+        : '';
+      if (
+        errorMessage.includes('stock') ||
+        errorMessage.includes('agotado') ||
+        errorMessage.includes('disponible') ||
+        errorMessage.includes('inventario') ||
+        error.response?.status === 422
+      ) {
+        toast.error("Producto agotado", {
+          description: "No hay suficiente stock disponible para este producto.",
+          duration: 3000,
+        });
+      } else {
+        toast.error("No se pudo añadir al carrito", {
+          description: "El producto no está disponible en este momento.",
+          duration: 3000,
+        });
+      }
     });
   };
 
@@ -218,9 +244,7 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
               {precioOriginal}
             </span>
           )}
-          {/* Quitar el descuento aquí, solo se verá la etiqueta */}
         </div>
-        {/* Mensaje de precio final y descuento */}
         <div className="text-xs text-green-700 mt-1">
           El precio final es <span className="font-semibold">{precioFinal}</span> con un descuento de <span className="font-semibold">{product.descuento || 0}%</span>.
         </div>
@@ -228,10 +252,8 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
     );
   };
 
-  // Nueva función para mostrar etiquetas igual que en Productos.tsx
   const getTagBadges = (product: Producto) => {
     const tags: React.ReactNode[] = [];
-    // Etiquetas personalizadas
     if (product.destacado) {
       tags.push(
         <div key="destacado" className="flex items-center gap-1 bg-yellow-500 text-white px-2 py-0.5 rounded shadow-sm">
@@ -248,7 +270,6 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
         </div>
       );
     }
-    // Si el producto tiene descuento
     if (product.descuento > 0) {
       tags.push(
         <div key="descuento" className="flex items-center gap-1 bg-red-500 text-white px-2 py-0.5 rounded shadow-sm">
@@ -257,9 +278,6 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
         </div>
       );
     }
-    // Si quieres agregar "Nuevo" u "Oferta", puedes hacerlo aquí según tu lógica
-    // Ejemplo:
-    // if (product.nuevo) { ... }
     return (
       <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
         {tags}

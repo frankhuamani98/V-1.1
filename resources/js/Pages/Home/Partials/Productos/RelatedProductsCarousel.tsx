@@ -149,6 +149,15 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
   };
 
   const addToCart = (productId: number) => {
+    const product = products.find(p => p.id === productId);
+    if (product && product.stock <= 0) {
+      toast.error("Producto agotado", {
+        description: "Este producto no se encuentra disponible en stock.",
+        duration: 3000,
+      });
+      return;
+    }
+
     axios.post('/cart/add', {
       producto_id: productId,
       quantity: 1
@@ -168,9 +177,24 @@ const RelatedProductsCarousel: React.FC<RelatedProductsCarouselProps> = ({ produ
     })
     .catch(error => {
       console.error('Error adding to cart:', error);
-      toast.error("Error al añadir al carrito", {
-        duration: 3000,
-      });
+      const errorMessage = error.response?.data?.message?.toLowerCase() || '';
+      if (
+        errorMessage.includes('stock') ||
+        errorMessage.includes('agotado') ||
+        errorMessage.includes('disponible') ||
+        errorMessage.includes('inventario') ||
+        error.response?.status === 422
+      ) {
+        toast.error("Producto agotado", {
+          description: "No hay suficiente stock disponible para este producto.",
+          duration: 3000,
+        });
+      } else {
+        toast.error("No se pudo añadir al carrito", {
+          description: "El producto no está disponible en este momento.",
+          duration: 3000,
+        });
+      }
     });
   };
 
