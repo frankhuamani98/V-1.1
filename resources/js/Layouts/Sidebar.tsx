@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link, router } from "@inertiajs/react"; // <-- importa router
+import { useEffect, useRef, useState } from "react";
+import { Link, router } from "@inertiajs/react";
 import { ChevronDown, ChevronRight, Home, LogOut, CalendarIcon, Users, BarChart as ChartBar, Cog, Menu, FileText, CreditCard, Bell, HelpCircle, UserPlus, Truck, Calendar, BarChart2, PieChart, TrendingUp, Layers, MessageCircle, Tag, Megaphone, Package, Wrench , Briefcase, Bike, MessageSquare, Hammer } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { cn } from "@/lib/utils";
@@ -15,96 +15,96 @@ type NavItemProps = {
 
 const NavItem = ({ icon, label, href, subItems, isActive, activeHref }: NavItemProps) => {
   const isSubItemActive = subItems?.some(item => item.href === activeHref);
-  // Cambia el estado de apertura solo para el ítem principal, no para subopciones
   const [isOpen, setIsOpen] = useState(isSubItemActive || isActive);
   const hasSubItems = subItems && subItems.length > 0;
 
-  // Paleta de colores suaves (no saturados)
   const palette = {
-    hover: "bg-[#e3e8f0]", // azul-gris muy suave
-    active: "bg-gradient-to-r from-[#c7d2fe] via-[#e0e7ff] to-[#f1f5f9]",
-    border: "border-[#c7d2fe]",
-    accent: "bg-[#f1f5f9]",
-    text: "text-[#1e293b]",
-    shadow: "shadow-lg",
-    bullet: "bg-[#6366f1]",
-    ring: "ring-[#6366f1]/20"
+    hover: "bg-white/50",
+    active: "bg-white",
+    text: "text-gray-700",
+    activeText: "text-indigo-600",
+    iconBg: "bg-indigo-50",
+    shadow: "shadow-md",
+    bullet: "bg-indigo-600",
   };
 
   return (
     <div className="w-full">
       <div
         className={cn(
-          `flex items-center justify-between px-4 py-2 rounded-2xl cursor-pointer transition-all duration-200 group relative`,
+          "flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 group relative",
           isActive || isSubItemActive
-            ? `${palette.active} ${palette.text} ${palette.shadow} ring-2 ${palette.ring}`
-            : `${palette.hover} hover:${palette.accent} hover:${palette.text} hover:shadow-md`
+            ? `${palette.active} ${palette.activeText} ${palette.shadow}`
+            : `hover:${palette.hover} ${palette.text}`
         )}
-        // Solo permite abrir/cerrar el menú principal, no las subopciones
         onClick={(e) => {
           if (hasSubItems) {
             setIsOpen(!isOpen);
             e.stopPropagation();
           }
         }}
-        style={{ marginBottom: hasSubItems ? 6 : 2, minHeight: 48, border: isActive || isSubItemActive ? `1.5px solid #c7d2fe` : undefined }}
+        style={{ marginBottom: hasSubItems && isOpen ? 8 : 2 }}
       >
         {href && !hasSubItems ? (
           <Link
             href={href}
-            className="flex items-center space-x-3 w-full focus:outline-none focus:ring-2 focus:ring-[#6366f1]/30"
+            className="flex items-center space-x-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-200 rounded-lg"
             tabIndex={0}
           >
-            <div className="flex-shrink-0 transition-transform duration-200 group-hover:scale-110">{icon}</div>
-            <span className="font-semibold tracking-wide text-base">{label}</span>
+            <div className={cn(
+              "w-9 h-9 flex items-center justify-center rounded-lg transition-transform duration-200 group-hover:scale-110",
+              isActive ? "bg-indigo-100" : "bg-white/80"
+            )}>
+              {icon}
+            </div>
+            <span className="font-medium tracking-wide text-sm">{label}</span>
           </Link>
         ) : (
           <div className="flex items-center space-x-3 w-full select-none">
-            <div className="flex-shrink-0 transition-transform duration-200 group-hover:scale-110">{icon}</div>
-            <span className="font-semibold tracking-wide text-base">{label}</span>
+            <div className={cn(
+              "w-9 h-9 flex items-center justify-center rounded-lg transition-transform duration-200 group-hover:scale-110",
+              isOpen || isSubItemActive ? "bg-indigo-100" : "bg-white/80"
+            )}>
+              {icon}
+            </div>
+            <span className="font-medium tracking-wide text-sm">{label}</span>
           </div>
         )}
         {hasSubItems && (
-          <div className={cn(
-            "flex-shrink-0 transition-transform duration-300",
-            isOpen ? "" : ""
-          )}>
-            <span className="inline-block bg-[#e0e7ff] rounded-full p-1">
-              {/* El ícono no rota, solo cambia de flecha */}
-              {isOpen ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-            </span>
+          <div className="flex-shrink-0 transition-transform duration-300">
+            <div className={cn(
+              "p-1 rounded-full transition-colors",
+              isOpen || isSubItemActive ? "bg-indigo-100 text-indigo-600" : "bg-white/80"
+            )}>
+              {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+            </div>
           </div>
-        )}
-        {/* Glow effect for active */}
-        {(isActive || isSubItemActive) && (
-          <span className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-1 rounded-r bg-[#6366f1] shadow-lg animate-pulse" />
         )}
       </div>
       {hasSubItems && isOpen && (
-        <div className="ml-8 mt-2 space-y-1 border-l-4 border-[#c7d2fe] pl-4 bg-[#f1f5f9] rounded-xl py-2 shadow-inner">
+        <div className="ml-4 mt-1 space-y-1 pl-4">
           {subItems.map((item, index) => (
             <Link
               key={index}
               href={item.href}
               className={cn(
-                "block py-1.5 px-3 text-sm rounded-lg transition-all duration-150 font-medium relative group",
+                "flex items-center px-4 py-2 text-sm rounded-lg transition-all duration-150 relative group",
                 item.href === activeHref
-                  ? "bg-[#e0e7ff] text-[#6366f1] font-bold shadow"
-                  : "hover:bg-[#e3e8f0] hover:text-[#6366f1]"
+                  ? "bg-white text-indigo-600 font-medium shadow-sm"
+                  : "text-gray-600 hover:bg-white/50"
               )}
               tabIndex={-1}
-              // Evita que el click en la subopción cierre el menú principal y el scroll automático
               onClick={e => {
                 e.stopPropagation();
                 e.preventDefault();
-                router.visit(item.href, { preserveScroll: true }); // <-- evita scroll automático
+                router.visit(item.href, { preserveScroll: true });
               }}
+              onMouseDown={e => e.preventDefault()}
             >
-              {/* Bullet for active subitem */}
               {item.href === activeHref && (
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-[#6366f1] shadow" />
+                <div className="absolute left-0 w-1 h-full bg-indigo-600 rounded-r-full" />
               )}
-              <span className="ml-3">{item.label}</span>
+              <span className="ml-2">{item.label}</span>
             </Link>
           ))}
         </div>
@@ -119,8 +119,13 @@ interface SidebarProps {
   activeHref?: string;
 }
 
+declare global {
+  interface Window {
+    __sidebarScrollY?: number;
+  }
+}
+
 const Sidebar = ({ isOpen, toggleSidebar, activeHref = window.location.pathname }: SidebarProps) => {
-  // Ordena los ítems de navegación de más importante a menos importante
   const navItems = [
     {
       icon: <Home size={20} />,
@@ -210,14 +215,14 @@ const Sidebar = ({ isOpen, toggleSidebar, activeHref = window.location.pathname 
         { label: "Administrar Equipo", href: "/equipo/dashboard" },
       ],
     },
-    // {
-    //   icon: <FileText size={20} />,
-    //   label: "Gestión de Facturación",
-    //   subItems: [
-    //     { label: "Facturas Pendientes", href: "/facturacion/pendientes" },
-    //     { label: "Historial de Facturas", href: "/facturacion/historial" },
-    //   ],
-    // },
+    {
+       icon: <FileText size={20} />,
+       label: "Gestión de Facturación",
+       subItems: [
+         { label: "Facturas Pendientes", href: "/facturacion/pendientes" },
+         { label: "Historial de Facturas", href: "/facturacion/historial" },
+       ],
+     },
     // {
     //   icon: <HelpCircle size={20} />,
     //   label: "Soporte y Ayuda",
@@ -228,34 +233,66 @@ const Sidebar = ({ isOpen, toggleSidebar, activeHref = window.location.pathname 
     // },
   ];
 
+  const sidebarNavRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const ref = sidebarNavRef.current;
+    if (!ref) return;
+    const saveScroll = () => {
+      window.__sidebarScrollY = ref.scrollTop;
+    };
+    ref.addEventListener('scroll', saveScroll);
+    return () => {
+      ref.removeEventListener('scroll', saveScroll);
+    };
+  }, []);
+
+  useEffect(() => {
+    const restoreScroll = () => {
+      const ref = sidebarNavRef.current;
+      if (ref && typeof window.__sidebarScrollY === 'number') {
+        ref.scrollTop = window.__sidebarScrollY;
+      }
+    };
+    window.addEventListener('inertia:finish', restoreScroll);
+    restoreScroll();
+    return () => {
+      window.removeEventListener('inertia:finish', restoreScroll);
+    };
+  }, []);
+
   return (
     <>
-      {/* Mobile Overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 md:hidden"
           onClick={toggleSidebar}
         />
       )}
-      {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 lg:w-72 bg-gradient-to-b from-[#f8fafc] via-[#f1f5f9] to-[#e0e7ef] border-r shadow-2xl flex flex-col transition-transform duration-300 ease-in-out",
+          "fixed inset-y-0 left-0 z-50 w-64 lg:w-72 bg-gray-50/95 backdrop-blur-xl border-r border-gray-200/50 shadow-xl flex flex-col transition-transform duration-300 ease-in-out",
           isOpen ? "translate-x-0" : "-translate-x-full",
           "md:translate-x-0"
         )}
       >
-        {/* Header */}
-        <div className="p-5 border-b bg-[#f8fafc] shadow-lg">
+        <div className="p-4 border-b border-gray-200/50 bg-white/50 backdrop-blur-xl">
           <div className="flex items-center justify-center">
-            <Link href="/" className="h-12">
-              <img src="/logo.png" alt="Rudolf Motors Logo" className="h-16 mx-auto drop-shadow-2xl rounded-2xl" />
+            <Link href="/" className="relative group">
+              <div className="absolute -inset-2 bg-indigo-50 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <img 
+                src="/logo.png" 
+                alt="Rudolf Motors Logo" 
+                className="h-12 relative drop-shadow-xl transition-transform duration-300 group-hover:scale-105" 
+              />
             </Link>
           </div>
         </div>
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto p-5 space-y-5">
-          <div className="space-y-2">
+        <nav
+          ref={sidebarNavRef}
+          className="flex-1 overflow-y-auto py-6 px-3 space-y-6"
+        >
+          <div className="space-y-1">
             {navItems.slice(0, 1).map((item, index) => (
               <NavItem
                 key={index}
@@ -268,8 +305,8 @@ const Sidebar = ({ isOpen, toggleSidebar, activeHref = window.location.pathname 
               />
             ))}
           </div>
-          <div className="my-4 border-t border-[#c7d2fe]" />
-          <div className="space-y-2">
+          <div className="h-px bg-gradient-to-r from-transparent via-gray-300/50 to-transparent" />
+          <div className="space-y-1">
             {navItems.slice(1, 7).map((item, index) => (
               <NavItem
                 key={index}
@@ -282,8 +319,8 @@ const Sidebar = ({ isOpen, toggleSidebar, activeHref = window.location.pathname 
               />
             ))}
           </div>
-          <div className="my-4 border-t border-[#c7d2fe]" />
-          <div className="space-y-2">
+          <div className="h-px bg-gradient-to-r from-transparent via-gray-300/50 to-transparent" />
+          <div className="space-y-1">
             {navItems.slice(7, 13).map((item, index) => (
               <NavItem
                 key={index}
@@ -299,59 +336,7 @@ const Sidebar = ({ isOpen, toggleSidebar, activeHref = window.location.pathname 
         </nav>
       </aside>
     </>
-
   );
 };
 
 export default Sidebar;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

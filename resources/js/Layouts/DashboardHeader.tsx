@@ -163,14 +163,12 @@ const Header = ({ toggleSidebar, auth }: HeaderProps) => {
   ).length;
 
   const getInitials = (username: string, first_name?: string, last_name?: string) => {
-    // Si hay nombre y apellido, usar sus iniciales
     if (first_name && last_name) {
       return (
         (first_name[0] || '').toUpperCase() +
         (last_name[0] || '').toUpperCase()
       );
     }
-    // Si solo hay username, usar iniciales del username
     const names = username.split(" ");
     return names
       .map((name) => name[0])
@@ -213,16 +211,28 @@ const Header = ({ toggleSidebar, auth }: HeaderProps) => {
 
             <h1
               className={cn(
-                "text-3xl font-extrabold text-center w-full tracking-widest uppercase",
-                "bg-gradient-to-r from-blue-900 via-blue-400 via-white via-blue-400 to-blue-900 bg-[length:400%_auto] bg-clip-text text-transparent animate-gradient-x",
-                showSearchInput && "hidden sm:block"
+                "flex items-center justify-center w-full space-x-4",
+                showSearchInput && "hidden sm:flex"
               )}
-              style={{
-                WebkitBackgroundClip: "text",
-                backgroundClip: "text"
-              }}
             >
-              RUDOLF MOTOS - Panel de Control
+              <div className="flex items-center">
+                <span
+                  className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 bg-clip-text text-transparent whitespace-nowrap hidden sm:block"
+                  style={{
+                    fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+                    WebkitBackgroundClip: "text",
+                  }}
+                >
+                  RUDOLF MOTOS
+                </span>
+                <span className="hidden sm:block mx-3 h-5 w-px bg-gradient-to-b from-blue-500/50 via-blue-500/25 to-transparent"/>
+                <span
+                  className="text-sm font-medium tracking-wide uppercase text-muted-foreground/70"
+                  style={{ fontFamily: "'Inter', system-ui, -apple-system, sans-serif" }}
+                >
+                  Panel de Administración
+                </span>
+              </div>
             </h1>
           </div>
 
@@ -258,7 +268,6 @@ const Header = ({ toggleSidebar, auth }: HeaderProps) => {
               {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
             </Button>
 
-            {/* Notifications */}
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative" aria-label="Notificaciones">
@@ -285,7 +294,6 @@ const Header = ({ toggleSidebar, auth }: HeaderProps) => {
                   )}
                 </div>
                 
-                {/* Filtros de notificaciones */}
                 <div className="flex flex-wrap items-center p-2 border-b gap-1 bg-card">
                   <Button 
                     variant={activeFilter === 'todas' ? 'default' : 'ghost'} 
@@ -462,7 +470,6 @@ const Header = ({ toggleSidebar, auth }: HeaderProps) => {
               </PopoverContent>
             </Popover>
 
-            {/* User profile - desktop version */}
             <div className="hidden sm:flex items-center space-x-3">
               <span className="text-sm font-semibold text-primary/90">{auth.user.username}</span>
               <DropdownMenu>
@@ -470,10 +477,11 @@ const Header = ({ toggleSidebar, auth }: HeaderProps) => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="rounded-full h-9 w-9 p-0 shadow border border-primary/20 bg-gradient-to-br from-primary/10 to-background/80 hover:from-primary/20 transition-all"
+                    className="relative rounded-full h-9 w-9 p-0 overflow-hidden transition-all hover:ring-2 hover:ring-offset-2 hover:ring-offset-background hover:ring-primary/20"
                   >
-                    <div className="bg-primary/10 rounded-full h-9 w-9 flex items-center justify-center">
-                      <span className="text-primary font-bold text-base tracking-wide">
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-blue-500 to-cyan-500 opacity-90" />
+                    <div className="relative z-10 h-full w-full flex items-center justify-center">
+                      <span className="text-white font-medium text-sm tracking-wide">
                         {getInitials(auth.user.username, auth.user.first_name, auth.user.last_name)}
                       </span>
                     </div>
@@ -506,16 +514,16 @@ const Header = ({ toggleSidebar, auth }: HeaderProps) => {
               </DropdownMenu>
             </div>
 
-            {/* User profile - mobile version (just the avatar) */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild className="sm:hidden">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="rounded-full h-9 w-9 p-0 shadow border border-primary/20 bg-gradient-to-br from-primary/10 to-background/80 hover:from-primary/20 transition-all"
+                  className="relative rounded-full h-9 w-9 p-0 overflow-hidden transition-all hover:ring-2 hover:ring-offset-2 hover:ring-offset-background hover:ring-primary/20"
                 >
-                  <div className="bg-primary/10 rounded-full h-9 w-9 flex items-center justify-center">
-                    <span className="text-primary font-bold text-base tracking-wide">
+                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-blue-500 to-cyan-500 opacity-90" />
+                  <div className="relative z-10 h-full w-full flex items-center justify-center">
+                    <span className="text-white font-medium text-sm tracking-wide">
                       {getInitials(auth.user.username, auth.user.first_name, auth.user.last_name)}
                     </span>
                   </div>

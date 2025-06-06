@@ -4,7 +4,7 @@ import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Input } from '@/Components/ui/input';
-import { Toaster, toast } from 'sonner';
+import { toast } from 'sonner';
 
 type LoginForm = {
     identifier: string;
@@ -198,7 +198,6 @@ export default function Login({ errors: serverErrors }: Props) {
                     </p>
                 </CardFooter>
             </Card>
-            <Toaster position="top-center" richColors />
         </div>
     );
 }
