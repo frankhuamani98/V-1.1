@@ -7,17 +7,14 @@ interface WhatsAppButtonProps {
 
 const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
     phoneNumber = "51913223471",
-    message = "Hola, me gustaría obtener más información"
+    message = ""
 }) => {
     const [isVisible, setIsVisible] = useState(false);
     
     useEffect(() => {
         const checkVisibility = () => {
             const welcomeClosed = sessionStorage.getItem('welcomeAlertClosed');
-            const isDashboard = window.location.pathname.includes('/dashboard');
-            
-            // Solo mostrar si el welcome está cerrado y NO estamos en el dashboard
-            setIsVisible(!!welcomeClosed && !isDashboard);
+            setIsVisible(!!welcomeClosed);
         };
         
         checkVisibility();
@@ -36,8 +33,9 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
 
     const handleWhatsAppClick = () => {
         const formattedPhone = phoneNumber.replace(/[^0-9]/g, '');
-        const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://api.whatsapp.com/send?phone=${formattedPhone}&text=${encodedMessage}`;
+        const whatsappUrl = message 
+            ? `https://api.whatsapp.com/send?phone=${formattedPhone}&text=${encodeURIComponent(message)}`
+            : `https://api.whatsapp.com/send?phone=${formattedPhone}`;
         window.open(whatsappUrl, '_blank');
     };
 
@@ -55,11 +53,7 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
                 shadow-lg hover:shadow-xl
                 transition-all duration-300 ease-in-out
                 transform hover:scale-105 hover:-translate-y-1
-                animate-fadeIn
             `}
-            style={{
-                animation: 'bounce 2s infinite',
-            }}
             aria-label="Contactar por WhatsApp"
         >
             <div className="relative">

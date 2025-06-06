@@ -225,8 +225,8 @@ export default function MetodosPago({ pedido, metodos }: Props) {
                 <p className="text-sm text-gray-600 mb-4">Paga de forma rápida y segura con Yape</p>
                 <div className="space-y-3 mb-4">
                   <div className="flex items-center text-sm text-gray-600">
-                    <span className="font-medium">Número:</span>
-                    <span className="ml-2">982 210 984</span>
+                    <span className="font-medium">Para pagar:</span>
+                    <span className="ml-2">Escanea el código QR</span>
                   </div>
                   <img
                     src="/pagos/qryape.jpg"

@@ -1,6 +1,6 @@
 import type React from "react"
-import Header from "@/Pages/Home/Header"
-import Footer from "@/Pages/Home/Footer"
+import Header from "../../Header"
+import Footer from "../../Footer"
 import WhatsAppButton from "@/Components/WhatsAppButton"
 import { Head } from "@inertiajs/react"
 import { Award, Wrench, Target, Users, Heart, Shield, User, UserCog, Briefcase, Settings, BadgeCheck } from "lucide-react"
@@ -25,7 +25,6 @@ const NosotrosPage: React.FC<Props> = ({ equipo }) => {
       <Head title="Sobre Nosotros" />
       <Header />
       <main className="bg-gray-50 dark:bg-gray-900">
-        {/* Hero Section */}
         <section className="relative h-[60vh] flex items-center bg-gradient-to-r from-gray-900 to-gray-800 dark:from-black dark:to-gray-900">
           <div className="container mx-auto px-6 relative z-10">
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 font-['Bebas_Neue']">
@@ -38,7 +37,6 @@ const NosotrosPage: React.FC<Props> = ({ equipo }) => {
           </div>
         </section>
 
-        {/* Misión y Visión */}
         <section className="py-16 bg-white dark:bg-gray-800">
           <div className="container mx-auto px-6">
             <div className="grid md:grid-cols-2 gap-8">
@@ -63,7 +61,6 @@ const NosotrosPage: React.FC<Props> = ({ equipo }) => {
           </div>
         </section>
 
-        {/* Historia */}
         <section className="py-16 bg-gradient-to-b from-gray-900 to-gray-800 dark:from-black dark:to-gray-900 text-white">
           <div className="container mx-auto px-6">
             <h2 className="text-4xl font-bold mb-8 font-['Bebas_Neue'] text-center">NUESTRA HISTORIA</h2>
@@ -86,7 +83,6 @@ const NosotrosPage: React.FC<Props> = ({ equipo }) => {
           </div>
         </section>
 
-        {/* Valores */}
         <section className="py-16 bg-white dark:bg-gray-800">
           <div className="container mx-auto px-6">
             <h2 className="text-4xl font-bold text-center text-gray-800 dark:text-white mb-12 font-['Bebas_Neue']">
@@ -141,7 +137,6 @@ const NosotrosPage: React.FC<Props> = ({ equipo }) => {
           </div>
         </section>
 
-        {/* Equipo del Taller */}
         <section className="py-20 bg-gradient-to-b from-gray-900 to-gray-800 dark:from-black dark:to-gray-900 text-white">
           <div className="container mx-auto px-6">
             <h2 className="text-5xl font-bold text-center text-white mb-4 font-['Bebas_Neue']">
@@ -220,8 +215,8 @@ const NosotrosPage: React.FC<Props> = ({ equipo }) => {
           </div>
         </section>
       </main>
-      <Footer />
       <WhatsAppButton />
+      <Footer />
     </>
   )
 }

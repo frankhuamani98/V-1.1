@@ -9,6 +9,7 @@ import { WrenchIcon, ClockIcon, ChevronRightIcon, TagIcon, ArrowRightIcon, Credi
 import { motion } from "framer-motion";
 import Header from "@/Pages/Home/Header";
 import Footer from "@/Pages/Home/Footer";
+import WhatsAppButton from '@/Components/WhatsAppButton';
 
 interface Service {
   id: number;
@@ -196,7 +197,7 @@ export default function ListaServicios({ categoryId }: Props) {
           )}
         </div>
       </div>
-      
+      <WhatsAppButton />
       <Footer />
     </div>
   );

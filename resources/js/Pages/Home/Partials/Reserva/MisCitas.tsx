@@ -4,6 +4,7 @@ import { router } from '@inertiajs/react';
 import ReservaNavigation from '@/Components/ReservaNavigation';
 import Header from '@/Pages/Home/Header';
 import Footer from '@/Pages/Home/Footer';
+import WhatsAppButton from '@/Components/WhatsAppButton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
@@ -242,6 +243,7 @@ export default function MisCitas({ reservas }: Props) {
                     </Card>
                 </div>
             </div>
+            <WhatsAppButton />
             <Footer />
         </>
     );

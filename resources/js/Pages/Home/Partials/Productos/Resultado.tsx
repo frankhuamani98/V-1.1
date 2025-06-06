@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
 import { Badge } from "@/Components/ui/badge";
 import Header from '../../Header';
 import Footer from '../../Footer';
+import WhatsAppButton from '@/Components/WhatsAppButton';
 import {
   StarIcon,
   ShoppingCartIcon,
@@ -739,7 +740,7 @@ const Resultado: React.FC<ResultadoProps> = ({
             </Card>
           </div>
         </div>
-
+        <WhatsAppButton />
         <Footer />
       </div>
     </TooltipProvider>

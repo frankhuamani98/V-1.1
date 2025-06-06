@@ -3,6 +3,7 @@ import { Head, Link } from '@inertiajs/react';
 import { PageProps } from '@/types';
 import Header from '../../Header';
 import Footer from '../../Footer';
+import WhatsAppButton from "@/Components/WhatsAppButton"
 import axios, { AxiosError } from 'axios';
 import { 
   Card, 
@@ -545,7 +546,7 @@ export default function CategoriaDetalle({ categoria, subcategorias, productos }
           </div>
         </div>
       </div>
-      
+      <WhatsAppButton />
       <Footer />
     </div>
   );

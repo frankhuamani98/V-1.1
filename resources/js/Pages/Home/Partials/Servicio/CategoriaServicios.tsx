@@ -6,6 +6,7 @@ import { WrenchIcon, SettingsIcon, ActivityIcon, ZapIcon, ShieldIcon, SparklesIc
 import { motion } from "framer-motion";
 import Header from "@/Pages/Home/Header";
 import Footer from "@/Pages/Home/Footer";
+import WhatsAppButton from '@/Components/WhatsAppButton';
 
 interface Category {
   id: number;
@@ -183,7 +184,7 @@ export default function CategoriaServicios() {
           </div>
         </div>
       </div>
-      
+      <WhatsAppButton />
       <Footer />
     </div>
   );

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import axios from 'axios';
-
 import Header from '@/Pages/Home/Header';
 import Footer from '@/Pages/Home/Footer';
 import ReservaNavigation from '@/Components/ReservaNavigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
+import WhatsAppButton from '@/Components/WhatsAppButton';
 
 import { 
   AlertCircle, 
@@ -721,6 +721,7 @@ export default function AgendarServicio({ servicios, horarios, motoData, reserva
           </Card>
         </div>
       </div>
+      <WhatsAppButton />
       <Footer />
     </>
   );

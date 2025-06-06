@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs"
 import Header from "@/Pages/Home/Header"
 import Footer from "@/Pages/Home/Footer"
 import ContactoNavigation from "@/Components/ContactoNavigation"
+import WhatsAppButton from "@/Components/WhatsAppButton"
 
 interface Props {
   ubicacionData: {
@@ -141,6 +142,7 @@ export default function Ubicacion({ ubicacionData }: Props) {
           </Tabs>
         </div>
       </div>
+      <WhatsAppButton />
       <Footer />
     </>
   )

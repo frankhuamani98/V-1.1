@@ -6,6 +6,7 @@ import { Button } from "@/Components/ui/button";
 import Header from '@/Pages/Home/Header';
 import Footer from '@/Pages/Home/Footer';
 import ContactoNavigation from '@/Components/ContactoNavigation';
+import WhatsAppButton from "@/Components/WhatsAppButton"
 
 export default function RedesSociales() {
   const socialNetworks = [
@@ -50,7 +51,6 @@ export default function RedesSociales() {
       username: "@RudolfMotos",
       description: "Contenido breve y dinámico sobre nuestros servicios, novedades y tendencias en nuestra tienda.",
       url: "https://www.tiktok.com/@rudolf_motors?_t=8s9j0KmESjV&_r=1",
-      // Cambia el color del icono según el modo
       icon: (
         <>
           <span className="block dark:hidden">
@@ -138,6 +138,7 @@ export default function RedesSociales() {
           </Card>
         </div>
       </div>
+      <WhatsAppButton />
       <Footer />
     </>
   );

@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Head, Link } from "@inertiajs/react";
 import { Home, ChevronRight, ChevronDown, ChevronUp } from "lucide-react";
-import Header from "@/Pages/Home/Header";
-import Footer from "@/Pages/Home/Footer";
+import Header from "../../Header";
+import Footer from "../../Footer";
+import WhatsAppButton from '@/Components/WhatsAppButton';
 import {
   Table,
   TableBody,
@@ -417,6 +418,7 @@ export default function MisPedidos({ pedidos = [] }: Props) {
           </Card>
         </div>
       </main>
+      <WhatsAppButton />
       <Footer />
     </div>
   );

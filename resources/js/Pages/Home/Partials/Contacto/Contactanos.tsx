@@ -5,6 +5,7 @@ import { Button } from "@/Components/ui/button";
 import Header from "@/Pages/Home/Header";
 import Footer from "@/Pages/Home/Footer";
 import ContactoNavigation from "@/Components/ContactoNavigation";
+import WhatsAppButton from "@/Components/WhatsAppButton"
 
 export default function Contactanos() {
   const contactInfo = {
@@ -119,6 +120,7 @@ export default function Contactanos() {
           </Card>
         </div>
       </div>
+      <WhatsAppButton />
       <Footer />
     </>
   );

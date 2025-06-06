@@ -4,6 +4,7 @@ import { Wrench, ClipboardList, AlertCircle, Settings } from "lucide-react";
 import ReservaNavigation from "@/Components/ReservaNavigation";
 import Header from "@/Pages/Home/Header";
 import Footer from "@/Pages/Home/Footer";
+import WhatsAppButton from '@/Components/WhatsAppButton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
 
@@ -136,6 +137,7 @@ export default function ServiciosDisponibles({ servicios, error }: Props) {
           </Card>
         </div>
       </div>
+      <WhatsAppButton />
       <Footer />
     </>
   );

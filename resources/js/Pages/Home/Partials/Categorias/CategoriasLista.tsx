@@ -3,6 +3,7 @@ import { Head } from '@inertiajs/react';
 import { PageProps } from '@/types';
 import Header from '../../Header';
 import Footer from '../../Footer';
+import WhatsAppButton from "@/Components/WhatsAppButton"
 import { 
   Card, 
   CardContent 
@@ -76,7 +77,7 @@ export default function CategoriasLista({ categorias }: Props) {
           ))}
         </div>
       </div>
-      
+      <WhatsAppButton />
       <Footer />
     </div>
   );

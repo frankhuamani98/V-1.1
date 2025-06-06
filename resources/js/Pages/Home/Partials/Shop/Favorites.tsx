@@ -3,6 +3,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { PageProps } from '@/types';
 import Header from '../../Header';
 import Footer from '../../Footer';
+import WhatsAppButton from '@/Components/WhatsAppButton';
 import { TrashIcon, HeartIcon, ShoppingCartIcon, ArrowLeftIcon, ShoppingBagIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
@@ -336,7 +337,7 @@ export default function Favorites({ favoriteItems: initialFavoriteItems }: Favor
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      
+      <WhatsAppButton />
       <Footer />
     </div>
   );

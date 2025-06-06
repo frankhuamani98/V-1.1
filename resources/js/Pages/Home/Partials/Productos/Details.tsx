@@ -10,6 +10,7 @@ import axios from "axios";
 import RelatedProductsCarousel from './RelatedProductsCarousel';
 import Header from '../../Header';
 import Footer from '../../Footer';
+import WhatsAppButton from '@/Components/WhatsAppButton';
 import type { PageProps } from '@/types';
 
 interface MotosCompatibles {
@@ -570,6 +571,7 @@ export default function Details({ producto, productosRelacionados }: Props) {
 
         <RelatedProductsCarousel products={productosRelacionados} isMobile={isMobile} />
       </div>
+      <WhatsAppButton />
       <Footer />
     </div>
   );

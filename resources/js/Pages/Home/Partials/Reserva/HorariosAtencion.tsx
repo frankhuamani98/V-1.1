@@ -4,6 +4,7 @@ import ReservaNavigation from '@/Components/ReservaNavigation';
 import { CalendarDays, Clock, AlertCircle, CheckCircle, Info } from "lucide-react";
 import Header from "@/Pages/Home/Header";
 import Footer from "@/Pages/Home/Footer";
+import WhatsAppButton from '@/Components/WhatsAppButton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
 
 interface Excepcion {
@@ -150,6 +151,7 @@ export default function HorariosAtencion({ horarios }: Props) {
           </Card>
         </div>
       </div>
+      <WhatsAppButton />
       <Footer />
     </>
   );
