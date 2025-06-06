@@ -18,24 +18,14 @@ const NavItem = ({ icon, label, href, subItems, isActive, activeHref }: NavItemP
   const [isOpen, setIsOpen] = useState(isSubItemActive || isActive);
   const hasSubItems = subItems && subItems.length > 0;
 
-  const palette = {
-    hover: "bg-white/50",
-    active: "bg-white",
-    text: "text-gray-700",
-    activeText: "text-indigo-600",
-    iconBg: "bg-indigo-50",
-    shadow: "shadow-md",
-    bullet: "bg-indigo-600",
-  };
-
   return (
     <div className="w-full">
       <div
         className={cn(
-          "flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 group relative",
+          "flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200 group relative",
           isActive || isSubItemActive
-            ? `${palette.active} ${palette.activeText} ${palette.shadow}`
-            : `hover:${palette.hover} ${palette.text}`
+            ? "bg-indigo-50/80 text-indigo-700 font-medium"
+            : "hover:bg-gray-100/80 text-gray-700"
         )}
         onClick={(e) => {
           if (hasSubItems) {
@@ -52,29 +42,29 @@ const NavItem = ({ icon, label, href, subItems, isActive, activeHref }: NavItemP
             tabIndex={0}
           >
             <div className={cn(
-              "w-9 h-9 flex items-center justify-center rounded-lg transition-transform duration-200 group-hover:scale-110",
-              isActive ? "bg-indigo-100" : "bg-white/80"
+              "w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-200 group-hover:scale-105",
+              isActive ? "text-indigo-600" : "text-gray-600"
             )}>
               {icon}
             </div>
-            <span className="font-medium tracking-wide text-sm">{label}</span>
+            <span className="tracking-wide text-[14.5px]">{label}</span>
           </Link>
         ) : (
           <div className="flex items-center space-x-3 w-full select-none">
             <div className={cn(
-              "w-9 h-9 flex items-center justify-center rounded-lg transition-transform duration-200 group-hover:scale-110",
-              isOpen || isSubItemActive ? "bg-indigo-100" : "bg-white/80"
+              "w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-200 group-hover:scale-105",
+              isOpen || isSubItemActive ? "text-indigo-600" : "text-gray-600"
             )}>
               {icon}
             </div>
-            <span className="font-medium tracking-wide text-sm">{label}</span>
+            <span className="tracking-wide text-[14.5px]">{label}</span>
           </div>
         )}
         {hasSubItems && (
           <div className="flex-shrink-0 transition-transform duration-300">
             <div className={cn(
               "p-1 rounded-full transition-colors",
-              isOpen || isSubItemActive ? "bg-indigo-100 text-indigo-600" : "bg-white/80"
+              isOpen || isSubItemActive ? "text-indigo-600" : "text-gray-500 group-hover:text-gray-700"
             )}>
               {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
             </div>
@@ -82,16 +72,16 @@ const NavItem = ({ icon, label, href, subItems, isActive, activeHref }: NavItemP
         )}
       </div>
       {hasSubItems && isOpen && (
-        <div className="ml-4 mt-1 space-y-1 pl-4">
+        <div className="ml-4 mt-1 space-y-0.5 pl-4">
           {subItems.map((item, index) => (
             <Link
               key={index}
               href={item.href}
               className={cn(
-                "flex items-center px-4 py-2 text-sm rounded-lg transition-all duration-150 relative group",
+                "flex items-center px-3 py-2 text-[14px] rounded-md transition-all duration-150 relative group",
                 item.href === activeHref
-                  ? "bg-white text-indigo-600 font-medium shadow-sm"
-                  : "text-gray-600 hover:bg-white/50"
+                  ? "bg-indigo-50/60 text-indigo-700 font-medium"
+                  : "text-gray-600 hover:bg-gray-100/60 hover:text-gray-900"
               )}
               tabIndex={-1}
               onClick={e => {
@@ -102,7 +92,7 @@ const NavItem = ({ icon, label, href, subItems, isActive, activeHref }: NavItemP
               onMouseDown={e => e.preventDefault()}
             >
               {item.href === activeHref && (
-                <div className="absolute left-0 w-1 h-full bg-indigo-600 rounded-r-full" />
+                <div className="absolute left-0 w-1 h-4 bg-indigo-500 rounded-r-full top-1/2 -translate-y-1/2" />
               )}
               <span className="ml-2">{item.label}</span>
             </Link>
@@ -265,34 +255,34 @@ const Sidebar = ({ isOpen, toggleSidebar, activeHref = window.location.pathname 
     <>
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
           onClick={toggleSidebar}
         />
       )}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 lg:w-72 bg-gray-50/95 backdrop-blur-xl border-r border-gray-200/50 shadow-xl flex flex-col transition-transform duration-300 ease-in-out",
+          "fixed inset-y-0 left-0 z-50 w-64 lg:w-72 bg-white/95 backdrop-blur-xl border-r border-gray-200/80 shadow-lg flex flex-col transition-all duration-300 ease-in-out",
           isOpen ? "translate-x-0" : "-translate-x-full",
           "md:translate-x-0"
         )}
       >
-        <div className="p-4 border-b border-gray-200/50 bg-white/50 backdrop-blur-xl">
+        <div className="p-4 border-b border-gray-100 bg-white/70 backdrop-blur-xl">
           <div className="flex items-center justify-center">
             <Link href="/" className="relative group">
-              <div className="absolute -inset-2 bg-indigo-50 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute -inset-3 bg-indigo-50/70 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300" />
               <img 
                 src="/logo.png" 
                 alt="Rudolf Motors Logo" 
-                className="h-12 relative drop-shadow-xl transition-transform duration-300 group-hover:scale-105" 
+                className="h-10 relative drop-shadow-md transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-xl" 
               />
             </Link>
           </div>
         </div>
         <nav
           ref={sidebarNavRef}
-          className="flex-1 overflow-y-auto py-6 px-3 space-y-6"
+          className="flex-1 overflow-y-auto py-4 px-3 space-y-4 scrollbar-thin scrollbar-thumb-gray-200 hover:scrollbar-thumb-gray-300 scrollbar-track-transparent"
         >
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             {navItems.slice(0, 1).map((item, index) => (
               <NavItem
                 key={index}
@@ -305,8 +295,8 @@ const Sidebar = ({ isOpen, toggleSidebar, activeHref = window.location.pathname 
               />
             ))}
           </div>
-          <div className="h-px bg-gradient-to-r from-transparent via-gray-300/50 to-transparent" />
-          <div className="space-y-1">
+          <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent opacity-70" />
+          <div className="space-y-0.5">
             {navItems.slice(1, 7).map((item, index) => (
               <NavItem
                 key={index}
@@ -319,8 +309,8 @@ const Sidebar = ({ isOpen, toggleSidebar, activeHref = window.location.pathname 
               />
             ))}
           </div>
-          <div className="h-px bg-gradient-to-r from-transparent via-gray-300/50 to-transparent" />
-          <div className="space-y-1">
+          <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent opacity-70" />
+          <div className="space-y-0.5">
             {navItems.slice(7, 13).map((item, index) => (
               <NavItem
                 key={index}

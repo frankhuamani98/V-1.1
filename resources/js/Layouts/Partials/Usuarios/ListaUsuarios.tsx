@@ -167,12 +167,12 @@ const ListaUsuarios = ({ users: initialUsers }: ListaUsuariosProps) => {
         </CardHeader>
         
         <CardContent className="p-0">
-          <div className="p-4 sm:p-6 space-y-4">
+          <div className="p-2 sm:p-6 space-y-4">
             <div className="flex flex-col sm:flex-row gap-4">
-              <div className="relative flex-grow">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+              <div className="relative flex-grow px-2 sm:px-0">
+                <Search className="absolute left-4 sm:left-2.5 top-2.5 h-4 w-4 text-gray-500" />
                 <Input 
-                  className="pl-8 border-gray-200 focus:ring-primary/50"
+                  className="pl-8 border-gray-200 focus:ring-primary/50 w-full"
                   placeholder="Buscar por nombre, apellido, DNI o email..." 
                   value={busqueda}
                   onChange={(e) => setBusqueda(e.target.value)}
@@ -181,7 +181,7 @@ const ListaUsuarios = ({ users: initialUsers }: ListaUsuariosProps) => {
             </div>
             
             <Tabs defaultValue="todos" className="w-full" onValueChange={(value) => setTabActual(value)}>
-              <TabsList className="bg-gray-100 mb-4">
+              <TabsList className="bg-gray-100 mb-4 w-full overflow-x-auto flex-nowrap">
                 <TabsTrigger value="todos">Todos</TabsTrigger>
                 <TabsTrigger value="activos">Activos</TabsTrigger>
                 <TabsTrigger value="inactivos">Inactivos</TabsTrigger>
@@ -258,15 +258,15 @@ const ListaUsuarios = ({ users: initialUsers }: ListaUsuariosProps) => {
                     </TableBody>
                   </Table>
                   {/* Tarjetas móviles fuera del tbody */}
-                  <div className="sm:hidden">
+                  <div className="sm:hidden px-2">
                     {usuariosFiltrados.map((usuario) => (
-                      <div key={usuario.id} className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-4">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p className="font-semibold text-gray-800">{usuario.first_name} {usuario.last_name}</p>
-                            <p className="text-xs text-gray-500 mt-1">{usuario.email}</p>
+                      <div key={usuario.id} className="bg-white rounded-lg shadow-sm border border-gray-100 p-3 mb-4 w-full">
+                        <div className="flex justify-between items-center w-full">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-semibold text-gray-800 truncate">{usuario.first_name} {usuario.last_name}</p>
+                            <p className="text-xs text-gray-500 mt-1 truncate">{usuario.email}</p>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 ml-2">
                             <Badge
                               variant={getStatusBadgeVariant(usuario.status)}
                               className={`${
@@ -275,7 +275,7 @@ const ListaUsuarios = ({ users: initialUsers }: ListaUsuariosProps) => {
                                   : usuario.status === "inactive"
                                   ? "bg-red-500"
                                   : "bg-amber-500"
-                              }`}
+                              } whitespace-nowrap`}
                             >
                               {usuario.status}
                             </Badge>
@@ -284,7 +284,7 @@ const ListaUsuarios = ({ users: initialUsers }: ListaUsuariosProps) => {
                               size="sm"
                               onClick={() => toggleRow(usuario.id)}
                               aria-label="Ver detalles"
-                              className="h-8 w-8 p-0 rounded-full"
+                              className="h-8 w-8 p-0 rounded-full flex-shrink-0"
                             >
                               {expandedRows.includes(usuario.id) ? (
                                 <ChevronUp className="h-4 w-4" />
@@ -297,24 +297,25 @@ const ListaUsuarios = ({ users: initialUsers }: ListaUsuariosProps) => {
                         {expandedRows.includes(usuario.id) && (
                           <div className="mt-4 space-y-3 pt-3 border-t border-gray-100">
                             <div className="grid grid-cols-2 gap-2 text-sm">
-                              <div>
+                              <div className="overflow-hidden">
                                 <p className="text-gray-500 text-xs">DNI</p>
-                                <p className="font-medium">{usuario.dni}</p>
+                                <p className="font-medium truncate">{usuario.dni}</p>
                               </div>
-                              <div>
+                              <div className="overflow-hidden">
                                 <p className="text-gray-500 text-xs">Teléfono</p>
-                                <p className="font-medium">{usuario.phone}</p>
+                                <p className="font-medium truncate">{usuario.phone}</p>
                               </div>
-                              <div>
+                              <div className="overflow-hidden">
                                 <p className="text-gray-500 text-xs">Rol</p>
                                 <Badge
                                   variant={getRoleBadgeVariant(usuario.role)}
-                                  className={usuario.role === "admin" ? "bg-blue-500" : ""}
+                                  className={`${usuario.role === "admin" ? "bg-blue-500" : ""} mt-1`}
                                 >
                                   {usuario.role}
                                 </Badge>
                               </div>
                             </div>
+                            
                             <div className="flex gap-2 pt-2">
                               <Button
                                 variant="outline"

@@ -16,7 +16,7 @@ import {
   CardContent,
 } from "@/Components/ui/card";
 import { Button } from "@/Components/ui/button";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, FileText, Receipt, Book } from "lucide-react";
 
 interface PedidoItem {
   nombre_producto: string;
@@ -67,6 +67,10 @@ const PedidosFinalizados = ({ pedidos: pedidosProp = [] }: Props) => {
         .toFixed(2)
         .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
     );
+  };
+
+  const handleDocumentClick = () => {
+    window.open('https://www.sunat.gob.pe/', '_blank');
   };
 
   return (
@@ -175,6 +179,37 @@ const PedidosFinalizados = ({ pedidos: pedidosProp = [] }: Props) => {
                                       </Badge>
                                     </div>
                                   </div>
+                                  
+                                  <div className="flex flex-wrap gap-3 mb-4">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 flex items-center gap-2"
+                                      onClick={handleDocumentClick}
+                                    >
+                                      <FileText className="h-4 w-4" />
+                                      Factura
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 flex items-center gap-2"
+                                      onClick={handleDocumentClick}
+                                    >
+                                      <Receipt className="h-4 w-4" />
+                                      Boleta
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100 flex items-center gap-2"
+                                      onClick={handleDocumentClick}
+                                    >
+                                      <Book className="h-4 w-4" />
+                                      Manual
+                                    </Button>
+                                  </div>
+
                                   <div className="font-semibold mb-3 text-gray-700">Productos del pedido:</div>
                                   <Table>
                                     <TableHeader>
@@ -294,6 +329,35 @@ const PedidosFinalizados = ({ pedidos: pedidosProp = [] }: Props) => {
                                 {pedido.estado}
                               </Badge>
                             </div>
+                          </div>
+                          <div className="flex flex-wrap gap-3 mb-4">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 flex items-center gap-2"
+                              onClick={handleDocumentClick}
+                            >
+                              <FileText className="h-4 w-4" />
+                              Factura
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 flex items-center gap-2"
+                              onClick={handleDocumentClick}
+                            >
+                              <Receipt className="h-4 w-4" />
+                              Boleta
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100 flex items-center gap-2"
+                              onClick={handleDocumentClick}
+                            >
+                              <Book className="h-4 w-4" />
+                              Manual
+                            </Button>
                           </div>
                           <div className="font-semibold mb-3 text-sm text-gray-700">Productos:</div>
                           <div className="overflow-x-auto -mx-1">
