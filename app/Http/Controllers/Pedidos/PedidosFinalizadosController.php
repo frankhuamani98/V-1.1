@@ -22,7 +22,7 @@ class PedidosFinalizadosController extends Controller
                     'estado' => ucfirst($pedido->estado),
                     'direccion' => $pedido->direccion,
                     'numeroOrden' => 'ORD-' . str_pad($pedido->id, 5, '0', STR_PAD_LEFT),
-                    'tipo_comprobante' => ucfirst($pedido->tipo_comprobante),
+                    'tipo_comprobante' => strtolower($pedido->tipo_comprobante ?: ''),
                     'items' => $pedido->items->map(function ($item) {
                         return [
                             'nombre_producto' => $item->nombre_producto,

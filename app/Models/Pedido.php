@@ -29,6 +29,15 @@ class Pedido extends Model
         'tipo_comprobante'
     ];
 
+    protected $casts = [
+        'tipo_comprobante' => 'string'
+    ];
+
+    public function getTipoComprobanteAttribute($value)
+    {
+        return strtolower($value ?: '');
+    }
+
     /**
      * Obtener el usuario al que pertenece el pedido
      */
