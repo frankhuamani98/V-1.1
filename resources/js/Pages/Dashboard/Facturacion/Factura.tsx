@@ -1,8 +1,8 @@
 import React from 'react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
-import FacturasPendientes from '@/Layouts/Partials/Facturacion/FacturasPendientes';
+import Factura from '@/Layouts/Partials/Facturacion/Factura';
 
-interface FacturasPendientesPageProps {
+interface FacturaPageProps {
     auth: {
         user: {
             username: string;
@@ -11,12 +11,12 @@ interface FacturasPendientesPageProps {
     };
 }
 
-const FacturasPendientesPage = ({ auth }: FacturasPendientesPageProps) => {
+const FacturaPage = ({ auth }: FacturaPageProps) => {
     return (
         <DashboardLayout auth={auth}>
-            <FacturasPendientes />
+            <Factura />
         </DashboardLayout>
     );
 };
 
-export default FacturasPendientesPage;
+export default FacturaPage;

@@ -8,7 +8,7 @@ use App\Http\Controllers\Productos\{AgregarProductoController, InventarioProduct
 use App\Http\Controllers\Servicio\{CategoriaServicioController, ServicioController};
 use App\Http\Controllers\Reserva\{DashboardHorarioController, ReservaController, DashboardReservaController, HorarioController};
 use App\Http\Controllers\Moto\RegistroMotosController;
-use App\Http\Controllers\Facturacion\{FacturasPendientesController, HistorialFacturasController};
+use App\Http\Controllers\Facturacion\{FacturaController, BoletaController, ManualController};
 use App\Http\Controllers\Soporte\{ManualUsuarioController, SoporteTecnicoController};
 use App\Http\Controllers\Opinion\{OpinionController, DashboardOpinionController};
 use App\Http\Controllers\Banners\{SubirBannersController, HistorialBannersController};
@@ -85,6 +85,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/obtener', [NotificacionController::class, 'obtenerNotificaciones'])->name('obtener');
         Route::post('/marcar-leida/{id}', [NotificacionController::class, 'marcarComoLeida'])->name('marcar-leida');
         Route::post('/marcar-todas-leidas', [NotificacionController::class, 'marcarTodasComoLeidas'])->name('marcar-todas-leidas');
+    });
+
+    // Facturación routes
+    Route::prefix('facturacion')->name('facturacion.')->middleware(['auth'])->group(function () {
+        Route::get('/factura', [FacturaController::class, 'index'])->name('factura');
+        Route::get('/boleta', [BoletaController::class, 'index'])->name('boleta');
+        Route::get('/manual', [ManualController::class, 'index'])->name('manual');
     });
 
     // Cart routes (protegido solo admin)

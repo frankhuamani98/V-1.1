@@ -1,8 +1,8 @@
 import React from 'react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
-import HistorialFacturas from '@/Layouts/Partials/Facturacion/HistorialFacturas';
+import Manual from '@/Layouts/Partials/Facturacion/Manual';
 
-interface HistorialFacturasPageProps {
+interface ManualPageProps {
     auth: {
         user: {
             username: string;
@@ -11,12 +11,12 @@ interface HistorialFacturasPageProps {
     };
 }
 
-const HistorialFacturasPage = ({ auth }: HistorialFacturasPageProps) => {
+const ManualPage = ({ auth }: ManualPageProps) => {
     return (
         <DashboardLayout auth={auth}>
-            <HistorialFacturas />
+            <Manual />
         </DashboardLayout>
     );
 };
 
-export default HistorialFacturasPage;
+export default ManualPage;
