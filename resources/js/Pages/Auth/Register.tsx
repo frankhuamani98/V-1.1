@@ -248,7 +248,7 @@ export default function Register() {
 
             <div>
               <label htmlFor="address" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-                Dirección (opcional)
+                Dirección
               </label>
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

@@ -183,37 +183,70 @@ const PedidosFinalizados = ({ pedidos: pedidosProp = [] }: Props) => {
                                   
                                   <div className="flex flex-wrap gap-3 mb-4">
                                     {pedido.tipo_comprobante === 'factura' && (
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 flex items-center gap-2"
-                                        onClick={handleDocumentClick}
-                                      >
-                                        <FileText className="h-4 w-4" />
-                                        Factura
-                                      </Button>
+                                      <>
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          className="bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 flex items-center gap-2"
+                                          onClick={handleDocumentClick}
+                                        >
+                                          <FileText className="h-4 w-4" />
+                                          Factura
+                                        </Button>
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          className="bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-2"
+                                          onClick={() => {}}
+                                        >
+                                          <FileText className="h-4 w-4" />
+                                          Generar Factura
+                                        </Button>
+                                      </>
                                     )}
                                     {pedido.tipo_comprobante === 'boleta' && (
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 flex items-center gap-2"
-                                        onClick={handleDocumentClick}
-                                      >
-                                        <Receipt className="h-4 w-4" />
-                                        Boleta
-                                      </Button>
+                                      <>
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 flex items-center gap-2"
+                                          onClick={handleDocumentClick}
+                                        >
+                                          <Receipt className="h-4 w-4" />
+                                          Boleta
+                                        </Button>
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          className="bg-green-600 text-white hover:bg-green-700 flex items-center gap-2"
+                                          onClick={() => {}}
+                                        >
+                                          <Receipt className="h-4 w-4" />
+                                          Generar Boleta
+                                        </Button>
+                                      </>
                                     )}
                                     {pedido.tipo_comprobante === 'nota_venta' && (
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100 flex items-center gap-2"
-                                        onClick={handleDocumentClick}
-                                      >
-                                        <Book className="h-4 w-4" />
-                                        Nota de Ventas
-                                      </Button>
+                                      <>
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          className="bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100 flex items-center gap-2"
+                                          onClick={handleDocumentClick}
+                                        >
+                                          <Book className="h-4 w-4" />
+                                          Nota de Ventas
+                                        </Button>
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          className="bg-purple-600 text-white hover:bg-purple-700 flex items-center gap-2"
+                                          onClick={() => {}}
+                                        >
+                                          <Book className="h-4 w-4" />
+                                          Generar Nota de Ventas
+                                        </Button>
+                                      </>
                                     )}
                                   </div>
 
@@ -339,37 +372,70 @@ const PedidosFinalizados = ({ pedidos: pedidosProp = [] }: Props) => {
                           </div>
                           <div className="flex flex-wrap gap-3 mb-4">
                             {pedido.tipo_comprobante === 'factura' && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 flex items-center gap-2"
-                                onClick={handleDocumentClick}
-                              >
-                                <FileText className="h-4 w-4" />
-                                Factura
-                              </Button>
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 flex items-center gap-2"
+                                  onClick={handleDocumentClick}
+                                >
+                                  <FileText className="h-4 w-4" />
+                                  Factura
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-2"
+                                  onClick={() => {}}
+                                >
+                                  <FileText className="h-4 w-4" />
+                                  Generar Factura
+                                </Button>
+                              </>
                             )}
                             {pedido.tipo_comprobante === 'boleta' && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 flex items-center gap-2"
-                                onClick={handleDocumentClick}
-                              >
-                                <Receipt className="h-4 w-4" />
-                                Boleta
-                              </Button>
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 flex items-center gap-2"
+                                  onClick={handleDocumentClick}
+                                >
+                                  <Receipt className="h-4 w-4" />
+                                  Boleta
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="bg-green-600 text-white hover:bg-green-700 flex items-center gap-2"
+                                  onClick={() => {}}
+                                >
+                                  <Receipt className="h-4 w-4" />
+                                  Generar Boleta
+                                </Button>
+                              </>
                             )}
                             {pedido.tipo_comprobante === 'nota_venta' && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100 flex items-center gap-2"
-                                onClick={handleDocumentClick}
-                              >
-                                <Book className="h-4 w-4" />
-                                Nota de Ventas
-                              </Button>
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100 flex items-center gap-2"
+                                  onClick={handleDocumentClick}
+                                >
+                                  <Book className="h-4 w-4" />
+                                  Nota de Ventas
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="bg-purple-600 text-white hover:bg-purple-700 flex items-center gap-2"
+                                  onClick={() => {}}
+                                >
+                                  <Book className="h-4 w-4" />
+                                  Generar Nota de Ventas
+                                </Button>
+                              </>
                             )}
                           </div>
                           <div className="font-semibold mb-3 text-sm text-gray-700">Productos:</div>
