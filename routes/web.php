@@ -8,7 +8,7 @@ use App\Http\Controllers\Productos\{AgregarProductoController, InventarioProduct
 use App\Http\Controllers\Servicio\{CategoriaServicioController, ServicioController};
 use App\Http\Controllers\Reserva\{DashboardHorarioController, ReservaController, DashboardReservaController, HorarioController};
 use App\Http\Controllers\Moto\RegistroMotosController;
-use App\Http\Controllers\Facturacion\{FacturaController, BoletaController, ManualController};
+use App\Http\Controllers\Facturacion\{FacturaController, BoletaController, NotaVentasController};
 use App\Http\Controllers\Soporte\{ManualUsuarioController, SoporteTecnicoController};
 use App\Http\Controllers\Opinion\{OpinionController, DashboardOpinionController};
 use App\Http\Controllers\Banners\{SubirBannersController, HistorialBannersController};
@@ -91,7 +91,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('facturacion')->name('facturacion.')->middleware(['auth'])->group(function () {
         Route::get('/factura', [FacturaController::class, 'index'])->name('factura');
         Route::get('/boleta', [BoletaController::class, 'index'])->name('boleta');
-        Route::get('/manual', [ManualController::class, 'index'])->name('manual');
+        Route::get('/nota-ventas', [NotaVentasController::class, 'index'])->name('nota.ventas');
     });
 
     // Cart routes (protegido solo admin)
@@ -420,21 +420,6 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{banner}', [HistorialBannersController::class, 'destroy'])->name('banners.destroy');
     });
 
-    // Facturación
-    Route::prefix('facturacion')->group(function () {
-        Route::get('/pendientes', function () {
-            if (!auth()->check() || auth()->user()->role !== 'admin') {
-                return redirect('/')->with('error', 'Solo los administradores pueden ver las facturas pendientes.');
-            }
-            return app(\App\Http\Controllers\Facturacion\FacturasPendientesController::class)->index(request());
-        })->name('facturacion.pendientes');
-        Route::get('/historial', function () {
-            if (!auth()->check() || auth()->user()->role !== 'admin') {
-                return redirect('/')->with('error', 'Solo los administradores pueden ver el historial de facturación.');
-            }
-            return app(\App\Http\Controllers\Facturacion\HistorialFacturasController::class)->index(request());
-        })->name('facturacion.historial');
-    });
 
     // Soporte
     Route::prefix('soporte')->group(function () {

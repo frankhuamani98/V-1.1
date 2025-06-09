@@ -206,7 +206,7 @@ const PedidosFinalizados = ({ pedidos: pedidosProp = [] }: Props) => {
                                       onClick={handleDocumentClick}
                                     >
                                       <Book className="h-4 w-4" />
-                                      Manual
+                                      Nota de Ventas
                                     </Button>
                                   </div>
 
@@ -356,7 +356,7 @@ const PedidosFinalizados = ({ pedidos: pedidosProp = [] }: Props) => {
                               onClick={handleDocumentClick}
                             >
                               <Book className="h-4 w-4" />
-                              Manual
+                              Nota de Ventas
                             </Button>
                           </div>
                           <div className="font-semibold mb-3 text-sm text-gray-700">Productos:</div>

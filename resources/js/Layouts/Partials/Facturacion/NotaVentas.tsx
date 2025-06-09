@@ -1,12 +1,12 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 
-const Manual = () => {
+const NotaVentas = () => {
     return (
         <div className="container mx-auto p-6">
             <Card>
                 <CardHeader className="space-y-1">
-                    <CardTitle className="text-2xl">Gestión de Manual</CardTitle>
+                    <CardTitle className="text-2xl">Gestión de Nota de Ventas</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="grid gap-4">
@@ -18,8 +18,7 @@ const Manual = () => {
                     </div>
                 </CardContent>
             </Card>
-        </div>
-    );
+        </div>    );
 };
 
-export default Manual;
+export default NotaVentas;

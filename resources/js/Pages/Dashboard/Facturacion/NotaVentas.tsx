@@ -1,8 +1,8 @@
 import React from 'react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
-import Manual from '@/Layouts/Partials/Facturacion/Manual';
+import NotaVentas from '@/Layouts/Partials/Facturacion/NotaVentas';
 
-interface ManualPageProps {
+interface NotaVentasPageProps {
     auth: {
         user: {
             username: string;
@@ -11,12 +11,11 @@ interface ManualPageProps {
     };
 }
 
-const ManualPage = ({ auth }: ManualPageProps) => {
-    return (
+const NotaVentasPage = ({ auth }: NotaVentasPageProps) => {    return (
         <DashboardLayout auth={auth}>
-            <Manual />
+            <NotaVentas />
         </DashboardLayout>
     );
 };
 
-export default ManualPage;
+export default NotaVentasPage;

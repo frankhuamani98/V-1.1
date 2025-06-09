@@ -211,7 +211,7 @@ const Sidebar = ({ isOpen, toggleSidebar, activeHref = window.location.pathname 
       subItems: [
         { label: "Factura", href: "/facturacion/factura" },
         { label: "Boleta", href: "/facturacion/boleta" },
-        { label: "Manual", href: "/facturacion/manual" }
+        { label: "Nota de Ventas", href: "/facturacion/nota-ventas" }
       ],
     },
     // {
