@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import Header from '../../Header';
 import Footer from '../../Footer';
@@ -40,12 +40,14 @@ export default function InformacionCheckout({ user, pedido }: Props) {
   const [usarDireccionAlternativa, setUsarDireccionAlternativa] = useState(false);
   const [loading, setLoading] = useState(false);
   const [mensaje, setMensaje] = useState('');
+  const [tipoComprobante, setTipoComprobante] = useState<'factura' | 'boleta' | 'nota_venta'>('boleta');
 
   const { post, processing, setData } = useForm({
     nombre: user.nombre,
     apellidos: user.apellidos,
     dni: user.dni,
     direccion_alternativa: '',
+    tipo_comprobante: tipoComprobante,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -72,6 +74,11 @@ export default function InformacionCheckout({ user, pedido }: Props) {
       setLoading(false);
     }
   };
+
+  // Efecto para mantener sincronizado el estado del form con tipoComprobante
+  useEffect(() => {
+    setData('tipo_comprobante', tipoComprobante);
+  }, [tipoComprobante]);
 
   const handlePedidoSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,7 +137,8 @@ export default function InformacionCheckout({ user, pedido }: Props) {
                 </div>
                 <button 
                   type="button"
-                  onClick={() => setShowModal(true)}
+                  onClick={() => setShowModal(true)
+                  }
                   className="ml-2 px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 transition"
                 >
                   Cambiar
@@ -201,6 +209,103 @@ export default function InformacionCheckout({ user, pedido }: Props) {
                 <span className="text-gray-900 dark:text-gray-100">Total Pedido</span>
                 <span className="text-blue-700 dark:text-blue-300">{formatPrice(pedido.total)}</span>
               </div>
+            </div>
+          </div>
+
+          <div className="mt-8 bg-white dark:bg-gray-850 rounded-lg border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
+              <svg className="w-5 h-5 text-blue-500 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Tipo de Comprobante
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <button
+                type="button"
+                onClick={() => setTipoComprobante('factura')}
+                className={`flex items-center p-3 rounded-lg border transition-all ${
+                  tipoComprobante === 'factura'
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                    : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700'
+                }`}
+              >
+                <div className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full ${
+                  tipoComprobante === 'factura' ? 'bg-blue-100 dark:bg-blue-900/40' : 'bg-gray-100 dark:bg-gray-800'
+                }`}>
+                  <svg className={`w-5 h-5 ${tipoComprobante === 'factura' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div className="ml-3 text-left">
+                  <p className={`font-medium ${tipoComprobante === 'factura' ? 'text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'}`}>
+                    Factura
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Para empresas</p>
+                </div>
+                {tipoComprobante === 'factura' && (
+                  <svg className="w-5 h-5 text-blue-500 ml-auto" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setTipoComprobante('boleta')}
+                className={`flex items-center p-3 rounded-lg border transition-all ${
+                  tipoComprobante === 'boleta'
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                    : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700'
+                }`}
+              >
+                <div className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full ${
+                  tipoComprobante === 'boleta' ? 'bg-blue-100 dark:bg-blue-900/40' : 'bg-gray-100 dark:bg-gray-800'
+                }`}>
+                  <svg className={`w-5 h-5 ${tipoComprobante === 'boleta' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                </div>
+                <div className="ml-3 text-left">
+                  <p className={`font-medium ${tipoComprobante === 'boleta' ? 'text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'}`}>
+                    Boleta
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Para personas</p>
+                </div>
+                {tipoComprobante === 'boleta' && (
+                  <svg className="w-5 h-5 text-blue-500 ml-auto" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setTipoComprobante('nota_venta')}
+                className={`flex items-center p-3 rounded-lg border transition-all ${
+                  tipoComprobante === 'nota_venta'
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                    : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700'
+                }`}
+              >
+                <div className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full ${
+                  tipoComprobante === 'nota_venta' ? 'bg-blue-100 dark:bg-blue-900/40' : 'bg-gray-100 dark:bg-gray-800'
+                }`}>
+                  <svg className={`w-5 h-5 ${tipoComprobante === 'nota_venta' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div className="ml-3 text-left">
+                  <p className={`font-medium ${tipoComprobante === 'nota_venta' ? 'text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'}`}>
+                    Nota de Venta
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Simple</p>
+                </div>
+                {tipoComprobante === 'nota_venta' && (
+                  <svg className="w-5 h-5 text-blue-500 ml-auto" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </button>
             </div>
           </div>
 

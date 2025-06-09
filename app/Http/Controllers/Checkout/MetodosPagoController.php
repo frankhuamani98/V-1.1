@@ -105,6 +105,7 @@ class MetodosPagoController extends Controller
                 'dni' => $datos['dni'],
                 'direccion' => $datos['direccion'],
                 'direccion_alternativa' => $datos['direccion_alternativa'],
+                'tipo_comprobante' => $datos['tipo_comprobante'],
                 'subtotal' => $total,
                 'total' => $total,
                 'estado' => 'pendiente',

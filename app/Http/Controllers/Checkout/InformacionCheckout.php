@@ -56,6 +56,7 @@ class InformacionCheckout extends Controller
             'apellidos' => 'required|string|max:255',
             'dni' => 'required|string|max:20',
             'direccion_alternativa' => 'nullable|string',
+            'tipo_comprobante' => 'required|string|in:factura,boleta,nota_venta',
         ]);
 
         session([
@@ -65,6 +66,7 @@ class InformacionCheckout extends Controller
                 'dni' => $request->dni,
                 'direccion' => $request->direccion_alternativa ?: Auth::user()->address,
                 'direccion_alternativa' => $request->direccion_alternativa,
+                'tipo_comprobante' => $request->tipo_comprobante,
             ]
         ]);
 

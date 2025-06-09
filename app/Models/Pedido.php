@@ -25,7 +25,8 @@ class Pedido extends Model
         'estado',
         'metodo_pago',
         'referencia_pago',
-        'numero_orden', // Ya incluido
+        'numero_orden',
+        'tipo_comprobante'
     ];
 
     /**

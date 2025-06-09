@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('pedidos', function (Blueprint $table) {
             $table->id();
-            $table->string('numero_orden', 20)->unique(); // Cambiado a string para formato ORD-00001
+            $table->string('numero_orden', 20)->unique();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('nombre');
             $table->string('apellidos');
@@ -21,14 +21,14 @@ return new class extends Migration
             $table->text('direccion');
             $table->text('direccion_alternativa')->nullable();
             $table->decimal('subtotal', 10, 2);
-            $table->decimal('total', 10, 2); // El campo total YA existe aquí
-            $table->string('estado')->default('pendiente'); // pendiente, procesando, completado, cancelado
-            $table->string('metodo_pago')->nullable(); // almacena el método de pago seleccionado
-            $table->string('referencia_pago')->nullable(); // almacena el comprobante o referencia
+            $table->decimal('total', 10, 2);
+            $table->string('estado')->default('pendiente');
+            $table->string('metodo_pago')->nullable();
+            $table->string('referencia_pago')->nullable();
+            $table->enum('tipo_comprobante', ['factura', 'boleta', 'nota_venta'])->nullable();
             $table->timestamps();
         });
 
-        // Tabla para los items del pedido
         Schema::create('pedido_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('pedido_id')->constrained()->onDelete('cascade');
@@ -40,7 +40,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // Tabla para guardar los métodos de pago disponibles
         Schema::create('metodos_pago', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
@@ -49,14 +48,12 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // Tabla para registrar los pagos realizados
         Schema::create('pagos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('pedido_id')->constrained()->onDelete('cascade');
             $table->foreignId('metodo_pago_id')->constrained('metodos_pago')->onDelete('cascade');
-            $table->string('referencia')->nullable(); // referencia del pago o comprobante
-            $table->string('archivo_comprobante')->nullable(); // ruta del archivo del comprobante
-            $table->decimal('monto', 10, 2)->nullable();
+            $table->string('referencia')->nullable();
+            $table->string('archivo_comprobante')->nullable();
             $table->timestamps();
         });
     }

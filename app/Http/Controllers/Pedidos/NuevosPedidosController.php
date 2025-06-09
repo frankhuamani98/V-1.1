@@ -27,6 +27,7 @@ class NuevosPedidosController extends Controller
                     'metodo_pago' => $pedido->metodo_pago,
                     'total' => $pedido->total,
                     'referencia_pago' => $pedido->referencia_pago,
+                    'tipo_comprobante' => ucfirst($pedido->tipo_comprobante),
                     'items' => $pedido->items->map(function ($item) {
                         return [
                             'nombre_producto' => $item->nombre_producto,
