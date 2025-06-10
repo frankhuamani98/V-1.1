@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, router } from '@inertiajs/react';
 import {
   UserPlus,
@@ -36,6 +36,9 @@ export default function Register() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Estado para mostrar/ocultar el mensaje de alerta
+  const [showAlert, setShowAlert] = useState(true);
 
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -101,7 +104,40 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+      {showAlert && (
+        <div className="flex justify-center mb-6 w-full">
+          <div className="relative flex items-center justify-center bg-gradient-to-r from-red-200 via-red-100 to-red-50 border border-red-400 text-red-800 px-8 py-5 rounded-xl max-w-2xl w-full shadow-2xl transition-all duration-300">
+            <svg
+              className="w-8 h-8 mr-4 flex-shrink-0 text-red-500 animate-bounce"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="#fee2e2" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01" />
+            </svg>
+            <div className="flex-1 text-center">
+              <span className="block text-lg font-extrabold tracking-wide mb-1">
+                ¡Importante!
+              </span>
+              <span className="block text-base font-medium leading-tight">
+                Por favor, asegúrese de ingresar <span className="font-bold underline decoration-red-500">datos reales y correctos</span> al registrarse. Esto facilitará futuras actualizaciones de su cuenta y garantizará que pueda realizar compras en línea sin inconvenientes.
+              </span>
+            </div>
+            <button
+              className="absolute top-2 right-3 text-red-700 hover:text-white hover:bg-red-500 rounded-full w-8 h-8 flex items-center justify-center text-2xl font-bold focus:outline-none transition-colors duration-200"
+              onClick={() => setShowAlert(false)}
+              aria-label="Cerrar"
+              type="button"
+              tabIndex={0}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
       <Card className="w-full max-w-2xl shadow-lg">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center mb-2">
