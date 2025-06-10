@@ -8,7 +8,7 @@ use App\Http\Controllers\Productos\{AgregarProductoController, InventarioProduct
 use App\Http\Controllers\Servicio\{CategoriaServicioController, ServicioController};
 use App\Http\Controllers\Reserva\{DashboardHorarioController, ReservaController, DashboardReservaController, HorarioController};
 use App\Http\Controllers\Moto\RegistroMotosController;
-use App\Http\Controllers\Facturacion\{FacturaController, BoletaController, NotaVentasController};
+use App\Http\Controllers\Facturacion\FacturacionController;
 use App\Http\Controllers\Soporte\{ManualUsuarioController, SoporteTecnicoController};
 use App\Http\Controllers\Opinion\{OpinionController, DashboardOpinionController};
 use App\Http\Controllers\Banners\{SubirBannersController, HistorialBannersController};
@@ -89,9 +89,14 @@ Route::middleware('auth')->group(function () {
 
     // Facturación routes
     Route::prefix('facturacion')->name('facturacion.')->middleware(['auth'])->group(function () {
-        Route::get('/factura', [FacturaController::class, 'index'])->name('factura');
-        Route::get('/boleta', [BoletaController::class, 'index'])->name('boleta');
-        Route::get('/nota-ventas', [NotaVentasController::class, 'index'])->name('nota.ventas');
+        Route::get('/', [FacturacionController::class, 'index'])->name('index');
+        Route::get('/facturas', [FacturacionController::class, 'facturas'])->name('facturas');
+        Route::get('/boletas', [FacturacionController::class, 'boletas'])->name('boletas');
+        Route::get('/notas-venta', [FacturacionController::class, 'notasVenta'])->name('notas-venta');
+        Route::post('/generar', [FacturacionController::class, 'store'])->name('store');
+        Route::get('/show/{facturacion}', [FacturacionController::class, 'show'])->name('show');
+        Route::post('/anular/{facturacion}', [FacturacionController::class, 'anular'])->name('anular');
+        Route::get('/generar-numero/{tipo}', [FacturacionController::class, 'generateNumeroComprobante'])->name('generar.numero');
     });
 
     // Cart routes (protegido solo admin)

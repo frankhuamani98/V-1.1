@@ -17,6 +17,7 @@ import {
 } from "@/Components/ui/card";
 import { Button } from "@/Components/ui/button";
 import { ChevronDown, ChevronUp, FileText, Receipt, Book } from "lucide-react";
+import FacturacionModal from "@/Components/Modals/FacturacionModal";
 
 interface PedidoItem {
   nombre_producto: string;
@@ -34,7 +35,16 @@ interface Pedido {
   direccion: string;
   numeroOrden: string;
   tipo_comprobante: 'factura' | 'boleta' | 'nota_venta' | null;
+  dni?: string;
+  user?: {
+    dni?: string;
+  };
   items?: PedidoItem[];
+  comprobante_generado?: {
+    tipo: 'factura' | 'boleta' | 'nota_venta';
+    numero: string;
+    estado: string;
+  } | null;
 }
 
 interface Props {
@@ -44,6 +54,9 @@ interface Props {
 const PedidosFinalizados = ({ pedidos: pedidosProp = [] }: Props) => {
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedPedido, setSelectedPedido] = useState<Pedido | null>(null);
+  const [tipoComprobante, setTipoComprobante] = useState<'factura' | 'boleta' | 'nota_venta' | null>(null);
 
   const filteredPedidos = pedidosProp.filter(
     (pedido) =>
@@ -72,6 +85,12 @@ const PedidosFinalizados = ({ pedidos: pedidosProp = [] }: Props) => {
 
   const handleDocumentClick = () => {
     window.open('https://ww1.sunat.gob.pe/xssecurity/SignOnVerification.htm?signonForwardAction=https%3A%2F%2Fww1.sunat.gob.pe%2Fol-ti-itemisionfacturaresp%2Femitirfesimp.do', '_blank');
+  };
+
+  const handleGenerarComprobante = (pedido: Pedido, tipo: 'factura' | 'boleta' | 'nota_venta') => {
+    setSelectedPedido(pedido);
+    setTipoComprobante(tipo);
+    setModalOpen(true);
   };
 
   return (
@@ -193,15 +212,22 @@ const PedidosFinalizados = ({ pedidos: pedidosProp = [] }: Props) => {
                                           <FileText className="h-4 w-4" />
                                           Factura
                                         </Button>
-                                        <Button
-                                          variant="outline"
-                                          size="sm"
-                                          className="bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-2"
-                                          onClick={() => {}}
-                                        >
-                                          <FileText className="h-4 w-4" />
-                                          Generar Factura
-                                        </Button>
+                                        {pedido.comprobante_generado ? (
+                                          <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200 flex items-center">
+                                            <FileText className="h-4 w-4 mr-2" />
+                                            Factura generada: {pedido.comprobante_generado.numero}
+                                          </Badge>
+                                        ) : (
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-2"
+                                            onClick={() => handleGenerarComprobante(pedido, 'factura')}
+                                          >
+                                            <FileText className="h-4 w-4" />
+                                            Generar Factura Local
+                                          </Button>
+                                        )}
                                       </>
                                     )}
                                     {pedido.tipo_comprobante === 'boleta' && (
@@ -215,15 +241,22 @@ const PedidosFinalizados = ({ pedidos: pedidosProp = [] }: Props) => {
                                           <Receipt className="h-4 w-4" />
                                           Boleta
                                         </Button>
-                                        <Button
-                                          variant="outline"
-                                          size="sm"
-                                          className="bg-green-600 text-white hover:bg-green-700 flex items-center gap-2"
-                                          onClick={() => {}}
-                                        >
-                                          <Receipt className="h-4 w-4" />
-                                          Generar Boleta
-                                        </Button>
+                                        {pedido.comprobante_generado ? (
+                                          <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200 flex items-center">
+                                            <Receipt className="h-4 w-4 mr-2" />
+                                            Boleta generada: {pedido.comprobante_generado.numero}
+                                          </Badge>
+                                        ) : (
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="bg-green-600 text-white hover:bg-green-700 flex items-center gap-2"
+                                            onClick={() => handleGenerarComprobante(pedido, 'boleta')}
+                                          >
+                                            <Receipt className="h-4 w-4" />
+                                            Generar Boleta Local
+                                          </Button>
+                                        )}
                                       </>
                                     )}
                                     {pedido.tipo_comprobante === 'nota_venta' && (
@@ -237,15 +270,22 @@ const PedidosFinalizados = ({ pedidos: pedidosProp = [] }: Props) => {
                                           <Book className="h-4 w-4" />
                                           Nota de Ventas
                                         </Button>
-                                        <Button
-                                          variant="outline"
-                                          size="sm"
-                                          className="bg-purple-600 text-white hover:bg-purple-700 flex items-center gap-2"
-                                          onClick={() => {}}
-                                        >
-                                          <Book className="h-4 w-4" />
-                                          Generar Nota de Ventas
-                                        </Button>
+                                        {pedido.comprobante_generado ? (
+                                          <Badge variant="outline" className="bg-purple-50 text-purple-600 border-purple-200 flex items-center">
+                                            <Book className="h-4 w-4 mr-2" />
+                                            Nota de Venta generada: {pedido.comprobante_generado.numero}
+                                          </Badge>
+                                        ) : (
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="bg-purple-600 text-white hover:bg-purple-700 flex items-center gap-2"
+                                            onClick={() => handleGenerarComprobante(pedido, 'nota_venta')}
+                                          >
+                                            <Book className="h-4 w-4" />
+                                            Generar Nota de Venta Local
+                                          </Button>
+                                        )}
                                       </>
                                     )}
                                   </div>
@@ -382,15 +422,22 @@ const PedidosFinalizados = ({ pedidos: pedidosProp = [] }: Props) => {
                                   <FileText className="h-4 w-4" />
                                   Factura
                                 </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-2"
-                                  onClick={() => {}}
-                                >
-                                  <FileText className="h-4 w-4" />
-                                  Generar Factura
-                                </Button>
+                                {pedido.comprobante_generado ? (
+                                  <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200 flex items-center">
+                                    <FileText className="h-4 w-4 mr-2" />
+                                    Factura generada: {pedido.comprobante_generado.numero}
+                                  </Badge>
+                                ) : (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-2"
+                                    onClick={() => handleGenerarComprobante(pedido, 'factura')}
+                                  >
+                                    <FileText className="h-4 w-4" />
+                                    Generar Factura
+                                  </Button>
+                                )}
                               </>
                             )}
                             {pedido.tipo_comprobante === 'boleta' && (
@@ -404,15 +451,22 @@ const PedidosFinalizados = ({ pedidos: pedidosProp = [] }: Props) => {
                                   <Receipt className="h-4 w-4" />
                                   Boleta
                                 </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="bg-green-600 text-white hover:bg-green-700 flex items-center gap-2"
-                                  onClick={() => {}}
-                                >
-                                  <Receipt className="h-4 w-4" />
-                                  Generar Boleta
-                                </Button>
+                                {pedido.comprobante_generado ? (
+                                  <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200 flex items-center">
+                                    <Receipt className="h-4 w-4 mr-2" />
+                                    Boleta generada: {pedido.comprobante_generado.numero}
+                                  </Badge>
+                                ) : (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="bg-green-600 text-white hover:bg-green-700 flex items-center gap-2"
+                                    onClick={() => handleGenerarComprobante(pedido, 'boleta')}
+                                  >
+                                    <Receipt className="h-4 w-4" />
+                                    Generar Boleta
+                                  </Button>
+                                )}
                               </>
                             )}
                             {pedido.tipo_comprobante === 'nota_venta' && (
@@ -426,15 +480,22 @@ const PedidosFinalizados = ({ pedidos: pedidosProp = [] }: Props) => {
                                   <Book className="h-4 w-4" />
                                   Nota de Ventas
                                 </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="bg-purple-600 text-white hover:bg-purple-700 flex items-center gap-2"
-                                  onClick={() => {}}
-                                >
-                                  <Book className="h-4 w-4" />
-                                  Generar Nota de Ventas
-                                </Button>
+                                {pedido.comprobante_generado ? (
+                                  <Badge variant="outline" className="bg-purple-50 text-purple-600 border-purple-200 flex items-center">
+                                    <Book className="h-4 w-4 mr-2" />
+                                    Nota de Venta generada: {pedido.comprobante_generado.numero}
+                                  </Badge>
+                                ) : (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="bg-purple-600 text-white hover:bg-purple-700 flex items-center gap-2"
+                                    onClick={() => handleGenerarComprobante(pedido, 'nota_venta')}
+                                  >
+                                    <Book className="h-4 w-4" />
+                                    Generar Nota de Venta
+                                  </Button>
+                                )}
                               </>
                             )}
                           </div>
@@ -487,6 +548,18 @@ const PedidosFinalizados = ({ pedidos: pedidosProp = [] }: Props) => {
           </CardContent>
         </Card>
       </div>
+      {modalOpen && selectedPedido && tipoComprobante && (
+        <FacturacionModal
+          isOpen={modalOpen}
+          onClose={() => {
+            setModalOpen(false);
+            setSelectedPedido(null);
+            setTipoComprobante(null);
+          }}
+          pedido={selectedPedido}
+          tipoComprobante={tipoComprobante}
+        />
+      )}
     </div>
   );
 };

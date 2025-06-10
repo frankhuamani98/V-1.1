@@ -209,9 +209,9 @@ const Sidebar = ({ isOpen, toggleSidebar, activeHref = window.location.pathname 
       icon: <FileText size={20} />,
       label: "Gestión de Facturación",
       subItems: [
-        { label: "Factura", href: "/facturacion/factura" },
-        { label: "Boleta", href: "/facturacion/boleta" },
-        { label: "Nota de Ventas", href: "/facturacion/nota-ventas" }
+        { label: "Factura", href: "/facturacion/facturas" },
+        { label: "Boleta", href: "/facturacion/boletas" },
+        { label: "Nota de Ventas", href: "/facturacion/notas-venta" }
       ],
     },
     // {

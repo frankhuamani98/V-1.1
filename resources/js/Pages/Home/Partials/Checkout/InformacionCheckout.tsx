@@ -75,7 +75,6 @@ export default function InformacionCheckout({ user, pedido }: Props) {
     }
   };
 
-  // Efecto para mantener sincronizado el estado del form con tipoComprobante
   useEffect(() => {
     setData('tipo_comprobante', tipoComprobante);
   }, [tipoComprobante]);
@@ -347,7 +346,7 @@ export default function InformacionCheckout({ user, pedido }: Props) {
           <div className="bg-white dark:bg-gray-900 rounded-xl p-8 w-full max-w-lg border border-gray-200 dark:border-gray-700 shadow-xl transform transition-all scale-100 opacity-100">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true"><path d="M17.657 16.657L13.414 12.414a4 4 0 10-5.657 5.657l4.243 4.243a8 8 0 1011.314-11.314l-4.243 4.243a4 4 0 00-5.657 5.657z" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zM12 12c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>
                 Dirección alternativa
               </h3>
               <button 

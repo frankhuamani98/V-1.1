@@ -10,11 +10,12 @@ class PedidosFinalizadosController extends Controller
 {
     public function index()
     {
-        $pedidos = Pedido::with(['items', 'items.producto'])
+        $pedidos = Pedido::with(['items', 'items.producto', 'user', 'facturacion'])
             ->where('estado', 'completado')
             ->orderByDesc('created_at')
             ->get()
             ->map(function ($pedido) {
+                $facturacion = $pedido->facturacion()->first();
                 return [
                     'id' => $pedido->id,
                     'cliente' => $pedido->nombre . ' ' . $pedido->apellidos,
@@ -23,6 +24,10 @@ class PedidosFinalizadosController extends Controller
                     'direccion' => $pedido->direccion,
                     'numeroOrden' => 'ORD-' . str_pad($pedido->id, 5, '0', STR_PAD_LEFT),
                     'tipo_comprobante' => strtolower($pedido->tipo_comprobante ?: ''),
+                    'dni' => $pedido->dni,
+                    'user' => [
+                        'dni' => $pedido->user->dni ?? null
+                    ],
                     'items' => $pedido->items->map(function ($item) {
                         return [
                             'nombre_producto' => $item->nombre_producto,
@@ -32,6 +37,11 @@ class PedidosFinalizadosController extends Controller
                             'imagen' => $item->producto->imagen_principal ?? null,
                         ];
                     }),
+                    'comprobante_generado' => $facturacion ? [
+                        'tipo' => $facturacion->tipo_comprobante,
+                        'numero' => $facturacion->numero_comprobante,
+                        'estado' => $facturacion->estado
+                    ] : null
                 ];
             });
 
