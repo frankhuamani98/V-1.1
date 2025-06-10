@@ -87,16 +87,51 @@ Route::middleware('auth')->group(function () {
         Route::post('/marcar-todas-leidas', [NotificacionController::class, 'marcarTodasComoLeidas'])->name('marcar-todas-leidas');
     });
 
-    // Facturación routes
-    Route::prefix('facturacion')->name('facturacion.')->middleware(['auth'])->group(function () {
-        Route::get('/', [FacturacionController::class, 'index'])->name('index');
-        Route::get('/facturas', [FacturacionController::class, 'facturas'])->name('facturas');
-        Route::get('/boletas', [FacturacionController::class, 'boletas'])->name('boletas');
-        Route::get('/notas-venta', [FacturacionController::class, 'notasVenta'])->name('notas-venta');
+    // Facturación routes (protegido solo admin)
+    Route::prefix('facturacion')->name('facturacion.')->group(function () {
+        Route::get('/', function () {
+            if (!auth()->check() || auth()->user()->role !== 'admin') {
+                return redirect('/')->with('error', 'Solo los administradores pueden acceder a facturación.');
+            }
+            return app(\App\Http\Controllers\Facturacion\FacturacionController::class)->index(request());
+        })->name('index');
+        Route::get('/facturas', function () {
+            if (!auth()->check() || auth()->user()->role !== 'admin') {
+                return redirect('/')->with('error', 'Solo los administradores pueden acceder a facturación.');
+            }
+            return app(\App\Http\Controllers\Facturacion\FacturacionController::class)->facturas(request());
+        })->name('facturas');
+        Route::get('/boletas', function () {
+            if (!auth()->check() || auth()->user()->role !== 'admin') {
+                return redirect('/')->with('error', 'Solo los administradores pueden acceder a facturación.');
+            }
+            return app(\App\Http\Controllers\Facturacion\FacturacionController::class)->boletas(request());
+        })->name('boletas');
+        Route::get('/notas-venta', function () {
+            if (!auth()->check() || auth()->user()->role !== 'admin') {
+                return redirect('/')->with('error', 'Solo los administradores pueden acceder a facturación.');
+            }
+            return app(\App\Http\Controllers\Facturacion\FacturacionController::class)->notasVenta(request());
+        })->name('notas-venta');
         Route::post('/generar', [FacturacionController::class, 'store'])->name('store');
-        Route::get('/show/{facturacion}', [FacturacionController::class, 'show'])->name('show');
-        Route::post('/anular/{facturacion}', [FacturacionController::class, 'anular'])->name('anular');
-        Route::get('/generar-numero/{tipo}', [FacturacionController::class, 'generateNumeroComprobante'])->name('generar.numero');
+        Route::get('/show/{facturacion}', function ($facturacion) {
+            if (!auth()->check() || auth()->user()->role !== 'admin') {
+                return redirect('/')->with('error', 'Solo los administradores pueden acceder a facturación.');
+            }
+            return app(\App\Http\Controllers\Facturacion\FacturacionController::class)->show(request(), $facturacion);
+        })->name('show');
+        Route::post('/anular/{facturacion}', function ($facturacion) {
+            if (!auth()->check() || auth()->user()->role !== 'admin') {
+                return redirect('/')->with('error', 'Solo los administradores pueden acceder a facturación.');
+            }
+            return app(\App\Http\Controllers\Facturacion\FacturacionController::class)->anular(request(), $facturacion);
+        })->name('anular');
+        Route::get('/generar-numero/{tipo}', function ($tipo) {
+            if (!auth()->check() || auth()->user()->role !== 'admin') {
+                return redirect('/')->with('error', 'Solo los administradores pueden acceder a facturación.');
+            }
+            return app(\App\Http\Controllers\Facturacion\FacturacionController::class)->generateNumeroComprobante(request(), $tipo);
+        })->name('generar.numero');
     });
 
     // Cart routes (protegido solo admin)
